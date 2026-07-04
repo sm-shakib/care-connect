@@ -1,7 +1,18 @@
 {
     "@@locale": "bn",
-    "counterAppBarTitle": "Contador",
-    "@counterAppBarTitle": {
-        "description": "Texto mostrado en la AppBar de la página del contador"
-    }
+    "counterAppBarTitle": "কাউন্টার",
+
+    "careConnectTitle": "কেয়ার কানেক্ট",
+
+    "welcomeTagline": "সহানুভূতিশীল যত্ন, আপনার হাতের নাগালে।",
+
+    "getStarted": "শুরু করুন",
+
+    "login": "লগইন",
+
+    "needHelp": "সাহায্য দরকার?",
+
+    "contactSupport": "সহায়তার সাথে যোগাযোগ করুন",
+
+    "languageToggleToBangla": "English"
 }
