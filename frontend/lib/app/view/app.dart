@@ -1,22 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/counter/counter.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/welcome_screen/welcome_screen.dart';
 
-class App extends StatelessWidget {
+
+
+
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  Locale _locale = const Locale('en');
+
+  void _toggleLocale() {
+    setState(() {
+      _locale = _locale.languageCode == 'en'
+          ? const Locale('bn')
+          : const Locale('en');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        fontFamily: 'Roboto',
+        appBarTheme: const AppBarTheme(
+          color: Colors.white,
         ),
-        useMaterial3: true,
       ),
+      locale: _locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const CounterPage(),
+      home: WelcomeScreenPage(
+        onGetStarted: () {
+          // TODO: navigate to onboarding/home
+        },
+        onLogin: () {
+          // TODO: navigate to login screen
+        },
+        onContactSupport: () {
+          // TODO: open support link
+        },
+        onLanguageToggle: _toggleLocale,
+      ),
     );
   }
 }

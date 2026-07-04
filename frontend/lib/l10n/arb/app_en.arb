@@ -3,5 +3,40 @@
     "counterAppBarTitle": "Counter",
     "@counterAppBarTitle": {
         "description": "Text shown in the AppBar of the Counter Page"
+    },
+
+    "careConnectTitle": "Care Connect",
+    "@careConnectTitle": {
+        "description": "App name shown on the welcome screen"
+    },
+
+    "welcomeTagline": "Compassionate care, right at your fingertips.",
+    "@welcomeTagline": {
+        "description": "Tagline shown below the app title on the welcome screen"
+    },
+
+    "getStarted": "Get Started",
+    "@getStarted": {
+        "description": "Label for the primary call-to-action button"
+    },
+
+    "login": "Login",
+    "@login": {
+        "description": "Label for the login button"
+    },
+
+    "needHelp": "Need help?",
+    "@needHelp": {
+        "description": "Text shown before the contact support link"
+    },
+
+    "contactSupport": "Contact Support",
+    "@contactSupport": {
+        "description": "Tappable link text for contacting support"
+    },
+
+    "languageToggleToBangla": "বাংলা",
+    "@languageToggleToBangla": {
+        "description": "Label shown on the language toggle button when current language is English (tapping switches to Bangla)"
     }
 }
