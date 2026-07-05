@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
-import 'package:frontend/welcome_screen/welcome_screen.dart';
+import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
-
-
+import 'package:frontend/welcome_screen/welcome_screen.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -37,17 +36,24 @@ class _AppState extends State<App> {
       supportedLocales: AppLocalizations.supportedLocales,
       home: SplashPage(
         duration: const Duration(milliseconds: 3000),
-        nextScreen: WelcomeScreenPage(
-          onGetStarted: () {
-            // TODO: navigate to onboarding/home
-          },
-          onLogin: () {
-            // TODO: navigate to login screen
-          },
-          onContactSupport: () {
-            // TODO: open support link
-          },
-          onLanguageToggle: _toggleLocale,
+        nextScreen: Builder(
+          builder: (context) => WelcomeScreenPage(
+            onGetStarted: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RoleSelectionPage(),
+                ),
+              );
+            },
+            onLogin: () {
+              // TODO: navigate to login screen
+            },
+            onContactSupport: () {
+              // TODO: open support link
+            },
+            onLanguageToggle: _toggleLocale,
+          ),
         ),
       ),
     );
