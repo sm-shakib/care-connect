@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
@@ -47,7 +48,12 @@ class _AppState extends State<App> {
               );
             },
             onLogin: () {
-              // TODO: navigate to login screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage(
+                  onSignUp: () { /* TODO */ },
+                )),
+              );
             },
             onContactSupport: () {
               // TODO: open support link
