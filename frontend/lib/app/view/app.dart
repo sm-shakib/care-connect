@@ -4,6 +4,7 @@ import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
+import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_page.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -34,34 +35,7 @@ class _AppState extends State<App> {
       ),
       locale: _locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: SplashPage(
-        duration: const Duration(milliseconds: 3000),
-        nextScreen: Builder(
-          builder: (context) => WelcomeScreenPage(
-            onGetStarted: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RoleSelectionPage(),
-                ),
-              );
-            },
-            onLogin: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage(
-                  onSignUp: () { /* TODO */ },
-                )),
-              );
-            },
-            onContactSupport: () {
-              // TODO: open support link
-            },
-            onLanguageToggle: _toggleLocale,
-          ),
-        ),
-      ),
+      supportedLocales: AppLocalizations.supportedLocales,home: const CaregiverListPage(),
     );
   }
 }
