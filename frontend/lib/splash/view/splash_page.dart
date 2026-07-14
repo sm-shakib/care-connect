@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import '../../theme/app_colors.dart';
+import '../../theme/app_theme.dart';
 /// Care Connect - Splash Screen
 ///
 /// Shown briefly on app launch:
@@ -120,10 +121,10 @@ class _SplashPageState extends State<SplashPage>
                       height: 84,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _primaryBlue,
+                        color: AppColors.darkTeal,
                         boxShadow: [
                           BoxShadow(
-                            color: _primaryBlue.withOpacity(0.35),
+                            color: AppColors.darkTeal.withOpacity(0.35),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
@@ -150,7 +151,7 @@ class _SplashPageState extends State<SplashPage>
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: _titleBlue,
+                        color: AppColors.darkTeal,
                         letterSpacing: 0.3,
                       ),
                     ),
