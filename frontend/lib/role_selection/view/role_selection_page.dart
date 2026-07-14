@@ -2,16 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/role_selection/cubit/role_selection_cubit.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
-
-  static const Color kBackgroundColor = Color(0xFFEFF2FC);
-  static const Color kCardColor = Color(0xFFE4E9FB);
-  static const Color kCardSelectedColor = Color(0xFFD7DFFB);
-  static const Color kPrimaryBlue = Color(0xFF4C6EF5);
-  static const Color kTitleColor = Color(0xFF1B1D28);
-  static const Color kSubtitleColor = Color(0xFF6B6F8A);
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +14,19 @@ class RoleSelectionPage extends StatelessWidget {
       child: const _RoleSelectionView(),
     );
   }
+  // 
 }
+
 
 class _RoleSelectionView extends StatelessWidget {
   const _RoleSelectionView();
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: RoleSelectionPage.kBackgroundColor,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -44,17 +42,17 @@ class _RoleSelectionView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: RoleSelectionPage.kTitleColor,
+                        color: AppColors.darkTeal,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
+                    Text(
                       'Select your profile to personalize your\n'
                           'experience and access the right tools.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.black,
+                        color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
                       ),
@@ -116,21 +114,23 @@ class _RoleSelectionView extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: RoleSelectionPage.kPrimaryBlue),
+            icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
-          const Text(
+          Text(
             'CareConnect',
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(
@@ -153,16 +153,15 @@ class _RoleSelectionView extends StatelessWidget {
             child: ElevatedButton(
               onPressed: enabled
                   ? () {
-                final role =
-                context.read<RoleSelectionCubit>().confirmSelection();
-                // TODO: navigate based on the selected role.
-                debugPrint('Selected role: $role');
-              }
+                      final role =
+                          context.read<RoleSelectionCubit>().confirmSelection();
+                      debugPrint('Selected role: $role');
+                    }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: RoleSelectionPage.kPrimaryBlue,
-                disabledBackgroundColor: RoleSelectionPage.kPrimaryBlue
-                    .withValues(alpha: 0.35),
+                backgroundColor: AppColors.darkTeal,
+                disabledBackgroundColor:
+                    AppColors.darkTeal.withValues(alpha: 0.35),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(140),
                 ),
@@ -203,6 +202,8 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -212,13 +213,13 @@ class _RoleCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
         decoration: BoxDecoration(
           color: isSelected
-              ? RoleSelectionPage.kCardSelectedColor
-              : RoleSelectionPage.kCardColor,
+              ? colorScheme.surfaceContainerHigh
+              : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
-                ? RoleSelectionPage.kPrimaryBlue
-                : Colors.transparent,
+                ? AppColors.darkTeal
+                : colorScheme.outlineVariant,
             width: 2,
           ),
         ),
@@ -226,11 +227,11 @@ class _RoleCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor: Colors.white,
+              backgroundColor: colorScheme.surface,
               child: Icon(
                 icon,
                 size: 32,
-                color: RoleSelectionPage.kPrimaryBlue,
+                color: AppColors.darkTeal,
               ),
             ),
             const SizedBox(height: 14),
@@ -239,15 +240,15 @@ class _RoleCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                color: RoleSelectionPage.kTitleColor,
+                color: AppColors.darkTeal,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: RoleSelectionPage.kSubtitleColor,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
