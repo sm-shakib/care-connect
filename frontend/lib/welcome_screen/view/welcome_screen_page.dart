@@ -286,7 +286,7 @@ class _HeroImageWithBadge extends StatelessWidget {
                 color: accentColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.35),
+                    color: accentColor.withOpacity(0.45),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
