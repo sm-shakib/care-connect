@@ -4,6 +4,7 @@ import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
+import 'package:frontend/admin/caregiver_verification/caregiver_verification.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
