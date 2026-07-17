@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -98,32 +99,31 @@ class _LoginView extends StatelessWidget {
                               children: [
                                 const _FieldLabel('Password'),
                                 GestureDetector(
-                                  onTap:
-                                      onForgotPassword ??
-                                      () async {
+                                  onTap: onForgotPassword ??
+                                          () async {
                                         await Navigator.push<void>(
                                           context,
                                           MaterialPageRoute<void>(
                                             builder: (context) => ForgotPasswordPage(
-                                              onBackToLogin: () =>
-                                                  Navigator.of(context).pop(),
-                                              onCodeSent: (emailOrPhone) async {
-                                                await Navigator.pushReplacement<
-                                                  void,
-                                                  void
-                                                >(
+                                              onBackToLogin: () => Navigator.of(context).pop(),
+                                              onCodeSent: (emailOrPhone) {
+                                                Navigator.push(
                                                   context,
                                                   MaterialPageRoute<void>(
-                                                    builder: (context) =>
-                                                        ResetPasswordPage(
-                                                          onResetSuccess: () =>
-                                                              Navigator.of(
-                                                                context,
-                                                              ).popUntil(
-                                                                (route) => route
-                                                                    .isFirst,
-                                                              ),
-                                                        ),
+                                                    builder: (context) => OtpVerificationPage(
+                                                      emailOrPhone: emailOrPhone,
+                                                      onVerified: () {
+                                                        Navigator.pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute<void>(
+                                                            builder: (context) => ResetPasswordPage(
+                                                              onResetSuccess: () => Navigator.of(context)
+                                                                  .popUntil((route) => route.isFirst),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
                                                   ),
                                                 );
                                               },
