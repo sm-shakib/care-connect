@@ -114,12 +114,99 @@ class CaregiverDetailsPage extends StatelessWidget {
               height: 52,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Booking ${caregiver.name}...",
-                      ),
-                    ),
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    barrierColor: Colors.black54,
+                    builder: (context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+
+                              Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green.shade700,
+                                  size: 60,
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              const Text(
+                                "Caregiver Booked!",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              Text(
+                                "You have successfully booked\n${caregiver.name}.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              const Text(
+                                "The caregiver will contact you shortly.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+
+                              const SizedBox(height: 28),
+
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  onPressed: () {
+
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    "Done",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
                 child: const Text(

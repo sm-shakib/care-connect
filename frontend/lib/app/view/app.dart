@@ -5,7 +5,7 @@ import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
 import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_page.dart';
-
+import 'package:frontend/family/view/family_dashboard_page.dart';
 class App extends StatefulWidget {
   const App({super.key});
 
@@ -35,7 +35,7 @@ class _AppState extends State<App> {
       ),
       locale: _locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,home: const CaregiverListPage(),
+      supportedLocales: AppLocalizations.supportedLocales,home: const FamilyDashboardPage(),
     );
   }
 }
