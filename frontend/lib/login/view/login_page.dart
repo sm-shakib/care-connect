@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/reset_password/view/reset_password_page.dart';
+import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
@@ -91,12 +94,43 @@ class _LoginView extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const _FieldLabel('Password'),
                                 GestureDetector(
-                                  onTap: onForgotPassword,
+                                  onTap:
+                                      onForgotPassword ??
+                                      () async {
+                                        await Navigator.push<void>(
+                                          context,
+                                          MaterialPageRoute<void>(
+                                            builder: (context) => ForgotPasswordPage(
+                                              onBackToLogin: () =>
+                                                  Navigator.of(context).pop(),
+                                              onCodeSent: (emailOrPhone) async {
+                                                await Navigator.pushReplacement<
+                                                  void,
+                                                  void
+                                                >(
+                                                  context,
+                                                  MaterialPageRoute<void>(
+                                                    builder: (context) =>
+                                                        ResetPasswordPage(
+                                                          onResetSuccess: () =>
+                                                              Navigator.of(
+                                                                context,
+                                                              ).popUntil(
+                                                                (route) => route
+                                                                    .isFirst,
+                                                              ),
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
                                   child: const Text(
                                     'Forgot Password?',
                                     style: TextStyle(
@@ -185,7 +219,6 @@ class _LoginView extends StatelessWidget {
                 if (context.mounted) {
                   onLoginSuccess?.call(context.read<LoginCubit>().state);
                 }
-
               }
             : null,
         style: ElevatedButton.styleFrom(
@@ -198,28 +231,28 @@ class _LoginView extends StatelessWidget {
         ),
         child: state.isSubmitting
             ? const SizedBox(
-          width: 22,
-          height: 22,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.4,
-            color: Colors.white,
-          ),
-        )
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: Colors.white,
+                ),
+              )
             : const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Login',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                ],
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-          ],
-        ),
       ),
     );
   }
@@ -236,7 +269,16 @@ class _LoginView extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           GestureDetector(
-            onTap: onSignUp,
+            onTap:
+                onSignUp ??
+                () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const RoleSelectionPage(),
+                    ),
+                  );
+                },
             child: const Text(
               'Sign up',
               style: TextStyle(
@@ -303,8 +345,10 @@ class _LoginTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: colorScheme.surfaceContainerLow,
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: colorScheme.outlineVariant),

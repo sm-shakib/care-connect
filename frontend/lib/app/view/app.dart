@@ -30,7 +30,7 @@ class _AppState extends State<App> {
       theme: ThemeData(
         fontFamily: 'Roboto',
         appBarTheme: const AppBarTheme(
-          color: Colors.white,
+          backgroundColor: Colors.white,
         ),
       ),
       locale: _locale,
@@ -40,20 +40,20 @@ class _AppState extends State<App> {
         duration: const Duration(milliseconds: 3000),
         nextScreen: Builder(
           builder: (context) => WelcomeScreenPage(
-            onGetStarted: () {
-              Navigator.push(
+            onGetStarted: () async {
+              await Navigator.push<void>(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<void>(
                   builder: (context) => const RoleSelectionPage(),
                 ),
               );
             },
-            onLogin: () {
-              Navigator.push(
+            onLogin: () async {
+              await Navigator.push<void>(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage(
-                  onSignUp: () { /* TODO */ },
-                )),
+                MaterialPageRoute<void>(
+                  builder: (context) => const LoginPage(),
+                ),
               );
             },
             onContactSupport: () {
