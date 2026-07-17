@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../caregiver_review/caregiver_review.dart';
 import '../cubit/caregiver_verification_cubit.dart';
 import '../cubit/caregiver_verification_state.dart';
 import 'widgets/caregiver_verification_card.dart';
@@ -108,6 +109,11 @@ class CaregiverVerificationView extends StatelessWidget {
                                 onTap: () {
                                   // TODO(careconnect): navigate to the
                                   // caregiver detail/verification page.
+                                  Navigator.of(context).push(
+                                    CaregiverReviewPage.route(
+                                      applicationId: caregiver.id,
+                                    ),
+                                  );
                                 },
                               );
                             },
