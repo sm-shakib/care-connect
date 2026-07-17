@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+
+import '../../../../theme/app_colors.dart';
+
+/// Rounded search field with a leading search icon and a trailing
+/// filter_list icon button, matching the design's search bar.
+class UserSearchBar extends StatelessWidget {
+  const UserSearchBar({
+    required this.onChanged,
+    this.onFilterTap,
+    super.key,
+  });
+
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onFilterTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowestLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outlineVariantLight, width: 2),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Icon(Icons.search, color: AppColors.outlineLight),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              onChanged: onChanged,
+              style: const TextStyle(fontSize: 16),
+              decoration: InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                hintText: 'Search users by name or email',
+                hintStyle: TextStyle(
+                  color: AppColors.onSurfaceVariantLight,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onFilterTap,
+            icon: Icon(Icons.filter_list, color: AppColors.onSurfaceVariantLight),
+          ),
+        ],
+      ),
+    );
+  }
+}
