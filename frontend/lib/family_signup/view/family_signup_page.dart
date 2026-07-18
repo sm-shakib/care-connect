@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
@@ -43,7 +43,18 @@ class _FamilySignupView extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<FamilySignupCubit, FamilySignupState>(
           listener: (context, state) {
-            if (state.isSuccess) onSignupSuccess?.call();
+            if (state.isSuccess) {
+              if (onSignupSuccess != null) {
+                onSignupSuccess!();
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const FamilyDashboardPage(),
+                  ),
+                );
+              }
+            }
           },
           builder: (context, state) {
             final cubit = context.read<FamilySignupCubit>();

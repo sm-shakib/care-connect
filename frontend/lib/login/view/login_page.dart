@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
 import 'package:frontend/otp_verification/view/otp_verification_page.dart';
@@ -243,11 +243,14 @@ class _LoginViewState extends State<_LoginView> {
 
           widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
 
-          final routeName = _dashboardRouteForRole(_selectedRole!);
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            routeName,
-                (route) => false,
-          );
+          if (_selectedRole == _LoginRole.family) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const FamilyDashboardPage(),
+              ),
+            );
+          }
         }
             : null,
         style: ElevatedButton.styleFrom(
