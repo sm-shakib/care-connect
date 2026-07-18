@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/app_colors.dart';
 
-/// Rounded search field for searching complaints by ID or reporter name.
+/// Rounded search field for searching complaints by ID or reporter,
+/// styled to match the Verification search bar.
 class ComplaintSearchBar extends StatelessWidget {
   const ComplaintSearchBar({
     required this.onChanged,
@@ -17,24 +18,34 @@ class ComplaintSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
+        color: AppColors.surfaceContainerLowLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outlineVariantLight, width: 2),
+        border: Border.all(
+          color: Colors.transparent,
+          width: 2,
+        ),
       ),
       child: Row(
         children: [
-          const SizedBox(width: 16),
-          Icon(Icons.search, color: AppColors.outlineLight),
-          const SizedBox(width: 8),
+          Icon(
+            Icons.search,
+            color: AppColors.outlineLight,
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: TextField(
               onChanged: onChanged,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 16,
+                height: 1.5,
+                fontWeight: FontWeight.w400,
+              ),
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: 'Search complaints by ID or reporter',
+                hintText: 'Search complaints by ID or reporter...',
                 hintStyle: TextStyle(
                   color: AppColors.onSurfaceVariantLight,
                   fontSize: 16,
@@ -42,11 +53,13 @@ class ComplaintSearchBar extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            onPressed: onFilterTap,
-            icon:
-            Icon(Icons.filter_list, color: AppColors.onSurfaceVariantLight),
-          ),
+          /*GestureDetector(
+            onTap: onFilterTap,
+            child: Icon(
+              Icons.tune,
+              color: AppColors.outlineLight,
+            ),
+          ),*/
         ],
       ),
     );

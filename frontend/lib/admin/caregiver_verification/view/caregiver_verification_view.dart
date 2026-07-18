@@ -6,7 +6,7 @@ import '../../caregiver_review/caregiver_review.dart';
 import '../cubit/caregiver_verification_cubit.dart';
 import '../cubit/caregiver_verification_state.dart';
 import 'widgets/caregiver_verification_card.dart';
-import 'widgets/verification_bottom_nav_bar.dart';
+//import 'widgets/verification_bottom_nav_bar.dart';
 import 'widgets/verification_filter_chips.dart';
 import 'widgets/verification_search_bar.dart';
 
@@ -22,7 +22,7 @@ class CaregiverVerificationView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: _buildAppBar(context),
-      bottomNavigationBar: const VerificationBottomNavBar(),
+      //bottomNavigationBar: const VerificationBottomNavBar(),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -136,12 +136,9 @@ class CaregiverVerificationView extends StatelessWidget {
       backgroundColor: AppColors.surfaceLight,
       elevation: 0,
       scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
       shape: Border(
         bottom: BorderSide(color: AppColors.outlineVariantLight),
-      ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: AppColors.primaryLight),
-        onPressed: () => Navigator.of(context).maybePop(),
       ),
       title: Text(
         'Verification',

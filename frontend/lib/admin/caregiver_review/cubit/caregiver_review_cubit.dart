@@ -114,12 +114,6 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           isVerified: true,
         ),
         ChecklistItem(label: 'Police Clearance reviewed', isVerified: false),
-        ChecklistItem(label: 'Medical Certificate reviewed', isVerified: true),
-        ChecklistItem(label: 'Profile matches National ID', isVerified: true),
-        ChecklistItem(
-          label: 'Contact information verified',
-          isVerified: false,
-        ),
       ],
       documents: [
         UploadedDocument(
@@ -174,12 +168,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           isVerified: true,
         ),
         ChecklistItem(label: 'Police Clearance reviewed', isVerified: true),
-        ChecklistItem(label: 'Medical Certificate reviewed', isVerified: true),
-        ChecklistItem(label: 'Profile matches National ID', isVerified: true),
-        ChecklistItem(
-          label: 'Contact information verified',
-          isVerified: true,
-        ),
+
       ],
       documents: [
         UploadedDocument(
@@ -231,15 +220,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           isVerified: false,
         ),
         ChecklistItem(label: 'Police Clearance reviewed', isVerified: false),
-        ChecklistItem(
-          label: 'Medical Certificate reviewed',
-          isVerified: false,
-        ),
-        ChecklistItem(label: 'Profile matches National ID', isVerified: true),
-        ChecklistItem(
-          label: 'Contact information verified',
-          isVerified: false,
-        ),
+
       ],
       documents: [
         UploadedDocument(
@@ -285,12 +266,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           isVerified: true,
         ),
         ChecklistItem(label: 'Police Clearance reviewed', isVerified: true),
-        ChecklistItem(label: 'Medical Certificate reviewed', isVerified: true),
-        ChecklistItem(label: 'Profile matches National ID', isVerified: true),
-        ChecklistItem(
-          label: 'Contact information verified',
-          isVerified: true,
-        ),
+
       ],
       documents: [
         UploadedDocument(
