@@ -7,7 +7,7 @@ import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
-
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
@@ -248,6 +248,13 @@ class _LoginViewState extends State<_LoginView> {
               context,
               MaterialPageRoute(
                 builder: (_) => const FamilyDashboardPage(),
+              ),
+            );
+          } else if (_selectedRole == _LoginRole.caregiver) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CaregiverPendingPage(),
               ),
             );
           }
