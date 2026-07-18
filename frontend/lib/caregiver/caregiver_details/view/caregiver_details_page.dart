@@ -113,6 +113,14 @@ class CaregiverDetailsPage extends StatelessWidget {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -158,7 +166,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                               Text(
                                 "You have successfully booked\n${caregiver.name}.",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey,
                                 ),
@@ -169,9 +177,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                               const Text(
                                 "The caregiver will contact you shortly.",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
+                                style: TextStyle(fontSize: 15),
                               ),
 
                               const SizedBox(height: 28),
@@ -186,19 +192,16 @@ class CaregiverDetailsPage extends StatelessWidget {
                                       vertical: 14,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
                                   onPressed: () {
-
-                                    Navigator.pop(context);
+                                    Navigator.pop(context); // Close dialog
+                                    Navigator.pop(context); // Close details page
                                   },
                                   child: const Text(
                                     "Done",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    ),
+                                    style: TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
@@ -211,7 +214,10 @@ class CaregiverDetailsPage extends StatelessWidget {
                 },
                 child: const Text(
                   "Book Now",
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
