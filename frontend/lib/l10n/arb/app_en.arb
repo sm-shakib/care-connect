@@ -5,7 +5,7 @@
         "description": "Text shown in the AppBar of the Counter Page"
     },
 
-    "careConnectTitle": "Care Connect",
+    "careConnectTitle": "CareConnect",
     "@careConnectTitle": {
         "description": "App name shown on the welcome screen"
     },
