@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
 import 'package:frontend/elderly_signup/view/elderly_signup_page.dart';
 import 'package:frontend/family_signup/view/family_signup_page.dart';
+import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/role_selection/cubit/role_selection_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -17,9 +18,7 @@ class RoleSelectionPage extends StatelessWidget {
       child: const _RoleSelectionView(),
     );
   }
-  // 
 }
-
 
 class _RoleSelectionView extends StatelessWidget {
   const _RoleSelectionView();
@@ -136,9 +135,7 @@ class _RoleSelectionView extends StatelessWidget {
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(
-            width: 48,
-          ),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -148,6 +145,7 @@ class _RoleSelectionView extends StatelessWidget {
     return BlocBuilder<RoleSelectionCubit, RoleSelectionState>(
       builder: (context, state) {
         final enabled = state.isRoleSelected;
+
         return Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
           child: SizedBox(
@@ -156,25 +154,43 @@ class _RoleSelectionView extends StatelessWidget {
             child: ElevatedButton(
               onPressed: enabled
                   ? () {
-                      final role =
-                          context.read<RoleSelectionCubit>().confirmSelection();
-                      debugPrint('Selected role: $role');
-                      final page = switch (role) {
-                        UserRole.familyMember => const FamilySignupPage(),
-                        UserRole.elderlyPerson => const ElderlySignupPage(),
-                        UserRole.caregiver => const CaregiverSignupPage(),
-                        null => null,
-                      };
-                      if (page != null) {
-                        Navigator.push(context,
-                            MaterialPageRoute<void>(builder: (_) => page));
-                      }
-                    }
+                final role = context
+                    .read<RoleSelectionCubit>()
+                    .confirmSelection();
+
+                Widget? page;
+
+                switch (role) {
+                  case UserRole.familyMember:
+                    page = const FamilySignupPage();
+                    break;
+
+                  case UserRole.elderlyPerson:
+                    page = const ElderlySignupPage();
+                    break;
+
+                  case UserRole.caregiver:
+                    page = const CaregiverSignupPage();
+                    break;
+
+                  case null:
+                    break;
+                }
+
+                if (page != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => page!,
+                    ),
+                  );
+                }
+              }
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.darkTeal,
                 disabledBackgroundColor:
-                    AppColors.darkTeal.withValues(alpha: 0.35),
+                AppColors.darkTeal.withValues(alpha: 0.35),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(140),
                 ),
@@ -195,9 +211,7 @@ class _RoleSelectionView extends StatelessWidget {
     );
   }
 }
-
 class _RoleCard extends StatelessWidget {
-
   const _RoleCard({
     required this.role,
     required this.title,
@@ -206,6 +220,7 @@ class _RoleCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
   });
+
   final UserRole role;
   final String title;
   final String subtitle;
@@ -223,10 +238,12 @@ class _RoleCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+          vertical: 22,
+          horizontal: 20,
+        ),
         decoration: BoxDecoration(
           color: isSelected
-              //? colorScheme.surfaceContainerHigh
               ? AppColors.darkTeal
               : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
@@ -236,37 +253,46 @@ class _RoleCard extends StatelessWidget {
                 : colorScheme.outlineVariant,
             width: 2,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
             CircleAvatar(
               radius: 32,
-              //backgroundColor: colorScheme.surface,
-              backgroundColor: isSelected
-                  ? Colors.white
-                  : colorScheme.surface,
+              backgroundColor:
+              isSelected ? Colors.white : colorScheme.surface,
               child: Icon(
                 icon,
                 size: 32,
                 color: AppColors.darkTeal,
               ),
             ),
+
             const SizedBox(height: 14),
+
             Text(
               title,
-              style: /*const*/ TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                //color: AppColors.darkTeal,
-                color: isSelected ? Colors.white : AppColors.darkTeal,
+                color:
+                isSelected ? Colors.white : AppColors.darkTeal,
               ),
             ),
+
             const SizedBox(height: 4),
+
             Text(
               subtitle,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                //color: colorScheme.onSurfaceVariant,
                 color: isSelected
                     ? Colors.white70
                     : colorScheme.onSurfaceVariant,

@@ -47,10 +47,10 @@ class VerificationSearchBar extends StatelessWidget {
               ),
             ),
           ),
-          GestureDetector(
+          /*GestureDetector(
             onTap: onTuneTap,
             child: Icon(Icons.tune, color: AppColors.outlineLight),
-          ),
+          ),*/
         ],
       ),
     );

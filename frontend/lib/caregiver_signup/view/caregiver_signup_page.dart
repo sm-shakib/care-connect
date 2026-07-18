@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 import 'package:frontend/caregiver_signup/cubit/caregiver_signup_cubit.dart';
 import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
@@ -51,7 +51,18 @@ class _CaregiverSignupView extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<CaregiverSignupCubit, CaregiverSignupState>(
           listener: (context, state) {
-            if (state.isSuccess) onSignupSuccess?.call();
+            if (state.isSuccess) {
+              if (onSignupSuccess != null) {
+                onSignupSuccess!();
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CaregiverPendingPage(),
+                  ),
+                );
+              }
+            }
           },
           builder: (context, state) {
             final cubit = context.read<CaregiverSignupCubit>();
