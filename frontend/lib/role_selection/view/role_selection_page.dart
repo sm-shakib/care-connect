@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/role_selection/cubit/role_selection_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -153,10 +153,38 @@ class _RoleSelectionView extends StatelessWidget {
             child: ElevatedButton(
               onPressed: enabled
                   ? () {
-                      final role =
-                          context.read<RoleSelectionCubit>().confirmSelection();
-                      debugPrint('Selected role: $role');
-                    }
+                final role =
+                context.read<RoleSelectionCubit>().confirmSelection();
+
+                switch (role) {
+                  case UserRole.familyMember:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FamilyDashboardPage(),
+                      ),
+                    );
+                    break;
+
+                  case UserRole.caregiver:
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Caregiver Dashboard Coming Soon'),
+                      ),
+                    );
+                    break;
+
+                  case UserRole.elderlyPerson:
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Elder Dashboard Coming Soon'),
+                      ),
+                    );
+                    break;
+                  case null:
+                    break;
+                }
+              }
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.darkTeal,
