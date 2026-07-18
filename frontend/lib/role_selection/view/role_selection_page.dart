@@ -162,7 +162,7 @@ class _RoleSelectionView extends StatelessWidget {
 
                 switch (role) {
                   case UserRole.familyMember:
-                    page = const FamilyDashboardPage();
+                    page = const FamilySignupPage();
                     break;
 
                   case UserRole.elderlyPerson:
