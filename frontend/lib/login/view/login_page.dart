@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
-
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
@@ -32,7 +33,13 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _LoginView extends StatelessWidget {
+enum _LoginRole {
+  elder,
+  caregiver,
+  family,
+}
+
+class _LoginView extends StatefulWidget {
   const _LoginView({
     this.onSignUp,
     this.onForgotPassword,
@@ -42,6 +49,13 @@ class _LoginView extends StatelessWidget {
   final VoidCallback? onSignUp;
   final VoidCallback? onForgotPassword;
   final ValueChanged<LoginState>? onLoginSuccess;
+
+  @override
+  State<_LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<_LoginView> {
+  _LoginRole? _selectedRole;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +90,19 @@ class _LoginView extends StatelessWidget {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
+                    const SizedBox(height: 20),
+
+                    const _FieldLabel('Select Role'),
+                    const SizedBox(height: 10),
+                    _RoleSelectorRow(
+                      selectedRole: _selectedRole,
+                      onRoleSelected: (role) {
+                        setState(() {
+                          _selectedRole = role;
+                        });
+                      },
+                    ),
+
                     const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
                       builder: (context, state) {
@@ -98,32 +125,31 @@ class _LoginView extends StatelessWidget {
                               children: [
                                 const _FieldLabel('Password'),
                                 GestureDetector(
-                                  onTap:
-                                      onForgotPassword ??
-                                      () async {
+                                  onTap: widget.onForgotPassword ??
+                                          () async {
                                         await Navigator.push<void>(
                                           context,
                                           MaterialPageRoute<void>(
                                             builder: (context) => ForgotPasswordPage(
-                                              onBackToLogin: () =>
-                                                  Navigator.of(context).pop(),
-                                              onCodeSent: (emailOrPhone) async {
-                                                await Navigator.pushReplacement<
-                                                  void,
-                                                  void
-                                                >(
+                                              onBackToLogin: () => Navigator.of(context).pop(),
+                                              onCodeSent: (emailOrPhone) {
+                                                Navigator.push(
                                                   context,
                                                   MaterialPageRoute<void>(
-                                                    builder: (context) =>
-                                                        ResetPasswordPage(
-                                                          onResetSuccess: () =>
-                                                              Navigator.of(
-                                                                context,
-                                                              ).popUntil(
-                                                                (route) => route
-                                                                    .isFirst,
-                                                              ),
-                                                        ),
+                                                    builder: (context) => OtpVerificationPage(
+                                                      emailOrPhone: emailOrPhone,
+                                                      onVerified: () {
+                                                        Navigator.pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute<void>(
+                                                            builder: (context) => ResetPasswordPage(
+                                                              onResetSuccess: () => Navigator.of(context)
+                                                                  .popUntil((route) => route.isFirst),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
                                                   ),
                                                 );
                                               },
@@ -158,9 +184,8 @@ class _LoginView extends StatelessWidget {
                                     .read<LoginCubit>()
                                     .togglePasswordVisibility(),
                               ),
-                              onChanged: (value) => context
-                                  .read<LoginCubit>()
-                                  .passwordChanged(value),
+                              onChanged: (value) =>
+                                  context.read<LoginCubit>().passwordChanged(value),
                             ),
                             const SizedBox(height: 32),
                             _buildLoginButton(context, state),
@@ -191,9 +216,6 @@ class _LoginView extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
-          //const SizedBox(width: 4),
-          //const Icon(Icons.favorite, color: LoginPage.kPrimaryBlue, size: 22),
-          //const SizedBox(width: 8),
           Text(
             'CareConnect',
             style: TextStyle(
@@ -208,18 +230,35 @@ class _LoginView extends StatelessWidget {
   }
 
   Widget _buildLoginButton(BuildContext context, LoginState state) {
-    final enabled = state.isValid && !state.isSubmitting;
+    final enabled = state.isValid && !state.isSubmitting && _selectedRole != null;
+
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
         onPressed: enabled
             ? () async {
-                await context.read<LoginCubit>().submit();
-                if (context.mounted) {
-                  onLoginSuccess?.call(context.read<LoginCubit>().state);
-                }
-              }
+          await context.read<LoginCubit>().submit();
+          if (!context.mounted) return;
+
+          widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
+
+          if (_selectedRole == _LoginRole.family) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const FamilyDashboardPage(),
+              ),
+            );
+          } else if (_selectedRole == _LoginRole.caregiver) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CaregiverPendingPage(),
+              ),
+            );
+          }
+        }
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.darkTeal,
@@ -231,30 +270,41 @@ class _LoginView extends StatelessWidget {
         ),
         child: state.isSubmitting
             ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.4,
-                  color: Colors.white,
-                ),
-              )
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.4,
+            color: Colors.white,
+          ),
+        )
             : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Login',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
+            ),
+            SizedBox(width: 8),
+            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+          ],
+        ),
       ),
     );
+  }
+
+  String _dashboardRouteForRole(_LoginRole role) {
+    switch (role) {
+      case _LoginRole.elder:
+        return '/elder-dashboard';
+      case _LoginRole.caregiver:
+        return '/caregiver-dashboard';
+      case _LoginRole.family:
+        return '/family-dashboard';
+    }
   }
 
   Widget _buildSignUpRow(BuildContext context) {
@@ -269,9 +319,8 @@ class _LoginView extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           GestureDetector(
-            onTap:
-                onSignUp ??
-                () async {
+            onTap: widget.onSignUp ??
+                    () async {
                   await Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
@@ -289,6 +338,118 @@ class _LoginView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RoleSelectorRow extends StatelessWidget {
+  const _RoleSelectorRow({
+    required this.selectedRole,
+    required this.onRoleSelected,
+  });
+
+  final _LoginRole? selectedRole;
+  final ValueChanged<_LoginRole> onRoleSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _RoleBox(
+            label: 'Elder',
+            icon: Icons.elderly,
+            //color: const Color(0xFF4CAF50),
+            isSelected: selectedRole == _LoginRole.elder,
+            onTap: () => onRoleSelected(_LoginRole.elder),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _RoleBox(
+            label: 'Caregiver',
+            icon: Icons.medical_services_outlined,
+            //color: const Color(0xFF2196F3),
+            isSelected: selectedRole == _LoginRole.caregiver,
+            onTap: () => onRoleSelected(_LoginRole.caregiver),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _RoleBox(
+            label: 'Family',
+            icon: Icons.family_restroom,
+            //color: const Color(0xFFFF9800),
+            isSelected: selectedRole == _LoginRole.family,
+            onTap: () => onRoleSelected(_LoginRole.family),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RoleBox extends StatelessWidget {
+  const _RoleBox({
+    required this.label,
+    //required this.color,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  //final Color color;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 44,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.darkTeal
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.darkTeal,
+            width: isSelected ? 1.8 : 1.2,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? Colors.white
+                  : AppColors.darkTeal,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : AppColors.darkTeal,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
