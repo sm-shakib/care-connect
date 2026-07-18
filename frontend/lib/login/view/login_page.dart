@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -242,6 +243,16 @@ class _LoginViewState extends State<_LoginView> {
           if (!context.mounted) return;
 
           widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
+
+          if (_selectedRole == _LoginRole.elder) {
+            await Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute<void>(
+                builder: (context) => const ElderlyDashboardPage(),
+              ),
+              (route) => false,
+            );
+            return;
+          }
 
           final routeName = _dashboardRouteForRole(_selectedRole!);
           Navigator.of(context).pushNamedAndRemoveUntil(
