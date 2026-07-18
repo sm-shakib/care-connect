@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/login_cubit.dart';
+import 'package:frontend/forgot_password/view/forgot_password_page.dart';
+import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/otp_verification/view/otp_verification_page.dart';
+import 'package:frontend/reset_password/view/reset_password_page.dart';
+import 'package:frontend/role_selection/role_selection.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
-  final VoidCallback? onSignUp;
-  final VoidCallback? onForgotPassword;
-  final ValueChanged<LoginState>? onLoginSuccess;
-
   const LoginPage({
     super.key,
     this.onSignUp,
@@ -15,11 +16,9 @@ class LoginPage extends StatelessWidget {
     this.onLoginSuccess,
   });
 
-  static const Color kBackgroundColor = Color(0xFFEFF2FC);
-  static const Color kPrimaryBlue = Color(0xFF1E3FCB);
-  static const Color kTitleColor = Color(0xFF1B1D28);
-  static const Color kSubtitleColor = Color(0xFF6B6F8A);
-  static const Color kFieldBorderColor = Color(0xFFD9DEEF);
+  final VoidCallback? onSignUp;
+  final VoidCallback? onForgotPassword;
+  final ValueChanged<LoginState>? onLoginSuccess;
 
   @override
   Widget build(BuildContext context) {
@@ -34,21 +33,36 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _LoginView extends StatelessWidget {
-  final VoidCallback? onSignUp;
-  final VoidCallback? onForgotPassword;
-  final ValueChanged<LoginState>? onLoginSuccess;
+enum _LoginRole {
+  elder,
+  caregiver,
+  family,
+}
 
+class _LoginView extends StatefulWidget {
   const _LoginView({
     this.onSignUp,
     this.onForgotPassword,
     this.onLoginSuccess,
   });
 
+  final VoidCallback? onSignUp;
+  final VoidCallback? onForgotPassword;
+  final ValueChanged<LoginState>? onLoginSuccess;
+
+  @override
+  State<_LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<_LoginView> {
+  _LoginRole? _selectedRole;
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: LoginPage.kBackgroundColor,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -65,17 +79,30 @@ class _LoginView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: LoginPage.kTitleColor,
+                        color: AppColors.darkTeal,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Log in to continue your care journey.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: LoginPage.kSubtitleColor,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
+                    const SizedBox(height: 20),
+
+                    const _FieldLabel('Select Role'),
+                    const SizedBox(height: 10),
+                    _RoleSelectorRow(
+                      selectedRole: _selectedRole,
+                      onRoleSelected: (role) {
+                        setState(() {
+                          _selectedRole = role;
+                        });
+                      },
+                    ),
+
                     const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
                       builder: (context, state) {
@@ -94,18 +121,48 @@ class _LoginView extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const _FieldLabel('Password'),
                                 GestureDetector(
-                                  onTap: onForgotPassword,
+                                  onTap: widget.onForgotPassword ??
+                                          () async {
+                                        await Navigator.push<void>(
+                                          context,
+                                          MaterialPageRoute<void>(
+                                            builder: (context) => ForgotPasswordPage(
+                                              onBackToLogin: () => Navigator.of(context).pop(),
+                                              onCodeSent: (emailOrPhone) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute<void>(
+                                                    builder: (context) => OtpVerificationPage(
+                                                      emailOrPhone: emailOrPhone,
+                                                      onVerified: () {
+                                                        Navigator.pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute<void>(
+                                                            builder: (context) => ResetPasswordPage(
+                                                              onResetSuccess: () => Navigator.of(context)
+                                                                  .popUntil((route) => route.isFirst),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
                                   child: const Text(
                                     'Forgot Password?',
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
-                                      color: LoginPage.kPrimaryBlue,
+                                      color: AppColors.darkTeal,
                                     ),
                                   ),
                                 ),
@@ -121,15 +178,14 @@ class _LoginView extends StatelessWidget {
                                   state.isPasswordObscured
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: LoginPage.kSubtitleColor,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 onPressed: () => context
                                     .read<LoginCubit>()
                                     .togglePasswordVisibility(),
                               ),
-                              onChanged: (value) => context
-                                  .read<LoginCubit>()
-                                  .passwordChanged(value),
+                              onChanged: (value) =>
+                                  context.read<LoginCubit>().passwordChanged(value),
                             ),
                             const SizedBox(height: 32),
                             _buildLoginButton(context, state),
@@ -150,23 +206,22 @@ class _LoginView extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: LoginPage.kPrimaryBlue),
+            icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
-          //const SizedBox(width: 4),
-          //const Icon(Icons.favorite, color: LoginPage.kPrimaryBlue, size: 22),
-          //const SizedBox(width: 8),
-          const Text(
+          Text(
             'CareConnect',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: LoginPage.kPrimaryBlue,
+              color: colorScheme.onSurface,
             ),
           ),
         ],
@@ -175,7 +230,8 @@ class _LoginView extends StatelessWidget {
   }
 
   Widget _buildLoginButton(BuildContext context, LoginState state) {
-    final bool enabled = state.isValid && !state.isSubmitting;
+    final enabled = state.isValid && !state.isSubmitting && _selectedRole != null;
+
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -183,14 +239,20 @@ class _LoginView extends StatelessWidget {
         onPressed: enabled
             ? () async {
           await context.read<LoginCubit>().submit();
-          if (context.mounted) {
-            onLoginSuccess?.call(context.read<LoginCubit>().state);
-          }
+          if (!context.mounted) return;
+
+          widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
+
+          final routeName = _dashboardRouteForRole(_selectedRole!);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            routeName,
+                (route) => false,
+          );
         }
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: LoginPage.kPrimaryBlue,
-          disabledBackgroundColor: LoginPage.kPrimaryBlue.withOpacity(0.4),
+          backgroundColor: AppColors.darkTeal,
+          disabledBackgroundColor: AppColors.darkTeal.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
@@ -224,6 +286,17 @@ class _LoginView extends StatelessWidget {
     );
   }
 
+  String _dashboardRouteForRole(_LoginRole role) {
+    switch (role) {
+      case _LoginRole.elder:
+        return '/elder-dashboard';
+      case _LoginRole.caregiver:
+        return '/caregiver-dashboard';
+      case _LoginRole.family:
+        return '/family-dashboard';
+    }
+  }
+
   Widget _buildSignUpRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -232,17 +305,25 @@ class _LoginView extends StatelessWidget {
         children: [
           const Text(
             "Don't have an account?",
-            style: TextStyle(fontSize: 14, color: LoginPage.kSubtitleColor),
+            style: TextStyle(fontSize: 14, color: AppColors.darkTeal),
           ),
           const SizedBox(width: 4),
           GestureDetector(
-            onTap: onSignUp,
+            onTap: widget.onSignUp ??
+                    () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const RoleSelectionPage(),
+                    ),
+                  );
+                },
             child: const Text(
               'Sign up',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: LoginPage.kPrimaryBlue,
+                color: AppColors.darkTeal,
               ),
             ),
           ),
@@ -252,9 +333,122 @@ class _LoginView extends StatelessWidget {
   }
 }
 
+class _RoleSelectorRow extends StatelessWidget {
+  const _RoleSelectorRow({
+    required this.selectedRole,
+    required this.onRoleSelected,
+  });
+
+  final _LoginRole? selectedRole;
+  final ValueChanged<_LoginRole> onRoleSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _RoleBox(
+            label: 'Elder',
+            icon: Icons.elderly,
+            //color: const Color(0xFF4CAF50),
+            isSelected: selectedRole == _LoginRole.elder,
+            onTap: () => onRoleSelected(_LoginRole.elder),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _RoleBox(
+            label: 'Caregiver',
+            icon: Icons.medical_services_outlined,
+            //color: const Color(0xFF2196F3),
+            isSelected: selectedRole == _LoginRole.caregiver,
+            onTap: () => onRoleSelected(_LoginRole.caregiver),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _RoleBox(
+            label: 'Family',
+            icon: Icons.family_restroom,
+            //color: const Color(0xFFFF9800),
+            isSelected: selectedRole == _LoginRole.family,
+            onTap: () => onRoleSelected(_LoginRole.family),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RoleBox extends StatelessWidget {
+  const _RoleBox({
+    required this.label,
+    //required this.color,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  //final Color color;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 44,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.darkTeal
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.darkTeal,
+            width: isSelected ? 1.8 : 1.2,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? Colors.white
+                  : AppColors.darkTeal,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : AppColors.darkTeal,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _FieldLabel extends StatelessWidget {
-  final String text;
   const _FieldLabel(this.text);
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -263,20 +457,13 @@ class _FieldLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.bold,
-        color: LoginPage.kTitleColor,
+        color: AppColors.darkTeal,
       ),
     );
   }
 }
 
 class _LoginTextField extends StatelessWidget {
-  final String hintText;
-  final IconData prefixIcon;
-  final Widget? suffixIcon;
-  final bool obscureText;
-  final TextInputType? keyboardType;
-  final ValueChanged<String> onChanged;
-
   const _LoginTextField({
     required this.hintText,
     required this.prefixIcon,
@@ -286,33 +473,44 @@ class _LoginTextField extends StatelessWidget {
     this.keyboardType,
   });
 
+  final String hintText;
+  final IconData prefixIcon;
+  final Widget? suffixIcon;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final ValueChanged<String> onChanged;
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TextField(
       obscureText: obscureText,
       keyboardType: keyboardType,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 15, color: LoginPage.kTitleColor),
+      style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFB4B8CC)),
-        prefixIcon: Icon(prefixIcon, color: LoginPage.kSubtitleColor),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        prefixIcon: Icon(prefixIcon, color: colorScheme.onSurfaceVariant),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: Colors.white,
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        fillColor: colorScheme.surfaceContainerLow,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: LoginPage.kFieldBorderColor),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: LoginPage.kFieldBorderColor),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: LoginPage.kPrimaryBlue, width: 1.6),
+          borderSide: const BorderSide(color: AppColors.darkTeal, width: 1.6),
         ),
       ),
     );

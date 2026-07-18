@@ -3,7 +3,14 @@ import 'package:frontend/l10n/l10n.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors.dart';
+import '../../theme/app_theme.dart';
+
 /// Care Connect - Splash / Welcome Page
+///
+/// Colors and type now come from [AppTheme] / [AppColors] (Kindred Care
+/// System spec) instead of local hardcoded hex values, so this screen
+/// automatically follows light/dark mode and any future palette updates.
 class WelcomeScreenPage extends StatelessWidget {
   const WelcomeScreenPage({
     super.key,
@@ -21,18 +28,16 @@ class WelcomeScreenPage extends StatelessWidget {
   /// The actual locale switch happens up in `App`.
   final VoidCallback? onLanguageToggle;
 
-  // Brand colors pulled from the design.
-  static const Color _primaryBlue = Color(0xFF1a56db);
-  static const Color _titleBlue = Color(0xFF003fb1);
-  static const Color _subtitleGrey = Color(0xFF7A8593);
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
           Column(
@@ -41,7 +46,7 @@ class WelcomeScreenPage extends StatelessWidget {
               // Sits outside SafeArea on purpose, so it extends
               // behind the status bar, matching the reference design.
               _HeroImageWithBadge(
-                primaryBlue: _primaryBlue,
+                accentColor: AppColors.darkTeal,
                 heroHeight: screenHeight * 0.55,
               ),
 
@@ -56,10 +61,10 @@ class WelcomeScreenPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           l10n.careConnectTitle,
-                          style: const TextStyle(
+                          style: textTheme.headlineMedium?.copyWith(
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
-                            color: _titleBlue,
+                            color: AppColors.darkTeal,
                             letterSpacing: 0.2,
                           ),
                         ),
@@ -67,10 +72,10 @@ class WelcomeScreenPage extends StatelessWidget {
                         Text(
                           l10n.welcomeTagline,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: textTheme.bodyMedium?.copyWith(
                             fontSize: 15,
                             height: 1.4,
-                            color: _subtitleGrey,
+                            color: colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -78,29 +83,21 @@ class WelcomeScreenPage extends StatelessWidget {
                         const Spacer(),
 
                         // ---------- Get Started button ----------
+                        // Inherits height/shape/text style from
+                        // AppTheme.elevatedButtonTheme; only the icon
+                        // is added on top.
                         SizedBox(
                           width: double.infinity,
-                          height: 54,
                           child: ElevatedButton(
-                            onPressed: onGetStarted,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _titleBlue,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
-                              ),
+                              backgroundColor: AppColors.darkTeal,      // Button background
+                              foregroundColor: Colors.white,     // Text & icon color
                             ),
+                            onPressed: onGetStarted,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  l10n.getStarted,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                Text(l10n.getStarted),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.arrow_forward, size: 18),
                               ],
@@ -111,25 +108,21 @@ class WelcomeScreenPage extends StatelessWidget {
                         const SizedBox(height: 14),
 
                         // ---------- Login button ----------
+                        // Inherits height/shape/text style from
+                        // AppTheme.outlinedButtonTheme.
                         SizedBox(
                           width: double.infinity,
-                          height: 54,
                           child: OutlinedButton(
-                            onPressed: onLogin,
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: _titleBlue,
-                              side: BorderSide(color: Colors.grey.shade300, width: 1.4),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
+                              foregroundColor: AppColors.darkTeal, // Text color
+                              side: const BorderSide(
+                                color: AppColors.darkTeal, // Border color
+                                width: 1,
                               ),
+                              //backgroundColor: Colors.white, // Optional background
                             ),
-                            child: Text(
-                              l10n.login,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            onPressed: onLogin,
+                            child: Text(l10n.login),
                           ),
                         ),
 
@@ -138,16 +131,17 @@ class WelcomeScreenPage extends StatelessWidget {
                         // ---------- Footer link ----------
                         RichText(
                           text: TextSpan(
-                            style: const TextStyle(
+                            style: textTheme.labelMedium?.copyWith(
                               fontSize: 13,
-                              color: _subtitleGrey,
+                              fontWeight: FontWeight.w400,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             children: [
                               TextSpan(text: '${l10n.needHelp} '),
                               TextSpan(
                                 text: l10n.contactSupport,
-                                style: const TextStyle(
-                                  color: _primaryBlue,
+                                style: TextStyle(
+                                  color: AppColors.darkTeal,
                                   fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
                                 ),
@@ -167,7 +161,7 @@ class WelcomeScreenPage extends StatelessWidget {
 
           // ---------- Language toggle (glass effect, top-right) ----------
           Positioned(
-            top: MediaQuery.of(context).padding.top - 0,
+            top: MediaQuery.of(context).padding.top,
             right: 6,
             child: _LanguageGlassButton(
               // Shows the OTHER language name — tapping switches to it.
@@ -182,6 +176,10 @@ class WelcomeScreenPage extends StatelessWidget {
 }
 
 /// A frosted-glass pill button used for the language toggle.
+///
+/// Kept as a dark overlay (Colors.black/white) on purpose: it sits on
+/// top of the hero photo in both light and dark mode, so it uses fixed
+/// contrast values rather than theme colors.
 class _LanguageGlassButton extends StatelessWidget {
   const _LanguageGlassButton({required this.label, required this.onTap});
 
@@ -210,7 +208,6 @@ class _LanguageGlassButton extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-
                   const SizedBox(width: 6),
                   Text(
                     label,
@@ -234,11 +231,11 @@ class _LanguageGlassButton extends StatelessWidget {
 /// floating circular icon badge that overlaps the curve.
 class _HeroImageWithBadge extends StatelessWidget {
   const _HeroImageWithBadge({
-    required this.primaryBlue,
+    required this.accentColor,
     required this.heroHeight,
   });
 
-  final Color primaryBlue;
+  final Color accentColor;
   final double heroHeight;
 
   @override
@@ -263,8 +260,8 @@ class _HeroImageWithBadge extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        primaryBlue.withOpacity(0.15),
-                        primaryBlue.withOpacity(0.35),
+                        accentColor.withOpacity(0.15),
+                        accentColor.withOpacity(0.35),
                       ],
                     ),
                   ),
@@ -286,10 +283,10 @@ class _HeroImageWithBadge extends StatelessWidget {
               height: 64,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: primaryBlue,
+                color: accentColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: accentColor.withOpacity(0.45),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

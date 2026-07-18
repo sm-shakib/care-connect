@@ -4,8 +4,12 @@ import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
-import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_page.dart';
-import 'package:frontend/family/view/family_dashboard_page.dart';
+import 'package:frontend/admin/caregiver_verification/caregiver_verification.dart';
+import 'package:frontend/admin/caregiver_review/caregiver_review.dart';
+import 'package:frontend/admin/user_management/user_management.dart';
+import 'package:frontend/admin/complaint_management/complaint_management.dart';
+import 'package:frontend/admin/complaint_detail/complaint_detail.dart';
+
 class App extends StatefulWidget {
   const App({super.key});
 
@@ -30,12 +34,39 @@ class _AppState extends State<App> {
       theme: ThemeData(
         fontFamily: 'Roboto',
         appBarTheme: const AppBarTheme(
-          color: Colors.white,
+          backgroundColor: Colors.white,
         ),
       ),
       locale: _locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,home: const FamilyDashboardPage(),
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: SplashPage(
+        duration: const Duration(milliseconds: 3000),
+        nextScreen: Builder(
+          builder: (context) => WelcomeScreenPage(
+            onGetStarted: () async {
+              await Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => const RoleSelectionPage(),
+                ),
+              );
+            },
+            onLogin: () async {
+              await Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => const ComplaintManagementPage(),//LoginPage(),
+                ),
+              );
+            },
+            onContactSupport: () {
+              // TODO: open support link
+            },
+            onLanguageToggle: _toggleLocale,
+          ),
+        ),
+      ),
     );
   }
 }
