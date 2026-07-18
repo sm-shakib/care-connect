@@ -7,6 +7,8 @@ import 'package:frontend/welcome_screen/welcome_screen.dart';
 import 'package:frontend/admin/caregiver_verification/caregiver_verification.dart';
 import 'package:frontend/admin/caregiver_review/caregiver_review.dart';
 import 'package:frontend/admin/user_management/user_management.dart';
+import 'package:frontend/admin/complaint_management/complaint_management.dart';
+import 'package:frontend/admin/complaint_detail/complaint_detail.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -54,7 +56,7 @@ class _AppState extends State<App> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const LoginPage(),
+                  builder: (context) => const ComplaintManagementPage(),//LoginPage(),
                 ),
               );
             },
