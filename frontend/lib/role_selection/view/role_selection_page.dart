@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
+import 'package:frontend/elderly_signup/view/elderly_signup_page.dart';
+import 'package:frontend/family_signup/view/family_signup_page.dart';
 import 'package:frontend/role_selection/cubit/role_selection_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -156,6 +159,16 @@ class _RoleSelectionView extends StatelessWidget {
                       final role =
                           context.read<RoleSelectionCubit>().confirmSelection();
                       debugPrint('Selected role: $role');
+                      final page = switch (role) {
+                        UserRole.familyMember => const FamilySignupPage(),
+                        UserRole.elderlyPerson => const ElderlySignupPage(),
+                        UserRole.caregiver => const CaregiverSignupPage(),
+                        null => null,
+                      };
+                      if (page != null) {
+                        Navigator.push(context,
+                            MaterialPageRoute<void>(builder: (_) => page));
+                      }
                     }
                   : null,
               style: ElevatedButton.styleFrom(
@@ -213,7 +226,8 @@ class _RoleCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
         decoration: BoxDecoration(
           color: isSelected
-              ? colorScheme.surfaceContainerHigh
+              //? colorScheme.surfaceContainerHigh
+              ? AppColors.darkTeal
               : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
@@ -227,7 +241,10 @@ class _RoleCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor: colorScheme.surface,
+              //backgroundColor: colorScheme.surface,
+              backgroundColor: isSelected
+                  ? Colors.white
+                  : colorScheme.surface,
               child: Icon(
                 icon,
                 size: 32,
@@ -237,10 +254,11 @@ class _RoleCard extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               title,
-              style: const TextStyle(
+              style: /*const*/ TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkTeal,
+                //color: AppColors.darkTeal,
+                color: isSelected ? Colors.white : AppColors.darkTeal,
               ),
             ),
             const SizedBox(height: 4),
@@ -248,7 +266,10 @@ class _RoleCard extends StatelessWidget {
               subtitle,
               style: TextStyle(
                 fontSize: 13,
-                color: colorScheme.onSurfaceVariant,
+                //color: colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? Colors.white70
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ],
