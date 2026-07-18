@@ -3,21 +3,18 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../admin_navigation.dart';
 
-/// Bottom navigation bar for the admin shell, with "Complaints" shown
-/// as the active tab (matching this screen's original design, which
-/// shows Complaints here in place of Users).
-///
-/// Tapping another tab actually navigates there via [goToAdminTab].
+/// Bottom navigation bar for the admin shell, with "Dashboard" shown as
+/// the active tab. Tapping another tab actually navigates there via
+/// [goToAdminTab] — this is a real working tab bar, not just a static
+/// mockup.
 ///
 /// Uses a fixed [_barHeight] and centers each item explicitly, plus
-/// `Expanded` items, to avoid the stretched-pill / overflow bugs seen
-/// on the verification nav bar. If your app already has a shared admin
-/// bottom nav bar, prefer that instead of duplicating this per-feature.
-/*class ComplaintBottomNavBar extends StatelessWidget {
-  const ComplaintBottomNavBar({super.key});
+/// `Expanded` items, matching the overflow-safe pattern established on
+/// the other nav bars.
+/*class DashboardBottomNavBar extends StatelessWidget {
+  const DashboardBottomNavBar({super.key});
 
   static const double _barHeight = 64;
-  static const AdminTab _current = AdminTab.complaints;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +37,11 @@ import '../../../admin_navigation.dart';
                 child: _NavItem(
                   icon: Icons.dashboard,
                   label: 'Dashboard',
+                  isActive: true,
                   onTap: () => goToAdminTab(
                     context,
                     AdminTab.dashboard,
-                    current: _current,
+                    current: AdminTab.dashboard,
                   ),
                 ),
               ),
@@ -54,19 +52,18 @@ import '../../../admin_navigation.dart';
                   onTap: () => goToAdminTab(
                     context,
                     AdminTab.verification,
-                    current: _current,
+                    current: AdminTab.dashboard,
                   ),
                 ),
               ),
               Expanded(
                 child: _NavItem(
-                  icon: Icons.assignment_late,
-                  label: 'Complaints',
-                  isActive: true,
+                  icon: Icons.group,
+                  label: 'Users',
                   onTap: () => goToAdminTab(
                     context,
-                    AdminTab.complaints,
-                    current: _current,
+                    AdminTab.users,
+                    current: AdminTab.dashboard,
                   ),
                 ),
               ),
@@ -77,7 +74,7 @@ import '../../../admin_navigation.dart';
                   onTap: () => goToAdminTab(
                     context,
                     AdminTab.bookings,
-                    current: _current,
+                    current: AdminTab.dashboard,
                   ),
                 ),
               ),

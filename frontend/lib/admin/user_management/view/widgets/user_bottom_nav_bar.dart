@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../theme/app_colors.dart';
+import '../../../admin_navigation.dart';
 
 /// Bottom navigation bar for the admin shell, with "Users" shown as the
 /// active tab (pill-shaped highlight).
+///
+/// Tapping another tab actually navigates there via [goToAdminTab].
 ///
 /// Uses a fixed [_barHeight] and centers each item explicitly so the
 /// Row's default cross-axis stretch can't blow this up into a
@@ -12,10 +15,11 @@ import '../../../../theme/app_colors.dart';
 ///
 /// If your app already has a shared admin bottom nav bar, prefer that
 /// instead of duplicating this widget per-feature.
-class UserManagementBottomNavBar extends StatelessWidget {
+/*class UserManagementBottomNavBar extends StatelessWidget {
   const UserManagementBottomNavBar({super.key});
 
   static const double _barHeight = 64;
+  static const AdminTab _current = AdminTab.users;
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +37,27 @@ class UserManagementBottomNavBar extends StatelessWidget {
           height: _barHeight,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
+            children: [
               Expanded(
-                child: _NavItem(icon: Icons.dashboard, label: 'Dashboard'),
+                child: _NavItem(
+                  icon: Icons.dashboard,
+                  label: 'Dashboard',
+                  onTap: () => goToAdminTab(
+                    context,
+                    AdminTab.dashboard,
+                    current: _current,
+                  ),
+                ),
               ),
               Expanded(
                 child: _NavItem(
                   icon: Icons.verified_user,
                   label: 'Verification',
+                  onTap: () => goToAdminTab(
+                    context,
+                    AdminTab.verification,
+                    current: _current,
+                  ),
                 ),
               ),
               Expanded(
@@ -48,12 +65,22 @@ class UserManagementBottomNavBar extends StatelessWidget {
                   icon: Icons.group,
                   label: 'Users',
                   isActive: true,
+                  onTap: () => goToAdminTab(
+                    context,
+                    AdminTab.users,
+                    current: _current,
+                  ),
                 ),
               ),
               Expanded(
                 child: _NavItem(
                   icon: Icons.event_available,
                   label: 'Bookings',
+                  onTap: () => goToAdminTab(
+                    context,
+                    AdminTab.bookings,
+                    current: _current,
+                  ),
                 ),
               ),
             ],
@@ -68,12 +95,14 @@ class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.icon,
     required this.label,
+    required this.onTap,
     this.isActive = false,
     this.color,
   });
 
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
   final bool isActive;
   final Color? color;
 
@@ -90,7 +119,7 @@ class _NavItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
         child: InkWell(
           borderRadius: BorderRadius.circular(999),
-          onTap: () {},
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Column(
@@ -117,4 +146,4 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
-}
+}*/

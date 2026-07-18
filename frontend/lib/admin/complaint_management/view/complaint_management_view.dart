@@ -5,7 +5,7 @@ import '../../../theme/app_colors.dart';
 import '../../complaint_detail/complaint_detail.dart';
 import '../cubit/complaint_management_cubit.dart';
 import '../cubit/complaint_management_state.dart';
-import 'widgets/complaint_bottom_nav_bar.dart';
+//import 'widgets/complaint_bottom_nav_bar.dart';
 import 'widgets/complaint_card.dart';
 import 'widgets/complaint_filter_chips.dart';
 import 'widgets/complaint_search_bar.dart';
@@ -24,7 +24,7 @@ class ComplaintManagementView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: _buildAppBar(context),
-      bottomNavigationBar: const ComplaintBottomNavBar(),
+      //bottomNavigationBar: const ComplaintBottomNavBar(),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -145,57 +145,26 @@ class ComplaintManagementView extends StatelessWidget {
       shape: Border(
         bottom: BorderSide(color: AppColors.outlineVariantLight),
       ),
-      titleSpacing: 20,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.assignment_late, color: AppColors.primaryLight),
-          const SizedBox(width: 12),
-          Text(
-            'Complaints',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryLight,
-            ),
-          ),
-        ],
+      title: Text(
+        'Complaints',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primaryLight,
+        ),
       ),
-      /*actions: [
+      actions: [
         IconButton(
-          icon: Icon(Icons.search, color: AppColors.onSurfaceVariantLight),
+          icon: Icon(
+            Icons.notifications,
+            color: AppColors.primaryLight,
+          ),
           onPressed: () {},
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.notifications,
-                  color: AppColors.onSurfaceVariantLight,
-                ),
-                onPressed: () {},
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: AppColors.errorLight,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],*/
+      ],
     );
   }
+
 
   double _horizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
