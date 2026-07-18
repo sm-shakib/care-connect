@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 
 /// Rounded search field with a leading search icon and a trailing
-/// filter_list icon button, matching the design's search bar.
+/// filter icon, matching the Verification search bar design.
 class UserSearchBar extends StatelessWidget {
   const UserSearchBar({
     required this.onChanged,
@@ -18,24 +18,34 @@ class UserSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
+        color: AppColors.surfaceContainerLowLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outlineVariantLight, width: 2),
+        border: Border.all(
+          color: Colors.transparent,
+          width: 2,
+        ),
       ),
       child: Row(
         children: [
-          const SizedBox(width: 16),
-          Icon(Icons.search, color: AppColors.outlineLight),
-          const SizedBox(width: 8),
+          Icon(
+            Icons.search,
+            color: AppColors.outlineLight,
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: TextField(
               onChanged: onChanged,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 16,
+                height: 1.5,
+                fontWeight: FontWeight.w400,
+              ),
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: 'Search users by name or email',
+                hintText: 'Search users by name or email...',
                 hintStyle: TextStyle(
                   color: AppColors.onSurfaceVariantLight,
                   fontSize: 16,
@@ -43,10 +53,13 @@ class UserSearchBar extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            onPressed: onFilterTap,
-            icon: Icon(Icons.filter_list, color: AppColors.onSurfaceVariantLight),
-          ),
+          /*GestureDetector(
+            onTap: onFilterTap,
+            child: Icon(
+              Icons.tune,
+              color: AppColors.outlineLight,
+            ),
+          ),*/
         ],
       ),
     );

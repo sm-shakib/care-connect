@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/user_management_filter.dart';
 
-/// Horizontally scrolling row of role filter chips. The selected chip
-/// uses the primary fill; unselected chips use an outlined neutral fill,
-/// matching the design's rounded-lg (not pill) chip shape.
+/// Horizontally scrolling row of filter chips. The selected chip uses the
+/// primary fill; unselected chips use the neutral high-surface fill.
 class UserFilterChips extends StatelessWidget {
   const UserFilterChips({
     required this.selected,
@@ -23,7 +22,7 @@ class UserFilterChips extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: UserManagementFilter.values.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final filter = UserManagementFilter.values[index];
           final isSelected = filter == selected;
@@ -55,26 +54,35 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primaryLight
-              : AppColors.surfaceContainerLight,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? null
-              : Border.all(color: AppColors.outlineVariantLight),
+              : AppColors.surfaceContainerHighLight,
+          borderRadius: BorderRadius.circular(999),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected
-                ? AppColors.onPrimaryLight
-                : AppColors.onSurfaceVariantLight,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              Icon(
+                Icons.check,
+                size: 18,
+                color: AppColors.onPrimaryLight,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: isSelected
+                    ? AppColors.onPrimaryLight
+                    : AppColors.onSurfaceVariantLight,
+              ),
+            ),
+          ],
         ),
       ),
     );

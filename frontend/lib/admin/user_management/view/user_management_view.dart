@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../theme/app_colors.dart';
 import '../cubit/user_management_cubit.dart';
 import '../cubit/user_management_state.dart';
-import 'widgets/user_bottom_nav_bar.dart';
+//import 'widgets/user_bottom_nav_bar.dart';
 import 'widgets/user_filter_chips.dart';
 import 'widgets/user_list_card.dart';
 import 'widgets/user_search_bar.dart';
@@ -20,7 +20,7 @@ class UserManagementView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: _buildAppBar(context),
-      bottomNavigationBar: const UserManagementBottomNavBar(),
+      //bottomNavigationBar: const UserManagementBottomNavBar(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO(careconnect): navigate to the add-user flow.
@@ -150,24 +150,21 @@ class UserManagementView extends StatelessWidget {
       backgroundColor: AppColors.surfaceLight,
       elevation: 0,
       scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
       shape: Border(
         bottom: BorderSide(color: AppColors.outlineVariantLight),
-      ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: AppColors.onSurfaceLight),
-        onPressed: () => Navigator.of(context).maybePop(),
       ),
       title: Text(
         'User Management',
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: AppColors.onSurfaceLight,
+          color: AppColors.primaryLight,
         ),
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.search, color: AppColors.onSurfaceLight),
+          icon: Icon(Icons.notifications, color: AppColors.primaryLight),
           onPressed: () {},
         ),
       ],

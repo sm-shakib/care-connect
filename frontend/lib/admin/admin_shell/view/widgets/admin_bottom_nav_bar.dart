@@ -3,21 +3,28 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../admin_navigation.dart';
 
-/// Bottom navigation bar for the admin shell, with "Complaints" shown
-/// as the active tab (matching this screen's original design, which
-/// shows Complaints here in place of Users).
+/// The single, shared bottom navigation bar for the admin shell.
+/// Replaces the four separate (and previously non-functional)
+/// per-feature nav bars — this is the only one now.
 ///
-/// Tapping another tab actually navigates there via [goToAdminTab].
+/// Purely presentational: [selected] + [onSelect] are passed in by
+/// [AdminShellView], which owns the actual tab-switching logic via
+/// [AdminShellCubit].
 ///
-/// Uses a fixed [_barHeight] and centers each item explicitly, plus
-/// `Expanded` items, to avoid the stretched-pill / overflow bugs seen
-/// on the verification nav bar. If your app already has a shared admin
-/// bottom nav bar, prefer that instead of duplicating this per-feature.
-/*class ComplaintBottomNavBar extends StatelessWidget {
-  const ComplaintBottomNavBar({super.key});
+/// Fixed [_barHeight] + `Expanded` items + centered content — same
+/// overflow-safe pattern used throughout this app, now sized for 5
+/// items instead of 4.
+class AdminBottomNavBar extends StatelessWidget {
+  const AdminBottomNavBar({
+    required this.selected,
+    required this.onSelect,
+    super.key,
+  });
+
+  final AdminTab selected;
+  final ValueChanged<AdminTab> onSelect;
 
   static const double _barHeight = 64;
-  static const AdminTab _current = AdminTab.complaints;
 
   @override
   Widget build(BuildContext context) {
@@ -40,45 +47,40 @@ import '../../../admin_navigation.dart';
                 child: _NavItem(
                   icon: Icons.dashboard,
                   label: 'Dashboard',
-                  onTap: () => goToAdminTab(
-                    context,
-                    AdminTab.dashboard,
-                    current: _current,
-                  ),
+                  isActive: selected == AdminTab.dashboard,
+                  onTap: () => onSelect(AdminTab.dashboard),
                 ),
               ),
               Expanded(
                 child: _NavItem(
                   icon: Icons.verified_user,
                   label: 'Verification',
-                  onTap: () => goToAdminTab(
-                    context,
-                    AdminTab.verification,
-                    current: _current,
-                  ),
+                  isActive: selected == AdminTab.verification,
+                  onTap: () => onSelect(AdminTab.verification),
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.group,
+                  label: 'Users',
+                  isActive: selected == AdminTab.users,
+                  onTap: () => onSelect(AdminTab.users),
                 ),
               ),
               Expanded(
                 child: _NavItem(
                   icon: Icons.assignment_late,
                   label: 'Complaints',
-                  isActive: true,
-                  onTap: () => goToAdminTab(
-                    context,
-                    AdminTab.complaints,
-                    current: _current,
-                  ),
+                  isActive: selected == AdminTab.complaints,
+                  onTap: () => onSelect(AdminTab.complaints),
                 ),
               ),
               Expanded(
                 child: _NavItem(
                   icon: Icons.event_available,
                   label: 'Bookings',
-                  onTap: () => goToAdminTab(
-                    context,
-                    AdminTab.bookings,
-                    current: _current,
-                  ),
+                  isActive: selected == AdminTab.bookings,
+                  onTap: () => onSelect(AdminTab.bookings),
                 ),
               ),
             ],
@@ -95,20 +97,18 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.isActive = false,
-    this.color,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final bool isActive;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final foreground = isActive
         ? AppColors.onPrimaryContainerLight
-        : (color ?? AppColors.onSurfaceVariantLight);
+        : AppColors.onSurfaceVariantLight;
 
     return Center(
       child: Material(
@@ -119,17 +119,17 @@ class _NavItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: foreground, size: 22),
+                Icon(icon, color: foreground, size: 20),
                 const SizedBox(height: 2),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: foreground,
                   ),
@@ -144,4 +144,4 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
-}*/
+}
