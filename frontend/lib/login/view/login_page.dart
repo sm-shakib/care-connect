@@ -8,6 +8,9 @@ import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
+import 'package:frontend/admin/admin_shell/admin_shell.dart';
+
+
 class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
@@ -37,6 +40,7 @@ enum _LoginRole {
   elder,
   caregiver,
   family,
+  admin,
 }
 
 class _LoginView extends StatefulWidget {
@@ -257,6 +261,13 @@ class _LoginViewState extends State<_LoginView> {
                 builder: (_) => const CaregiverPendingPage(),
               ),
             );
+          } else if (_selectedRole == _LoginRole.admin) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AdminShellPage(),
+              ),
+            );
           }
         }
             : null,
@@ -304,6 +315,8 @@ class _LoginViewState extends State<_LoginView> {
         return '/caregiver-dashboard';
       case _LoginRole.family:
         return '/family-dashboard';
+      case _LoginRole.admin:
+        return '/admin-dashboard';
     }
   }
 
@@ -354,38 +367,55 @@ class _RoleSelectorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _RoleBox(
-            label: 'Elder',
-            icon: Icons.elderly,
-            //color: const Color(0xFF4CAF50),
-            isSelected: selectedRole == _LoginRole.elder,
-            onTap: () => onRoleSelected(_LoginRole.elder),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 110,
+            child: _RoleBox(
+              label: 'Elder',
+              icon: Icons.elderly,
+              //color: const Color(0xFF4CAF50),
+              isSelected: selectedRole == _LoginRole.elder,
+              onTap: () => onRoleSelected(_LoginRole.elder),
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _RoleBox(
-            label: 'Caregiver',
-            icon: Icons.medical_services_outlined,
-            //color: const Color(0xFF2196F3),
-            isSelected: selectedRole == _LoginRole.caregiver,
-            onTap: () => onRoleSelected(_LoginRole.caregiver),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 110,
+            child: _RoleBox(
+              label: 'Caregiver',
+              icon: Icons.medical_services_outlined,
+              //color: const Color(0xFF2196F3),
+              isSelected: selectedRole == _LoginRole.caregiver,
+              onTap: () => onRoleSelected(_LoginRole.caregiver),
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _RoleBox(
-            label: 'Family',
-            icon: Icons.family_restroom,
-            //color: const Color(0xFFFF9800),
-            isSelected: selectedRole == _LoginRole.family,
-            onTap: () => onRoleSelected(_LoginRole.family),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 110,
+            child: _RoleBox(
+              label: 'Family',
+              icon: Icons.family_restroom,
+              //color: const Color(0xFFFF9800),
+              isSelected: selectedRole == _LoginRole.family,
+              onTap: () => onRoleSelected(_LoginRole.family),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 110,
+            child: _RoleBox(
+              label: 'Admin',
+              icon: Icons.admin_panel_settings_outlined,
+              //color: const Color(0xFF9C27B0),
+              isSelected: selectedRole == _LoginRole.admin,
+              onTap: () => onRoleSelected(_LoginRole.admin),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
