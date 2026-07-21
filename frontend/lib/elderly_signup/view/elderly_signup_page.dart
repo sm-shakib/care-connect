@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/widgets/auth_date_field.dart';
+import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
@@ -185,6 +188,22 @@ class _BasicInfoStep extends StatelessWidget {
           prefixIcon: Icons.person_outline,
           errorText: state.nameError,
           onChanged: cubit.nameChanged,
+        ),
+        const SizedBox(height: 18),
+        AuthDropdownField<Gender>(
+          label: 'Gender',
+          value: state.gender,
+          items: Gender.values,
+          itemLabel: (gender) => gender.label,
+          errorText: state.genderError,
+          onChanged: cubit.genderChanged,
+        ),
+        const SizedBox(height: 18),
+        AuthDateField(
+          label: 'Date of Birth',
+          value: state.dateOfBirth,
+          errorText: state.dateOfBirthError,
+          onChanged: cubit.dateOfBirthChanged,
         ),
         const SizedBox(height: 18),
         AuthTextField(
