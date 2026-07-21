@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:frontend/admin/admin_shell/admin_shell.dart';
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
+import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
-import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
-import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
-import 'package:frontend/admin/admin_shell/admin_shell.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -248,39 +249,46 @@ class _LoginViewState extends State<_LoginView> {
 
           widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
 
+          // if (_selectedRole == _LoginRole.elder) {
+          //   await Navigator.of(context).pushAndRemoveUntil(
+          //     MaterialPageRoute<void>(
+          //       builder: (context) => const ElderlyDashboardPage(),
+          //     ),
+          //     (route) => false,
+          //   );
+          //   return;
+          // }
+          //
+          // final routeName = _dashboardRouteForRole(_selectedRole!);
+          // Navigator.of(context).pushNamedAndRemoveUntil(
+          //   routeName,
+          //       (route) => false,
+          // );
           if (_selectedRole == _LoginRole.elder) {
-            await Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute<void>(
-                builder: (context) => const ElderlyDashboardPage(),
-              ),
-              (route) => false,
-            );
-            return;
-          }
-
-          final routeName = _dashboardRouteForRole(_selectedRole!);
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            routeName,
-                (route) => false,
-          );
-          if (_selectedRole == _LoginRole.family) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
+                builder: (_) => const ElderlyDashboardPage(),
+              ),
+            );
+          } else if (_selectedRole == _LoginRole.family) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
                 builder: (_) => const FamilyDashboardPage(),
               ),
             );
           } else if (_selectedRole == _LoginRole.caregiver) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
                 builder: (_) => const CaregiverPendingPage(),
               ),
             );
           } else if (_selectedRole == _LoginRole.admin) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
                 builder: (_) => const AdminShellPage(),
               ),
             );
@@ -323,18 +331,18 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  String _dashboardRouteForRole(_LoginRole role) {
-    switch (role) {
-      case _LoginRole.elder:
-        return '/elder-dashboard';
-      case _LoginRole.caregiver:
-        return '/caregiver-dashboard';
-      case _LoginRole.family:
-        return '/family-dashboard';
-      case _LoginRole.admin:
-        return '/admin-dashboard';
-    }
-  }
+  // String _dashboardRouteForRole(_LoginRole role) {
+  //   switch (role) {
+  //     case _LoginRole.elder:
+  //       return '/elder-dashboard';
+  //     case _LoginRole.caregiver:
+  //       return '/caregiver-dashboard';
+  //     case _LoginRole.family:
+  //       return '/family-dashboard';
+  //     case _LoginRole.admin:
+  //       return '/admin-dashboard';
+  //   }
+  // }
 
   Widget _buildSignUpRow(BuildContext context) {
     return Padding(
