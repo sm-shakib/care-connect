@@ -6,6 +6,8 @@ class ElderlySignupState extends Equatable {
   const ElderlySignupState({
     this.currentStep = 0,
     this.name = '',
+    this.gender,
+    this.dateOfBirth,
     this.phone = '',
     this.email = '',
     this.address = '',
@@ -25,6 +27,8 @@ class ElderlySignupState extends Equatable {
 
   // Step 1 — Basic Info (Users table)
   final String name;
+  final Gender? gender;
+  final DateTime? dateOfBirth;
   final String phone;
   final String email;
   final String address;
@@ -49,6 +53,11 @@ class ElderlySignupState extends Equatable {
   bool get isLastStep => currentStep == stepCount - 1;
 
   String? get nameError => submitAttempted ? validateName(name) : null;
+  String? get genderError => submitAttempted && gender == null
+      ? 'Please select your gender.'
+      : null;
+  String? get dateOfBirthError =>
+      submitAttempted ? validateDateOfBirth(dateOfBirth) : null;
   String? get phoneError => submitAttempted ? validatePhone(phone) : null;
   String? get emailError => submitAttempted ? validateEmail(email) : null;
   String? get addressError =>
@@ -66,6 +75,8 @@ class ElderlySignupState extends Equatable {
 
   bool get isStep1Valid =>
       validateName(name) == null &&
+          gender != null &&
+          validateDateOfBirth(dateOfBirth) == null &&
           validatePhone(phone) == null &&
           validateEmail(email) == null &&
           validateAddress(address) == null &&
@@ -80,6 +91,8 @@ class ElderlySignupState extends Equatable {
   ElderlySignupState copyWith({
     int? currentStep,
     String? name,
+    Gender? gender,
+    DateTime? dateOfBirth,
     String? phone,
     String? email,
     String? address,
@@ -95,6 +108,8 @@ class ElderlySignupState extends Equatable {
     return ElderlySignupState(
       currentStep: currentStep ?? this.currentStep,
       name: name ?? this.name,
+      gender: gender ?? this.gender,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       address: address ?? this.address,
@@ -114,6 +129,8 @@ class ElderlySignupState extends Equatable {
   List<Object?> get props => [
     currentStep,
     name,
+    gender,
+    dateOfBirth,
     phone,
     email,
     address,

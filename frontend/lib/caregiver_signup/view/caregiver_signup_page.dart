@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
+
 import 'package:frontend/caregiver_signup/cubit/caregiver_signup_cubit.dart';
+import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
@@ -51,18 +53,7 @@ class _CaregiverSignupView extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<CaregiverSignupCubit, CaregiverSignupState>(
           listener: (context, state) {
-            if (state.isSuccess) {
-              if (onSignupSuccess != null) {
-                onSignupSuccess!();
-              } else {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CaregiverPendingPage(),
-                  ),
-                );
-              }
-            }
+            if (state.isSuccess) onSignupSuccess?.call();
           },
           builder: (context, state) {
             final cubit = context.read<CaregiverSignupCubit>();
@@ -210,6 +201,22 @@ class _BasicInfoStep extends StatelessWidget {
           onChanged: cubit.nameChanged,
         ),
         const SizedBox(height: 18),
+        AuthDropdownField<Gender>(
+          label: 'Gender',
+          value: state.gender,
+          items: Gender.values,
+          itemLabel: (gender) => gender.label,
+          errorText: state.genderError,
+          onChanged: cubit.genderChanged,
+        ),
+        const SizedBox(height: 18),
+        AuthDateField(
+          label: 'Date of Birth',
+          value: state.dateOfBirth,
+          errorText: state.dateOfBirthError,
+          onChanged: cubit.dateOfBirthChanged,
+        ),
+        const SizedBox(height: 18),
         AuthTextField(
           label: 'Phone Number',
           hintText: 'e.g. +8801XXXXXXXXX',
@@ -316,6 +323,15 @@ class _ProfessionalInfoStep extends StatelessWidget {
           maxLines: 4,
           errorText: state.specializationsError,
           onChanged: cubit.specializationsChanged,
+        ),
+        const SizedBox(height: 18),
+        AuthTextField(
+          label: 'Experience (Years)',
+          hintText: 'e.g. 3',
+          prefixIcon: Icons.work_history_outlined,
+          keyboardType: TextInputType.number,
+          errorText: state.experienceYearsError,
+          onChanged: cubit.experienceYearsChanged,
         ),
         const SizedBox(height: 18),
         AuthDropdownField<AvailabilityType>(

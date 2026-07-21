@@ -5,6 +5,8 @@ enum FamilySignupStatus { initial, submitting, success, failure }
 class FamilySignupState extends Equatable {
   const FamilySignupState({
     this.name = '',
+    this.gender,
+    this.dateOfBirth,
     this.phone = '',
     this.email = '',
     this.address = '',
@@ -18,6 +20,8 @@ class FamilySignupState extends Equatable {
   });
 
   final String name;
+  final Gender? gender;
+  final DateTime? dateOfBirth;
   final String phone;
   final String email;
   final String address;
@@ -36,6 +40,11 @@ class FamilySignupState extends Equatable {
   bool get isSuccess => status == FamilySignupStatus.success;
 
   String? get nameError => submitAttempted ? validateName(name) : null;
+  String? get genderError => submitAttempted && gender == null
+      ? 'Please select your gender.'
+      : null;
+  String? get dateOfBirthError =>
+      submitAttempted ? validateDateOfBirth(dateOfBirth) : null;
   String? get phoneError => submitAttempted ? validatePhone(phone) : null;
   String? get emailError => submitAttempted ? validateEmail(email) : null;
   String? get addressError =>
@@ -52,6 +61,8 @@ class FamilySignupState extends Equatable {
 
   bool get isValid =>
       validateName(name) == null &&
+          gender != null &&
+          validateDateOfBirth(dateOfBirth) == null &&
           validatePhone(phone) == null &&
           validateEmail(email) == null &&
           validateAddress(address) == null &&
@@ -61,6 +72,8 @@ class FamilySignupState extends Equatable {
 
   FamilySignupState copyWith({
     String? name,
+    Gender? gender,
+    DateTime? dateOfBirth,
     String? phone,
     String? email,
     String? address,
@@ -74,6 +87,8 @@ class FamilySignupState extends Equatable {
   }) {
     return FamilySignupState(
       name: name ?? this.name,
+      gender: gender ?? this.gender,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       address: address ?? this.address,
@@ -91,6 +106,8 @@ class FamilySignupState extends Equatable {
   @override
   List<Object?> get props => [
     name,
+    gender,
+    dateOfBirth,
     phone,
     email,
     address,

@@ -42,6 +42,8 @@ class CaregiverSignupState extends Equatable {
     this.currentStep = 0,
     // Step 1 — Basic Info
     this.name = '',
+    this.gender,
+    this.dateOfBirth,
     this.phone = '',
     this.email = '',
     this.address = '',
@@ -54,6 +56,7 @@ class CaregiverSignupState extends Equatable {
     this.specializations = '',
     this.availabilityType,
     this.dailyRate = '',
+    this.experienceYears = '',
     // Step 3 — Documents (Caregiver_Documents)
     this.uploadedDocuments = const {},
     this.status = CaregiverSignupStatus.initial,
@@ -65,6 +68,8 @@ class CaregiverSignupState extends Equatable {
   final int currentStep;
 
   final String name;
+  final Gender? gender;
+  final DateTime? dateOfBirth;
   final String phone;
   final String email;
   final String address;
@@ -77,6 +82,7 @@ class CaregiverSignupState extends Equatable {
   final String specializations;
   final AvailabilityType? availabilityType;
   final String dailyRate;
+  final String experienceYears;
 
   final Map<CaregiverDocumentType, PlatformFile> uploadedDocuments;
 
@@ -89,6 +95,11 @@ class CaregiverSignupState extends Equatable {
 
   // ---- Step 1 errors ----
   String? get nameError => submitAttempted ? validateName(name) : null;
+  String? get genderError => submitAttempted && gender == null
+      ? 'Please select your gender.'
+      : null;
+  String? get dateOfBirthError =>
+      submitAttempted ? validateDateOfBirth(dateOfBirth) : null;
   String? get phoneError => submitAttempted ? validatePhone(phone) : null;
   String? get emailError => submitAttempted ? validateEmail(email) : null;
   String? get addressError =>
@@ -104,6 +115,8 @@ class CaregiverSignupState extends Equatable {
 
   bool get isStep1Valid =>
       validateName(name) == null &&
+          gender != null &&
+          validateDateOfBirth(dateOfBirth) == null &&
           validatePhone(phone) == null &&
           validateEmail(email) == null &&
           validateAddress(address) == null &&
@@ -121,12 +134,15 @@ class CaregiverSignupState extends Equatable {
           : null;
   String? get dailyRateError =>
       submitAttempted ? validateDailyRate(dailyRate) : null;
+  String? get experienceYearsError =>
+      submitAttempted ? validateExperienceYears(experienceYears) : null;
 
   bool get isStep2Valid =>
       validateRequired(specializations, fieldName: 'Specializations') ==
           null &&
           availabilityType != null &&
-          validateDailyRate(dailyRate) == null;
+          validateDailyRate(dailyRate) == null &&
+          validateExperienceYears(experienceYears) == null;
 
   // ---- Step 3 errors ----
   bool get isStep3Valid => CaregiverDocumentType.values
@@ -135,6 +151,8 @@ class CaregiverSignupState extends Equatable {
   CaregiverSignupState copyWith({
     int? currentStep,
     String? name,
+    Gender? gender,
+    DateTime? dateOfBirth,
     String? phone,
     String? email,
     String? address,
@@ -146,6 +164,7 @@ class CaregiverSignupState extends Equatable {
     String? specializations,
     AvailabilityType? availabilityType,
     String? dailyRate,
+    String? experienceYears,
     Map<CaregiverDocumentType, PlatformFile>? uploadedDocuments,
     CaregiverSignupStatus? status,
     bool? submitAttempted,
@@ -153,6 +172,8 @@ class CaregiverSignupState extends Equatable {
     return CaregiverSignupState(
       currentStep: currentStep ?? this.currentStep,
       name: name ?? this.name,
+      gender: gender ?? this.gender,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       address: address ?? this.address,
@@ -165,6 +186,7 @@ class CaregiverSignupState extends Equatable {
       specializations: specializations ?? this.specializations,
       availabilityType: availabilityType ?? this.availabilityType,
       dailyRate: dailyRate ?? this.dailyRate,
+      experienceYears: experienceYears ?? this.experienceYears,
       uploadedDocuments: uploadedDocuments ?? this.uploadedDocuments,
       status: status ?? this.status,
       submitAttempted: submitAttempted ?? this.submitAttempted,
@@ -175,6 +197,8 @@ class CaregiverSignupState extends Equatable {
   List<Object?> get props => [
     currentStep,
     name,
+    gender,
+    dateOfBirth,
     phone,
     email,
     address,
@@ -186,6 +210,7 @@ class CaregiverSignupState extends Equatable {
     specializations,
     availabilityType,
     dailyRate,
+    experienceYears,
     uploadedDocuments,
     status,
     submitAttempted,

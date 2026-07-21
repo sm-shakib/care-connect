@@ -78,3 +78,27 @@ String? validateDailyRate(String? value) {
   }
   return null;
 }
+
+String? validateDateOfBirth(DateTime? value) {
+  if (value == null) {
+    return 'Date of birth is required.';
+  }
+  final age = DateTime.now().difference(value).inDays / 365.25;
+  if (age < 18) {
+    return 'You must be at least 18 years old.';
+  }
+  if (age > 120) {
+    return 'Enter a valid date of birth.';
+  }
+  return null;
+}
+
+String? validateExperienceYears(String? value) {
+  final requiredError = validateRequired(value, fieldName: 'Experience');
+  if (requiredError != null) return requiredError;
+  final parsed = int.tryParse(value!.trim());
+  if (parsed == null || parsed < 0 || parsed > 60) {
+    return 'Enter a valid number of years.';
+  }
+  return null;
+}

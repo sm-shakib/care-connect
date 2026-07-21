@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/utils/validators.dart';
 
 part 'family_signup_state.dart';
@@ -11,6 +12,9 @@ class FamilySignupCubit extends Cubit<FamilySignupState> {
   FamilySignupCubit() : super(const FamilySignupState());
 
   void nameChanged(String value) => emit(state.copyWith(name: value));
+  void genderChanged(Gender? value) => emit(state.copyWith(gender: value));
+  void dateOfBirthChanged(DateTime value) =>
+      emit(state.copyWith(dateOfBirth: value));
   void phoneChanged(String value) => emit(state.copyWith(phone: value));
   void emailChanged(String value) => emit(state.copyWith(email: value));
   void addressChanged(String value) => emit(state.copyWith(address: value));
