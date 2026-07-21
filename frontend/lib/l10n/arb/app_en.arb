@@ -38,5 +38,50 @@
     "languageToggleToBangla": "বাংলা",
     "@languageToggleToBangla": {
         "description": "Label shown on the language toggle button when current language is English (tapping switches to Bangla)"
+    },
+
+    "roleSelectionTitle": "Who are you?",
+    "@roleSelectionTitle": {
+        "description": "Heading on the role selection screen"
+    },
+
+    "roleSelectionSubtitle": "Select your profile to personalize your\nexperience and access the right tools.",
+    "@roleSelectionSubtitle": {
+        "description": "Subtitle on the role selection screen"
+    },
+
+    "roleElderlyPersonTitle": "Elderly Person",
+    "@roleElderlyPersonTitle": {
+        "description": "Title of the Elderly Person role card"
+    },
+
+    "roleElderlyPersonSubtitle": "Manage health and daily walks",
+    "@roleElderlyPersonSubtitle": {
+        "description": "Subtitle of the Elderly Person role card"
+    },
+
+    "roleCaregiverTitle": "Caregiver",
+    "@roleCaregiverTitle": {
+        "description": "Title of the Caregiver role card"
+    },
+
+    "roleCaregiverSubtitle": "Monitor patients and provide care",
+    "@roleCaregiverSubtitle": {
+        "description": "Subtitle of the Caregiver role card"
+    },
+
+    "roleFamilyMemberTitle": "Family Member",
+    "@roleFamilyMemberTitle": {
+        "description": "Title of the Family Member role card"
+    },
+
+    "roleFamilyMemberSubtitle": "Stay connected and updated",
+    "@roleFamilyMemberSubtitle": {
+        "description": "Subtitle of the Family Member role card"
+    },
+
+    "continueLabel": "Continue",
+    "@continueLabel": {
+        "description": "Label for the primary continue button on the role selection screen"
     }
 }

@@ -14,5 +14,23 @@
 
     "contactSupport": "সহায়তার সাথে যোগাযোগ করুন",
 
-    "languageToggleToBangla": "English"
+    "languageToggleToBangla": "English",
+
+    "roleSelectionTitle": "আপনি কে?",
+
+    "roleSelectionSubtitle": "আপনার অভিজ্ঞতা ব্যক্তিগতকরণ ও সঠিক সুবিধাগুলো\nপেতে আপনার প্রোফাইল নির্বাচন করুন।",
+
+    "roleElderlyPersonTitle": "বয়স্ক ব্যক্তি",
+
+    "roleElderlyPersonSubtitle": "স্বাস্থ্য ও দৈনন্দিন হাঁটাচলা পরিচালনা করুন",
+
+    "roleCaregiverTitle": "সেবা প্রদানকারী",
+
+    "roleCaregiverSubtitle": "রোগী পর্যবেক্ষণ ও সেবা প্রদান করুন",
+
+    "roleFamilyMemberTitle": "পরিবারের সদস্য",
+
+    "roleFamilyMemberSubtitle": "সংযুক্ত থাকুন ও আপডেট পান",
+
+    "continueLabel": "চালিয়ে যান"
 }
