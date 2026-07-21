@@ -9,6 +9,7 @@ import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/family_signup/cubit/family_signup_cubit.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -40,6 +41,7 @@ class _FamilySignupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -61,9 +63,9 @@ class _FamilySignupView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        const Text(
-                          'Create Your Account',
-                          style: TextStyle(
+                        Text(
+                          l10n.createAccountTitle,
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: AppColors.darkTeal,
@@ -71,8 +73,7 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tell us a bit about yourself so we can keep '
-                              'your loved ones connected.',
+                          l10n.familySignupSubtitle,
                           style: TextStyle(
                             fontSize: 14,
                             color: colorScheme.onSurfaceVariant,
@@ -89,15 +90,15 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         AuthTextField(
-                          label: 'Full Name',
-                          hintText: 'e.g. Fatima Rahman',
+                          label: l10n.fullNameLabel,
+                          hintText: l10n.familyNameHint,
                           prefixIcon: Icons.person_outline,
                           errorText: state.nameError,
                           onChanged: cubit.nameChanged,
                         ),
                         const SizedBox(height: 18),
                         AuthDropdownField<Gender>(
-                          label: 'Gender',
+                          label: l10n.genderLabel,
                           value: state.gender,
                           items: Gender.values,
                           itemLabel: (gender) => gender.label,
@@ -106,15 +107,15 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 18),
                         AuthDateField(
-                          label: 'Date of Birth',
+                          label: l10n.dateOfBirthLabel,
                           value: state.dateOfBirth,
                           errorText: state.dateOfBirthError,
                           onChanged: cubit.dateOfBirthChanged,
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Phone Number',
-                          hintText: 'e.g. +8801XXXXXXXXX',
+                          label: l10n.phoneNumberLabel,
+                          hintText: l10n.phoneNumberHint,
                           prefixIcon: Icons.phone_outlined,
                           keyboardType: TextInputType.phone,
                           errorText: state.phoneError,
@@ -122,8 +123,8 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Email',
-                          hintText: 'e.g. name@email.com',
+                          label: l10n.emailLabel,
+                          hintText: l10n.emailHint,
                           prefixIcon: Icons.mail_outline,
                           keyboardType: TextInputType.emailAddress,
                           errorText: state.emailError,
@@ -131,15 +132,15 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Address',
-                          hintText: 'e.g. House 12, Road 5, Dhaka',
+                          label: l10n.addressLabel,
+                          hintText: l10n.addressHint,
                           prefixIcon: Icons.location_on_outlined,
                           errorText: state.addressError,
                           onChanged: cubit.addressChanged,
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Password',
+                          label: l10n.passwordLabel,
                           hintText: '••••••••',
                           prefixIcon: Icons.lock_outline,
                           obscureText: state.isPasswordObscured,
@@ -157,7 +158,7 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Confirm Password',
+                          label: l10n.confirmPasswordLabel,
                           hintText: '••••••••',
                           prefixIcon: Icons.lock_outline,
                           obscureText: state.isConfirmPasswordObscured,
@@ -175,7 +176,7 @@ class _FamilySignupView extends StatelessWidget {
                         ),
                         const SizedBox(height: 28),
                         PrimaryPillButton(
-                          label: 'Create Account',
+                          label: l10n.createAccountButtonLabel,
                           icon: Icons.check,
                           isLoading: state.isSubmitting,
                           onPressed: cubit.submit,
@@ -183,7 +184,7 @@ class _FamilySignupView extends StatelessWidget {
                         if (state.status == FamilySignupStatus.failure) ...[
                           const SizedBox(height: 12),
                           Text(
-                            'Something went wrong. Please try again.',
+                            l10n.genericFailureMessage,
                             style: TextStyle(
                               fontSize: 13,
                               color: colorScheme.error,
@@ -194,9 +195,9 @@ class _FamilySignupView extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Already have an account?',
-                              style: TextStyle(
+                            Text(
+                              l10n.alreadyHaveAccount,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.darkTeal,
                               ),
@@ -212,9 +213,9 @@ class _FamilySignupView extends StatelessWidget {
                                       ),
                                     );
                                   },
-                              child: const Text(
-                                'Login',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.login,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.darkTeal,

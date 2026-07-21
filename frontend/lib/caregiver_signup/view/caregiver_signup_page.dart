@@ -11,6 +11,7 @@ import 'package:frontend/core/widgets/document_upload_tile.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/step_progress_indicator.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -38,15 +39,16 @@ class _CaregiverSignupView extends StatelessWidget {
   final VoidCallback? onSignupSuccess;
   final VoidCallback? onLogin;
 
-  static const List<String> _stepLabels = [
-    'Basic Info',
-    'Professional Info',
-    'Documents',
+  static List<String> _stepLabels(AppLocalizations l10n) => [
+    l10n.basicInfoStepLabel,
+    l10n.professionalInfoStepLabel,
+    l10n.documentsStepLabel,
   ];
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -68,7 +70,7 @@ class _CaregiverSignupView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: StepProgressIndicator(
-                    steps: _stepLabels,
+                    steps: _stepLabels(l10n),
                     currentStep: state.currentStep,
                   ),
                 ),
@@ -89,7 +91,7 @@ class _CaregiverSignupView extends StatelessWidget {
                     children: [
                       if (state.status == CaregiverSignupStatus.failure) ...[
                         Text(
-                          'Something went wrong. Please try again.',
+                          l10n.genericFailureMessage,
                           style: TextStyle(
                             fontSize: 13,
                             color: colorScheme.error,
@@ -99,8 +101,8 @@ class _CaregiverSignupView extends StatelessWidget {
                       ],
                       PrimaryPillButton(
                         label: state.isLastStep
-                            ? 'Submit for Verification'
-                            : 'Continue',
+                            ? l10n.submitForVerificationLabel
+                            : l10n.continueLabel,
                         icon: state.isLastStep
                             ? Icons.check
                             : Icons.arrow_forward,
@@ -112,9 +114,9 @@ class _CaregiverSignupView extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Already have an account?',
-                              style: TextStyle(
+                            Text(
+                              l10n.alreadyHaveAccount,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.darkTeal,
                               ),
@@ -130,9 +132,9 @@ class _CaregiverSignupView extends StatelessWidget {
                                       ),
                                     );
                                   },
-                              child: const Text(
-                                'Login',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.login,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.darkTeal,
@@ -163,13 +165,14 @@ class _BasicInfoStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Create Your Account',
-          style: TextStyle(
+        Text(
+          l10n.createAccountTitle,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
@@ -177,7 +180,7 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Start your journey as a verified caregiver on CareConnect.',
+          l10n.caregiverSignupSubtitle,
           style: TextStyle(
             fontSize: 14,
             color: colorScheme.onSurfaceVariant,
@@ -194,15 +197,15 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         AuthTextField(
-          label: 'Full Name',
-          hintText: 'e.g. Nusrat Jahan',
+          label: l10n.fullNameLabel,
+          hintText: l10n.caregiverNameHint,
           prefixIcon: Icons.person_outline,
           errorText: state.nameError,
           onChanged: cubit.nameChanged,
         ),
         const SizedBox(height: 18),
         AuthDropdownField<Gender>(
-          label: 'Gender',
+          label: l10n.genderLabel,
           value: state.gender,
           items: Gender.values,
           itemLabel: (gender) => gender.label,
@@ -211,15 +214,15 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthDateField(
-          label: 'Date of Birth',
+          label: l10n.dateOfBirthLabel,
           value: state.dateOfBirth,
           errorText: state.dateOfBirthError,
           onChanged: cubit.dateOfBirthChanged,
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Phone Number',
-          hintText: 'e.g. +8801XXXXXXXXX',
+          label: l10n.phoneNumberLabel,
+          hintText: l10n.phoneNumberHint,
           prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
           errorText: state.phoneError,
@@ -227,8 +230,8 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Email',
-          hintText: 'e.g. name@email.com',
+          label: l10n.emailLabel,
+          hintText: l10n.emailHint,
           prefixIcon: Icons.mail_outline,
           keyboardType: TextInputType.emailAddress,
           errorText: state.emailError,
@@ -236,15 +239,15 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Address',
-          hintText: 'e.g. House 12, Road 5, Dhaka',
+          label: l10n.addressLabel,
+          hintText: l10n.addressHint,
           prefixIcon: Icons.location_on_outlined,
           errorText: state.addressError,
           onChanged: cubit.addressChanged,
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Password',
+          label: l10n.passwordLabel,
           hintText: '••••••••',
           prefixIcon: Icons.lock_outline,
           obscureText: state.isPasswordObscured,
@@ -262,7 +265,7 @@ class _BasicInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Confirm Password',
+          label: l10n.confirmPasswordLabel,
           hintText: '••••••••',
           prefixIcon: Icons.lock_outline,
           obscureText: state.isConfirmPasswordObscured,
@@ -293,13 +296,14 @@ class _ProfessionalInfoStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Professional Info',
-          style: TextStyle(
+        Text(
+          l10n.professionalInfoStepLabel,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
@@ -307,7 +311,7 @@ class _ProfessionalInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Tell families what you specialize in and how you work.',
+          l10n.professionalInfoSubtitle,
           style: TextStyle(
             fontSize: 14,
             color: colorScheme.onSurfaceVariant,
@@ -316,9 +320,8 @@ class _ProfessionalInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         AuthTextField(
-          label: 'Specializations',
-          hintText: 'e.g. Elderly mobility support, dementia care, '
-              'post-surgery recovery...',
+          label: l10n.specializationsLabel,
+          hintText: l10n.specializationsHint,
           prefixIcon: Icons.medical_services_outlined,
           maxLines: 4,
           errorText: state.specializationsError,
@@ -326,8 +329,8 @@ class _ProfessionalInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Experience (Years)',
-          hintText: 'e.g. 3',
+          label: l10n.experienceYearsLabel,
+          hintText: l10n.experienceYearsHint,
           prefixIcon: Icons.work_history_outlined,
           keyboardType: TextInputType.number,
           errorText: state.experienceYearsError,
@@ -335,7 +338,7 @@ class _ProfessionalInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthDropdownField<AvailabilityType>(
-          label: 'Availability',
+          label: l10n.availabilityLabel,
           value: state.availabilityType,
           items: AvailabilityType.values,
           itemLabel: (type) => type.label,
@@ -344,8 +347,8 @@ class _ProfessionalInfoStep extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         AuthTextField(
-          label: 'Daily Rate (৳)',
-          hintText: 'e.g. 1500',
+          label: l10n.dailyRateLabel,
+          hintText: l10n.dailyRateHint,
           prefixIcon: Icons.payments_outlined,
           keyboardType: TextInputType.number,
           errorText: state.dailyRateError,
@@ -366,14 +369,15 @@ class _DocumentsStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final showError = state.submitAttempted && !state.isStep3Valid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Verification Documents',
-          style: TextStyle(
+        Text(
+          l10n.verificationDocumentsTitle,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
@@ -381,8 +385,7 @@ class _DocumentsStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Upload these so our team can verify your profile before it '
-              'goes live. Accepted formats: PDF, JPG, PNG.',
+          l10n.verificationDocumentsSubtitle,
           style: TextStyle(
             fontSize: 14,
             color: colorScheme.onSurfaceVariant,
@@ -401,7 +404,7 @@ class _DocumentsStep extends StatelessWidget {
         if (showError) ...[
           const SizedBox(height: 4),
           Text(
-            'Please upload all required documents.',
+            l10n.uploadAllDocumentsError,
             style: TextStyle(fontSize: 13, color: colorScheme.error),
           ),
         ],
