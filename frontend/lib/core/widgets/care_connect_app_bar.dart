@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 
@@ -15,6 +16,7 @@ class CareConnectAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -25,7 +27,7 @@ class CareConnectAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: onBack ?? () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

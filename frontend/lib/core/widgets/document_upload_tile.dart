@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 
@@ -33,6 +34,7 @@ class DocumentUploadTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final isUploaded = fileName != null;
 
     return Container(
@@ -81,7 +83,7 @@ class DocumentUploadTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  fileName ?? 'No file selected',
+                  fileName ?? l10n.noFileSelected,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -96,7 +98,7 @@ class DocumentUploadTile extends StatelessWidget {
           TextButton(
             onPressed: _pickFile,
             style: TextButton.styleFrom(foregroundColor: AppColors.darkTeal),
-            child: Text(isUploaded ? 'Replace' : 'Upload'),
+            child: Text(isUploaded ? l10n.replaceLabel : l10n.uploadLabel),
           ),
         ],
       ),

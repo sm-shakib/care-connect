@@ -38,5 +38,285 @@
     "languageToggleToBangla": "বাংলা",
     "@languageToggleToBangla": {
         "description": "Label shown on the language toggle button when current language is English (tapping switches to Bangla)"
+    },
+
+    "roleSelectionTitle": "Who are you?",
+    "@roleSelectionTitle": {
+        "description": "Heading on the role selection screen"
+    },
+
+    "roleSelectionSubtitle": "Select your profile to personalize your\nexperience and access the right tools.",
+    "@roleSelectionSubtitle": {
+        "description": "Subtitle on the role selection screen"
+    },
+
+    "roleElderlyPersonTitle": "Elderly Person",
+    "@roleElderlyPersonTitle": {
+        "description": "Title of the Elderly Person role card"
+    },
+
+    "roleElderlyPersonSubtitle": "Manage health and daily walks",
+    "@roleElderlyPersonSubtitle": {
+        "description": "Subtitle of the Elderly Person role card"
+    },
+
+    "roleCaregiverTitle": "Caregiver",
+    "@roleCaregiverTitle": {
+        "description": "Title of the Caregiver role card"
+    },
+
+    "roleCaregiverSubtitle": "Monitor patients and provide care",
+    "@roleCaregiverSubtitle": {
+        "description": "Subtitle of the Caregiver role card"
+    },
+
+    "roleFamilyMemberTitle": "Family Member",
+    "@roleFamilyMemberTitle": {
+        "description": "Title of the Family Member role card"
+    },
+
+    "roleFamilyMemberSubtitle": "Stay connected and updated",
+    "@roleFamilyMemberSubtitle": {
+        "description": "Subtitle of the Family Member role card"
+    },
+
+    "continueLabel": "Continue",
+    "@continueLabel": {
+        "description": "Label for the primary continue button on the role selection screen"
+    },
+
+    "createAccountTitle": "Create Your Account",
+    "@createAccountTitle": {
+        "description": "Heading on the basic info step of every signup flow"
+    },
+
+    "createAccountButtonLabel": "Create Account",
+    "@createAccountButtonLabel": {
+        "description": "Label for the final submit button on single/last-step signup flows"
+    },
+
+    "fullNameLabel": "Full Name",
+    "@fullNameLabel": {
+        "description": "Label for the full name field"
+    },
+
+    "genderLabel": "Gender",
+    "@genderLabel": {
+        "description": "Label for the gender dropdown field"
+    },
+
+    "dateOfBirthLabel": "Date of Birth",
+    "@dateOfBirthLabel": {
+        "description": "Label for the date of birth field"
+    },
+
+    "phoneNumberLabel": "Phone Number",
+    "@phoneNumberLabel": {
+        "description": "Label for the phone number field"
+    },
+
+    "phoneNumberHint": "e.g. +8801XXXXXXXXX",
+    "@phoneNumberHint": {
+        "description": "Hint text for the phone number field"
+    },
+
+    "emailLabel": "Email",
+    "@emailLabel": {
+        "description": "Label for the email field"
+    },
+
+    "emailHint": "e.g. name@email.com",
+    "@emailHint": {
+        "description": "Hint text for the email field"
+    },
+
+    "addressLabel": "Address",
+    "@addressLabel": {
+        "description": "Label for the address field"
+    },
+
+    "addressHint": "e.g. House 12, Road 5, Dhaka",
+    "@addressHint": {
+        "description": "Hint text for the address field"
+    },
+
+    "passwordLabel": "Password",
+    "@passwordLabel": {
+        "description": "Label for the password field"
+    },
+
+    "confirmPasswordLabel": "Confirm Password",
+    "@confirmPasswordLabel": {
+        "description": "Label for the confirm password field"
+    },
+
+    "alreadyHaveAccount": "Already have an account?",
+    "@alreadyHaveAccount": {
+        "description": "Text shown before the Login link on signup pages"
+    },
+
+    "genericFailureMessage": "Something went wrong. Please try again.",
+    "@genericFailureMessage": {
+        "description": "Generic failure banner shown when a signup submission fails"
+    },
+
+    "basicInfoStepLabel": "Basic Info",
+    "@basicInfoStepLabel": {
+        "description": "Step label for the basic info step of a multi-step signup"
+    },
+
+    "familySignupSubtitle": "Tell us a bit about yourself so we can keep your loved ones connected.",
+    "@familySignupSubtitle": {
+        "description": "Subtitle on the family member signup page"
+    },
+
+    "familyNameHint": "e.g. Fatima Rahman",
+    "@familyNameHint": {
+        "description": "Example name hint on the family member signup page"
+    },
+
+    "elderlySignupSubtitle": "Let your caregivers and family know a bit about you.",
+    "@elderlySignupSubtitle": {
+        "description": "Subtitle on the elderly signup basic info step"
+    },
+
+    "elderlyNameHint": "e.g. Abdul Karim",
+    "@elderlyNameHint": {
+        "description": "Example name hint on the elderly signup page"
+    },
+
+    "healthInfoStepLabel": "Health Info",
+    "@healthInfoStepLabel": {
+        "description": "Step label for the health info step of the elderly signup flow"
+    },
+
+    "healthInfoTitle": "Health Information",
+    "@healthInfoTitle": {
+        "description": "Heading on the elderly signup health info step"
+    },
+
+    "healthInfoSubtitle": "This helps us match you with caregivers suited to your needs. You can update this anytime.",
+    "@healthInfoSubtitle": {
+        "description": "Subtitle on the elderly signup health info step"
+    },
+
+    "healthConditionLabel": "Health Condition",
+    "@healthConditionLabel": {
+        "description": "Label for the health condition field"
+    },
+
+    "healthConditionHint": "e.g. Type 2 diabetes, mild arthritis, needs help with daily walks...",
+    "@healthConditionHint": {
+        "description": "Hint text for the health condition field"
+    },
+
+    "caregiverSignupSubtitle": "Start your journey as a verified caregiver on CareConnect.",
+    "@caregiverSignupSubtitle": {
+        "description": "Subtitle on the caregiver signup basic info step"
+    },
+
+    "caregiverNameHint": "e.g. Nusrat Jahan",
+    "@caregiverNameHint": {
+        "description": "Example name hint on the caregiver signup page"
+    },
+
+    "professionalInfoStepLabel": "Professional Info",
+    "@professionalInfoStepLabel": {
+        "description": "Step label and heading for the caregiver professional info step"
+    },
+
+    "professionalInfoSubtitle": "Tell families what you specialize in and how you work.",
+    "@professionalInfoSubtitle": {
+        "description": "Subtitle on the caregiver signup professional info step"
+    },
+
+    "specializationsLabel": "Specializations",
+    "@specializationsLabel": {
+        "description": "Label for the specializations field"
+    },
+
+    "specializationsHint": "e.g. Elderly mobility support, dementia care, post-surgery recovery...",
+    "@specializationsHint": {
+        "description": "Hint text for the specializations field"
+    },
+
+    "experienceYearsLabel": "Experience (Years)",
+    "@experienceYearsLabel": {
+        "description": "Label for the years of experience field"
+    },
+
+    "experienceYearsHint": "e.g. 3",
+    "@experienceYearsHint": {
+        "description": "Hint text for the years of experience field"
+    },
+
+    "availabilityLabel": "Availability",
+    "@availabilityLabel": {
+        "description": "Label for the availability dropdown field"
+    },
+
+    "dailyRateLabel": "Daily Rate (৳)",
+    "@dailyRateLabel": {
+        "description": "Label for the daily rate field"
+    },
+
+    "dailyRateHint": "e.g. 1500",
+    "@dailyRateHint": {
+        "description": "Hint text for the daily rate field"
+    },
+
+    "documentsStepLabel": "Documents",
+    "@documentsStepLabel": {
+        "description": "Step label for the caregiver documents step"
+    },
+
+    "verificationDocumentsTitle": "Verification Documents",
+    "@verificationDocumentsTitle": {
+        "description": "Heading on the caregiver documents step"
+    },
+
+    "verificationDocumentsSubtitle": "Upload these so our team can verify your profile before it goes live. Accepted formats: PDF, JPG, PNG.",
+    "@verificationDocumentsSubtitle": {
+        "description": "Subtitle on the caregiver documents step"
+    },
+
+    "uploadAllDocumentsError": "Please upload all required documents.",
+    "@uploadAllDocumentsError": {
+        "description": "Error shown when not all required caregiver documents are uploaded"
+    },
+
+    "submitForVerificationLabel": "Submit for Verification",
+    "@submitForVerificationLabel": {
+        "description": "Label for the final submit button on the caregiver signup flow"
+    },
+
+    "chooseFromGallery": "Choose from Gallery",
+    "@chooseFromGallery": {
+        "description": "Option to pick a profile picture from the gallery"
+    },
+
+    "takeAPhoto": "Take a Photo",
+    "@takeAPhoto": {
+        "description": "Option to take a profile picture with the camera"
+    },
+
+    "addProfilePicture": "Add Profile Picture",
+    "@addProfilePicture": {
+        "description": "Label under the profile picture picker"
+    },
+
+    "noFileSelected": "No file selected",
+    "@noFileSelected": {
+        "description": "Shown on a document upload tile before a file is picked"
+    },
+
+    "uploadLabel": "Upload",
+    "@uploadLabel": {
+        "description": "Button label to upload a document"
+    },
+
+    "replaceLabel": "Replace",
+    "@replaceLabel": {
+        "description": "Button label to replace an already-uploaded document"
     }
 }

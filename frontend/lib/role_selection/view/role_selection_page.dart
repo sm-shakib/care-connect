@@ -5,6 +5,7 @@ import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
 import 'package:frontend/elderly_signup/view/elderly_signup_page.dart';
 import 'package:frontend/family_signup/view/family_signup_page.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/role_selection/cubit/role_selection_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -26,6 +27,7 @@ class _RoleSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -39,9 +41,9 @@ class _RoleSelectionView extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 12),
-                    const Text(
-                      'Who are you?',
-                      style: TextStyle(
+                    Text(
+                      l10n.roleSelectionTitle,
+                      style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: AppColors.darkTeal,
@@ -49,8 +51,7 @@ class _RoleSelectionView extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Select your profile to personalize your\n'
-                          'experience and access the right tools.',
+                      l10n.roleSelectionSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -66,8 +67,8 @@ class _RoleSelectionView extends StatelessWidget {
                           children: [
                             _RoleCard(
                               role: UserRole.elderlyPerson,
-                              title: 'Elderly Person',
-                              subtitle: 'Manage health and daily walks',
+                              title: l10n.roleElderlyPersonTitle,
+                              subtitle: l10n.roleElderlyPersonSubtitle,
                               icon: Icons.elderly,
                               isSelected:
                               state.selectedRole == UserRole.elderlyPerson,
@@ -78,8 +79,8 @@ class _RoleSelectionView extends StatelessWidget {
                             const SizedBox(height: 18),
                             _RoleCard(
                               role: UserRole.caregiver,
-                              title: 'Caregiver',
-                              subtitle: 'Monitor patients and provide care',
+                              title: l10n.roleCaregiverTitle,
+                              subtitle: l10n.roleCaregiverSubtitle,
                               icon: Icons.medical_services_outlined,
                               isSelected:
                               state.selectedRole == UserRole.caregiver,
@@ -90,8 +91,8 @@ class _RoleSelectionView extends StatelessWidget {
                             const SizedBox(height: 18),
                             _RoleCard(
                               role: UserRole.familyMember,
-                              title: 'Family Member',
-                              subtitle: 'Stay connected and updated',
+                              title: l10n.roleFamilyMemberTitle,
+                              subtitle: l10n.roleFamilyMemberSubtitle,
                               icon: Icons.family_restroom,
                               isSelected:
                               state.selectedRole == UserRole.familyMember,
@@ -117,6 +118,7 @@ class _RoleSelectionView extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -128,7 +130,7 @@ class _RoleSelectionView extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
@@ -145,6 +147,7 @@ class _RoleSelectionView extends StatelessWidget {
     return BlocBuilder<RoleSelectionCubit, RoleSelectionState>(
       builder: (context, state) {
         final enabled = state.isRoleSelected;
+        final l10n = AppLocalizations.of(context)!;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
@@ -196,9 +199,9 @@ class _RoleSelectionView extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Continue',
-                style: TextStyle(
+              child: Text(
+                l10n.continueLabel,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,

@@ -14,5 +14,117 @@
 
     "contactSupport": "সহায়তার সাথে যোগাযোগ করুন",
 
-    "languageToggleToBangla": "English"
+    "languageToggleToBangla": "English",
+
+    "roleSelectionTitle": "আপনি কে?",
+
+    "roleSelectionSubtitle": "আপনার অভিজ্ঞতা ব্যক্তিগতকরণ ও সঠিক সুবিধাগুলো\nপেতে আপনার প্রোফাইল নির্বাচন করুন।",
+
+    "roleElderlyPersonTitle": "বয়স্ক ব্যক্তি",
+
+    "roleElderlyPersonSubtitle": "স্বাস্থ্য ও দৈনন্দিন হাঁটাচলা পরিচালনা করুন",
+
+    "roleCaregiverTitle": "সেবা প্রদানকারী",
+
+    "roleCaregiverSubtitle": "রোগী পর্যবেক্ষণ ও সেবা প্রদান করুন",
+
+    "roleFamilyMemberTitle": "পরিবারের সদস্য",
+
+    "roleFamilyMemberSubtitle": "সংযুক্ত থাকুন ও আপডেট পান",
+
+    "continueLabel": "চালিয়ে যান",
+
+    "createAccountTitle": "আপনার অ্যাকাউন্ট তৈরি করুন",
+
+    "createAccountButtonLabel": "অ্যাকাউন্ট তৈরি করুন",
+
+    "fullNameLabel": "পূর্ণ নাম",
+
+    "genderLabel": "লিঙ্গ",
+
+    "dateOfBirthLabel": "জন্ম তারিখ",
+
+    "phoneNumberLabel": "ফোন নম্বর",
+
+    "phoneNumberHint": "যেমন +8801XXXXXXXXX",
+
+    "emailLabel": "ইমেইল",
+
+    "emailHint": "যেমন name@email.com",
+
+    "addressLabel": "ঠিকানা",
+
+    "addressHint": "যেমন বাড়ি ১২, রোড ৫, ঢাকা",
+
+    "passwordLabel": "পাসওয়ার্ড",
+
+    "confirmPasswordLabel": "পাসওয়ার্ড নিশ্চিত করুন",
+
+    "alreadyHaveAccount": "ইতিমধ্যে অ্যাকাউন্ট আছে?",
+
+    "genericFailureMessage": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+
+    "basicInfoStepLabel": "মৌলিক তথ্য",
+
+    "familySignupSubtitle": "নিজের সম্পর্কে কিছু তথ্য দিন, যাতে আমরা আপনার প্রিয়জনদের সংযুক্ত রাখতে পারি।",
+
+    "familyNameHint": "যেমন ফাতেমা রহমান",
+
+    "elderlySignupSubtitle": "আপনার সেবা প্রদানকারী ও পরিবারকে নিজের সম্পর্কে কিছু জানান।",
+
+    "elderlyNameHint": "যেমন আব্দুল করিম",
+
+    "healthInfoStepLabel": "স্বাস্থ্য তথ্য",
+
+    "healthInfoTitle": "স্বাস্থ্য তথ্য",
+
+    "healthInfoSubtitle": "এটি আপনার প্রয়োজন অনুযায়ী উপযুক্ত সেবা প্রদানকারী খুঁজে পেতে সাহায্য করবে। আপনি যেকোনো সময় এটি আপডেট করতে পারবেন।",
+
+    "healthConditionLabel": "স্বাস্থ্য অবস্থা",
+
+    "healthConditionHint": "যেমন টাইপ ২ ডায়াবেটিস, হালকা আর্থ্রাইটিস, দৈনন্দিন হাঁটাচলায় সাহায্য প্রয়োজন...",
+
+    "caregiverSignupSubtitle": "কেয়ারকানেক্টে একজন যাচাইকৃত সেবা প্রদানকারী হিসেবে আপনার যাত্রা শুরু করুন।",
+
+    "caregiverNameHint": "যেমন নুসরাত জাহান",
+
+    "professionalInfoStepLabel": "পেশাগত তথ্য",
+
+    "professionalInfoSubtitle": "আপনি কোন বিষয়ে দক্ষ এবং কীভাবে কাজ করেন তা পরিবারগুলোকে জানান।",
+
+    "specializationsLabel": "বিশেষত্ব",
+
+    "specializationsHint": "যেমন বয়স্কদের চলাফেরায় সহায়তা, ডিমেনশিয়া কেয়ার, অস্ত্রোপচার পরবর্তী পুনরুদ্ধার...",
+
+    "experienceYearsLabel": "অভিজ্ঞতা (বছর)",
+
+    "experienceYearsHint": "যেমন ৩",
+
+    "availabilityLabel": "উপলব্ধতা",
+
+    "dailyRateLabel": "দৈনিক ভাড়া (৳)",
+
+    "dailyRateHint": "যেমন ১৫০০",
+
+    "documentsStepLabel": "ডকুমেন্টস",
+
+    "verificationDocumentsTitle": "যাচাইকরণ ডকুমেন্ট",
+
+    "verificationDocumentsSubtitle": "আপনার প্রোফাইল প্রকাশের আগে আমাদের টিম যাচাই করতে পারে, তাই এগুলো আপলোড করুন। গ্রহণযোগ্য ফরম্যাট: PDF, JPG, PNG।",
+
+    "uploadAllDocumentsError": "অনুগ্রহ করে সব প্রয়োজনীয় ডকুমেন্ট আপলোড করুন।",
+
+    "submitForVerificationLabel": "যাচাইয়ের জন্য জমা দিন",
+
+    "chooseFromGallery": "গ্যালারি থেকে বেছে নিন",
+
+    "takeAPhoto": "ছবি তুলুন",
+
+    "addProfilePicture": "প্রোফাইল ছবি যোগ করুন",
+
+    "noFileSelected": "কোনো ফাইল নির্বাচিত হয়নি",
+
+    "uploadLabel": "আপলোড",
+
+    "replaceLabel": "পরিবর্তন করুন"
 }

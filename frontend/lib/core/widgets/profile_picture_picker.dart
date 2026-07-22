@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 
@@ -20,6 +21,7 @@ class ProfilePicturePicker extends StatelessWidget {
 
   Future<void> _showPickerSheet(BuildContext context) async {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -38,7 +40,7 @@ class ProfilePicturePicker extends StatelessWidget {
                   Icons.photo_library_outlined,
                   color: AppColors.darkTeal,
                 ),
-                title: const Text('Choose from Gallery'),
+                title: Text(l10n.chooseFromGallery),
                 onTap: () async {
                   Navigator.of(sheetContext).pop();
                   await _pickImage(context, ImageSource.gallery);
@@ -49,7 +51,7 @@ class ProfilePicturePicker extends StatelessWidget {
                   Icons.photo_camera_outlined,
                   color: AppColors.darkTeal,
                 ),
-                title: const Text('Take a Photo'),
+                title: Text(l10n.takeAPhoto),
                 onTap: () async {
                   Navigator.of(sheetContext).pop();
                   await _pickImage(context, ImageSource.camera);
@@ -77,6 +79,7 @@ class ProfilePicturePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final hasError = errorText != null && errorText!.isNotEmpty;
 
     return Column(
@@ -120,7 +123,7 @@ class ProfilePicturePicker extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Add Profile Picture',
+          l10n.addProfilePicture,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
