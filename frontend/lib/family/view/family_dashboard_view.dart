@@ -1,149 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/dashboard_header.dart';
-import '../widgets/quick_stats_section.dart';
-import '../cubit/family_dashboard_cubit.dart';
-import '../cubit/family_dashboard_state.dart';
-import '../widgets/elder_card.dart';
-import '../widgets/add_elder_button.dart';
-import '../family_monitoring/view/family_monitoring_page.dart';
+import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
+import 'package:frontend/family/cubit/family_dashboard_state.dart';
+import 'package:frontend/family/view/add_elder_page.dart';
+import 'package:frontend/family/widgets/add_elder_button.dart';
+import 'package:frontend/family/widgets/dashboard_header.dart';
+import 'package:frontend/family/widgets/elder_card.dart';
+import 'package:frontend/family/widgets/quick_stats_section.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class FamilyDashboardView extends StatelessWidget {
   const FamilyDashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
+    return BlocBuilder<FamilyDashboardCubit, FamilyDashboardState>(
+      builder: (context, state) {
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            /// Welcome
+            const DashboardHeader(),
 
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.teal,
-        title: const Text(
-          'Family Dashboard',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+            const SizedBox(height: 25),
 
-      body: BlocBuilder<FamilyDashboardCubit, FamilyDashboardState>(
-        builder: (context, state) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+            /// Quick Stats
+            QuickStatsSection(
+              totalElders: state.elders.length,
+              totalCaregivers: state.elders
+                  .fold(0, (sum, e) => sum + e.caregivers.length),
+            ),
 
-              /// Welcome
-              const DashboardHeader(),
+            const SizedBox(height: 25),
 
-              const SizedBox(height: 25),
-
-              /// Quick Stats
-              QuickStatsSection(
-                totalElders: state.elders.length,
-                totalCaregivers: state.elders
-                    .where((e) => e.hasCaregiver)
-                    .length,
+            const Text(
+              'My Elders',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.deepTrustBlue,
               ),
+            ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 15),
 
-              const Text(
-                "My Elders",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
+            if (state.elders.isEmpty)
+              const _EmptyEldersState()
+            else
               ...state.filteredElders.map(
-                    (elder) => ElderCard(
+                (elder) => ElderCard(
                   elder: elder,
                   onTap: () {
-
-                    context
-                        .read<FamilyDashboardCubit>()
-                        .selectElder(elder);
-
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => FamilyMonitoringPage(
-                                elder: elder,
-                            ),
-                        ),
-                    );
-
+                    // Update state to show monitoring view within the same tab
+                    context.read<FamilyDashboardCubit>().selectElder(elder);
                   },
                 ),
               ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
-
-              AddElderButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Add Elder feature coming soon!',
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-            ],
-          );
-        },
-      ),
+            AddElderButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AddElderPage(),
+                  ),
+                );
+              },
+            ),
+            
+            const SizedBox(height: 24),
+          ],
+        );
+      },
     );
   }
+}
 
-  Widget _buildStatCard(
-      String title,
-      String value,
-      IconData icon,
-      ) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+class _EmptyEldersState extends StatelessWidget {
+  const _EmptyEldersState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 18,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-
-            Icon(
-              icon,
-              size: 32,
-              color: Colors.teal,
+            const Icon(Icons.people_outline, size: 80, color: AppColors.outlineVariantLight),
+            const SizedBox(height: 16),
+            const Text(
+              'No elders added yet',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurfaceVariantLight),
             ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add your loved ones to start monitoring their care.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
-
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-
           ],
         ),
       ),

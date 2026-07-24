@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class HeartRateCard extends StatelessWidget {
   const HeartRateCard({
-    super.key,
     required this.heartRate,
     required this.status,
+    super.key,
   });
 
   final int heartRate;
@@ -22,59 +23,52 @@ class HeartRateCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-
+              children: [
                 Text(
-                  "Heart Rate",
+                  'Heart Rate',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color: AppColors.onSurfaceLight,
                   ),
                 ),
-
                 Icon(
                   Icons.favorite,
-                  color: Colors.red,
+                  color: AppColors.warningRed,
                 ),
-
               ],
             ),
-
             const SizedBox(height: 18),
-
             RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: "$heartRate",
+                    text: '$heartRate',
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: AppColors.onSurfaceLight,
                       fontSize: 34,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const TextSpan(
-                    text: " bpm",
+                    text: ' bpm',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: AppColors.onSurfaceVariantLight,
                       fontSize: 16,
                     ),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-
             Text(
-              "~ $status",
+              '~ $status',
               style: const TextStyle(
-                color: Colors.teal,
+                color: AppColors.primaryLight,
+                fontWeight: FontWeight.w500,
               ),
             ),
-
           ],
         ),
       ),
