@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 /// Which sub-system a recent-activity row relates to — drives the icon
 /// and icon-background color on the dashboard's activity feed.
-enum ActivityType { caregiver, complaint, booking }
+enum ActivityType { caregiver, complaint, booking, central_fund  }
 
 /// A single row in the "Recent Activity" feed.
 class ActivityItem extends Equatable {
