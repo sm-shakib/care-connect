@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/elderly/view/binding_requests_page.dart';
+import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 import 'cubit/dashboard_cubit.dart';
 import 'cubit/dashboard_state.dart';
-import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'view/widgets/caregiver_card.dart';
 import 'view/widgets/chat_card.dart';
 import 'view/widgets/greetings_section.dart';
 import 'view/widgets/medication_card.dart';
 import '../navbar/elderly_navbar.dart';
-import '../../theme/app_colors.dart';
 
 
 class ElderlyDashboardPage extends StatelessWidget {
@@ -96,9 +97,15 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         ],
       ),
       body: SafeArea(
-        child: _selectedIndex == 0
-            ? const _DashboardHomeBody()
-            : const _ComingSoonBody(),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: const [
+            _DashboardHomeBody(),
+            _ComingSoonBody(label: 'Medication Schedule'),
+            _ComingSoonBody(label: 'Chat with Caregiver'),
+            ElderlyProfilePage(),
+          ],
+        ),
       ),
       bottomNavigationBar: ElderlyBottomNavBar(
         selectedIndex: _selectedIndex,
@@ -185,16 +192,25 @@ class _AppBarLogo extends StatelessWidget {
 }
 
 class _ComingSoonBody extends StatelessWidget {
-  const _ComingSoonBody();
+  const _ComingSoonBody({required this.label});
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
-      child: Text(
-        'Coming soon',
-        style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.hourglass_empty, size: 64, color: colorScheme.outlineVariant),
+          const SizedBox(height: 16),
+          Text(
+            '$label coming soon',
+            style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+          ),
+        ],
       ),
     );
   }
