@@ -9,19 +9,27 @@ class AssistanceFormPage extends StatefulWidget {
 }
 
 class _AssistanceFormPageState extends State<AssistanceFormPage> {
-  final _amountController = TextEditingController();
+  String? _selectedCaregiverType;
   final _reasonController = TextEditingController();
   bool _documentAttached = false;
 
+  final List<String> _caregiverTypes = [
+    'Physiotherapist',
+    'Registered Nurse',
+    'Home Care Assistant',
+    'Dementia Care Specialist',
+    'General Companion',
+    'Other'
+  ];
+
   @override
   void dispose() {
-    _amountController.dispose();
     _reasonController.dispose();
     super.dispose();
   }
 
   void _submitApplication() {
-    if (_amountController.text.isEmpty || _reasonController.text.isEmpty) {
+    if (_selectedCaregiverType == null || _reasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -59,7 +67,7 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Your request for financial assistance has been sent to the Admin for review.',
+              'Your request for a free caregiver has been sent to the Admin for review.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -100,7 +108,7 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Financial Assistance Request',
+              'Assistance Request',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -109,19 +117,27 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Provide details about your financial needs. Admin will review your eligibility.',
+              'Apply for a specialized caregiver through the central fund. Admin will assess your eligibility.',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
             const SizedBox(height: 32),
-            TextField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
+            DropdownButtonFormField<String>(
+              value: _selectedCaregiverType,
+              items: _caregiverTypes
+                  .map((type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(type),
+                      ))
+                  .toList(),
+              onChanged: (val) => setState(() => _selectedCaregiverType = val),
               decoration: InputDecoration(
-                labelText: 'Requested Monthly Amount (৳)',
-                prefixText: '৳ ',
+                labelText: 'Caregiver Type Needed',
+                hintText: 'Select specialized care type',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
@@ -131,10 +147,12 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
               decoration: InputDecoration(
                 labelText: 'Reason for Assistance',
                 alignLabelWithHint: true,
-                hintText: 'Describe your current situation...',
+                hintText: 'Describe why you need this service for free...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
@@ -168,8 +186,8 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
                     const SizedBox(height: 8),
                     Text(
                       _documentAttached 
-                          ? 'Medical_Report_2023.pdf' 
-                          : 'Upload Medical Report / Income Proof',
+                          ? 'Financial_Stability_Proof.pdf' 
+                          : 'Upload Income Proof / Medical Necessity',
                       style: TextStyle(
                         color: _documentAttached ? Colors.green : Colors.grey,
                         fontWeight: _documentAttached ? FontWeight.bold : null,
