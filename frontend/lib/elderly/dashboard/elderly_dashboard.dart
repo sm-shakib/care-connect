@@ -8,6 +8,8 @@ import 'view/widgets/chat_card.dart';
 import 'view/widgets/greetings_section.dart';
 import 'view/widgets/medication_card.dart';
 import '../navbar/elderly_navbar.dart';
+import '../../shared/medicine/cubit/medicine_cubit.dart';
+import '../../shared/medicine/view/medicine_view.dart';
 import '../../theme/app_colors.dart';
 
 
@@ -32,6 +34,21 @@ class _ElderlyDashboardView extends StatefulWidget {
 
 class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   int _selectedIndex = 0;
+  late final MedicineCubit _medicineCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _medicineCubit = MedicineCubit()..loadMedicines();
+  }
+
+  @override
+  void dispose() {
+    _medicineCubit.close();
+    super.dispose();
+  }
+
+  void _goToMedicationTab() => setState(() => _selectedIndex = 1);
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +68,14 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         ),
       ),
       body: SafeArea(
-        child: _selectedIndex == 0
-            ? const _DashboardHomeBody()
-            : const _ComingSoonBody(),
+        child: BlocProvider.value(
+          value: _medicineCubit,
+          child: switch (_selectedIndex) {
+            0 => _DashboardHomeBody(onViewAllMedications: _goToMedicationTab),
+            1 => const MedicineView(isElderly: true),
+            _ => const _ComingSoonBody(),
+          },
+        ),
       ),
       bottomNavigationBar: ElderlyBottomNavBar(
         selectedIndex: _selectedIndex,
@@ -69,7 +91,9 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
 
 
 class _DashboardHomeBody extends StatelessWidget {
-  const _DashboardHomeBody();
+  const _DashboardHomeBody({this.onViewAllMedications});
+
+  final VoidCallback? onViewAllMedications;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +124,7 @@ class _DashboardHomeBody extends StatelessWidget {
                 onMarkTaken: (medication) => context
                     .read<DashboardCubit>()
                     .markMedicationTaken(medication.id),
+                onViewAll: onViewAllMedications,
               ),
               const SizedBox(height: 18),
               CaregiverCard(caregiver: state.caregiver),
