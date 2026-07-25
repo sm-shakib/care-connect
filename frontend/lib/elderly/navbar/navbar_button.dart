@@ -23,14 +23,15 @@ class NavbarButton extends StatelessWidget {
         ? AppColors.onPrimaryContainerLight
         : AppColors.onSurfaceVariantLight;
 
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Material(
         color: isSelected
             ? AppColors.primaryContainerLight
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(16),
           onTap: onPressed,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
