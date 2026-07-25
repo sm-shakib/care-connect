@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class LiveLocationCard extends StatelessWidget {
   const LiveLocationCard({
-    super.key,
     required this.locationImage,
     required this.updatedTime,
+    super.key,
   });
 
   final String locationImage;
@@ -20,46 +21,39 @@ class LiveLocationCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-
                 const Icon(
                   Icons.location_on,
-                  color: Colors.teal,
+                  color: AppColors.primaryLight,
                 ),
-
                 const SizedBox(width: 8),
-
                 const Expanded(
                   child: Text(
-                    "Live Location",
+                    'Live Location',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      color: AppColors.onSurfaceLight,
                     ),
                   ),
                 ),
-
                 Text(
                   updatedTime,
                   style: const TextStyle(
-                    color: Colors.grey,
+                    color: AppColors.onSurfaceVariantLight,
                   ),
                 ),
-
               ],
             ),
           ),
-
           Image.asset(
             locationImage,
             height: 170,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
-
         ],
       ),
     );

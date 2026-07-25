@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class QuickStatsSection extends StatelessWidget {
   const QuickStatsSection({
-    super.key,
     required this.totalElders,
     required this.totalCaregivers,
+    super.key,
   });
 
   final int totalElders;
@@ -14,26 +15,47 @@ class QuickStatsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-
         Expanded(
-          child: _StatCard(
-            icon: Icons.people,
-            title: "Elders",
-            value: totalElders.toString(),
+          child: InkWell(
+            onTap: () => _showStatsDialog(context, 'Elders', 'You are currently managing $totalElders loved ones in your family account.'),
+            borderRadius: BorderRadius.circular(18),
+            child: _StatCard(
+              icon: Icons.people,
+              title: 'Elders',
+              value: totalElders.toString(),
+            ),
           ),
         ),
-
         const SizedBox(width: 14),
-
         Expanded(
-          child: _StatCard(
-            icon: Icons.medical_services,
-            title: "Caregivers",
-            value: totalCaregivers.toString(),
+          child: InkWell(
+            onTap: () => _showStatsDialog(context, 'Caregivers', 'There are $totalCaregivers active caregivers providing care to your elders.'),
+            borderRadius: BorderRadius.circular(18),
+            child: _StatCard(
+              icon: Icons.medical_services,
+              title: 'Caregivers',
+              value: totalCaregivers.toString(),
+            ),
           ),
         ),
-
       ],
+    );
+  }
+
+  void _showStatsDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(title, style: const TextStyle(color: AppColors.darkTeal, fontWeight: FontWeight.bold)),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(color: AppColors.darkTeal, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -62,32 +84,27 @@ class _StatCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-
             Icon(
               icon,
-              color: Colors.teal,
+              color: AppColors.primaryLight,
               size: 34,
             ),
-
             const SizedBox(height: 10),
-
             Text(
               value,
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
+                color: AppColors.onSurfaceLight,
               ),
             ),
-
             const SizedBox(height: 5),
-
             Text(
               title,
               style: const TextStyle(
-                color: Colors.grey,
+                color: AppColors.onSurfaceVariantLight,
               ),
             ),
-
           ],
         ),
       ),

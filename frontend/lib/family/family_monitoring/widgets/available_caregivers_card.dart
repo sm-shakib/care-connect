@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class AvailableCaregiversCard extends StatelessWidget {
   const AvailableCaregiversCard({
-    super.key,
     required this.onTap,
+    super.key,
   });
 
   final VoidCallback onTap;
@@ -24,42 +25,39 @@ class AvailableCaregiversCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: Colors.teal.shade100,
+                backgroundColor: AppColors.paleMint,
                 child: const Icon(
                   Icons.group,
-                  color: Colors.teal,
+                  color: AppColors.primaryLight,
                 ),
               ),
-
               const SizedBox(width: 14),
-
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Available Caregivers",
+                      'Available Caregivers',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: AppColors.onSurfaceLight,
                       ),
                     ),
-
                     SizedBox(height: 5),
-
                     Text(
-                      "Browse & Book",
+                      'Browse & Book',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: AppColors.onSurfaceVariantLight,
                       ),
                     ),
                   ],
                 ),
               ),
-
               const Icon(
                 Icons.arrow_forward_ios,
                 size: 18,
+                color: AppColors.outlineLight,
               ),
             ],
           ),

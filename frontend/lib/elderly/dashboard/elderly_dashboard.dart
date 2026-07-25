@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cubit/dashboard_cubit.dart';
 import 'cubit/dashboard_state.dart';
+import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'view/widgets/caregiver_card.dart';
 import 'view/widgets/chat_card.dart';
 import 'view/widgets/greetings_section.dart';
@@ -49,6 +50,50 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
           'CareConnect',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.darkTeal),
         ),
+        actions: [
+          BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              final hasRequests = state.bindingRequests.isNotEmpty;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.people_alt_rounded,
+                        color: AppColors.darkTeal, size: 28),
+                    onPressed: () {
+                      final cubit = context.read<DashboardCubit>();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: const BindingRequestsPage(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  if (hasRequests)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.warningRed,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: _selectedIndex == 0
@@ -93,6 +138,10 @@ class _DashboardHomeBody extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [
+              if (state.bindingRequests.isNotEmpty) ...[
+                _PendingRequestBanner(count: state.bindingRequests.length),
+                const SizedBox(height: 12),
+              ],
               GreetingsSection(userName: state.userName),
               const SizedBox(height: 24),
               MedicationCard(
@@ -146,6 +195,66 @@ class _ComingSoonBody extends StatelessWidget {
       child: Text(
         'Coming soon',
         style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
+}
+
+class _PendingRequestBanner extends StatelessWidget {
+  const _PendingRequestBanner({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = count == 1
+        ? 'You have a new family binding request!'
+        : 'You have $count new family binding requests!';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.paleMint,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: AppColors.darkTeal),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.darkTeal,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              final cubit = context.read<DashboardCubit>();
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => BlocProvider.value(
+                    value: cubit,
+                    child: const BindingRequestsPage(),
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'VIEW',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.darkTeal,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

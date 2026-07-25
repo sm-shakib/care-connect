@@ -19,11 +19,29 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     );
   }
 
-  /// Select an elder
-  void selectElder(Elder elder) {
+  /// Select an elder (pass null to go back to dashboard)
+  void selectElder(Elder? elder) {
     emit(
       state.copyWith(
         selectedElder: elder,
+      ),
+    );
+  }
+
+  /// Start booking process for a specific elder
+  void startBookingForElder(Elder elder) {
+    emit(
+      state.copyWith(
+        bookingForElder: elder,
+      ),
+    );
+  }
+
+  /// Clear the booking context
+  void clearBookingContext() {
+    emit(
+      state.copyWith(
+        bookingForElder: null,
       ),
     );
   }

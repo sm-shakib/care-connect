@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-
+import 'package:frontend/family/models/binding_request.dart';
 import 'dashboard_models.dart';
 
 enum DashboardStatus { initial, loading, success, failure }
@@ -9,6 +9,7 @@ class DashboardState extends Equatable {
     this.status = DashboardStatus.initial,
     this.userName = '',
     this.medications = const <Medication>[],
+    this.bindingRequests = const <BindingRequest>[],
     this.caregiver,
     this.chatPreview,
     this.errorMessage,
@@ -17,6 +18,7 @@ class DashboardState extends Equatable {
   final DashboardStatus status;
   final String userName;
   final List<Medication> medications;
+  final List<BindingRequest> bindingRequests;
   final CaregiverSummary? caregiver;
   final ChatPreview? chatPreview;
   final String? errorMessage;
@@ -28,6 +30,7 @@ class DashboardState extends Equatable {
     DashboardStatus? status,
     String? userName,
     List<Medication>? medications,
+    List<BindingRequest>? bindingRequests,
     CaregiverSummary? caregiver,
     ChatPreview? chatPreview,
     String? errorMessage,
@@ -36,6 +39,7 @@ class DashboardState extends Equatable {
       status: status ?? this.status,
       userName: userName ?? this.userName,
       medications: medications ?? this.medications,
+      bindingRequests: bindingRequests ?? this.bindingRequests,
       caregiver: caregiver ?? this.caregiver,
       chatPreview: chatPreview ?? this.chatPreview,
       errorMessage: errorMessage,
@@ -44,11 +48,12 @@ class DashboardState extends Equatable {
 
   @override
   List<Object?> get props => [
-    status,
-    userName,
-    medications,
-    caregiver,
-    chatPreview,
-    errorMessage,
-  ];
+        status,
+        userName,
+        medications,
+        bindingRequests,
+        caregiver,
+        chatPreview,
+        errorMessage,
+      ];
 }
