@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/admin/admin_shell/admin_shell.dart';
+import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
 import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
@@ -282,7 +283,7 @@ class _LoginViewState extends State<_LoginView> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute<void>(
-                builder: (_) => const CaregiverPendingPage(),
+                builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
               ),
             );
           } else if (_selectedRole == _LoginRole.admin) {

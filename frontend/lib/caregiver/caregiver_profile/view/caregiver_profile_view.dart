@@ -1,0 +1,756 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+
+import 'package:frontend/caregiver_signup/caregiver_signup.dart';
+import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/widgets/auth_date_field.dart';
+import 'package:frontend/core/widgets/auth_dropdown_field.dart';
+import 'package:frontend/core/widgets/auth_text_field.dart';
+import 'package:frontend/core/widgets/primary_pill_button.dart';
+import 'package:frontend/core/widgets/profile_picture_picker.dart';
+import 'package:frontend/theme/app_colors.dart';
+
+import '../cubit/caregiver_profile_cubit.dart';
+import '../widgets/profile_top_bar.dart';
+import '../widgets/verified_document_tile.dart';
+
+class CaregiverProfileView extends StatelessWidget {
+  const CaregiverProfileView({super.key, this.onLogOut});
+
+  final VoidCallback? onLogOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      //backgroundColor: colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
+      body: SafeArea(
+        child: BlocBuilder<CaregiverProfileCubit, CaregiverProfileState>(
+          builder: (context, state) {
+            final cubit = context.read<CaregiverProfileCubit>();
+
+            return Column(
+              children: [
+                const ProfileTopBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _PersonalInfoCard(state: state, cubit: cubit),
+                        const SizedBox(height: 16),
+                        _EarningsCard(state: state),
+                        const SizedBox(height: 16),
+                        _VerifiedDocumentsSection(state: state),
+                        const SizedBox(height: 20),
+                        _ActionsSection(
+                          state: state,
+                          cubit: cubit,
+                          onLogOut: onLogOut,
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: Text(
+                            'Version 1.0.0',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _PersonalInfoCard extends StatelessWidget {
+  const _PersonalInfoCard({required this.state, required this.cubit});
+
+  final CaregiverProfileState state;
+  final CaregiverProfileCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (state.isEditing)
+                ProfilePicturePicker(
+                  key: ValueKey('avatar-${state.editSessionId}'),
+                  imageBytes: state.profileImageBytes,
+                  onImagePicked: cubit.profileImagePicked,
+                )
+              else
+                CircleAvatar(
+                  radius: 32,
+                  backgroundColor: AppColors.paleMint,
+                  backgroundImage: state.profileImageBytes != null
+                      ? MemoryImage(state.profileImageBytes!)
+                      : null,
+                  child: state.profileImageBytes == null
+                      ? const Icon(Icons.person, size: 32, color: AppColors.darkTeal)
+                      : null,
+                ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      state.name,
+                      style: TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      state.email,
+                      style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          if (!state.isEditing) ...[
+            _StatsRow(state: state),
+            const SizedBox(height: 16),
+            _ReadOnlyInfoRows(state: state),
+          ] else ...[
+            _EditableInfoFields(state: state, cubit: cubit),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryPillButton(
+                    label: 'Cancel',
+                    isOutlined: true,
+                    icon: null,
+                    onPressed: cubit.cancelEditing,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: PrimaryPillButton(
+                    label: 'Save',
+                    icon: Icons.check,
+                    isLoading: state.isSaving,
+                    onPressed: cubit.saveChanges,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({required this.state});
+
+  final CaregiverProfileState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _StatBox(
+            colorScheme: colorScheme,
+            label: 'Experience',
+            value: '${state.experienceYears} Years',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _StatBox(
+            colorScheme: colorScheme,
+            label: 'Location',
+            value: state.address,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatBox extends StatelessWidget {
+  const _StatBox({required this.colorScheme, required this.label, required this.value});
+
+  final ColorScheme colorScheme;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReadOnlyInfoRows extends StatelessWidget {
+  const _ReadOnlyInfoRows({required this.state});
+
+  final CaregiverProfileState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final dobLabel = state.dateOfBirth != null
+        ? DateFormat('d MMM yyyy').format(state.dateOfBirth!)
+        : '—';
+
+    return Column(
+      children: [
+        _InfoRow(icon: Icons.phone_outlined, label: 'Phone Number', value: state.phone),
+        _InfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
+        _InfoRow(icon: Icons.cake_outlined, label: 'Date of Birth', value: dobLabel),
+        _InfoRow(
+          icon: Icons.medical_services_outlined,
+          label: 'Specializations',
+          value: state.specializations,
+        ),
+        _InfoRow(
+          icon: Icons.event_available_outlined,
+          label: 'Availability',
+          value: state.availabilityType?.label ?? '—',
+        ),
+        _InfoRow(
+          icon: Icons.payments_outlined,
+          label: 'Daily Rate',
+          value: '৳${state.dailyRate}',
+          isLast: true,
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : Border(
+          bottom: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            //child: Icon(icon, size: 18, color: colorScheme.primary),
+            child: Icon(icon, size: 18, color: AppColors.darkTeal),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EditableInfoFields extends StatelessWidget {
+  const _EditableInfoFields({required this.state, required this.cubit});
+
+  final CaregiverProfileState state;
+  final CaregiverProfileCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final sessionKeyPrefix = 'field-${state.editSessionId}';
+
+    return Column(
+      children: [
+        AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-phone'),
+          label: 'Phone Number',
+          hintText: 'e.g. +8801XXXXXXXXX',
+          prefixIcon: Icons.phone_outlined,
+          keyboardType: TextInputType.phone,
+          initialValue: state.phone,
+          onChanged: cubit.phoneChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-address'),
+          label: 'Address',
+          hintText: 'e.g. Seattle, WA',
+          prefixIcon: Icons.location_on_outlined,
+          initialValue: state.address,
+          onChanged: cubit.addressChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthDropdownField<Gender>(
+          key: ValueKey('$sessionKeyPrefix-gender'),
+          label: 'Gender',
+          value: state.gender,
+          items: Gender.values,
+          itemLabel: (gender) => gender.label,
+          onChanged: cubit.genderChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthDateField(
+          key: ValueKey('$sessionKeyPrefix-dob'),
+          label: 'Date of Birth',
+          value: state.dateOfBirth,
+          onChanged: cubit.dateOfBirthChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-specializations'),
+          label: 'Specializations',
+          hintText: 'e.g. Elderly mobility support, dementia care...',
+          prefixIcon: Icons.medical_services_outlined,
+          maxLines: 3,
+          initialValue: state.specializations,
+          onChanged: cubit.specializationsChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthDropdownField<AvailabilityType>(
+          key: ValueKey('$sessionKeyPrefix-availability'),
+          label: 'Availability',
+          value: state.availabilityType,
+          items: AvailabilityType.values,
+          itemLabel: (type) => type.label,
+          onChanged: cubit.availabilityTypeChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-rate'),
+          label: 'Daily Rate (৳)',
+          hintText: 'e.g. 1500',
+          prefixIcon: Icons.payments_outlined,
+          keyboardType: TextInputType.number,
+          initialValue: state.dailyRate,
+          onChanged: cubit.dailyRateChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-experience'),
+          label: 'Experience (Years)',
+          hintText: 'e.g. 5',
+          prefixIcon: Icons.work_history_outlined,
+          keyboardType: TextInputType.number,
+          initialValue: state.experienceYears,
+          onChanged: cubit.experienceYearsChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _EarningsCard extends StatelessWidget {
+  const _EarningsCard({required this.state});
+
+  final CaregiverProfileState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
+    final payoutDateLabel = state.lastPayoutDate != null
+        ? DateFormat('MMMM d, yyyy').format(state.lastPayoutDate!)
+        : '—';
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Earnings Summary',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              // Text(
+              //   monthLabel,
+              //   style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '\৳${state.totalEarningsThisMonth.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Text(
+              //   'Total this month',
+              //   style: TextStyle(fontSize: 12, color: colorScheme.tertiary),
+              // ),
+            ],
+          ),
+          // const SizedBox(height: 18),
+          // _EarningsSparkline(values: state.earningsSparkline, color: colorScheme.primary),
+          // const SizedBox(height: 18),
+          // Container(
+          //   padding: const EdgeInsets.all(14),
+          //   decoration: BoxDecoration(
+          //     color: colorScheme.surfaceContainer,
+          //     borderRadius: BorderRadius.circular(12),
+          //   ),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+                  // children: [
+                  //   Text(
+                  //     'Last Payout',
+                  //     style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                  //   ),
+                  //   // Text(
+                  //   //   '\$${state.lastPayoutAmount.toStringAsFixed(2)}',
+                  //   //   style: TextStyle(
+                  //   //     fontSize: 16,
+                  //   //     fontWeight: FontWeight.bold,
+                  //   //     color: colorScheme.onSurface,
+                  //   //   ),
+                  //   ),
+                  // ],
+                // ),
+          //       Column(
+          //         crossAxisAlignment: CrossAxisAlignment.end,
+          //         children: [
+          //           Text(
+          //             'Date',
+          //             style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+          //           ),
+          //           Text(
+          //             payoutDateLabel,
+          //             style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+          //           ),
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                // TODO: navigate to full earnings history page.
+              },
+              style: ElevatedButton.styleFrom(
+                //backgroundColor: colorScheme.primary,
+                backgroundColor: AppColors.darkTeal,
+                foregroundColor: colorScheme.onPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('View Earnings History', style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(width: 6),
+                  Icon(Icons.chevron_right, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EarningsSparkline extends StatelessWidget {
+  const _EarningsSparkline({required this.values, required this.color});
+
+  final List<double> values;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final maxValue = values.isEmpty ? 1.0 : values.reduce((a, b) => a > b ? a : b);
+
+    return SizedBox(
+      height: 64,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (var i = 0; i < values.length; i++) ...[
+            Expanded(
+              child: FractionallySizedBox(
+                heightFactor: maxValue == 0 ? 0.1 : (values[i] / maxValue).clamp(0.1, 1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: i == values.length - 1 ? color : color.withValues(alpha: 0.3),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                  ),
+                ),
+              ),
+            ),
+            if (i != values.length - 1) const SizedBox(width: 6),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VerifiedDocumentsSection extends StatelessWidget {
+  const _VerifiedDocumentsSection({required this.state});
+
+  final CaregiverProfileState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final documentTypes = state.documents.keys.toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Verified Documents',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+          ),
+          child: Column(
+            children: [
+              for (var i = 0; i < documentTypes.length; i++) ...[
+                VerifiedDocumentTile(
+                  type: documentTypes[i],
+                  fileName: state.documents[documentTypes[i]]!,
+                  onView: () {
+                    // TODO: open a preview of this document.
+                  },
+                ),
+                if (i != documentTypes.length - 1)
+                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionsSection extends StatelessWidget {
+  const _ActionsSection({
+    required this.state,
+    required this.cubit,
+    this.onLogOut,
+  });
+
+  final CaregiverProfileState state;
+  final CaregiverProfileCubit cubit;
+  final VoidCallback? onLogOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        if (!state.isEditing)
+          _ActionRow(
+            icon: Icons.edit_outlined,
+            label: 'Edit Profile',
+            color: colorScheme.onSurface,
+            //backgroundColor: colorScheme.surfaceContainerLow,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: cubit.startEditing,
+          ),
+        // const SizedBox(height: 10),
+        // _ActionRow(
+        //   icon: Icons.help_outline,
+        //   label: 'Help & Support',
+        //   color: colorScheme.onSurface,
+        //   //backgroundColor: colorScheme.surfaceContainerLow,
+        //   backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+        //   onTap: () {
+        //     // TODO: navigate to help & support.
+        //   },
+        // ),
+        const SizedBox(height: 10),
+        _ActionRow(
+          icon: Icons.logout,
+          label: 'Log Out',
+          color: colorScheme.error,
+          backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.2),
+          onTap: () {
+            cubit.logOut();
+            if (onLogOut != null) {
+              onLogOut!.call();
+            } else {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.backgroundColor,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color backgroundColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 16, color: color),
+                ),
+              ),
+              Icon(Icons.chevron_right, color: color.withValues(alpha: 0.6)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
