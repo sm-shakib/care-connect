@@ -11,6 +11,11 @@ import '../../../admin_navigation.dart';
 /// [AdminShellView], which owns the actual tab-switching logic via
 /// [AdminShellCubit].
 ///
+/// Every item fills an equal `Expanded` share of the bar and its pill
+/// background stretches to fill that share (`width: double.infinity`),
+/// so all 5 buttons are always exactly the same size regardless of
+/// label length ("Dashboard" vs "Users") or selected state.
+///
 /// Fixed [_barHeight] + `Expanded` items + centered content — same
 /// overflow-safe pattern used throughout this app, now sized for 5
 /// items instead of 4.
@@ -41,7 +46,7 @@ class AdminBottomNavBar extends StatelessWidget {
         child: SizedBox(
           height: _barHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: _NavItem(
@@ -91,7 +96,12 @@ class AdminBottomNavBar extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
+/// A single nav item. Uses Flutter's built-in implicit-animation
+/// widgets (`AnimatedContainer`, `AnimatedScale`, `AnimatedDefaultTextStyle`,
+/// `TweenAnimationBuilder`) rather than a full `AnimationController`,
+/// since everything here just animates toward whatever `isActive`
+/// currently is — no manual controller/dispose needed.
+class _NavItem extends StatefulWidget {
   const _NavItem({
     required this.icon,
     required this.label,
@@ -105,39 +115,88 @@ class _NavItem extends StatelessWidget {
   final bool isActive;
 
   @override
+  State<_NavItem> createState() => _NavItemState();
+}
+
+class _NavItemState extends State<_NavItem> {
+  static const _duration = Duration(milliseconds: 220);
+  static const _curve = Curves.easeOutCubic;
+
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final foreground = isActive
+    final foreground = widget.isActive
         ? AppColors.onPrimaryContainerLight
         : AppColors.onSurfaceVariantLight;
 
-    return Center(
-      child: Material(
-        color:
-        isActive ? AppColors.primaryContainerLight : Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: foreground, size: 20),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: foreground,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          // Small tap-down "squish" for tactile feedback, on top of
+          // the selection pop below.
+          scale: _pressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+          child: AnimatedContainer(
+            duration: _duration,
+            curve: _curve,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: widget.isActive
+                  ? AppColors.primaryContainerLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: widget.onTap,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AnimatedScale(
+                      scale: widget.isActive ? 1.15 : 1.0,
+                      duration: _duration,
+                      curve: _curve,
+                      child: TweenAnimationBuilder<Color?>(
+                        duration: _duration,
+                        curve: _curve,
+                        tween: ColorTween(end: foreground),
+                        builder: (context, color, _) {
+                          return Icon(widget.icon, color: color, size: 20);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    AnimatedDefaultTextStyle(
+                      duration: _duration,
+                      curve: _curve,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight:
+                        widget.isActive ? FontWeight.w700 : FontWeight.w600,
+                        color: foreground,
+                      ),
+                      child: Text(
+                        widget.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
