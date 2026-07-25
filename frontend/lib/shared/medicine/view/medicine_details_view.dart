@@ -17,27 +17,26 @@ class MedicineDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return ListView(
       padding: const EdgeInsets.all(18),
       children: [
-        Center(
-          child: Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: AppColors.primaryContainerLight.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: medicine.imagePath == null
-                ? const Icon(
-                    Icons.medication_outlined,
-                    color: AppColors.primaryLight,
-                    size: 56,
-                  )
-                : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
+        Container(
+          width: double.infinity,
+          height: screenHeight / 4,
+          decoration: BoxDecoration(
+            color: AppColors.primaryContainerLight.withValues(alpha: 0.25),
+            borderRadius: BorderRadius.circular(20),
           ),
+          clipBehavior: Clip.antiAlias,
+          child: medicine.imagePath == null
+              ? const Icon(
+                  Icons.medication_outlined,
+                  color: AppColors.primaryLight,
+                  size: 56,
+                )
+              : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
         ),
         const SizedBox(height: 18),
         Center(
