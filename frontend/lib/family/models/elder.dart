@@ -39,4 +39,40 @@ class Elder {
   final HealthVitals vitals;
   final String lastLocationUpdate;
   final String locationImage;
+
+  Elder copyWith({
+    String? id,
+    String? name,
+    int? age,
+    String? relationship,
+    String? gender,
+    bool? hasCaregiver,
+    String? healthStatus,
+    String? imageUrl,
+    List<String>? caregivers,
+    List<Medication>? medications,
+    List<MedicalRecord>? medicalRecords,
+    List<Appointment>? appointments,
+    HealthVitals? vitals,
+    String? lastLocationUpdate,
+    String? locationImage,
+  }) {
+    return Elder(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      age: age ?? this.age,
+      relationship: relationship ?? this.relationship,
+      gender: gender ?? this.gender,
+      hasCaregiver: hasCaregiver ?? this.hasCaregiver,
+      healthStatus: healthStatus ?? this.healthStatus,
+      imageUrl: imageUrl ?? this.imageUrl,
+      caregivers: caregivers ?? this.caregivers,
+      medications: medications ?? this.medications,
+      medicalRecords: medicalRecords ?? this.medicalRecords,
+      appointments: appointments ?? this.appointments,
+      vitals: vitals ?? this.vitals,
+      lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
+      locationImage: locationImage ?? this.locationImage,
+    );
+  }
 }

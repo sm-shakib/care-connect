@@ -130,10 +130,17 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
               onChanged: (index) {
                 setState(() {
                   _selectedIndex = index;
+                  
+                  // If user clicks the Home tab (index 0), always go back to the dashboard list
+                  if (index == 0) {
+                    context.read<FamilyDashboardCubit>().selectElder(null);
+                  }
+
                   // Clear selection if switching tabs away from home
                   if (index != 0) {
-                     context.read<FamilyDashboardCubit>().selectElder(null);
+                    context.read<FamilyDashboardCubit>().selectElder(null);
                   }
+
                   // Clear booking context if switching away from caregivers tab
                   if (index != 1) {
                     context.read<FamilyDashboardCubit>().clearBookingContext();

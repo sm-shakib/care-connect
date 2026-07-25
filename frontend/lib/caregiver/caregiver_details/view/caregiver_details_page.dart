@@ -101,7 +101,7 @@ class CaregiverDetailsPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            /// Identification & Background (Admin collected data)
+            /// Identification & Background
             const Text(
               "Background Verification",
               style: TextStyle(
@@ -239,12 +239,13 @@ class CaregiverDetailsPage extends StatelessWidget {
     }
   }
 
-  void _showElderSelectionDialog(BuildContext context) {
-    final elders = context.read<FamilyDashboardCubit>().state.elders;
+  void _showElderSelectionDialog(BuildContext pageContext) {
+    final cubit = pageContext.read<FamilyDashboardCubit>();
+    final elders = cubit.state.elders;
 
     showDialog(
-      context: context,
-      builder: (context) {
+      context: pageContext,
+      builder: (dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: const Text('Book for which Elder?', textAlign: TextAlign.center),
@@ -264,8 +265,8 @@ class CaregiverDetailsPage extends StatelessWidget {
                   title: Text(elder.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(elder.relationship),
                   onTap: () {
-                    Navigator.pop(context); // Close selection dialog
-                    _showSuccessDialog(context, elder);
+                    Navigator.pop(dialogContext); // Close selection dialog
+                    _showSuccessDialog(pageContext, elder);
                   },
                 );
               },
@@ -276,11 +277,13 @@ class CaregiverDetailsPage extends StatelessWidget {
     );
   }
 
-  void _showSuccessDialog(BuildContext context, Elder elder) {
+  void _showSuccessDialog(BuildContext pageContext, Elder elder) {
+    final cubit = pageContext.read<FamilyDashboardCubit>();
+    
     showDialog(
-      context: context,
+      context: pageContext,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -316,8 +319,11 @@ class CaregiverDetailsPage extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      Navigator.pop(context); // Close details page
+                      // Actually add the caregiver to the elder's list in the state
+                      cubit.addCaregiverToElder(elder.id, caregiver.name);
+                      
+                      Navigator.pop(dialogContext); // Close dialog
+                      Navigator.pop(pageContext); // Close details page
                     },
                     child: const Text("Done"),
                   ),
