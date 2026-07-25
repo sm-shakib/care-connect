@@ -28,9 +28,9 @@ class CentralFundPage extends StatelessWidget {
   ];
 
   final List<TransactionModel> transactions = const [
-    TransactionModel(title: "Fatima Begum", subtitle: "Disbursement • 12 Oct", amount: "- ৳ 4,500", status: "COMPLETED", type: TransactionType.disbursement),
+    TransactionModel(title: "Fatima Begum", subtitle: "Disbursement • 12 Oct", amount: "- ৳ 1,500", status: "COMPLETED", type: TransactionType.disbursement),
     TransactionModel(title: "Zayan Ahmed", subtitle: "Donation • 12 Oct", amount: "+ ৳ 5,000", status: "COMPLETED", type: TransactionType.donation),
-    TransactionModel(title: "Bank Transfer", subtitle: "External Fetch • 11 Oct", amount: "৳ 0", status: "SYNCING", type: TransactionType.sync),
+
   ];
 
   @override

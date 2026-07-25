@@ -26,12 +26,6 @@ class TransactionTile extends StatelessWidget {
         iconColor = const Color(0xFF00574D);
         amountColor = const Color(0xFF006B5F);
         break;
-      case TransactionType.sync:
-        icon = Icons.sync;
-        iconBg = const Color(0xFFEEEEEE);
-        iconColor = const Color(0xFF6B7A76);
-        amountColor = const Color(0xFF1A1C1C);
-        break;
     }
 
     return Container(
@@ -64,8 +58,8 @@ class TransactionTile extends StatelessWidget {
               Text(tx.amount, style: TextStyle(color: amountColor, fontWeight: FontWeight.bold, fontSize: 15)),
               Text(
                 tx.status,
-                style: TextStyle(
-                  color: tx.type == TransactionType.sync ? const Color(0xFF4059AA) : const Color(0xFF3C4A46),
+                style: const TextStyle(
+                  color: Color(0xFF3C4A46),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
