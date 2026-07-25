@@ -14,17 +14,18 @@ class FamilyDashboardState extends Equatable {
   final Elder? selectedElder;
   final Elder? bookingForElder;
 
+  // Pattern to allow null values in copyWith
   FamilyDashboardState copyWith({
     List<Elder>? elders,
     List<Elder>? filteredElders,
-    Elder? selectedElder,
-    Elder? bookingForElder,
+    Elder? Function()? selectedElder,
+    Elder? Function()? bookingForElder,
   }) {
     return FamilyDashboardState(
       elders: elders ?? this.elders,
       filteredElders: filteredElders ?? this.filteredElders,
-      selectedElder: selectedElder ?? this.selectedElder,
-      bookingForElder: bookingForElder ?? this.bookingForElder,
+      selectedElder: selectedElder != null ? selectedElder() : this.selectedElder,
+      bookingForElder: bookingForElder != null ? bookingForElder() : this.bookingForElder,
     );
   }
 

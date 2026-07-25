@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/cubit/family_dashboard_state.dart';
+import 'package:frontend/family/family_monitoring/view/family_monitoring_page.dart';
 import 'package:frontend/family/view/add_elder_page.dart';
 import 'package:frontend/family/widgets/add_elder_button.dart';
 import 'package:frontend/family/widgets/dashboard_header.dart';
@@ -33,6 +34,28 @@ class FamilyDashboardView extends StatelessWidget {
 
             const SizedBox(height: 25),
 
+            /// Search Bar
+            TextField(
+              onChanged: (val) => context.read<FamilyDashboardCubit>().searchElders(val),
+              decoration: InputDecoration(
+                hintText: 'Search your loved ones...',
+                prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
             const Text(
               'My Elders',
               style: TextStyle(
@@ -46,12 +69,18 @@ class FamilyDashboardView extends StatelessWidget {
 
             if (state.elders.isEmpty)
               const _EmptyEldersState()
+            else if (state.filteredElders.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text('No matches found.'),
+                ),
+              )
             else
               ...state.filteredElders.map(
                 (elder) => ElderCard(
                   elder: elder,
                   onTap: () {
-                    // Update state to show monitoring view within the same tab
                     context.read<FamilyDashboardCubit>().selectElder(elder);
                   },
                 ),
@@ -88,7 +117,7 @@ class _EmptyEldersState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-            const Icon(Icons.people_outline, size: 80, color: AppColors.outlineVariantLight),
+            Icon(Icons.people_outline, size: 80, color: AppColors.outlineVariantLight),
             const SizedBox(height: 16),
             const Text(
               'No elders added yet',
