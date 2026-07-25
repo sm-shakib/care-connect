@@ -29,23 +29,34 @@ class CaregiverCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Top Section
+            /// Top Section with Robust Gender Fallback
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   radius: 34,
                   backgroundColor: AppColors.paleMint,
-                  backgroundImage: caregiver.imageUrl.isNotEmpty
-                      ? NetworkImage(caregiver.imageUrl)
-                      : null,
-                  child: caregiver.imageUrl.isEmpty
-                      ? const Icon(
-                          Icons.person,
-                          color: AppColors.primaryLight,
-                          size: 38,
-                        )
-                      : null,
+                  child: ClipOval(
+                    child: caregiver.imageUrl.isNotEmpty
+                        ? Image.network(
+                            caregiver.imageUrl,
+                            fit: BoxFit.cover,
+                            width: 68,
+                            height: 68,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              caregiver.gender == 'Male'
+                                  ? Icons.man
+                                  : Icons.woman,
+                              color: AppColors.primaryLight,
+                              size: 38,
+                            ),
+                          )
+                        : Icon(
+                            caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                            color: AppColors.primaryLight,
+                            size: 38,
+                          ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

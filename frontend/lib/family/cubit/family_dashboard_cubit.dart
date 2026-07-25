@@ -73,6 +73,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
       return elder.copyWith(
         caregivers: [...elder.caregivers, caregiverName],
         hasCaregiver: true,
+        healthStatus: 'Healthy',
       );
     }).toList();
 

@@ -29,25 +29,29 @@ class ElderCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              /// Elder Avatar
+              /// Elder Avatar with Robust Gender Fallback
               CircleAvatar(
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
-                backgroundImage: elder.imageUrl.isNotEmpty
-                    ? NetworkImage(elder.imageUrl)
-                    : null,
-                onBackgroundImageError: elder.imageUrl.isNotEmpty
-                    ? (exception, stackTrace) {
-                        // Silently handle load errors
-                      }
-                    : null,
-                child: elder.imageUrl.isEmpty
-                    ? Icon(
-                        elder.gender == 'Male' ? Icons.man : Icons.woman,
-                        size: 34,
-                        color: AppColors.primaryLight,
-                      )
-                    : null,
+                child: ClipOval(
+                  child: elder.imageUrl.isNotEmpty
+                      ? Image.network(
+                          elder.imageUrl,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            elder.gender == 'Male' ? Icons.man : Icons.woman,
+                            size: 34,
+                            color: AppColors.primaryLight,
+                          ),
+                        )
+                      : Icon(
+                          elder.gender == 'Male' ? Icons.man : Icons.woman,
+                          size: 34,
+                          color: AppColors.primaryLight,
+                        ),
+                ),
               ),
 
               const SizedBox(width: 16),

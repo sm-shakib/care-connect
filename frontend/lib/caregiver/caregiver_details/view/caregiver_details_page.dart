@@ -32,7 +32,7 @@ class CaregiverDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Profile Section
+            /// Profile Section with Gender Fallback
             Center(
               child: Column(
                 children: [
@@ -43,8 +43,11 @@ class CaregiverDetailsPage extends StatelessWidget {
                         ? NetworkImage(caregiver.imageUrl)
                         : null,
                     child: caregiver.imageUrl.isEmpty
-                        ? const Icon(Icons.person,
-                            size: 60, color: AppColors.primaryLight)
+                        ? Icon(
+                            caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                            size: 60,
+                            color: AppColors.primaryLight,
+                          )
                         : null,
                   ),
                   const SizedBox(height: 16),
@@ -260,7 +263,9 @@ class CaregiverDetailsPage extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundColor: AppColors.paleMint,
                     backgroundImage: elder.imageUrl.isNotEmpty ? NetworkImage(elder.imageUrl) : null,
-                    child: elder.imageUrl.isEmpty ? const Icon(Icons.person, color: AppColors.primaryLight) : null,
+                    child: elder.imageUrl.isEmpty 
+                        ? Icon(elder.gender == 'Male' ? Icons.man : Icons.woman, color: AppColors.primaryLight) 
+                        : null,
                   ),
                   title: Text(elder.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(elder.relationship),

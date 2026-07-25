@@ -20,17 +20,25 @@ class MonitoringHeader extends StatelessWidget {
         CircleAvatar(
           radius: 22,
           backgroundColor: AppColors.paleMint,
-          backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-          onBackgroundImageError: imageUrl.isNotEmpty
-              ? (exception, stackTrace) => const Icon(Icons.error)
-              : null,
-          child: imageUrl.isEmpty
-              ? Icon(
-                  gender == 'Male' ? Icons.man : Icons.woman,
-                  color: AppColors.primaryLight,
-                  size: 26,
-                )
-              : null,
+          child: ClipOval(
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    width: 44,
+                    height: 44,
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      gender == 'Male' ? Icons.man : Icons.woman,
+                      color: AppColors.primaryLight,
+                      size: 26,
+                    ),
+                  )
+                : Icon(
+                    gender == 'Male' ? Icons.man : Icons.woman,
+                    color: AppColors.primaryLight,
+                    size: 26,
+                  ),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(

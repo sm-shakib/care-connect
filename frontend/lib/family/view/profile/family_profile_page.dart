@@ -42,10 +42,22 @@ class FamilyProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 60,
               backgroundColor: AppColors.paleMint,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=family_admin'),
+              child: ClipOval(
+                child: Image.network(
+                  'https://i.pravatar.cc/150?u=family_admin',
+                  fit: BoxFit.cover,
+                  width: 120,
+                  height: 120,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.man,
+                    size: 70,
+                    color: AppColors.primaryLight,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             const Text(
