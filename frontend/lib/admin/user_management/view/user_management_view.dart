@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../elderly_detail/view/elderly_detail_page.dart';
 import '../cubit/user_management_cubit.dart';
 import '../cubit/user_management_state.dart';
-//import 'widgets/user_bottom_nav_bar.dart';
+import '../cubit/user_model.dart';
 import 'widgets/user_filter_chips.dart';
 import 'widgets/user_list_card.dart';
 import 'widgets/user_search_bar.dart';
 
-/// Presentational scaffold for the User Management screen. Reads state
-/// from [UserManagementCubit] via [BlocBuilder] and stays responsive by
-/// centering content with a max width on larger screens.
+/// Tab body for the User Management screen, rendered inside
+/// `AdminShellView`'s `IndexedStack`. No back button, no bottom nav bar
+/// of its own — the shell provides one shared nav bar for all tabs.
+/// Reads state from [UserManagementCubit] via [BlocBuilder] and stays
+/// responsive by centering content with a max width on larger screens.
 class UserManagementView extends StatelessWidget {
   const UserManagementView({super.key});
 
@@ -20,7 +23,6 @@ class UserManagementView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: _buildAppBar(context),
-      //bottomNavigationBar: const UserManagementBottomNavBar(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO(careconnect): navigate to the add-user flow.
@@ -112,14 +114,9 @@ class UserManagementView extends StatelessWidget {
                               final user = users[index];
                               return UserListCard(
                                 user: user,
-                                onTap: () {
-                                  // TODO(careconnect): navigate to the
-                                  // user detail page.
-                                },
-                                onViewDetails: () {
-                                  // TODO(careconnect): navigate to the
-                                  // user detail page.
-                                },
+                                onTap: () => _openUserDetail(context, user),
+                                onViewDetails: () =>
+                                    _openUserDetail(context, user),
                                 onToggleStatus: () {
                                   // TODO(careconnect): call the
                                   // suspend/reactivate endpoint.
@@ -174,5 +171,31 @@ class UserManagementView extends StatelessWidget {
   double _horizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return width < 360 ? 16 : 20;
+  }
+
+  /// Routes to the right detail page based on the tapped user's role.
+  /// Only [UserRole.elderly] has a built detail page so far — Family
+  /// Member and Caregiver detail pages are still TODO, so those show a
+  /// "coming soon" snackbar instead of navigating nowhere.
+  void _openUserDetail(BuildContext context, UserAccount user) {
+    switch (user.role) {
+      case UserRole.elderly:
+        Navigator.of(context).push(
+          ElderlyDetailPage.route(userId: user.id),
+        );
+      case UserRole.family:
+      case UserRole.caregiver:
+      case UserRole.admin:
+      // TODO(careconnect): build FamilyMemberDetailPage and
+      // CaregiverDetailPage, then route to them here the same way as
+      // ElderlyDetailPage above.
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('${user.role.label} profile page coming soon.'),
+            ),
+          );
+    }
   }
 }
