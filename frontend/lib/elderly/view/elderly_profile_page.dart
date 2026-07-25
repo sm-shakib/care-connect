@@ -116,15 +116,15 @@ class ElderlyProfilePage extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.help_center_outlined, size: 40, color: Colors.blue),
+                  const Icon(Icons.volunteer_activism_outlined, size: 40, color: Colors.blue),
                   const SizedBox(height: 12),
                   const Text(
-                    'Financial Assistance',
+                    'Assistance',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'If you cannot afford a caregiver, you can apply for funding from the Central Fund.',
+                    'If you cannot afford a caregiver, you can apply for assistance from the Central Fund.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariantLight),
                   ),
