@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/donation/view/donation_flow_page.dart';
 import 'package:frontend/core/donation/view/donation_history_page.dart';
+import 'package:frontend/elderly/view/assistance_form_page.dart';
 import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/theme/app_colors.dart';
 
-class FamilyProfilePage extends StatelessWidget {
-  const FamilyProfilePage({super.key});
+class ElderlyProfilePage extends StatelessWidget {
+  const ElderlyProfilePage({super.key});
 
   void _handleLogout(BuildContext context) {
     showDialog(
@@ -45,25 +46,24 @@ class FamilyProfilePage extends StatelessWidget {
             const CircleAvatar(
               radius: 60,
               backgroundColor: AppColors.paleMint,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=family_admin'),
+              child: Icon(Icons.person, size: 70, color: AppColors.primaryLight),
             ),
             const SizedBox(height: 16),
             const Text(
-              'John Doe',
+              'Adib',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const Text(
-              'Family Member',
+              'Elderly User',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
             const SizedBox(height: 32),
-            _buildProfileTile(Icons.email_outlined, 'Email', 'john.doe@example.com'),
-            _buildProfileTile(Icons.phone_outlined, 'Phone', '+880 123456789'),
-            _buildProfileTile(Icons.location_on_outlined, 'Address', 'House 12, Road 5, Dhaka'),
+            _buildProfileTile(Icons.email_outlined, 'Email', 'adib@email.com'),
+            _buildProfileTile(Icons.phone_outlined, 'Phone', '+880 1712345678'),
             
             const SizedBox(height: 32),
             
-            /// Donation System - Prominent Section
+            /// Donation System
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -77,14 +77,8 @@ class FamilyProfilePage extends StatelessWidget {
                   const Icon(Icons.volunteer_activism, size: 40, color: AppColors.primaryLight),
                   const SizedBox(height: 12),
                   const Text(
-                    'CareConnect Central Fund',
+                    'Central Donation Fund',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Support elders who cannot afford caregiving services. Your contribution makes a difference.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariantLight),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -103,6 +97,54 @@ class FamilyProfilePage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: const Text('Donate Now', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+
+            /// Apply for Assistance Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.help_center_outlined, size: 40, color: Colors.blue),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Financial Assistance',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'If you cannot afford a caregiver, you can apply for funding from the Central Fund.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariantLight),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(builder: (_) => const AssistanceFormPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Apply for Assistance', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
