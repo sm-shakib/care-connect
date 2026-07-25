@@ -98,6 +98,13 @@ class _ActivityTile extends StatelessWidget {
         AppColors.tertiaryContainerLight,
         AppColors.onTertiaryContainerLight,
         );
+
+      case ActivityType.central_fund:
+        return (
+        Icons.event,
+        AppColors.tertiaryContainerLight,
+        AppColors.onTertiaryContainerLight,
+        );
     }
   }
 

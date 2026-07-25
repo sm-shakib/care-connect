@@ -15,6 +15,7 @@ class ManagementGrid extends StatelessWidget {
     required this.onUsersTap,
     required this.onComplaintsTap,
     required this.onBookingsTap,
+    required this.onCentralFundTap,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class ManagementGrid extends StatelessWidget {
   final VoidCallback onUsersTap;
   final VoidCallback onComplaintsTap;
   final VoidCallback onBookingsTap;
+  final VoidCallback onCentralFundTap;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +80,13 @@ class ManagementGrid extends StatelessWidget {
             Expanded(
               child: _ManagementTile(
                 icon: Icons.event_available,
-                title: 'Bookings',
+                //title: 'Bookings',
+                title: 'Central Fund',
                 subtitle: 'System Schedules',
                 backgroundColor: AppColors.tertiaryContainerLight,
                 foregroundColor: AppColors.onTertiaryContainerLight,
-                onTap: onBookingsTap,
+                //onTap: onBookingsTap,
+                onTap: onCentralFundTap,
               ),
             ),
           ],

@@ -121,6 +121,8 @@ class DashboardView extends StatelessWidget {
                             goToAdminTab(context, AdminTab.complaints),
                         onBookingsTap: () =>
                             goToAdminTab(context, AdminTab.bookings),
+                        onCentralFundTap: () =>
+                            goToAdminTab(context, AdminTab.central_fund),
                       ),
                       const SizedBox(height: 24),
                       RecentActivitySection(
@@ -166,6 +168,11 @@ class DashboardView extends StatelessWidget {
       // No booking-detail page exists yet, so this switches to the
       // Bookings tab rather than a specific booking.
         goToAdminTab(context, AdminTab.bookings);
+      case ActivityType.central_fund:
+      // No booking-detail page exists yet, so this switches to the
+      // Bookings tab rather than a specific booking.
+        goToAdminTab(context, AdminTab.central_fund);
+
     }
   }
 
