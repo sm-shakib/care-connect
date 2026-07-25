@@ -32,7 +32,7 @@ class AidRequestModel {
   });
 }
 
-enum TransactionType { disbursement, donation, sync }
+enum TransactionType { disbursement, donation }
 
 class TransactionModel {
   final String title;
