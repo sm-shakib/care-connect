@@ -99,27 +99,32 @@ class AidRequestCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Requested: ${request.date}',
-                      style: const TextStyle(
-                        color: onSurfaceVariant,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                // FIX: Wrapped in Flexible to prevent right overflow when text is long
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Requested: ${request.date}',
+                        style: const TextStyle(
+                          color: onSurfaceVariant,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    Text(
-                      isApproved ? 'Care Assigned' : 'Caregiver Needed',
-                      style: const TextStyle(
-                        color: primary,
-                        fontSize: 20, // headline-sm
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        isApproved ? 'Care Assigned' : 'Caregiver Needed',
+                        style: const TextStyle(
+                          color: primary,
+                          fontSize: 20, // headline-sm
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
 
                 // Action Button
                 isApproved

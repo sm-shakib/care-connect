@@ -17,9 +17,9 @@ class CentralFundPage extends StatelessWidget {
 
   // Mock data matching the design template
   final List<DonationModel> donations = const [
-    DonationModel(donorName: "Zayan Ahmed", date: "12 Oct 2023", paymentMethod: "Bkash", amount: "৳ 5,000", imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuA-GcYvOr1xoyJeHPYQkjzFyAuVNsHs8qkzJtEv4NeYc9Wi7HUh48XaObqdoxkW9Im4T97j7-Kcin8_lOxBgXm31u2gs-7rSAiljoQffgccMkB0iiUfZL9YLOwpZr0jQyEKbMScRGoCgr3H4O9htZ1A6Q7bEPPq4wFrD4PsmcZ8A4D6oixp3kX1je2MJKJkxONCmXYzapKxbQ5QAz9-PMODS2d6_Ha9IzvPhFSvU0CwP3AnIXn5BgX1CNfFPvx4tSPb7t7WKS3IBuU"),
-    DonationModel(donorName: "Mrs. Selina Rahman", date: "11 Oct 2023", paymentMethod: "Bank Transfer", amount: "৳ 25,000", imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAg1SJZGKUIwEtivrjPW48FWSUDaU7dvMH8jbzBE1nDVCMAufn5jq5tWBuqdey-SY1xNlyTC1U_BHPMVjqfLd3xrQ3sM5msvREv6I8gGA6kBe4VMcLWmR3n6nvU0Oto7ie98b37-rOoS_fw_7bq02KwkxL1em7zLTcWN6Vq6c9fjxwacr0S-AySZ67ebn5CwpTtSuXYIjy9sp6m-JkZcPCjx0h-9AfTYLp0ZFZGhLqtMRkTtgs0ZiZ7WTwC4q46gr3WrjdaOjfx4Zs"),
-    DonationModel(donorName: "Karim Ullah", date: "10 Oct 2023", paymentMethod: "Card", amount: "৳ 1,200", imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCsVPShmkbRvM0pqmpB_1KdHYylrJEKquuULekaCknrs5ilrr9FsS7Q957YrCrfJx_HtlMppLiDQ2oDTmUFk0YTAwce_9jnlqxLDuchmh_pTgDjhaZz_R_JEPcwvgWwwqy2XpVZjmErao6pobUoiotJLHSZu_82KWsS-1oAexj40emQ5Ws8G2OjXev0pwIR2U18Um5CNOZMGX23cpgv962CLSXGejQ8rW_yCagtI_ULZKM41Q4tguCv41wNJVKH2Z3Pc--CB5dZ1vc"),
+    DonationModel(donorName: "Zayan Ahmed", date: "12 Oct 2023", paymentMethod: "Bkash", amount: "৳ 5,000", imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
+    DonationModel(donorName: "Mrs. Selina Rahman", date: "11 Oct 2023", paymentMethod: "Bank Transfer", amount: "৳ 25,00", imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
+    DonationModel(donorName: "Karim Ullah", date: "10 Oct 2023", paymentMethod: "Card", amount: "৳ 1,200", imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
   ];
 
   final List<AidRequestModel> requests = const [
