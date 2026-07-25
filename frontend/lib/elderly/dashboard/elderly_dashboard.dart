@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
+import 'package:frontend/shared/medicine/view/medicine_page.dart';
+import 'package:frontend/shared/medicine/view/medicine_view.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import 'cubit/dashboard_cubit.dart';
@@ -101,7 +104,7 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
           index: _selectedIndex,
           children: const [
             _DashboardHomeBody(),
-            _ComingSoonBody(label: 'Medication Schedule'),
+            _MedicineTabBody(),
             _ComingSoonBody(label: 'Chat with Caregiver'),
             ElderlyProfilePage(),
           ],
@@ -156,6 +159,14 @@ class _DashboardHomeBody extends StatelessWidget {
                 onMarkTaken: (medication) => context
                     .read<DashboardCubit>()
                     .markMedicationTaken(medication.id),
+                onViewAll: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const MedicinePage(isElderly: true),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 18),
               CaregiverCard(caregiver: state.caregiver),
@@ -187,6 +198,18 @@ class _AppBarLogo extends StatelessWidget {
         color: AppColors.darkTeal,
         size: 32,
       ),
+    );
+  }
+}
+
+class _MedicineTabBody extends StatelessWidget {
+  const _MedicineTabBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MedicineCubit()..loadMedicines(),
+      child: const MedicineView(isElderly: true),
     );
   }
 }
