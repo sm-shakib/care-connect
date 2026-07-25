@@ -9,9 +9,6 @@ class AdminShellCubit extends Cubit<AdminTab> {
   AdminShellCubit() : super(AdminTab.dashboard);
 
   void selectTab(AdminTab tab) {
-    // No Bookings tab body exists yet — handled as a "coming soon"
-    // snackbar by goToAdminTab instead of ever becoming shell state.
-    if (tab == AdminTab.bookings) return;
     if (tab == state) return;
     emit(tab);
   }

@@ -24,7 +24,7 @@ class DashboardView extends StatelessWidget {
       backgroundColor: AppColors.surfaceLight,
       appBar: _buildAppBar(context),
       //bottomNavigationBar: const DashboardBottomNavBar(),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO(careconnect): open a real "quick admin action" flow
           // (e.g. broadcast announcement, manual booking, etc).
@@ -40,7 +40,7 @@ class DashboardView extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.add, size: 28),
-      ),
+      ),*/
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -163,13 +163,9 @@ class DashboardView extends StatelessWidget {
           ComplaintDetailPage.route(complaintId: 'CP-1024'),
         );
       case ActivityType.booking:
-      // TODO(careconnect): no Bookings feature/page has been built
-      // yet — replace with a real push once it exists.
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            const SnackBar(content: Text('Bookings management is coming soon.')),
-          );
+      // No booking-detail page exists yet, so this switches to the
+      // Bookings tab rather than a specific booking.
+        goToAdminTab(context, AdminTab.bookings);
     }
   }
 
@@ -200,7 +196,7 @@ class DashboardView extends StatelessWidget {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.only(right: 0),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
