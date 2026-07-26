@@ -62,7 +62,7 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  _LoginRole? _selectedRole;
+  // _LoginRole? _selectedRole;
 
   @override
   Widget build(BuildContext context) {
@@ -99,18 +99,19 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     const SizedBox(height: 20),
 
-                    const _FieldLabel('Select Role'),
-                    const SizedBox(height: 10),
-                    _RoleSelectorRow(
-                      selectedRole: _selectedRole,
-                      onRoleSelected: (role) {
-                        setState(() {
-                          _selectedRole = role;
-                        });
-                      },
-                    ),
+                    // --- ROLE SELECTION (COMMENTED OUT FOR NOW) ---
+                    // const _FieldLabel('Select Role'),
+                    // const SizedBox(height: 10),
+                    // _RoleSelectorRow(
+                    //   selectedRole: _selectedRole,
+                    //   onRoleSelected: (role) {
+                    //     setState(() {
+                    //       _selectedRole = role;
+                    //     });
+                    //   },
+                    // ),
+                    // const SizedBox(height: 28),
 
-                    const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
                       builder: (context, state) {
                         return Column(
@@ -237,7 +238,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Widget _buildLoginButton(BuildContext context, LoginState state) {
-    final enabled = state.isValid && !state.isSubmitting && _selectedRole != null;
+    final enabled = state.isValid && !state.isSubmitting;
 
     return SizedBox(
       width: double.infinity,
@@ -249,6 +250,47 @@ class _LoginViewState extends State<_LoginView> {
           if (!context.mounted) return;
 
           widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
+
+          // Example frontend routing based on user email
+          final email = context.read<LoginCubit>().state.emailOrPhone.toLowerCase().trim();
+
+          if (email == 'care@gmail.com') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const CaregiverDashboardPage(),
+              ),
+            );
+          } else if (email == 'family@gmail.com') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const FamilyDashboardPage(),
+              ),
+            );
+          } else if (email == 'elder@gmail.com') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const ElderlyDashboardPage(),
+              ),
+            );
+          } else if (email == 'admin@gmail.com') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const AdminShellPage(),
+              ),
+            );
+          } else {
+            // Default route if an unrecognized email is typed
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const ElderlyDashboardPage(),
+              ),
+            );
+          }
 
           // if (_selectedRole == _LoginRole.elder) {
           //   await Navigator.of(context).pushAndRemoveUntil(
@@ -265,35 +307,35 @@ class _LoginViewState extends State<_LoginView> {
           //   routeName,
           //       (route) => false,
           // );
-          if (_selectedRole == _LoginRole.elder) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const ElderlyDashboardPage(),
-              ),
-            );
-          } else if (_selectedRole == _LoginRole.family) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const FamilyDashboardPage(),
-              ),
-            );
-          } else if (_selectedRole == _LoginRole.caregiver) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
-              ),
-            );
-          } else if (_selectedRole == _LoginRole.admin) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const AdminShellPage(),
-              ),
-            );
-          }
+          // if (_selectedRole == _LoginRole.elder) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute<void>(
+          //       builder: (_) => const ElderlyDashboardPage(),
+          //     ),
+          //   );
+          // } else if (_selectedRole == _LoginRole.family) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute<void>(
+          //       builder: (_) => const FamilyDashboardPage(),
+          //     ),
+          //   );
+          // } else if (_selectedRole == _LoginRole.caregiver) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute<void>(
+          //       builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
+          //     ),
+          //   );
+          // } else if (_selectedRole == _LoginRole.admin) {
+          //   Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute<void>(
+          //       builder: (_) => const AdminShellPage(),
+          //     ),
+          //   );
+          // }
         }
             : null,
         style: ElevatedButton.styleFrom(

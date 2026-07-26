@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
 
+import 'package:frontend/core/enums/gender.dart';
+
 import '../models/care_reminder.dart';
 import '../models/medication_reminder.dart';
+
+/// Basic info collected during the elderly's signup, shown read-only
+/// on the patient details page.
+class PatientBasicInfo {
+  const PatientBasicInfo({
+    required this.gender,
+    required this.dateOfBirth,
+    required this.phone,
+    required this.email,
+    required this.address,
+  });
+
+  final Gender gender;
+  final DateTime dateOfBirth;
+  final String phone;
+  final String email;
+  final String address;
+}
 
 // TODO: replace with a real repository call keyed by patientId once the
 // patient care-plan API exists.
 class PatientDetailsDummyData {
+  static PatientBasicInfo basicInfo() {
+    return PatientBasicInfo(
+      gender: Gender.male,
+      dateOfBirth: DateTime(1946, 3, 18),
+      phone: '+8801717790950',
+      email: 'sharif@gmail.com',
+      address: 'Pallabi, Dhaka',
+    );
+  }
+
   static List<MedicationReminder> medications() {
     final now = DateTime.now();
     return [

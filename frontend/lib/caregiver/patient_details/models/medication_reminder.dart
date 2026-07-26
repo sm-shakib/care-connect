@@ -18,14 +18,17 @@ class MedicationReminder {
   final DateTime? takenAt;
 
   MedicationReminder copyWith({
+    String? name,
+    String? dose,
+    DateTime? scheduledTime,
     MedicationStatus? status,
     DateTime? takenAt,
   }) {
     return MedicationReminder(
       id: id,
-      name: name,
-      dose: dose,
-      scheduledTime: scheduledTime,
+      name: name ?? this.name,
+      dose: dose ?? this.dose,
+      scheduledTime: scheduledTime ?? this.scheduledTime,
       status: status ?? this.status,
       takenAt: takenAt ?? this.takenAt,
     );

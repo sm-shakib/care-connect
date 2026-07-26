@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
+import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/theme/app_colors.dart';
 
+import '../../patient_chat/patient_chat.dart';
 import '../cubit/patient_details_cubit.dart';
 import '../utils/time_ago.dart';
 import '../widgets/care_reminder_tile.dart';
 import '../widgets/medication_reminder_tile.dart';
 import '../widgets/vital_stat_card.dart';
+import 'edit_reminders_page.dart';
 
 class PatientDetailsView extends StatelessWidget {
   const PatientDetailsView({super.key});
@@ -36,6 +40,8 @@ class PatientDetailsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _PatientHeader(name: state.patientName),
+                        const SizedBox(height: 20),
+                        _BasicInfoSection(state: state),
                         const SizedBox(height: 24),
                         _VitalsRow(state: state, cubit: cubit),
                         const SizedBox(height: 28),
@@ -47,7 +53,10 @@ class PatientDetailsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                _EditCarePlanButton(patientId: state.patientId),
+                _BottomActionButtons(
+                  patientId: state.patientId,
+                  patientName: state.patientName,
+                ),
               ],
             );
           },
@@ -82,6 +91,93 @@ class _PatientHeader extends StatelessWidget {
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Basic info collected during the elderly's signup — shown read-only
+/// right below the profile picture/name.
+class _BasicInfoSection extends StatelessWidget {
+  const _BasicInfoSection({required this.state});
+
+  final PatientDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final dobLabel = DateFormat('d MMM yyyy').format(state.dateOfBirth!);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        children: [
+          _BasicInfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
+          _BasicInfoRow(icon: Icons.cake_outlined, label: 'Date of Birth', value: dobLabel),
+          _BasicInfoRow(icon: Icons.phone_outlined, label: 'Phone Number', value: state.phone),
+          _BasicInfoRow(icon: Icons.mail_outline, label: 'Email', value: state.email),
+          _BasicInfoRow(
+            icon: Icons.location_on_outlined,
+            label: 'Address',
+            value: state.address,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BasicInfoRow extends StatelessWidget {
+  const _BasicInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : Border(
+          bottom: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.25)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.darkTeal),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
             ),
           ),
         ],
@@ -313,6 +409,65 @@ class _OtherRemindersSection extends StatelessWidget {
   }
 }
 
+/// Chat (outlined) + Edit Reminders (filled) side by side at the bottom.
+class _BottomActionButtons extends StatelessWidget {
+  const _BottomActionButtons({required this.patientId, required this.patientName});
+
+  final String patientId;
+  final String patientName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _ChatButton(patientName: patientName),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: _EditCarePlanButton(patientId: patientId),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatButton extends StatelessWidget {
+  const _ChatButton({required this.patientName});
+
+  final String patientName;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 54,
+      child: OutlinedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PatientChatPage(contactName: patientName),
+            ),
+          );
+        },
+        icon: const Icon(Icons.chat_bubble_outline, size: 20),
+        label: const Text('Chat', style: TextStyle(fontWeight: FontWeight.bold)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.darkTeal,
+          side: const BorderSide(color: AppColors.darkTeal, width: 1.4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _EditCarePlanButton extends StatelessWidget {
   const _EditCarePlanButton({required this.patientId});
 
@@ -322,29 +477,30 @@ class _EditCarePlanButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-      child: SizedBox(
-        width: double.infinity,
-        height: 54,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            // TODO: navigate to the edit-care-plan flow for this patient,
-            // where reminders (medications + other reminders) can be
-            // added, edited, or removed.
-          },
-          icon: const Icon(Icons.edit_document),
-          label: const Text(
-            'Edit Care Plan',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colorScheme.onSurface,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+    return SizedBox(
+      height: 54,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EditRemindersPage(
+                cubit: context.read<PatientDetailsCubit>(),
+              ),
             ),
+          );
+        },
+        icon: const Icon(Icons.edit_document),
+        label: const Text(
+          'Edit Reminders',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.onSurface,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),

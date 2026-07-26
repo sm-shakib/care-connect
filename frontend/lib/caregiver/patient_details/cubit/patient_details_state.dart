@@ -13,6 +13,11 @@ class PatientDetailsState extends Equatable {
     this.heartRateRecent = const [40, 60, 80, 50, 70],
     this.medications = const [],
     this.otherReminders = const [],
+    this.gender,
+    this.dateOfBirth,
+    this.phone = '',
+    this.email = '',
+    this.address = '',
   });
 
   final String patientId;
@@ -30,6 +35,13 @@ class PatientDetailsState extends Equatable {
   final List<MedicationReminder> medications;
   final List<CareReminder> otherReminders;
 
+  // Basic info collected during the elderly's signup.
+  final Gender? gender;
+  final DateTime? dateOfBirth;
+  final String phone;
+  final String email;
+  final String address;
+
   int get medicationsRemainingCount =>
       medications.where((m) => m.status != MedicationStatus.taken).length;
 
@@ -43,6 +55,11 @@ class PatientDetailsState extends Equatable {
     List<int>? heartRateRecent,
     List<MedicationReminder>? medications,
     List<CareReminder>? otherReminders,
+    Gender? gender,
+    DateTime? dateOfBirth,
+    String? phone,
+    String? email,
+    String? address,
   }) {
     return PatientDetailsState(
       patientId: patientId,
@@ -56,6 +73,11 @@ class PatientDetailsState extends Equatable {
       heartRateRecent: heartRateRecent ?? this.heartRateRecent,
       medications: medications ?? this.medications,
       otherReminders: otherReminders ?? this.otherReminders,
+      gender: gender ?? this.gender,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      address: address ?? this.address,
     );
   }
 
@@ -72,5 +94,10 @@ class PatientDetailsState extends Equatable {
     heartRateRecent,
     medications,
     otherReminders,
+    gender,
+    dateOfBirth,
+    phone,
+    email,
+    address,
   ];
 }

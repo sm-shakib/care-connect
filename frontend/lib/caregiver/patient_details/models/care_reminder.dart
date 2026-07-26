@@ -15,6 +15,20 @@ class CareReminder {
   final IconData icon;
 
   /// True for reminders that should render with the error color accent
-  /// (e.g. hydration goal), matching the reference design.
   final bool iconColorIsError;
+
+  CareReminder copyWith({
+    String? title,
+    String? subtitle,
+    IconData? icon,
+    bool? iconColorIsError,
+  }) {
+    return CareReminder(
+      id: id,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      icon: icon ?? this.icon,
+      iconColorIsError: iconColorIsError ?? this.iconColorIsError,
+    );
+  }
 }
