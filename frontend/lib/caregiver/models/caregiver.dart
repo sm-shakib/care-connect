@@ -6,11 +6,14 @@ class Caregiver {
   final double rating;
   final int experience;
   final double distance;
-  final int hourlyRate;
+  final int hourlyRate; // Rate in BDT per hour
   final bool isVerified;
   final List<String> specialties;
   final List<String> languages;
   final String about;
+  final String nid; // Added for verification display
+  final List<String> certifications; // Added for professional details
+  final String gender; // Added for gender-specific icons
 
   Caregiver({
     required this.id,
@@ -25,5 +28,8 @@ class Caregiver {
     required this.specialties,
     required this.languages,
     required this.about,
+    this.nid = 'Not Provided',
+    this.certifications = const [],
+    this.gender = 'Female', // Default to Female as most caregivers are
   });
 }

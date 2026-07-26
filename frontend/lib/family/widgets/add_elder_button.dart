@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class AddElderButton extends StatelessWidget {
   const AddElderButton({
-    super.key,
     required this.onPressed,
+    super.key,
   });
 
   final VoidCallback onPressed;
@@ -16,7 +17,7 @@ class AddElderButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.teal,
+          backgroundColor: AppColors.darkTeal,
           foregroundColor: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(

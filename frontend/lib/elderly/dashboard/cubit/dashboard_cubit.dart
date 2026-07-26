@@ -1,8 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:frontend/family/models/binding_request.dart';
 import 'dashboard_models.dart';
 import 'dashboard_state.dart';
-
 
 class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit() : super(const DashboardState());
@@ -19,6 +18,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           medications: _mockMedications,
           caregiver: _mockCaregiver,
           chatPreview: _mockChatPreview,
+          bindingRequests: _mockRequests,
         ),
       );
     } catch (_) {
@@ -31,7 +31,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-
   void markMedicationTaken(String medicationId) {
     final updated = state.medications.map((medication) {
       if (medication.id != medicationId) return medication;
@@ -39,6 +38,37 @@ class DashboardCubit extends Cubit<DashboardState> {
     }).toList();
     emit(state.copyWith(medications: updated));
   }
+
+  void updateRequestStatus(String requestId, BindingStatus status) {
+    // In a real app, this would be a backend call
+    final updatedRequests = state.bindingRequests.map((req) {
+      if (req.id != requestId) return req;
+      return req.copyWith(status: status);
+    }).where((req) => req.status == BindingStatus.pending).toList();
+
+    emit(state.copyWith(bindingRequests: updatedRequests));
+  }
+
+  static final _mockRequests = [
+    BindingRequest(
+      id: 'req_1',
+      elderId: 'elder_123',
+      familyId: 'fam_456',
+      familyName: 'John Doe',
+      relationship: 'Father',
+      status: BindingStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+    ),
+    BindingRequest(
+      id: 'req_2',
+      elderId: 'elder_123',
+      familyId: 'fam_789',
+      familyName: 'Jane Smith',
+      relationship: 'Grandmother',
+      status: BindingStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+    ),
+  ];
 
   static const _mockMedications = [
     Medication(

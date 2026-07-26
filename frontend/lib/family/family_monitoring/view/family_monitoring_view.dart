@@ -1,119 +1,113 @@
 import 'package:flutter/material.dart';
-
-import '../../../caregiver/caregiver_list/view/caregiver_list_page.dart';
-import '../../models/elder.dart';
-import '../widgets/available_caregivers_card.dart';
-import '../widgets/blood_pressure_card.dart';
-import '../widgets/caregiver_status_card.dart';
-import '../widgets/heart_rate_card.dart';
-import '../widgets/live_location_card.dart';
-import '../widgets/active_caregiver_card.dart';
-import '../widgets/section_placeholder_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
+import 'package:frontend/family/family_monitoring/widgets/appointment_section.dart';
+import 'package:frontend/family/family_monitoring/widgets/available_caregivers_card.dart';
+import 'package:frontend/family/family_monitoring/widgets/blood_pressure_card.dart';
+import 'package:frontend/family/family_monitoring/widgets/caregiver_status_card.dart';
+import 'package:frontend/family/family_monitoring/widgets/heart_rate_card.dart';
+import 'package:frontend/family/family_monitoring/widgets/live_location_card.dart';
+import 'package:frontend/family/family_monitoring/widgets/medical_progress_section.dart';
+import 'package:frontend/family/family_monitoring/widgets/medication_section.dart';
+import 'package:frontend/family/family_monitoring/widgets/monitoring_header.dart';
+import 'package:frontend/family/models/elder.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class FamilyMonitoringView extends StatelessWidget {
   const FamilyMonitoringView({
-    super.key,
     required this.elder,
+    super.key,
   });
 
   final Elder elder;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FA),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const SizedBox(height: 8),
 
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-
-            /// Header
-            MonitoringHeader(
-              elderName: elder.name,
-            ),
-
-            const SizedBox(height: 20),
-
-            /// Active Caregiver
-            CaregiverStatusCard(
-              caregiverName: elder.caregiverName,
-              onTap: () {
-                // TODO:
-                // Navigate to Caregiver Details Page
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Available Caregivers
-            AvailableCaregiversCard(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CaregiverListPage(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Heart Rate
-            const HeartRateCard(
-              heartRate: 72,
-              status: "Stable",
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Blood Pressure
-            const BloodPressureCard(
-              systolic: 118,
-              diastolic: 75,
-              status: "Normal Range",
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Live Location
-            const LiveLocationCard(
-              locationImage: 'assets/images/map.png',
-              updatedTime: 'Updated 2 min ago',
-            ),
-
-            const SizedBox(height: 24),
-
-            /// Medication Reminder
-            const SectionPlaceholderCard(
-              title: "Medication Reminder",
-              subtitle: "Will be imported from Elder UI",
-              icon: Icons.medication,
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Medical Progress
-            const SectionPlaceholderCard(
-              title: "Medical Progress",
-              subtitle: "Will be imported from Elder UI",
-              icon: Icons.monitor_heart,
-            ),
-
-            const SizedBox(height: 16),
-
-            /// Appointments
-            const SectionPlaceholderCard(
-              title: "Appointments",
-              subtitle: "Will be imported from Elder UI",
-              icon: Icons.calendar_month,
-            ),
-
-            const SizedBox(height: 24),
-          ],
+        MonitoringHeader(
+          elderName: elder.name,
+          imageUrl: elder.imageUrl,
+          gender: elder.gender,
         ),
-      ),
+
+        const SizedBox(height: 20),
+
+        /// Care Team Section (Active Caregivers)
+        if (elder.caregivers.isNotEmpty) ...[
+          const Text(
+            'Active Caregivers',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTeal,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...elder.caregivers.map((name) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: CaregiverStatusCard(
+                  caregiverName: name,
+                  onTap: () {
+                    // Handled inside widget
+                  },
+                ),
+              )),
+          const SizedBox(height: 8),
+        ],
+
+        /// Available Caregivers card
+        AvailableCaregiversCard(
+          onTap: () {
+            // Set the booking context and notify the parent to switch tabs
+            context.read<FamilyDashboardCubit>().startBookingForElder(elder);
+          },
+        ),
+
+        const SizedBox(height: 16),
+
+        /// Vitals Row
+        HeartRateCard(
+          heartRate: elder.vitals.heartRate,
+          status: elder.vitals.heartRateStatus,
+        ),
+
+        const SizedBox(height: 16),
+
+        BloodPressureCard(
+          systolic: elder.vitals.systolic,
+          diastolic: elder.vitals.diastolic,
+          status: elder.vitals.bpStatus,
+        ),
+
+        const SizedBox(height: 16),
+
+        /// Live Location
+        LiveLocationCard(
+          locationImage: 'assets/images/map.png',
+          updatedTime: elder.lastLocationUpdate,
+        ),
+
+        const SizedBox(height: 24),
+
+        /// Medication Reminder
+        MedicationSection(medications: elder.medications),
+
+        const SizedBox(height: 24),
+
+        /// Medical Progress
+        MedicalProgressSection(records: elder.medicalRecords),
+
+        const SizedBox(height: 24),
+
+        /// Appointments
+        AppointmentSection(appointments: elder.appointments),
+
+        const SizedBox(height: 24),
+      ],
     );
   }
 }

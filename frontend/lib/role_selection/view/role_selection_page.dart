@@ -165,7 +165,17 @@ class _RoleSelectionView extends StatelessWidget {
 
                 switch (role) {
                   case UserRole.familyMember:
-                    page = const FamilySignupPage();
+                    page = FamilySignupPage(
+                      onSignupSuccess: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const FamilyDashboardPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    );
                     break;
 
                   case UserRole.elderlyPerson:
