@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/admin/admin_shell/admin_shell.dart';
+import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
 import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
@@ -63,6 +64,23 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   _LoginRole? _selectedRole;
 
+  // TODO: this is a temporary frontend-only stand-in for role resolution.
+
+  _LoginRole? _roleForEmail(String emailOrPhone) {
+    switch (emailOrPhone.trim().toLowerCase()) {
+      case 'elder@gmail.com':
+        return _LoginRole.elder;
+      case 'care@gmail.com':
+        return _LoginRole.caregiver;
+      case 'family@gmail.com':
+        return _LoginRole.family;
+      case 'admin@gmail.com':
+        return _LoginRole.admin;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -98,16 +116,16 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     const SizedBox(height: 20),
 
-                    const _FieldLabel('Select Role'),
-                    const SizedBox(height: 10),
-                    _RoleSelectorRow(
-                      selectedRole: _selectedRole,
-                      onRoleSelected: (role) {
-                        setState(() {
-                          _selectedRole = role;
-                        });
-                      },
-                    ),
+                    // const _FieldLabel('Select Role'),
+                    // const SizedBox(height: 10),
+                    // _RoleSelectorRow(
+                    //   selectedRole: _selectedRole,
+                    //   onRoleSelected: (role) {
+                    //     setState(() {
+                    //       _selectedRole = role;
+                    //     });
+                    //   },
+                    // ),
 
                     const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
@@ -236,7 +254,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Widget _buildLoginButton(BuildContext context, LoginState state) {
-    final enabled = state.isValid && !state.isSubmitting && _selectedRole != null;
+    final enabled = state.isValid && !state.isSubmitting;
 
     return SizedBox(
       width: double.infinity,
@@ -264,28 +282,30 @@ class _LoginViewState extends State<_LoginView> {
           //   routeName,
           //       (route) => false,
           // );
-          if (_selectedRole == _LoginRole.elder) {
+          final resolvedRole = _roleForEmail(state.emailOrPhone);
+
+          if (resolvedRole == _LoginRole.elder) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute<void>(
                 builder: (_) => const ElderlyDashboardPage(),
               ),
             );
-          } else if (_selectedRole == _LoginRole.family) {
+          } else if (resolvedRole == _LoginRole.family) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute<void>(
                 builder: (_) => const FamilyDashboardPage(),
               ),
             );
-          } else if (_selectedRole == _LoginRole.caregiver) {
+          } else if (resolvedRole == _LoginRole.caregiver) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute<void>(
-                builder: (_) => const CaregiverPendingPage(),
+                builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
               ),
             );
-          } else if (_selectedRole == _LoginRole.admin) {
+          } else if (resolvedRole == _LoginRole.admin) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute<void>(
