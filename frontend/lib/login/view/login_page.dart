@@ -62,7 +62,24 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  // _LoginRole? _selectedRole;
+  _LoginRole? _selectedRole;
+
+  // TODO: this is a temporary frontend-only stand-in for role resolution.
+
+  _LoginRole? _roleForEmail(String emailOrPhone) {
+    switch (emailOrPhone.trim().toLowerCase()) {
+      case 'elder@gmail.com':
+        return _LoginRole.elder;
+      case 'care@gmail.com':
+        return _LoginRole.caregiver;
+      case 'family@gmail.com':
+        return _LoginRole.family;
+      case 'admin@gmail.com':
+        return _LoginRole.admin;
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +116,6 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     const SizedBox(height: 20),
 
-                    // --- ROLE SELECTION (COMMENTED OUT FOR NOW) ---
                     // const _FieldLabel('Select Role'),
                     // const SizedBox(height: 10),
                     // _RoleSelectorRow(
@@ -110,8 +126,8 @@ class _LoginViewState extends State<_LoginView> {
                     //     });
                     //   },
                     // ),
-                    // const SizedBox(height: 28),
 
+                    const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
                       builder: (context, state) {
                         return Column(
@@ -251,47 +267,6 @@ class _LoginViewState extends State<_LoginView> {
 
           widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
 
-          // Example frontend routing based on user email
-          final email = context.read<LoginCubit>().state.emailOrPhone.toLowerCase().trim();
-
-          if (email == 'care@gmail.com') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const CaregiverDashboardPage(),
-              ),
-            );
-          } else if (email == 'family@gmail.com') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const FamilyDashboardPage(),
-              ),
-            );
-          } else if (email == 'elder@gmail.com') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const ElderlyDashboardPage(),
-              ),
-            );
-          } else if (email == 'admin@gmail.com') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const AdminShellPage(),
-              ),
-            );
-          } else {
-            // Default route if an unrecognized email is typed
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const ElderlyDashboardPage(),
-              ),
-            );
-          }
-
           // if (_selectedRole == _LoginRole.elder) {
           //   await Navigator.of(context).pushAndRemoveUntil(
           //     MaterialPageRoute<void>(
@@ -307,35 +282,37 @@ class _LoginViewState extends State<_LoginView> {
           //   routeName,
           //       (route) => false,
           // );
-          // if (_selectedRole == _LoginRole.elder) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute<void>(
-          //       builder: (_) => const ElderlyDashboardPage(),
-          //     ),
-          //   );
-          // } else if (_selectedRole == _LoginRole.family) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute<void>(
-          //       builder: (_) => const FamilyDashboardPage(),
-          //     ),
-          //   );
-          // } else if (_selectedRole == _LoginRole.caregiver) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute<void>(
-          //       builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
-          //     ),
-          //   );
-          // } else if (_selectedRole == _LoginRole.admin) {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute<void>(
-          //       builder: (_) => const AdminShellPage(),
-          //     ),
-          //   );
-          // }
+          final resolvedRole = _roleForEmail(state.emailOrPhone);
+
+          if (resolvedRole == _LoginRole.elder) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const ElderlyDashboardPage(),
+              ),
+            );
+          } else if (resolvedRole == _LoginRole.family) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const FamilyDashboardPage(),
+              ),
+            );
+          } else if (resolvedRole == _LoginRole.caregiver) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
+              ),
+            );
+          } else if (resolvedRole == _LoginRole.admin) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const AdminShellPage(),
+              ),
+            );
+          }
         }
             : null,
         style: ElevatedButton.styleFrom(

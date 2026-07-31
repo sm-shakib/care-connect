@@ -33,7 +33,7 @@ class ChatCard extends StatelessWidget {
             children: [
               const DashboardCardHeader(
                 icon: Icons.chat_bubble_outline,
-                title: 'Messages',
+                title: 'Chat',
               ),
               const SizedBox(height: 14),
               if (chat == null)

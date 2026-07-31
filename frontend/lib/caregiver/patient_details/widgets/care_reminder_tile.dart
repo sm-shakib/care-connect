@@ -47,7 +47,7 @@ class CareReminderTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: colorScheme.outlineVariant),
+            //Icon(Icons.chevron_right, color: colorScheme.outlineVariant),
           ],
         ),
       ),
