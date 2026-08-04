@@ -31,7 +31,7 @@ class PatientDetailsDummyData {
       gender: Gender.male,
       dateOfBirth: DateTime(1946, 3, 18),
       phone: '+8801717790950',
-      email: 'sharif@gmail.com',
+      email: 'karim@gmail.com',
       address: 'Pallabi, Dhaka',
     );
   }

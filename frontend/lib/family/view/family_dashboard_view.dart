@@ -26,13 +26,13 @@ class FamilyDashboardView extends StatelessWidget {
             const SizedBox(height: 25),
 
             /// Quick Stats
-            QuickStatsSection(
-              totalElders: state.elders.length,
-              totalCaregivers: state.elders
-                  .fold(0, (sum, e) => sum + e.caregivers.length),
-            ),
+            // QuickStatsSection(
+            //   totalElders: state.elders.length,
+            //   totalCaregivers: state.elders
+            //       .fold(0, (sum, e) => sum + e.caregivers.length),
+            // ),
 
-            const SizedBox(height: 25),
+            //const SizedBox(height: 25),
 
             /// Search Bar
             TextField(

@@ -37,7 +37,7 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute<void>(builder: (_) => const LoginPage()),
-                (route) => false,
+                    (route) => false,
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.warningRed),
@@ -53,8 +53,8 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
     return BlocProvider(
       create: (_) => FamilyDashboardCubit()..loadElders(),
       child: BlocConsumer<FamilyDashboardCubit, FamilyDashboardState>(
-        listenWhen: (previous, current) => 
-            previous.bookingForElder == null && current.bookingForElder != null,
+        listenWhen: (previous, current) =>
+        previous.bookingForElder == null && current.bookingForElder != null,
         listener: (context, state) {
           // If a booking context is started, switch to the Caregivers tab
           setState(() {
@@ -76,7 +76,7 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
             }
           } else if (_selectedIndex == 1) {
             body = const CaregiverListPage();
-            title = state.bookingForElder != null 
+            title = state.bookingForElder != null
                 ? 'Select for ${state.bookingForElder!.name}'
                 : 'Available Caregivers';
           } else if (_selectedIndex == 2) {
@@ -88,37 +88,43 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
           }
 
           return Scaffold(
-            backgroundColor: AppColors.backgroundLight,
+            // backgroundColor: AppColors.backgroundLight,
+            backgroundColor: const Color(0xFFFBFEFC),
             appBar: AppBar(
               elevation: 0,
-              backgroundColor: AppColors.darkTeal,
+              // backgroundColor: Theme.of(context).colorScheme.surface,
+              backgroundColor: const Color(0xFFFBFEFC),
+              scrolledUnderElevation: 0,
+              shape: Border(
+                bottom: BorderSide(color: AppColors.outlineVariantLight),
+              ),
               automaticallyImplyLeading: false,
               leading: (state.selectedElder != null && _selectedIndex == 0)
                   ? IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => context.read<FamilyDashboardCubit>().selectElder(null),
-                    )
+                icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+                onPressed: () => context.read<FamilyDashboardCubit>().selectElder(null),
+              )
                   : null,
               title: Text(
                 title,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.darkTeal,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  icon: const Icon(Icons.notifications_outlined, color: AppColors.darkTeal),
                   onPressed: () {
                     setState(() {
                       _selectedIndex = 2; // Index of Notifications page
                     });
                   },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                  onPressed: _handleLogout,
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.logout_rounded, color: AppColors.darkTeal),
+                //   onPressed: _handleLogout,
+                // ),
                 const SizedBox(width: 8),
               ],
             ),
@@ -130,7 +136,7 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
               onChanged: (index) {
                 setState(() {
                   _selectedIndex = index;
-                  
+
                   // If user clicks the Home tab (index 0), always go back to the dashboard list
                   if (index == 0) {
                     context.read<FamilyDashboardCubit>().selectElder(null);

@@ -16,9 +16,10 @@ import '../widgets/profile_top_bar.dart';
 import '../widgets/verified_document_tile.dart';
 
 class CaregiverProfileView extends StatelessWidget {
-  const CaregiverProfileView({super.key, this.onLogOut});
+  const CaregiverProfileView({super.key, this.onLogOut, this.showTopBar = true});
 
   final VoidCallback? onLogOut;
+  final bool showTopBar;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class CaregiverProfileView extends StatelessWidget {
 
             return Column(
               children: [
-                const ProfileTopBar(),
+                if (showTopBar) const ProfileTopBar(),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -85,90 +86,111 @@ class _PersonalInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (state.isEditing)
-                ProfilePicturePicker(
+    // return Container(
+    //   padding: const EdgeInsets.all(18),
+    //   decoration: BoxDecoration(
+    //     color: colorScheme.surfaceContainerLowest,
+    //     borderRadius: BorderRadius.circular(18),
+    //     border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+    //   ),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       ...
+    //   ),
+    // );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Center(
+          child: state.isEditing
+              ? ProfilePicturePicker(
                   key: ValueKey('avatar-${state.editSessionId}'),
                   imageBytes: state.profileImageBytes,
                   onImagePicked: cubit.profileImagePicked,
                 )
-              else
-                CircleAvatar(
-                  radius: 32,
+              : CircleAvatar(
+                  // radius: 38,
+                  radius: 48,
                   backgroundColor: AppColors.paleMint,
                   backgroundImage: state.profileImageBytes != null
                       ? MemoryImage(state.profileImageBytes!)
                       : null,
                   child: state.profileImageBytes == null
-                      ? const Icon(Icons.person, size: 32, color: AppColors.darkTeal)
+                      // ? const Icon(Icons.person, size: 38, color: AppColors.darkTeal)
+                      ? const Icon(Icons.person, size: 44, color: AppColors.darkTeal)
                       : null,
                 ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: Text(
+            state.name,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Center(
+          child: Text(
+            state.email,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!state.isEditing) ...[
+                // _StatsRow(state: state),
+                // const SizedBox(height: 16),
+                _ReadOnlyInfoRows(state: state),
+              ] else ...[
+                _EditableInfoFields(state: state, cubit: cubit),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    Text(
-                      state.name,
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
+                    Expanded(
+                      child: PrimaryPillButton(
+                        label: 'Cancel',
+                        isOutlined: true,
+                        icon: null,
+                        onPressed: cubit.cancelEditing,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      state.email,
-                      style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: PrimaryPillButton(
+                        label: 'Save',
+                        icon: Icons.check,
+                        isLoading: state.isSaving,
+                        onPressed: cubit.saveChanges,
+                      ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: 18),
-          if (!state.isEditing) ...[
-            _StatsRow(state: state),
-            const SizedBox(height: 16),
-            _ReadOnlyInfoRows(state: state),
-          ] else ...[
-            _EditableInfoFields(state: state, cubit: cubit),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: PrimaryPillButton(
-                    label: 'Cancel',
-                    isOutlined: true,
-                    icon: null,
-                    onPressed: cubit.cancelEditing,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: PrimaryPillButton(
-                    label: 'Save',
-                    icon: Icons.check,
-                    isLoading: state.isSaving,
-                    onPressed: cubit.saveChanges,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -259,8 +281,27 @@ class _ReadOnlyInfoRows extends StatelessWidget {
 
     return Column(
       children: [
-        _InfoRow(icon: Icons.phone_outlined, label: 'Phone Number', value: state.phone),
-        _InfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
+        _InfoRow(
+          icon: Icons.work_history_outlined,
+          label: 'Experience',
+          value: '${state.experienceYears} Years',
+        ),
+        _InfoRow(
+          icon: Icons.phone_outlined,
+          label: 'Phone Number',
+          value: state.phone,
+        ),
+        _InfoRow(
+          icon: Icons.location_on_outlined,
+          label: 'Address',
+          value: state.address,
+        ),
+        // _InfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
+        _InfoRow(
+          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
+          label: 'Gender',
+          value: state.gender?.label ?? '—',
+        ),
         _InfoRow(icon: Icons.cake_outlined, label: 'Date of Birth', value: dobLabel),
         _InfoRow(
           icon: Icons.medical_services_outlined,
@@ -274,8 +315,10 @@ class _ReadOnlyInfoRows extends StatelessWidget {
         ),
         _InfoRow(
           icon: Icons.payments_outlined,
-          label: 'Daily Rate',
-          value: '৳${state.dailyRate}',
+          // label: 'Daily Rate',
+          label: 'Hourly Rate',
+          // value: '৳${state.dailyRate}',
+          value: '৳${state.dailyRate}/hr',
           isLast: true,
         ),
       ],
@@ -356,6 +399,16 @@ class _EditableInfoFields extends StatelessWidget {
     return Column(
       children: [
         AuthTextField(
+          key: ValueKey('$sessionKeyPrefix-experience'),
+          label: 'Experience (Years)',
+          hintText: 'e.g. 5',
+          prefixIcon: Icons.work_history_outlined,
+          keyboardType: TextInputType.number,
+          initialValue: state.experienceYears,
+          onChanged: cubit.experienceYearsChanged,
+        ),
+        const SizedBox(height: 16),
+        AuthTextField(
           key: ValueKey('$sessionKeyPrefix-phone'),
           label: 'Phone Number',
           hintText: 'e.g. +8801XXXXXXXXX',
@@ -374,13 +427,23 @@ class _EditableInfoFields extends StatelessWidget {
           onChanged: cubit.addressChanged,
         ),
         const SizedBox(height: 16),
-        AuthDropdownField<Gender>(
-          key: ValueKey('$sessionKeyPrefix-gender'),
+        // AuthDropdownField<Gender>(
+        //   key: ValueKey('$sessionKeyPrefix-gender'),
+        //   label: 'Gender',
+        //   value: state.gender,
+        //   items: Gender.values,
+        //   itemLabel: (gender) => gender.label,
+        //   onChanged: cubit.genderChanged,
+        // ),
+        // _ReadOnlyEditField(
+        //   label: 'Gender',
+        //   icon: Icons.wc_outlined,
+        //   value: state.gender?.label ?? '—',
+        // ),
+        _ReadOnlyEditField(
           label: 'Gender',
-          value: state.gender,
-          items: Gender.values,
-          itemLabel: (gender) => gender.label,
-          onChanged: cubit.genderChanged,
+          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
+          value: state.gender?.label ?? '—',
         ),
         const SizedBox(height: 16),
         AuthDateField(
@@ -409,24 +472,75 @@ class _EditableInfoFields extends StatelessWidget {
           onChanged: cubit.availabilityTypeChanged,
         ),
         const SizedBox(height: 16),
-        AuthTextField(
-          key: ValueKey('$sessionKeyPrefix-rate'),
-          label: 'Daily Rate (৳)',
-          hintText: 'e.g. 1500',
-          prefixIcon: Icons.payments_outlined,
-          keyboardType: TextInputType.number,
-          initialValue: state.dailyRate,
-          onChanged: cubit.dailyRateChanged,
+        // AuthTextField(
+        //   key: ValueKey('$sessionKeyPrefix-rate'),
+        //   label: 'Daily Rate (৳)',
+        //   hintText: 'e.g. 1500',
+        //   prefixIcon: Icons.payments_outlined,
+        //   keyboardType: TextInputType.number,
+        //   initialValue: state.dailyRate,
+        //   onChanged: cubit.dailyRateChanged,
+        // ),
+        _ReadOnlyEditField(
+          label: 'Hourly Rate',
+          icon: Icons.payments_outlined,
+          value: '৳${state.dailyRate}/hr',
         ),
-        const SizedBox(height: 16),
-        AuthTextField(
-          key: ValueKey('$sessionKeyPrefix-experience'),
-          label: 'Experience (Years)',
-          hintText: 'e.g. 5',
-          prefixIcon: Icons.work_history_outlined,
-          keyboardType: TextInputType.number,
-          initialValue: state.experienceYears,
-          onChanged: cubit.experienceYearsChanged,
+      ],
+    );
+  }
+}
+
+class _ReadOnlyEditField extends StatelessWidget {
+  const _ReadOnlyEditField({
+    required this.label,
+    required this.icon,
+    required this.value,
+  });
+
+  final String label;
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.darkTeal,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            // color: Colors.white,
+            color: colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.6)),
+          ),
+          child: Row(
+            children: [
+              // Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
+              Icon(icon, size: 18, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
+              const SizedBox(width: 10),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -507,21 +621,21 @@ class _EarningsCard extends StatelessWidget {
           //     children: [
           //       Column(
           //         crossAxisAlignment: CrossAxisAlignment.start,
-                  // children: [
-                  //   Text(
-                  //     'Last Payout',
-                  //     style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-                  //   ),
-                  //   // Text(
-                  //   //   '\$${state.lastPayoutAmount.toStringAsFixed(2)}',
-                  //   //   style: TextStyle(
-                  //   //     fontSize: 16,
-                  //   //     fontWeight: FontWeight.bold,
-                  //   //     color: colorScheme.onSurface,
-                  //   //   ),
-                  //   ),
-                  // ],
-                // ),
+          // children: [
+          //   Text(
+          //     'Last Payout',
+          //     style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+          //   ),
+          //   // Text(
+          //   //   '\$${state.lastPayoutAmount.toStringAsFixed(2)}',
+          //   //   style: TextStyle(
+          //   //     fontSize: 16,
+          //   //     fontWeight: FontWeight.bold,
+          //   //     color: colorScheme.onSurface,
+          //   //   ),
+          //   ),
+          // ],
+          // ),
           //       Column(
           //         crossAxisAlignment: CrossAxisAlignment.end,
           //         children: [

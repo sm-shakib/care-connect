@@ -6,12 +6,14 @@ class ChatTopBar extends StatelessWidget {
   const ChatTopBar({
     super.key,
     required this.contactName,
+    this.isGroup = false,
     this.onBack,
     this.onCall,
     this.onVideoCall,
   });
 
   final String contactName;
+  final bool isGroup;
   final VoidCallback? onBack;
   final VoidCallback? onCall;
   final VoidCallback? onVideoCall;
@@ -31,7 +33,12 @@ class ChatTopBar extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: AppColors.paleMint,
-            child: const Icon(Icons.person, size: 20, color: AppColors.darkTeal),
+            child: Icon(
+              // child: const Icon(Icons.person, size: 20, color: AppColors.darkTeal),
+              isGroup ? Icons.groups_2_outlined : Icons.person,
+              size: 20,
+              color: AppColors.darkTeal,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(

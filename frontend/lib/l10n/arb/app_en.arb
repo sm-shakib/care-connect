@@ -255,14 +255,14 @@
         "description": "Label for the availability dropdown field"
     },
 
-    "dailyRateLabel": "Daily Rate (৳)",
+    "dailyRateLabel": "Hourly Rate (৳)",
     "@dailyRateLabel": {
-        "description": "Label for the daily rate field"
+        "description": "Label for the hourly rate field"
     },
 
     "dailyRateHint": "e.g. 1500",
     "@dailyRateHint": {
-        "description": "Hint text for the daily rate field"
+        "description": "Hint text for the hourly rate field"
     },
 
     "documentsStepLabel": "Documents",

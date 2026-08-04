@@ -58,7 +58,8 @@ class AuthDropdownField<T> extends StatelessWidget {
             hintText: hintText,
             hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
             filled: true,
-            fillColor: colorScheme.surfaceContainerLow,
+            // fillColor: colorScheme.surfaceContainerLow,
+            fillColor: Colors.white,
             contentPadding:
             const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             border: OutlineInputBorder(

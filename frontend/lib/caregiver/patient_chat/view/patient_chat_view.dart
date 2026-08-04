@@ -49,6 +49,7 @@ class _PatientChatViewState extends State<PatientChatView> {
               children: [
                 ChatTopBar(
                   contactName: state.contactName,
+                  isGroup: state.isGroup,
                   onCall: () {
                     // TODO: place a voice call to this contact.
                   },
