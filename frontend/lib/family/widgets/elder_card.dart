@@ -15,18 +15,38 @@ class ElderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCaregivers = elder.caregivers.isNotEmpty;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
       elevation: 3,
+      color: Colors.transparent,
+      shadowColor: Colors.transparent,
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+         shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.circular(20),
+       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
-        child: Padding(
+        // child: Padding(
+        child: Container(
           padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Row(
             children: [
               /// Elder Avatar with Robust Gender Fallback
@@ -34,19 +54,21 @@ class ElderCard extends StatelessWidget {
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
                 child: ClipOval(
-                  child: elder.imageUrl.isNotEmpty
-                      ? Image.network(
-                          elder.imageUrl,
-                          fit: BoxFit.cover,
-                          width: 60,
-                          height: 60,
-                          errorBuilder: (context, error, stackTrace) => Icon(
-                            elder.gender == 'Male' ? Icons.man : Icons.woman,
-                            size: 34,
-                            color: AppColors.primaryLight,
-                          ),
-                        )
-                      : Icon(
+                  child:
+                  //     elder.imageUrl.isNotEmpty
+                  //     ? Image.network(
+                  //         elder.imageUrl,
+                  //         fit: BoxFit.cover,
+                  //         width: 60,
+                  //         height: 60,
+                  //         errorBuilder: (context, error, stackTrace) => Icon(
+                  //           elder.gender == 'Male' ? Icons.man : Icons.woman,
+                  //           size: 34,
+                  //           color: AppColors.primaryLight,
+                  //         ),
+                  //       )
+                  //     :
+                        Icon(
                           elder.gender == 'Male' ? Icons.man : Icons.woman,
                           size: 34,
                           color: AppColors.primaryLight,

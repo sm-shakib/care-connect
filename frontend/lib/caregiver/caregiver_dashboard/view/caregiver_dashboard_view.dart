@@ -6,13 +6,10 @@ import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/caregiver_dashboard_cubit.dart';
 import '../cubit/caregiver_dashboard_state.dart';
-import '../widgets/dashboard_top_bar.dart';
 import '../widgets/patient_card.dart';
 import '../widgets/patient_search_bar.dart';
 import 'previous_patients_page.dart';
 import '../../patient_details/patient_details.dart';
-import '../../caregiver_profile/caregiver_profile.dart';
-import '../../caregiver_notifications/caregiver_notifications.dart';
 
 class CaregiverDashboardView extends StatelessWidget {
   const CaregiverDashboardView({super.key});
@@ -32,22 +29,7 @@ class CaregiverDashboardView extends StatelessWidget {
 
             return Column(
               children: [
-                DashboardTopBar(
-                  hasUnreadNotifications: false,
-                  onNotificationsTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CaregiverNotificationsPage(),
-                    ),
-                  ),
-                  onProfileTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CaregiverProfilePage(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 PatientSearchBar(
                   onChanged: (value) =>
                       context.read<CaregiverDashboardCubit>().searchChanged(value),

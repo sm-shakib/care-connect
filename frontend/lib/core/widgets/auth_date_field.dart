@@ -80,7 +80,8 @@ class AuthDateField extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
+              // color: colorScheme.surfaceContainerLow,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: borderColor),
             ),

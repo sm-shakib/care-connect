@@ -4,6 +4,7 @@ class ChatMessage {
     required this.text,
     required this.timestamp,
     required this.isFromMe,
+    this.senderName,
   });
 
   final String id;
@@ -12,4 +13,5 @@ class ChatMessage {
 
   /// True when sent by the caregiver (the current user of this app).
   final bool isFromMe;
+  final String? senderName;
 }

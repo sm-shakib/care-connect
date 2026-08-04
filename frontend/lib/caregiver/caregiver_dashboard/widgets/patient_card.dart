@@ -13,21 +13,37 @@ class PatientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bannerColor = patient.isUrgent ? colorScheme.error : colorScheme.tertiary;
+    final bannerColor = patient.isUrgent
+        ? colorScheme.error
+        : colorScheme.tertiary;
     final bannerBackground = patient.isUrgent
         ? colorScheme.errorContainer.withValues(alpha: 0.4)
         : colorScheme.tertiaryContainer.withValues(alpha: 0.25);
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(bottom: 14),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+          borderRadius: BorderRadius.circular(20),
+          // Two-layer shadow for a soft, "bumped up" elevated look —
+          // a wider ambient shadow plus a tighter, closer one for
+          // definition against the background.
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,13 +73,23 @@ class PatientCard extends StatelessWidget {
                           color: colorScheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${patient.age} years • ${patient.location}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 14,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            patient.schedule,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -79,21 +105,21 @@ class PatientCard extends StatelessWidget {
             //     color: bannerBackground,
             //     borderRadius: BorderRadius.circular(12),
             //   ),
-            //   // child: Row(
-            //   //   children: [
-            //   //     Icon(patient.conditionIcon, size: 20, color: bannerColor),
-            //   //     const SizedBox(width: 10),
-            //   //     Expanded(
-            //   //       child: Text(
-            //   //         patient.conditionLabel,
-            //   //         style: TextStyle(
-            //   //           fontSize: 14,
-            //   //           color: colorScheme.onSurface,
-            //   //         ),
-            //   //       ),
-            //   //     ),
-            //   //   ],
-            //   // ),
+            // child: Row(
+            //   children: [
+            //     Icon(patient.conditionIcon, size: 20, color: bannerColor),
+            //     const SizedBox(width: 10),
+            //     Expanded(
+            //       child: Text(
+            //         patient.conditionLabel,
+            //         style: TextStyle(
+            //           fontSize: 14,
+            //           color: colorScheme.onSurface,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             // ),
           ],
         ),

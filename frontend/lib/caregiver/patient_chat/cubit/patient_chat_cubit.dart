@@ -7,13 +7,13 @@ import '../models/chat_message.dart';
 part 'patient_chat_state.dart';
 
 class PatientChatCubit extends Cubit<PatientChatState> {
-  PatientChatCubit({required String contactName})
-      : super(PatientChatState(contactName: contactName)) {
+  PatientChatCubit({required String contactName, required bool isGroup})
+      : super(PatientChatState(contactName: contactName, isGroup: isGroup)) {
     loadMessages();
   }
 
   void loadMessages() {
-    emit(state.copyWith(messages: buildChatDummyData()));
+    emit(state.copyWith(messages: buildChatDummyData(isGroup: state.isGroup)));
   }
 
   void sendMessage(String text) {

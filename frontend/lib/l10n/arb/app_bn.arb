@@ -102,7 +102,7 @@
 
     "availabilityLabel": "উপলব্ধতা",
 
-    "dailyRateLabel": "দৈনিক ভাড়া (৳)",
+    "dailyRateLabel": "প্রতি ঘণ্টায় হার (৳)",
 
     "dailyRateHint": "যেমন ১৫০০",
 

@@ -27,6 +27,8 @@ class DonationHistoryPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = history[index];
                 return Card(
+                  // color: Colors.pink.shade50,
+                  color: AppColors.paleMint.withValues(alpha: 0.25),
                   margin: const EdgeInsets.only(bottom: 12),
                   elevation: 0,
                   shape: RoundedRectangleBorder(

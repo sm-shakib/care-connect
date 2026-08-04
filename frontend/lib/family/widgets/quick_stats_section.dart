@@ -18,7 +18,7 @@ class QuickStatsSection extends StatelessWidget {
         Expanded(
           child: InkWell(
             onTap: () => _showStatsDialog(context, 'Elders', 'You are currently managing $totalElders loved ones in your family account.'),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             child: _StatCard(
               icon: Icons.people,
               title: 'Elders',
@@ -30,7 +30,7 @@ class QuickStatsSection extends StatelessWidget {
         Expanded(
           child: InkWell(
             onTap: () => _showStatsDialog(context, 'Caregivers', 'There are $totalCaregivers active caregivers providing care to your elders.'),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             child: _StatCard(
               icon: Icons.medical_services,
               title: 'Caregivers',
@@ -73,14 +73,35 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Padding(
+      color: Colors.transparent,
+      shadowColor: Colors.transparent,
+      // child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: 18,
+        ),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           children: [

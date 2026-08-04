@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 enum PatientCareStatus { active, previous }
 
 class Patient {
@@ -11,6 +9,7 @@ class Patient {
     //required this.conditionLabel,
     //required this.conditionIcon,
     required this.status,
+    required this.schedule,
     this.isUrgent = false,
   });
 
@@ -22,4 +21,7 @@ class Patient {
   //final IconData conditionIcon;
   final PatientCareStatus status;
   final bool isUrgent;
+
+  /// Fixed weekly schedule label shown on patient cards.
+  final String schedule;
 }
