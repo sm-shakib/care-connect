@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../booking_detail/view/booking_detail_page.dart';
 import '../cubit/booking_management_cubit.dart';
 import '../cubit/booking_management_state.dart';
 import 'widgets/booking_card.dart';
@@ -97,8 +98,11 @@ class BookingManagementView extends StatelessWidget {
                               return BookingCard(
                                 booking: booking,
                                 onViewDetails: () {
-                                  // TODO(careconnect): navigate to a
-                                  // booking detail page once one exists.
+                                  Navigator.of(context).push(
+                                    BookingDetailPage.route(
+                                      bookingId: booking.id,
+                                    ),
+                                  );
                                 },
                               );
                             },

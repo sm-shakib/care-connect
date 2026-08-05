@@ -53,7 +53,7 @@ class BookingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '\$${booking.totalAmount.toStringAsFixed(2)}',
+                    'TK${booking.totalAmount.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,

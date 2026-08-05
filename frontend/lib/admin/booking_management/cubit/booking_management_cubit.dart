@@ -52,7 +52,7 @@ class BookingManagementCubit extends Cubit<BookingManagementState> {
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
-      totalAmount: 240,
+      totalAmount: 2400,
       dateLabel: 'Oct 25 - Oct 27, 2023',
       status: BookingStatus.upcoming,
       badges: [
@@ -75,7 +75,7 @@ class BookingManagementCubit extends Cubit<BookingManagementState> {
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
-      totalAmount: 180.50,
+      totalAmount: 1800,
       dateLabel: 'Nov 02, 2023 | 08:00 - 14:00',
       status: BookingStatus.ongoing,
       badges: [
@@ -98,7 +98,7 @@ class BookingManagementCubit extends Cubit<BookingManagementState> {
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
-      totalAmount: 320,
+      totalAmount: 3200,
       dateLabel: 'Nov 05 - Nov 10, 2023',
       status: BookingStatus.upcoming,
       badges: [BookingBadgeType.pending, BookingBadgeType.unpaid],
