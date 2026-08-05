@@ -53,12 +53,19 @@ class _MedicationTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.paleMint,
+        color: medication.isTaken
+            ? AppColors.paleMint
+            : AppColors.surfaceContainerLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          const Icon(Icons.medication, color: AppColors.primaryTeal),
+          Icon(
+            Icons.medication,
+            color: medication.isTaken
+                ? AppColors.primaryTeal
+                : AppColors.outlineLight,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

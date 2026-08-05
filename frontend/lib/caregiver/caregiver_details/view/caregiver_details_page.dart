@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/caregiver_signup/caregiver_signup.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../../models/caregiver.dart';
+
+
+const List<CaregiverDocumentType> _kRequiredDocuments = [
+  CaregiverDocumentType.nationalId,
+  CaregiverDocumentType.certificate,
+  CaregiverDocumentType.policeClearance,
+];
 
 class CaregiverDetailsPage extends StatelessWidget {
   final Caregiver caregiver;
@@ -44,10 +52,10 @@ class CaregiverDetailsPage extends StatelessWidget {
                         : null,
                     child: caregiver.imageUrl.isEmpty
                         ? Icon(
-                            caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-                            size: 60,
-                            color: AppColors.primaryLight,
-                          )
+                      caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                      size: 60,
+                      color: AppColors.primaryLight,
+                    )
                         : null,
                   ),
                   const SizedBox(height: 16),
@@ -90,7 +98,6 @@ class CaregiverDetailsPage extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            /// Quick Stats
             Row(
               children: [
                 _buildStatItem(Icons.star, "Rating", caregiver.rating.toString(),
@@ -104,48 +111,66 @@ class CaregiverDetailsPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            /// Identification & Background
             const Text(
-              "Background Verification",
+              "Caregiver Information",
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.deepTrustBlue),
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(Icons.badge, "NID Number", caregiver.nid),
-            _buildInfoRow(Icons.language, "Languages",
-                caregiver.languages.join(', ')),
+            _buildInfoRow(
+              caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+              "Gender",
+              caregiver.gender,
+            ),
+            _buildInfoRow(
+              Icons.event_available_outlined,
+              "Availability",
+              caregiver.availabilityType,
+            ),
 
             const SizedBox(height: 25),
 
-            /// Certifications
             const Text(
-              "Certifications",
+              "Verified Documents",
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.deepTrustBlue),
             ),
             const SizedBox(height: 12),
-            if (caregiver.certifications.isEmpty)
-              const Text("General Nursing & Caregiving Certificate")
-            else
-              ...caregiver.certifications.map((cert) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.card_membership,
-                            color: AppColors.primaryLight, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(child: Text(cert)),
-                      ],
-                    ),
-                  )),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowestLight,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  for (var i = 0; i < _kRequiredDocuments.length; i++) ...[
+                    _buildDocumentRow(_kRequiredDocuments[i], caregiver.isVerified),
+                    if (i != _kRequiredDocuments.length - 1)
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                  ],
+                ],
+              ),
+            ),
 
             const SizedBox(height: 25),
 
-            /// Specialties
             const Text(
               "Specialties",
               style: TextStyle(
@@ -159,16 +184,15 @@ class CaregiverDetailsPage extends StatelessWidget {
               runSpacing: 8,
               children: caregiver.specialties
                   .map((e) => Chip(
-                        label: Text(e),
-                        backgroundColor: AppColors.paleMint,
-                        side: BorderSide.none,
-                      ))
+                label: Text(e),
+                backgroundColor: AppColors.paleMint,
+                side: BorderSide.none,
+              ))
                   .toList(),
             ),
 
             const SizedBox(height: 40),
 
-            /// Action Button
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -202,7 +226,7 @@ class CaregiverDetailsPage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(value,
               style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           Text(label,
               style: const TextStyle(
                   color: AppColors.onSurfaceVariantLight, fontSize: 12)),
@@ -228,6 +252,36 @@ class CaregiverDetailsPage extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w500)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentRow(CaregiverDocumentType type, bool isVerified) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      child: Row(
+        children: [
+          Icon(
+            isVerified ? Icons.check_circle : Icons.hourglass_top,
+            size: 20,
+            color: isVerified ? Colors.green : Colors.amber.shade800,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              type.label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+            ),
+          ),
+          Text(
+            isVerified ? 'Verified' : 'Pending Review',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isVerified ? Colors.green : Colors.amber.shade800,
+            ),
           ),
         ],
       ),
@@ -263,8 +317,8 @@ class CaregiverDetailsPage extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundColor: AppColors.paleMint,
                     backgroundImage: elder.imageUrl.isNotEmpty ? NetworkImage(elder.imageUrl) : null,
-                    child: elder.imageUrl.isEmpty 
-                        ? Icon(elder.gender == 'Male' ? Icons.man : Icons.woman, color: AppColors.primaryLight) 
+                    child: elder.imageUrl.isEmpty
+                        ? Icon(elder.gender == 'Male' ? Icons.man : Icons.woman, color: AppColors.primaryLight)
                         : null,
                   ),
                   title: Text(elder.name, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -284,7 +338,7 @@ class CaregiverDetailsPage extends StatelessWidget {
 
   void _showSuccessDialog(BuildContext pageContext, Elder elder) {
     final cubit = pageContext.read<FamilyDashboardCubit>();
-    
+
     showDialog(
       context: pageContext,
       barrierDismissible: false,
@@ -326,7 +380,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                     onPressed: () {
                       // Actually add the caregiver to the elder's list in the state
                       cubit.addCaregiverToElder(elder.id, caregiver.name);
-                      
+
                       Navigator.pop(dialogContext); // Close dialog
                       Navigator.pop(pageContext); // Close details page
                     },

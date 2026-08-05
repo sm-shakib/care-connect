@@ -5,6 +5,7 @@ import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/cubit/family_dashboard_state.dart';
 import 'package:frontend/family/family_monitoring/view/family_monitoring_view.dart';
 import 'package:frontend/family/navbar/family_navbar.dart';
+import 'package:frontend/family/view/donation/family_donation_tab.dart';
 import 'package:frontend/family/view/family_dashboard_view.dart';
 import 'package:frontend/family/view/notifications/family_notifications_page.dart';
 import 'package:frontend/family/view/profile/family_profile_page.dart';
@@ -80,8 +81,8 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
                 ? 'Select for ${state.bookingForElder!.name}'
                 : 'Available Caregivers';
           } else if (_selectedIndex == 2) {
-            body = const FamilyNotificationsPage();
-            title = 'Notifications';
+            body = const FamilyDonationTab();
+            title = 'Donation';
           } else {
             body = const FamilyProfilePage();
             title = 'My Profile';
@@ -116,15 +117,14 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined, color: AppColors.darkTeal),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 2; // Index of Notifications page
-                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FamilyNotificationsPage(),
+                      ),
+                    );
                   },
                 ),
-                // IconButton(
-                //   icon: const Icon(Icons.logout_rounded, color: AppColors.darkTeal),
-                //   onPressed: _handleLogout,
-                // ),
                 const SizedBox(width: 8),
               ],
             ),

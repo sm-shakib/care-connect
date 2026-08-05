@@ -126,35 +126,35 @@ class ElderCard extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
 
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: hasCaregivers
-                            ? const Color(0xFFDCFCE7)
-                            : const Color(0xFFFFEDD5),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Text(
-                        elder.healthStatus,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: hasCaregivers
-                              ? const Color(0xFF15803D)
-                              : const Color(0xFFC2410C),
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 10,
+                    //     vertical: 5,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     color: hasCaregivers
+                    //         ? const Color(0xFFDCFCE7)
+                    //         : const Color(0xFFFFEDD5),
+                    //     borderRadius: BorderRadius.circular(30),
+                    //   ),
+                    //   child: Text(
+                    //     elder.healthStatus,
+                    //     style: TextStyle(
+                    //       fontSize: 12,
+                    //       fontWeight: FontWeight.bold,
+                    //       color: hasCaregivers
+                    //           ? const Color(0xFF15803D)
+                    //           : const Color(0xFFC2410C),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
 
-              const SizedBox(width: 8),
+              // const SizedBox(width: 8),
 
               const Icon(
                 Icons.arrow_forward_ios,

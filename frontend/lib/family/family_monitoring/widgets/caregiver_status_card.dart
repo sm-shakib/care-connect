@@ -21,21 +21,33 @@ class CaregiverStatusCard extends StatelessWidget {
       orElse: () => caregiverList.first,
     );
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => CaregiverDetailsPage(caregiver: caregiver),
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CaregiverDetailsPage(caregiver: caregiver),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowestLight,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-          );
-        },
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Row(
@@ -74,7 +86,7 @@ class CaregiverStatusCard extends StatelessWidget {
                         ),
                         SizedBox(width: 6),
                         Text(
-                          'On Duty Now',
+                          'Assigned',
                           style: TextStyle(
                             color: AppColors.primaryLight,
                             fontWeight: FontWeight.w500,
