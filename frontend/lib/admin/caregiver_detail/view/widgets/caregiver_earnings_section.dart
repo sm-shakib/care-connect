@@ -70,7 +70,7 @@ class CaregiverEarningsSection extends StatelessWidget {
               child: _StatTile(
                 icon: Icons.payments,
                 label: 'Total Earned',
-                value: '\$${_formatAmount(profile.totalEarned)}',
+                value: 'TK${_formatAmount(profile.totalEarned)}',
               ),
             ),
             const SizedBox(width: 12),
@@ -78,7 +78,7 @@ class CaregiverEarningsSection extends StatelessWidget {
               child: _StatTile(
                 icon: Icons.schedule_send,
                 label: 'Pending',
-                value: '\$${_formatAmount(profile.pendingAmount)}',
+                value: 'TK${_formatAmount(profile.pendingAmount)}',
               ),
             ),
           ],
@@ -90,7 +90,7 @@ class CaregiverEarningsSection extends StatelessWidget {
               child: _StatTile(
                 icon: Icons.calendar_today,
                 label: 'This Month',
-                value: '\$${_formatAmount(profile.thisMonthAmount)}',
+                value: 'TK${_formatAmount(profile.thisMonthAmount)}',
               ),
             ),
             const SizedBox(width: 12),
@@ -294,7 +294,7 @@ class _PayoutRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '\$${payout.amount.toStringAsFixed(2)}',
+                    'TK${payout.amount.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

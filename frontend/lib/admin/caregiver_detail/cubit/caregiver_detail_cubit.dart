@@ -152,14 +152,14 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
         ),
       ],
       totalEarned: 14250,
-      pendingAmount: 450,
+      pendingAmount: 4500,
       thisMonthAmount: 2100,
       nextPayoutDateLabel: 'Oct 30',
       recentPayouts: const [
         Payout(
           id: 'payout-1',
           periodLabel: 'Oct 1 - Oct 15',
-          amount: 450,
+          amount: 4500,
           method: 'Bank Transfer',
           status: PayoutStatus.pending,
           dateLabel: 'Scheduled Oct 30',
@@ -175,7 +175,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
         Payout(
           id: 'payout-3',
           periodLabel: 'Sep 1 - Sep 15',
-          amount: 300,
+          amount: 3000,
           method: 'Bkash',
           status: PayoutStatus.failed,
           dateLabel: 'Attempted Sep 16',
