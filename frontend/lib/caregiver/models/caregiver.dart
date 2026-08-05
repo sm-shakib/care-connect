@@ -9,11 +9,12 @@ class Caregiver {
   final int hourlyRate; // Rate in BDT per hour
   final bool isVerified;
   final List<String> specialties;
-  final List<String> languages;
   final String about;
-  final String nid; // Added for verification display
-  final List<String> certifications; // Added for professional details
   final String gender; // Added for gender-specific icons
+
+  /// Matches the AvailabilityType options collected at caregiver signup
+  /// (e.g. 'Full-time', 'Part-time', 'On-call', 'Weekends Only').
+  final String availabilityType;
 
   Caregiver({
     required this.id,
@@ -26,10 +27,8 @@ class Caregiver {
     required this.hourlyRate,
     required this.isVerified,
     required this.specialties,
-    required this.languages,
     required this.about,
-    this.nid = 'Not Provided',
-    this.certifications = const [],
     this.gender = 'Female', // Default to Female as most caregivers are
+    this.availabilityType = 'Full-time',
   });
 }

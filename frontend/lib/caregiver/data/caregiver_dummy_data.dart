@@ -12,15 +12,10 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 250,
     isVerified: true,
     specialties: ['Elder Care', 'Dementia Care'],
-    languages: ['English', 'Bengali'],
     about:
-        'Experienced registered nurse with over 8 years of providing compassionate home healthcare for elderly patients.',
-    nid: '1988123456789',
-    certifications: [
-      'Advanced Nursing Certificate',
-      'Geriatric Care Specialist'
-    ],
+    'Experienced registered nurse with over 8 years of providing compassionate home healthcare for elderly patients.',
     gender: 'Female',
+    availabilityType: 'Full-time',
   ),
   Caregiver(
     id: '2',
@@ -33,12 +28,10 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 200,
     isVerified: true,
     specialties: ['Post Surgery', 'Mobility Assistance'],
-    languages: ['English', 'Bengali'],
     about:
-        'Dedicated caregiver specializing in post-surgery recovery and daily living assistance.',
-    nid: '1992987654321',
-    certifications: ['Home Care Assistant Training'],
+    'Dedicated caregiver specializing in post-surgery recovery and daily living assistance.',
     gender: 'Female',
+    availabilityType: 'Part-time',
   ),
   Caregiver(
     id: '3',
@@ -51,11 +44,9 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 350,
     isVerified: false,
     specialties: ['Physiotherapy', 'Rehabilitation'],
-    languages: ['English'],
     about:
-        'Licensed physiotherapist helping patients recover mobility and independence.',
-    nid: '1985456123789',
-    certifications: ['Certified Physiotherapist'],
+    'Licensed physiotherapist helping patients recover mobility and independence.',
     gender: 'Male',
+    availabilityType: 'On-call',
   ),
 ];

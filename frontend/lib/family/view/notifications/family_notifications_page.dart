@@ -45,36 +45,59 @@ class FamilyNotificationsPage extends StatelessWidget {
       },
     ];
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final item = notifications[index];
-        return Card(
+    return Scaffold(
+      backgroundColor: const Color(0xFFFBFEFC),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xFFFBFEFC),
+        scrolledUnderElevation: 0,
+        shape: const Border(
+          bottom: BorderSide(color: AppColors.outlineVariantLight),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(
+            color: AppColors.darkTeal,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: notifications.length,
+        itemBuilder: (context, index) {
+          final item = notifications[index];
+          return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 0,
+          color: AppColors.paleMint.withValues(alpha: 0.18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: AppColors.outlineVariantLight),
           ),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: (item['color'] as Color).withOpacity(0.1),
-              child: Icon(item['icon'] as IconData, color: item['color'] as Color),
+              leading: CircleAvatar(
+                backgroundColor: (item['color'] as Color).withOpacity(0.1),
+                child: Icon(item['icon'] as IconData, color: item['color'] as Color),
+              ),
+              title: Text(item['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(item['body'] as String),
+                  const SizedBox(height: 4),
+                  Text(item['time'] as String, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
             ),
-            title: Text(item['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(item['body'] as String),
-                const SizedBox(height: 4),
-                Text(item['time'] as String, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              ],
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

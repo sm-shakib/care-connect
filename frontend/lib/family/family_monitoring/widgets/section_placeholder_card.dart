@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class SectionPlaceholderCard extends StatelessWidget {
   const SectionPlaceholderCard({
@@ -14,10 +15,22 @@ class SectionPlaceholderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowestLight,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -25,41 +38,40 @@ class SectionPlaceholderCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: Colors.teal.shade100,
+              backgroundColor: AppColors.paleMint,
               child: Icon(
                 icon,
-                color: Colors.teal,
+                color: AppColors.primaryLight,
               ),
             ),
-
             const SizedBox(width: 16),
-
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.onSurfaceLight,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: AppColors.onSurfaceVariantLight,
                     ),
                   ),
                 ],
               ),
             ),
-
-            const Icon(Icons.arrow_forward_ios),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppColors.outlineLight,
+            ),
           ],
         ),
       ),
