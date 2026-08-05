@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../caregiver_detail/view/caregiver_detail_page.dart';
 import '../../elderly_detail/view/elderly_detail_page.dart';
 import '../../family_member_detail/view/family_member_detail_page.dart';
 import '../cubit/user_management_cubit.dart';
@@ -189,6 +190,9 @@ class UserManagementView extends StatelessWidget {
           FamilyMemberDetailPage.route(userId: user.id),
         );
       case UserRole.caregiver:
+        Navigator.of(context).push(
+          CaregiverDetailPage.route(userId: user.id),
+        );
       case UserRole.admin:
       // TODO(careconnect): build FamilyMemberDetailPage and
       // CaregiverDetailPage, then route to them here the same way as
