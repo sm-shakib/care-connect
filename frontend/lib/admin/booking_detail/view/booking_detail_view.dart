@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../caregiver_detail/view/caregiver_detail_page.dart';
+import '../../elderly_detail/view/elderly_detail_page.dart';
 import '../cubit/booking_detail_cubit.dart';
 import '../cubit/booking_detail_state.dart';
 import 'widgets/booking_detail_actions_bar.dart';
@@ -63,14 +66,35 @@ class BookingDetailView extends StatelessWidget {
                     ParticipantsSection(
                       careRecipient: booking.careRecipient,
                       caregiver: booking.caregiver,
-                      onCallRecipient: () {
-                        // TODO(careconnect): launch a phone call
-                        // (url_launcher tel: scheme) to the care
-                        // recipient's number.
+                      onCallRecipient: () async {
+                        final uri = Uri.parse(
+                          'tel:${booking.careRecipient.phoneNumber}',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
                       },
-                      onChatCaregiver: () {
-                        // TODO(careconnect): open an in-app chat
-                        // thread with the caregiver.
+                      onChatCaregiver: () async {
+                        final uri = Uri.parse(
+                          'tel:${booking.caregiver.phoneNumber}',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
+                      },
+                      onTapRecipient: () {
+                        Navigator.of(context).push(
+                          ElderlyDetailPage.route(
+                            userId: booking.careRecipient.id,
+                          ),
+                        );
+                      },
+                      onTapCaregiver: () {
+                        Navigator.of(context).push(
+                          CaregiverDetailPage.route(
+                            userId: booking.caregiver.id,
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 20),

@@ -11,6 +11,8 @@ class ParticipantsSection extends StatelessWidget {
     required this.caregiver,
     this.onCallRecipient,
     this.onChatCaregiver,
+    this.onTapRecipient,
+    this.onTapCaregiver,
     super.key,
   });
 
@@ -18,6 +20,8 @@ class ParticipantsSection extends StatelessWidget {
   final BookingParticipant caregiver;
   final VoidCallback? onCallRecipient;
   final VoidCallback? onChatCaregiver;
+  final VoidCallback? onTapRecipient;
+  final VoidCallback? onTapCaregiver;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +44,14 @@ class ParticipantsSection extends StatelessWidget {
           participant: careRecipient,
           actionIcon: Icons.call,
           onAction: onCallRecipient,
+          onTap: onTapRecipient,
         ),
         const SizedBox(height: 12),
         _ParticipantCard(
           participant: caregiver,
           actionIcon: Icons.call,
           onAction: onChatCaregiver,
+          onTap: onTapCaregiver,
         ),
       ],
     );
@@ -57,16 +63,17 @@ class _ParticipantCard extends StatelessWidget {
     required this.participant,
     required this.actionIcon,
     this.onAction,
+    this.onTap,
   });
 
   final BookingParticipant participant;
   final IconData actionIcon;
   final VoidCallback? onAction;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowestLight,
         borderRadius: BorderRadius.circular(16),
@@ -79,65 +86,72 @@ class _ParticipantCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: 60,
-              height: 60,
-              child: Image.network(
-                participant.avatarUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.surfaceContainerHighLight,
-                  child: Icon(Icons.person, color: AppColors.outlineLight),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  participant.role,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryLight,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Image.network(
+                    participant.avatarUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.surfaceContainerHighLight,
+                      child: Icon(Icons.person, color: AppColors.outlineLight),
+                    ),
                   ),
                 ),
-                Text(
-                  participant.name,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onSurfaceLight,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 48,
-            height: 48,
-            child: OutlinedButton(
-              onPressed: onAction,
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.zero,
-                foregroundColor: AppColors.onSurfaceLight,
-                side: BorderSide(color: AppColors.outlineVariantLight),
-                shape: const CircleBorder(),
-                backgroundColor: AppColors.surfaceContainerLight,
               ),
-              child: Icon(actionIcon),
-            ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      participant.role,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryLight,
+                      ),
+                    ),
+                    Text(
+                      participant.name,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurfaceLight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: onAction,
+                  style: OutlinedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    foregroundColor: AppColors.onSurfaceLight,
+                    side: BorderSide(color: AppColors.outlineVariantLight),
+                    shape: const CircleBorder(),
+                    backgroundColor: AppColors.surfaceContainerLight,
+                  ),
+                  child: Icon(actionIcon),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
