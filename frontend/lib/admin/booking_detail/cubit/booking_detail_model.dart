@@ -3,18 +3,23 @@ import 'package:equatable/equatable.dart';
 /// A person involved in the booking (care recipient or caregiver).
 class BookingParticipant extends Equatable {
   const BookingParticipant({
+    required this.id,
     required this.role,
     required this.name,
     required this.avatarUrl,
+    required this.phoneNumber,
   });
+
+  final String id;
 
   /// e.g. "Care Recipient", "Primary Caregiver".
   final String role;
   final String name;
   final String avatarUrl;
+  final String phoneNumber;
 
   @override
-  List<Object?> get props => [role, name, avatarUrl];
+  List<Object?> get props => [id, role, name, avatarUrl, phoneNumber];
 }
 
 /// The coarse status bucket a booking belongs to. Duplicated from

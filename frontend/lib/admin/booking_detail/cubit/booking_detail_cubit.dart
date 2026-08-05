@@ -47,16 +47,20 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
       status: BookingDetailStatus.ongoing,
       totalAmount: 1800,
       careRecipient: BookingParticipant(
+        id: 'user-elderly-1',
         role: 'Care Recipient',
         name: 'Abdul Jabbar',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801712345678',
       ),
       caregiver: BookingParticipant(
+        id: 'user-caregiver-1',
         role: 'Primary Caregiver',
         name: 'Salma Aktar',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801812345678',
       ),
       startDateLabel: 'Nov 02, 2023',
       endDateLabel: 'Nov 02, 2023',
@@ -83,16 +87,20 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
       status: BookingDetailStatus.upcoming,
       totalAmount: 2400,
       careRecipient: BookingParticipant(
+        id: 'user-elderly-2',
         role: 'Care Recipient',
         name: 'Rahima Khatun',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801912345678',
       ),
       caregiver: BookingParticipant(
+        id: 'user-caregiver-2',
         role: 'Primary Caregiver',
         name: 'Shakib Khan',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801512345678',
       ),
       startDateLabel: 'Oct 25, 2023',
       endDateLabel: 'Oct 27, 2023',
@@ -113,16 +121,20 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
       status: BookingDetailStatus.upcoming,
       totalAmount: 3200,
       careRecipient: BookingParticipant(
+        id: 'user-elderly-3',
         role: 'Care Recipient',
         name: 'Rahela Begum',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801612345678',
       ),
       caregiver: BookingParticipant(
+        id: 'user-caregiver-3',
         role: 'Primary Caregiver',
         name: 'Delwar Hossain',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+        phoneNumber: '+8801312345678',
       ),
       startDateLabel: 'Nov 05, 2023',
       endDateLabel: 'Nov 10, 2023',
