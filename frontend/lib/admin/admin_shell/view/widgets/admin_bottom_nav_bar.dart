@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../admin_navigation.dart';
+import '../../cubit/admin_shell_cubit.dart';
+import '../../cubit/admin_shell_state.dart';
 
-/// The single, shared bottom navigation bar for the admin shell.
-/// Matches the look and feel of the family app's navigation bar.
+/// A shared bottom navigation bar for the admin shell.
+/// Supports drag-to-swap reordering via long-press and allows swapping
+/// items with the "More" menu.
 class AdminBottomNavBar extends StatelessWidget {
   const AdminBottomNavBar({
     required this.selected,
@@ -16,78 +20,196 @@ class AdminBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The 4 main destinations shown in the bar.
-    final items = [
-      AdminTab.dashboard,
-      AdminTab.verification,
-      AdminTab.bookings,
-      AdminTab.more,
-    ];
+    return BlocBuilder<AdminShellCubit, AdminShellState>(
+      builder: (context, state) {
+        final tabs = state.barTabs;
 
-    // Highlight "More" (index 3) if any sub-module is selected.
-    int currentIndex;
-    switch (selected) {
-      case AdminTab.dashboard:
-        currentIndex = 0;
-      case AdminTab.verification:
-        currentIndex = 1;
-      case AdminTab.bookings:
-        currentIndex = 2;
-      case AdminTab.users:
-      case AdminTab.complaints:
-      case AdminTab.central_fund:
-      case AdminTab.more:
-        currentIndex = 3;
-    }
+        // Determine if "More" should be highlighted due to a sub-module.
+        final isSubModuleActive = state.moreTabs.contains(selected);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+        final effectiveSelected = isSubModuleActive ? AdminTab.more : selected;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) => onSelect(items[index]),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.darkTeal,
-        unselectedItemColor: AppColors.onSurfaceVariantLight,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 60,
+              child: Row(
+                children: [
+                  for (int i = 0; i < tabs.length; i++)
+                    Expanded(
+                      child: DragTarget<AdminTab>(
+                        onWillAccept: (data) => data != null && data != tabs[i],
+                        onAccept: (data) {
+                          if (state.barTabs.contains(data)) {
+                            final oldIndex = state.barTabs.indexOf(data);
+                            context.read<AdminShellCubit>().swapBarTabs(oldIndex, i);
+                          } else {
+                            context.read<AdminShellCubit>().swapBarWithMore(data, tabs[i]);
+                          }
+                        },
+                        builder: (context, candidateData, rejectedData) {
+                          final tab = tabs[i];
+                          final info = AdminTabInfo.all[tab]!;
+                          final isHovered = candidateData.isNotEmpty;
+
+                          return LongPressDraggable<AdminTab>(
+                            key: ValueKey('nav_drag_${tab.name}'),
+                            data: tab,
+                            delay: const Duration(milliseconds: 500),
+                            feedback: Material(
+                              color: Colors.transparent,
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width / tabs.length,
+                                height: 60,
+                                child: _NavItem(
+                                  key: ValueKey('nav_feedback_${tab.name}'),
+                                  icon: info.icon,
+                                  activeIcon: info.activeIcon,
+                                  label: info.label,
+                                  isSelected: effectiveSelected == tab,
+                                  onTap: () {},
+                                ),
+                              ),
+                            ),
+                            childWhenDragging: Opacity(
+                              opacity: 0.2,
+                              child: _NavItem(
+                                icon: info.icon,
+                                activeIcon: info.activeIcon,
+                                label: info.label,
+                                isSelected: effectiveSelected == tab,
+                                onTap: () {},
+                              ),
+                            ),
+                            child: _NavItem(
+                              key: ValueKey('nav_item_${tab.name}'),
+                              icon: info.icon,
+                              activeIcon: info.activeIcon,
+                              label: info.label,
+                              isSelected: effectiveSelected == tab,
+                              onTap: () => onSelect(tab),
+                              isHovered: isHovered,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _NavItem extends StatefulWidget {
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.isHovered = false,
+    super.key,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final bool isHovered;
+
+  @override
+  State<_NavItem> createState() => _NavItemState();
+}
+
+class _NavItemState extends State<_NavItem> {
+  bool _pressed = false;
+
+  static const _pressInDuration = Duration(milliseconds: 80);
+  static const _pressOutDuration = Duration(milliseconds: 120);
+
+  void _setPressed(bool value) {
+    if (_pressed != value) setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.isSelected
+        ? AppColors.darkTeal
+        : AppColors.onSurfaceVariantLight;
+
+    return Listener(
+      onPointerDown: (_) => _setPressed(true),
+      onPointerUp: (_) => _setPressed(false),
+      onPointerCancel: (_) => _setPressed(false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: SizedBox(
+          height: 60,
+          width: double.infinity,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedContainer(
+                duration: (_pressed || widget.isHovered)
+                    ? _pressInDuration
+                    : _pressOutDuration,
+                curve: Curves.easeOut,
+                margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _pressed
+                      ? AppColors.darkTeal.withOpacity(0.12)
+                      : (widget.isHovered
+                          ? AppColors.darkTeal.withOpacity(0.18)
+                          : AppColors.darkTeal.withOpacity(0)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              AnimatedScale(
+                scale: _pressed ? 0.92 : 1.0,
+                duration: _pressed ? _pressInDuration : _pressOutDuration,
+                curve: Curves.easeOut,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      widget.isSelected ? widget.activeIcon : widget.icon,
+                      color: color,
+                      size: 24,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.label,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 12,
+                        fontWeight:
+                            widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 10,
-        ),
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.verified_user_outlined),
-            activeIcon: Icon(Icons.verified_user),
-            label: 'Verification',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event_available_outlined),
-            activeIcon: Icon(Icons.event_available),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz_outlined),
-            activeIcon: Icon(Icons.more_horiz),
-            label: 'More',
-          ),
-        ],
       ),
     );
   }

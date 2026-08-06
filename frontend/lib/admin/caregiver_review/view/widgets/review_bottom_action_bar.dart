@@ -4,9 +4,10 @@ import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_review_state.dart';
 
 /// Fixed bottom sheet-style bar with an admin notes field and the three
-/// decision actions. Kept dumb/presentational — all state changes and
-/// submit calls are passed in from the parent view.
-class ReviewBottomActionBar extends StatelessWidget {
+/// decision actions.
+///
+/// Features a collapsible notes section to save vertical screen space.
+class ReviewBottomActionBar extends StatefulWidget {
   const ReviewBottomActionBar({
     required this.notes,
     required this.isSubmitting,
@@ -24,7 +25,14 @@ class ReviewBottomActionBar extends StatelessWidget {
   final VoidCallback onRequestDocs;
   final VoidCallback onReject;
 
-  bool get _overLimit => notes.length > kAdminNotesMaxLength;
+  @override
+  State<ReviewBottomActionBar> createState() => _ReviewBottomActionBarState();
+}
+
+class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
+  bool _isExpanded = true;
+
+  bool get _overLimit => widget.notes.length > kAdminNotesMaxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -53,74 +61,93 @@ class ReviewBottomActionBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 4),
-                  child: Text(
-                    'Administrative Comments',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onSurfaceVariantLight,
-                    ),
-                  ),
-                ),
-                Stack(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextField(
-                      onChanged: onNotesChanged,
-                      minLines: 2,
-                      maxLines: 3,
-                      style: const TextStyle(fontSize: 16),
-                      decoration: InputDecoration(
-                        hintText: 'Enter notes for this application...',
-                        hintStyle:
-                        TextStyle(color: AppColors.outlineVariantLight),
-                        filled: true,
-                        fillColor: AppColors.surfaceContainerLowLight,
-                        contentPadding: const EdgeInsets.fromLTRB(
-                          12,
-                          12,
-                          12,
-                          28,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: AppColors.outlineVariantLight,
-                            width: 2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: AppColors.outlineVariantLight,
-                            width: 2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: AppColors.primaryLight,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      right: 12,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
                       child: Text(
-                        '${notes.length}/$kAdminNotesMaxLength',
+                        'Administrative Comments',
                         style: TextStyle(
                           fontSize: 14,
-                          color: _overLimit
-                              ? AppColors.errorLight
-                              : AppColors.outlineVariantLight,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurfaceVariantLight,
                         ),
                       ),
+                    ),
+                    IconButton(
+                      onPressed: () =>
+                          setState(() => _isExpanded = !_isExpanded),
+                      icon: Icon(
+                        _isExpanded ? Icons.expand_less : Icons.expand_more,
+                        color: AppColors.onSurfaceVariantLight,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                   ],
                 ),
+                if (_isExpanded) ...[
+                  const SizedBox(height: 8),
+                  Stack(
+                    children: [
+                      TextField(
+                        onChanged: widget.onNotesChanged,
+                        minLines: 2,
+                        maxLines: 3,
+                        style: const TextStyle(fontSize: 16),
+                        decoration: InputDecoration(
+                          hintText: 'Enter notes for this application...',
+                          hintStyle:
+                              TextStyle(color: AppColors.outlineVariantLight),
+                          filled: true,
+                          fillColor: AppColors.surfaceContainerLowLight,
+                          contentPadding: const EdgeInsets.fromLTRB(
+                            12,
+                            12,
+                            12,
+                            28,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColors.outlineVariantLight,
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColors.outlineVariantLight,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryLight,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        right: 12,
+                        child: Text(
+                          '${widget.notes.length}/$kAdminNotesMaxLength',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: _overLimit
+                                ? AppColors.errorLight
+                                : AppColors.outlineVariantLight,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -128,8 +155,9 @@ class ReviewBottomActionBar extends StatelessWidget {
                       child: SizedBox(
                         height: 56,
                         child: ElevatedButton.icon(
-                          onPressed:
-                          isSubmitting || _overLimit ? null : onApprove,
+                          onPressed: widget.isSubmitting || _overLimit
+                              ? null
+                              : widget.onApprove,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryLight,
                             foregroundColor: AppColors.onPrimaryLight,
@@ -154,7 +182,8 @@ class ReviewBottomActionBar extends StatelessWidget {
                       child: SizedBox(
                         height: 56,
                         child: OutlinedButton.icon(
-                          onPressed: isSubmitting ? null : onRequestDocs,
+                          onPressed:
+                              widget.isSubmitting ? null : widget.onRequestDocs,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primaryLight,
                             side: BorderSide(
@@ -178,7 +207,8 @@ class ReviewBottomActionBar extends StatelessWidget {
                       child: SizedBox(
                         height: 56,
                         child: ElevatedButton.icon(
-                          onPressed: isSubmitting ? null : onReject,
+                          onPressed:
+                              widget.isSubmitting ? null : widget.onReject,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.errorLight,
                             foregroundColor: AppColors.onErrorLight,
