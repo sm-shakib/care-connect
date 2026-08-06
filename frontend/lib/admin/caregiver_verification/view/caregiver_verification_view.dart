@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../caregiver_review/caregiver_review.dart';
+import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/caregiver_verification_cubit.dart';
 import '../cubit/caregiver_verification_state.dart';
 import 'widgets/caregiver_verification_card.dart';
@@ -151,7 +153,11 @@ class CaregiverVerificationView extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.notifications, color: AppColors.primaryLight),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              NotificationsPage.route(context.read<DashboardCubit>()),
+            );
+          },
         ),
       ],
     );

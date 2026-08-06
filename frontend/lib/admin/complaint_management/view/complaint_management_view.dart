@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../complaint_detail/complaint_detail.dart';
+import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/complaint_management_cubit.dart';
 import '../cubit/complaint_management_state.dart';
 //import 'widgets/complaint_bottom_nav_bar.dart';
@@ -159,7 +161,11 @@ class ComplaintManagementView extends StatelessWidget {
             Icons.notifications,
             color: AppColors.primaryLight,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              NotificationsPage.route(context.read<DashboardCubit>()),
+            );
+          },
         ),
       ],
     );

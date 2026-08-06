@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/central_fund_cubit.dart';
 import '../cubit/central_fund_state.dart';
 import '../models/central_fund_models.dart';
@@ -62,7 +64,11 @@ class CentralFundPage extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications, color: AppColors.primaryLight),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  NotificationsPage.route(context.read<DashboardCubit>()),
+                );
+              },
             ),
             const SizedBox(width: 8),
           ],

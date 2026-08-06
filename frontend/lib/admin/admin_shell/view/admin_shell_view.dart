@@ -8,6 +8,7 @@ import '../../complaint_management/view/complaint_management_view.dart';
 import '../../dashboard/view/dashboard_view.dart';
 import '../../user_management/view/user_management_view.dart';
 import '../../central_fund/view/central_fund_page.dart';
+import '../../more/view/more_view.dart';
 import '../cubit/admin_shell_cubit.dart';
 import 'widgets/admin_bottom_nav_bar.dart';
 
@@ -30,6 +31,7 @@ class AdminShellView extends StatelessWidget {
     AdminTab.complaints,
     AdminTab.bookings,
     AdminTab.central_fund,
+    AdminTab.more,
   ];
 
   @override
@@ -47,7 +49,8 @@ class AdminShellView extends StatelessWidget {
               UserManagementView(),
               ComplaintManagementView(),
               BookingManagementView(),
-              CentralFundPage()
+              CentralFundPage(),
+              MoreView(),
             ],
           ),
           bottomNavigationBar: AdminBottomNavBar(

@@ -5,6 +5,8 @@ import '../../../theme/app_colors.dart';
 import '../../caregiver_detail/view/caregiver_detail_page.dart';
 import '../../elderly_detail/view/elderly_detail_page.dart';
 import '../../family_member_detail/view/family_member_detail_page.dart';
+import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/user_management_cubit.dart';
 import '../cubit/user_management_state.dart';
 import '../cubit/user_model.dart';
@@ -164,7 +166,11 @@ class UserManagementView extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.notifications, color: AppColors.primaryLight),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              NotificationsPage.route(context.read<DashboardCubit>()),
+            );
+          },
         ),
       ],
     );

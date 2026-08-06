@@ -7,13 +7,11 @@ class ComplaintActionsBar extends StatelessWidget {
   const ComplaintActionsBar({
     required this.isResolved,
     required this.onResolve,
-    required this.onAddNote,
     super.key,
   });
 
   final bool isResolved;
   final VoidCallback onResolve;
-  final VoidCallback onAddNote;
 
   @override
   Widget build(BuildContext context) {
@@ -39,56 +37,28 @@ class ComplaintActionsBar extends StatelessWidget {
             heightFactor: 1,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 512),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: isResolved ? null : onResolve,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryLight,
-                        foregroundColor: AppColors.onPrimaryLight,
-                        disabledBackgroundColor:
-                        AppColors.surfaceContainerHighLight,
-                        disabledForegroundColor:
-                        AppColors.onSurfaceVariantLight,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      icon: const Icon(Icons.task_alt),
-                      label: Text(
-                        isResolved ? 'Complaint Resolved' : 'Resolve Complaint',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: isResolved ? null : onResolve,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: AppColors.onPrimaryLight,
+                    disabledBackgroundColor:
+                    AppColors.surfaceContainerHighLight,
+                    disabledForegroundColor:
+                    AppColors.onSurfaceVariantLight,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: OutlinedButton.icon(
-                      onPressed: onAddNote,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primaryLight,
-                        side: BorderSide(
-                          color: AppColors.primaryLight,
-                          width: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      icon: const Icon(Icons.description),
-                      label: const Text(
-                        'Add Internal Note',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
+                  icon: const Icon(Icons.task_alt),
+                  label: Text(
+                    isResolved ? 'Complaint Resolved' : 'Resolve Complaint',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                ],
+                ),
               ),
             ),
           ),

@@ -5,6 +5,7 @@ import '../../../theme/app_colors.dart';
 import '../../admin_navigation.dart';
 import '../../caregiver_review/view/caregiver_review_page.dart';
 import '../../complaint_detail/view/complaint_detail_page.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_model.dart';
 import '../cubit/dashboard_state.dart';
@@ -124,23 +125,17 @@ class DashboardView extends StatelessWidget {
                         onCentralFundTap: () =>
                             goToAdminTab(context, AdminTab.central_fund),
                       ),
-                      const SizedBox(height: 24),
+                      /*const SizedBox(height: 24),
                       RecentActivitySection(
                         activities: state.activities,
                         onHistoryTap: () {
-                          // TODO(careconnect): no activity-history page
-                          // has been built yet.
-                          // ScaffoldMessenger.of(context)
-                          //   ..hideCurrentSnackBar()
-                          //   ..showSnackBar(
-                          //     const SnackBar(
-                          //       content: Text('Activity history coming soon.'),
-                          //     ),
-                          //   );
+                          Navigator.of(context).push(
+                            NotificationsPage.route(context.read<DashboardCubit>()),
+                          );
                         },
                         onActivityTap: (activity) =>
                             _handleActivityTap(context, activity),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -213,14 +208,9 @@ class DashboardView extends StatelessWidget {
                   color: AppColors.primaryLight,
                 ),
                 onPressed: () {
-                  // TODO(careconnect): no notifications page has been
-                  // built yet.
-                  /*ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      const SnackBar(content: Text('Notifications coming soon.')),
-                    );
-                   */
+                  Navigator.of(context).push(
+                    NotificationsPage.route(context.read<DashboardCubit>()),
+                  );
                 },
               ),
               /*Positioned(

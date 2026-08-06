@@ -37,6 +37,10 @@ class BookingManagementCubit extends Cubit<BookingManagementState> {
     emit(state.copyWith(filter: filter));
   }
 
+  void searchChanged(String query) {
+    emit(state.copyWith(searchQuery: query));
+  }
+
   static const List<Booking> _mockBookings = [
     Booking(
       id: 'BK-3081',
