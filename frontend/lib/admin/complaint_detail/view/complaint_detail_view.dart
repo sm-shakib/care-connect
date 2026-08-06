@@ -72,7 +72,7 @@ class ComplaintDetailView extends StatelessWidget {
                       _horizontalPadding(context),
                       // Extra bottom room so content clears the pinned
                       // bottom action bar.
-                      220,
+                      140,
                     ),
                     children: [
                       ComplaintStatusCard(complaint: complaint),
@@ -84,7 +84,17 @@ class ComplaintDetailView extends StatelessWidget {
                       const SizedBox(height: 12),
                       DescriptionSection(description: complaint.description),
                       const SizedBox(height: 12),
-                      InternalNotesSection(notes: complaint.internalNotes),
+                      InternalNotesSection(
+                        notes: complaint.internalNotes,
+                        onAddNote: () async {
+                          final note = await AddNoteSheet.show(context);
+                          if (note != null) {
+                            await context
+                                .read<ComplaintDetailCubit>()
+                                .addInternalNote(note);
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -100,12 +110,6 @@ class ComplaintDetailView extends StatelessWidget {
             return ComplaintActionsBar(
               isResolved: state.isResolved,
               onResolve: cubit.resolve,
-              onAddNote: () async {
-                final note = await AddNoteSheet.show(context);
-                if (note != null) {
-                  await cubit.addInternalNote(note);
-                }
-              },
             );
           },
         ),

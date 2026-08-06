@@ -10,16 +10,31 @@ class BookingManagementState extends Equatable {
     this.status = BookingManagementStatus.initial,
     this.bookings = const <Booking>[],
     this.filter = BookingFilter.all,
+    this.searchQuery = '',
     this.errorMessage,
   });
 
   final BookingManagementStatus status;
   final List<Booking> bookings;
   final BookingFilter filter;
+  final String searchQuery;
   final String? errorMessage;
 
-  List<Booking> get filteredBookings =>
-      bookings.where((booking) => filter.matches(booking.status)).toList();
+  List<Booking> get filteredBookings {
+    var filtered =
+        bookings.where((booking) => filter.matches(booking.status)).toList();
+
+    if (searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      filtered = filtered.where((booking) {
+        return booking.id.toLowerCase().contains(query) ||
+            booking.user.name.toLowerCase().contains(query) ||
+            booking.caregiver.name.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    return filtered;
+  }
 
   bool get isLoading => status == BookingManagementStatus.loading;
 
@@ -30,16 +45,18 @@ class BookingManagementState extends Equatable {
     BookingManagementStatus? status,
     List<Booking>? bookings,
     BookingFilter? filter,
+    String? searchQuery,
     String? errorMessage,
   }) {
     return BookingManagementState(
       status: status ?? this.status,
       bookings: bookings ?? this.bookings,
       filter: filter ?? this.filter,
+      searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage,
     );
   }
 
   @override
-  List<Object?> get props => [status, bookings, filter, errorMessage];
+  List<Object?> get props => [status, bookings, filter, searchQuery, errorMessage];
 }

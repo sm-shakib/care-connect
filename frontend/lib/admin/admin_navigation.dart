@@ -5,7 +5,15 @@ import 'admin_shell/cubit/admin_shell_cubit.dart';
 
 /// The top-level admin sections shown in the shared bottom nav bar and
 /// the dashboard's management grid.
-enum AdminTab { dashboard, verification, users, complaints, bookings, central_fund }
+enum AdminTab {
+  dashboard,
+  verification,
+  users,
+  complaints,
+  bookings,
+  central_fund,
+  more
+}
 
 /// Switches the persistent admin shell to [tab].
 ///

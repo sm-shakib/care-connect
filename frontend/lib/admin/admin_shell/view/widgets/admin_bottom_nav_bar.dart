@@ -3,8 +3,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../admin_navigation.dart';
 
 /// The single, shared bottom navigation bar for the admin shell.
-/// Matches the look and feel of the family app's navigation bar
-/// while maintaining admin-specific tabs.
+/// Matches the look and feel of the family app's navigation bar.
 class AdminBottomNavBar extends StatelessWidget {
   const AdminBottomNavBar({
     required this.selected,
@@ -17,16 +16,29 @@ class AdminBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dynamically filter tabs to allow easy toggling of "Users"
-    // without breaking the index mapping of the other tabs.
-    final visibleTabs = AdminTab.values.where((tab) {
-      // Toggle this to show/hide the Users tab
-      if (tab == AdminTab.users) return false;
-      if (tab == AdminTab.central_fund) return false;
-      return true;
-    }).toList();
+    // The 4 main destinations shown in the bar.
+    final items = [
+      AdminTab.dashboard,
+      AdminTab.verification,
+      AdminTab.bookings,
+      AdminTab.more,
+    ];
 
-    final currentIndex = visibleTabs.indexOf(selected);
+    // Highlight "More" (index 3) if any sub-module is selected.
+    int currentIndex;
+    switch (selected) {
+      case AdminTab.dashboard:
+        currentIndex = 0;
+      case AdminTab.verification:
+        currentIndex = 1;
+      case AdminTab.bookings:
+        currentIndex = 2;
+      case AdminTab.users:
+      case AdminTab.complaints:
+      case AdminTab.central_fund:
+      case AdminTab.more:
+        currentIndex = 3;
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -40,9 +52,8 @@ class AdminBottomNavBar extends StatelessWidget {
         ],
       ),
       child: BottomNavigationBar(
-        // Default to first tab if the selected one is hidden (e.g. Users)
-        currentIndex: currentIndex < 0 ? 0 : currentIndex,
-        onTap: (index) => onSelect(visibleTabs[index]),
+        currentIndex: currentIndex,
+        onTap: (index) => onSelect(items[index]),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: AppColors.darkTeal,
@@ -66,30 +77,16 @@ class AdminBottomNavBar extends StatelessWidget {
             activeIcon: Icon(Icons.verified_user),
             label: 'Verification',
           ),
-          // To bring back Users, uncomment the line in visibleTabs above
-          // AND the item below.
-          /*
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group_outlined),
-            activeIcon: Icon(Icons.group),
-            label: 'Users',
-          ),
-          */
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_late_outlined),
-            activeIcon: Icon(Icons.assignment_late),
-            label: 'Complaints',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_outlined),
             activeIcon: Icon(Icons.event_available),
             label: 'Bookings',
           ),
-          /*BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: Icon(Icons.account_balance_wallet),
-            label: 'Fund',
-          ),*/
+          BottomNavigationBarItem(
+            icon: Icon(Icons.more_horiz_outlined),
+            activeIcon: Icon(Icons.more_horiz),
+            label: 'More',
+          ),
         ],
       ),
     );

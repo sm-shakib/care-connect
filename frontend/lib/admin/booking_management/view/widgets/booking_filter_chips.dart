@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/booking_filter.dart';
 
-/// Horizontally scrolling row of booking-status filter chips. Pill
-/// shaped (fully rounded), matching this screen's design — the other
-/// admin list screens use rounded-lg (8px) chips instead.
+/// Horizontally scrolling row of filter chips. The selected chip uses the
+/// primary fill; unselected chips use the neutral high-surface fill.
+/// Matches the look and feel of ComplaintFilterChips.
 class BookingFilterChips extends StatelessWidget {
   const BookingFilterChips({
     required this.selected,
@@ -23,7 +23,7 @@ class BookingFilterChips extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: BookingFilter.values.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final filter = BookingFilter.values[index];
           final isSelected = filter == selected;
@@ -55,26 +55,35 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primaryLight
-              : AppColors.surfaceContainerLight,
+              : AppColors.surfaceContainerHighLight,
           borderRadius: BorderRadius.circular(999),
-          border: isSelected
-              ? null
-              : Border.all(color: AppColors.outlineVariantLight),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected
-                ? AppColors.onPrimaryLight
-                : AppColors.onSurfaceVariantLight,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              Icon(
+                Icons.check,
+                size: 18,
+                color: AppColors.onPrimaryLight,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: isSelected
+                    ? AppColors.onPrimaryLight
+                    : AppColors.onSurfaceVariantLight,
+              ),
+            ),
+          ],
         ),
       ),
     );

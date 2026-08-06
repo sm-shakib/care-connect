@@ -8,9 +8,14 @@ import '../../cubit/complaint_detail_model.dart';
 /// content — this fills that gap with a proper notes list, populated
 /// via the "Add Internal Note" bottom sheet.
 class InternalNotesSection extends StatelessWidget {
-  const InternalNotesSection({required this.notes, super.key});
+  const InternalNotesSection({
+    required this.notes,
+    this.onAddNote,
+    super.key,
+  });
 
   final List<InternalNote> notes;
+  final VoidCallback? onAddNote;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,24 @@ class InternalNotesSection extends StatelessWidget {
               ],
             ],
           ),
+        if (onAddNote != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: onAddNote,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text(
+                'Add Note',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryLight,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

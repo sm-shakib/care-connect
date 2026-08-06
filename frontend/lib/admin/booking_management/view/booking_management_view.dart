@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../booking_detail/view/booking_detail_page.dart';
+import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../notifications/view/notifications_page.dart';
 import '../cubit/booking_management_cubit.dart';
 import '../cubit/booking_management_state.dart';
 import 'widgets/booking_card.dart';
 import 'widgets/booking_filter_chips.dart';
+import 'widgets/booking_search_bar.dart';
 
 /// Tab body for the Bookings screen, rendered inside `AdminShellView`'s
 /// `IndexedStack`. No bottom nav bar of its own (the shell provides
@@ -28,11 +31,17 @@ class BookingManagementView extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: _horizontalPadding(context),
+                vertical: 16,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 12),
+                  BookingSearchBar(
+                    onChanged: context
+                        .read<BookingManagementCubit>()
+                        .searchChanged,
+                  ),
+                  const SizedBox(height: 16),
                   BlocBuilder<BookingManagementCubit, BookingManagementState>(
                     buildWhen: (previous, current) =>
                     previous.filter != current.filter,
@@ -45,7 +54,7 @@ class BookingManagementView extends StatelessWidget {
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Expanded(
                     child: BlocBuilder<BookingManagementCubit,
                         BookingManagementState>(
@@ -74,7 +83,7 @@ class BookingManagementView extends StatelessWidget {
                         if (bookings.isEmpty) {
                           return Center(
                             child: Text(
-                              'No bookings in this category.',
+                              'No bookings match your search.',
                               style: TextStyle(
                                 color: AppColors.onSurfaceVariantLight,
                               ),
@@ -155,7 +164,11 @@ class BookingManagementView extends StatelessWidget {
             Icons.notifications,
             color: AppColors.primaryLight,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              NotificationsPage.route(context.read<DashboardCubit>()),
+            );
+          },
         ),
       ],
     );
