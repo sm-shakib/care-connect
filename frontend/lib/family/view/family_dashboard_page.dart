@@ -131,7 +131,9 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
             body: SafeArea(
               child: body,
             ),
-            bottomNavigationBar: FamilyBottomNavBar(
+            bottomNavigationBar: (state.selectedElder != null && _selectedIndex == 0)
+                ? null
+                : FamilyBottomNavBar(
               selectedIndex: _selectedIndex,
               onChanged: (index) {
                 setState(() {

@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+
 import '../models/appointment.dart';
 import '../models/elder.dart';
 import '../models/health_vitals.dart';
 import '../models/medical_record.dart';
 import '../models/medication.dart';
+import '../models/reminder.dart';
 
 const elderList = [
   Elder(
@@ -58,6 +61,20 @@ const elderList = [
         date: 'Nov 15, 2023',
         time: '10:30 AM',
         location: 'City Hospital, Dhaka',
+      ),
+    ],
+    otherReminders: [
+      Reminder(
+        id: 'rem1',
+        title: 'Physical Therapy',
+        subtitle: 'At 2:00 PM',
+        icon: Icons.fitness_center,
+      ),
+      Reminder(
+        id: 'rem2',
+        title: 'Hydration',
+        subtitle: 'Drink 2L water',
+        icon: Icons.water_drop,
       ),
     ],
   ),

@@ -2,6 +2,7 @@ import 'appointment.dart';
 import 'health_vitals.dart';
 import 'medical_record.dart';
 import 'medication.dart';
+import 'reminder.dart';
 
 class Elder {
   const Elder({
@@ -20,6 +21,7 @@ class Elder {
     this.medications = const [],
     this.medicalRecords = const [],
     this.appointments = const [],
+    this.otherReminders = const [],
   });
 
   final String id;
@@ -34,6 +36,7 @@ class Elder {
   final List<Medication> medications;
   final List<MedicalRecord> medicalRecords;
   final List<Appointment> appointments;
+  final List<Reminder> otherReminders;
   
   // New dynamic health fields
   final HealthVitals vitals;
@@ -53,6 +56,7 @@ class Elder {
     List<Medication>? medications,
     List<MedicalRecord>? medicalRecords,
     List<Appointment>? appointments,
+    List<Reminder>? otherReminders,
     HealthVitals? vitals,
     String? lastLocationUpdate,
     String? locationImage,
@@ -70,6 +74,7 @@ class Elder {
       medications: medications ?? this.medications,
       medicalRecords: medicalRecords ?? this.medicalRecords,
       appointments: appointments ?? this.appointments,
+      otherReminders: otherReminders ?? this.otherReminders,
       vitals: vitals ?? this.vitals,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
       locationImage: locationImage ?? this.locationImage,
