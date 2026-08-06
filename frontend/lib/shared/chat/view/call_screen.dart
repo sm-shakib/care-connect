@@ -109,43 +109,47 @@ class _CallScreenState extends State<CallScreen> {
               backgroundColor: const Color(0xFF0B1F1C),
               body: SafeArea(
                 child: Stack(
+                  alignment: Alignment.topCenter,
                   children: [
-                    Column(
-                      children: [
-                        const SizedBox(height: 32),
-                        widget.isGroupCall
-                            ? _GroupCallAvatars(participants: widget.participants)
-                            : _SoloCallAvatar(
-                                participant: widget.participants.isNotEmpty
-                                    ? widget.participants.first
-                                    : null,
-                              ),
-                        const SizedBox(height: 16),
-                        Text(
-                          session.displayName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        if (widget.isGroupCall) ...[
-                          const SizedBox(height: 4),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 32),
+                          widget.isGroupCall
+                              ? _GroupCallAvatars(participants: widget.participants)
+                              : _SoloCallAvatar(
+                                  participant: widget.participants.isNotEmpty
+                                      ? widget.participants.first
+                                      : null,
+                                ),
+                          const SizedBox(height: 16),
                           Text(
-                            widget.participants.map((p) => p.name).join(', '),
+                            session.displayName,
                             textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, color: Colors.white54),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          if (widget.isGroupCall) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.participants.map((p) => p.name).join(', '),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13, color: Colors.white54),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Text(
+                            _statusLabel(session, state.elapsedLabel),
+                            style: const TextStyle(fontSize: 15, color: Colors.white70),
                           ),
                         ],
-                        const SizedBox(height: 8),
-                        Text(
-                          _statusLabel(session, state.elapsedLabel),
-                          style: const TextStyle(fontSize: 15, color: Colors.white70),
-                        ),
-                      ],
+                      ),
                     ),
                     if (widget.isVideo && session.isCameraOn && _cameraController != null)
                       Positioned(
