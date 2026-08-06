@@ -1,3 +1,4 @@
+import 'package:frontend/caregiver_signup/caregiver_signup.dart';
 import '../models/caregiver.dart';
 
 final List<Caregiver> caregiverList = [
@@ -12,10 +13,20 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 250,
     isVerified: true,
     specialties: ['Elder Care', 'Dementia Care'],
+    specializations: 'Elderly mobility support, dementia care, and wound management.',
     about:
     'Experienced registered nurse with over 8 years of providing compassionate home healthcare for elderly patients.',
     gender: 'Female',
     availabilityType: 'Full-time',
+    phone: '+880 1711 111111',
+    email: 'sarah.j@example.com',
+    address: 'Seattle, WA',
+    dateOfBirth: DateTime(1995, 5, 20),
+    documents: {
+      CaregiverDocumentType.nationalId: 'nid_scan.pdf',
+      CaregiverDocumentType.certificate: 'caregiving_certificate.pdf',
+      CaregiverDocumentType.policeClearance: 'police_clearance.pdf',
+    },
   ),
   Caregiver(
     id: '2',
@@ -28,10 +39,20 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 200,
     isVerified: true,
     specialties: ['Post Surgery', 'Mobility Assistance'],
+    specializations: 'Assisting with daily activities, medication reminders, and post-operative recovery.',
     about:
     'Dedicated caregiver specializing in post-surgery recovery and daily living assistance.',
     gender: 'Female',
     availabilityType: 'Part-time',
+    phone: '+880 1722 222222',
+    email: 'emma.w@example.com',
+    address: 'Bellevue, WA',
+    dateOfBirth: DateTime(1998, 8, 15),
+    documents: {
+      CaregiverDocumentType.nationalId: 'nid_emma.pdf',
+      CaregiverDocumentType.certificate: 'certificate_emma.pdf',
+      CaregiverDocumentType.policeClearance: 'police_emma.pdf',
+    },
   ),
   Caregiver(
     id: '3',
@@ -44,9 +65,15 @@ final List<Caregiver> caregiverList = [
     hourlyRate: 350,
     isVerified: false,
     specialties: ['Physiotherapy', 'Rehabilitation'],
+    specializations: 'Specialized physiotherapy for stroke recovery and joint mobility.',
     about:
     'Licensed physiotherapist helping patients recover mobility and independence.',
     gender: 'Male',
     availabilityType: 'On-call',
+    phone: '+880 1733 333333',
+    email: 'michael.b@example.com',
+    address: 'Tacoma, WA',
+    dateOfBirth: DateTime(1990, 3, 10),
+    documents: {},
   ),
 ];

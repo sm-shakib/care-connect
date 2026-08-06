@@ -22,7 +22,20 @@ class AppointmentSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (appointments.isEmpty)
-          const Text("No upcoming appointments.")
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline, color: AppColors.outlineLight),
+                const SizedBox(width: 12),
+                Text("No upcoming appointments."),
+              ],
+            ),
+          )
         else
           ...appointments.map((apt) => _AppointmentTile(appointment: apt)),
       ],

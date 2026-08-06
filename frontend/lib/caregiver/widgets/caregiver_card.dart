@@ -86,18 +86,18 @@ class CaregiverCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          caregiver.rating.toString(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        // const Icon(
+                        //   Icons.star_rounded,
+                        //   color: Colors.amber,
+                        //   size: 18,
+                        // ),
+                        // const SizedBox(width: 2),
+                        // Text(
+                        //   caregiver.rating.toString(),
+                        //   style: const TextStyle(
+                        //     fontWeight: FontWeight.w600,
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 4),
