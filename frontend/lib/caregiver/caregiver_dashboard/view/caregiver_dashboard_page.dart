@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
-import '../../caregiver_chat_list/caregiver_chat_list.dart';
 import '../../caregiver_donation/caregiver_donation_tab.dart';
 import '../../caregiver_notifications/caregiver_notifications.dart';
 import '../../caregiver_profile/caregiver_profile.dart';
@@ -35,7 +35,11 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
               body = const CaregiverDashboardView();
               break;
             case 1:
-              body = const CaregiverChatListPage();
+              body = ChatInboxPage(
+                repository: MockChatRepository.instance,
+                currentUser: ChatDirectory.shakibKhan,
+                showHeader: false,
+              );
               break;
             case 2:
               body = const CaregiverDonationTab();

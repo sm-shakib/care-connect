@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
 import 'package:frontend/shared/medicine/view/medicine_page.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
@@ -102,11 +103,11 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
       body: SafeArea(
         child: IndexedStack(
           index: _selectedIndex,
-          children: const [
-            _DashboardHomeBody(),
-            _MedicineTabBody(),
-            _ComingSoonBody(label: 'Chat with Caregiver'),
-            ElderlyProfilePage(),
+          children: [
+            _DashboardHomeBody(onOpenChat: () => setState(() => _selectedIndex = 2)),
+            const _MedicineTabBody(),
+            const _ChatTabBody(),
+            const ElderlyProfilePage(),
           ],
         ),
       ),
@@ -124,7 +125,9 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
 
 
 class _DashboardHomeBody extends StatelessWidget {
-  const _DashboardHomeBody();
+  const _DashboardHomeBody({this.onOpenChat});
+
+  final VoidCallback? onOpenChat;
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +174,7 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 18),
               CaregiverCard(caregiver: state.caregiver),
               const SizedBox(height: 18),
-              ChatCard(chat: state.chatPreview),
+              ChatCard(chat: state.chatPreview, onTap: onOpenChat),
             ],
           ),
         );
@@ -214,27 +217,14 @@ class _MedicineTabBody extends StatelessWidget {
   }
 }
 
-class _ComingSoonBody extends StatelessWidget {
-  const _ComingSoonBody({required this.label});
-
-  final String label;
+class _ChatTabBody extends StatelessWidget {
+  const _ChatTabBody();
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.hourglass_empty, size: 64, color: colorScheme.outlineVariant),
-          const SizedBox(height: 16),
-          Text(
-            '$label coming soon',
-            style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
-          ),
-        ],
-      ),
+    return ChatInboxPage(
+      repository: MockChatRepository.instance,
+      currentUser: ChatDirectory.adib,
     );
   }
 }

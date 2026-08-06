@@ -10,6 +10,7 @@ import 'package:frontend/family/view/family_dashboard_view.dart';
 import 'package:frontend/family/view/notifications/family_notifications_page.dart';
 import 'package:frontend/family/view/profile/family_profile_page.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FamilyDashboardPage extends StatefulWidget {
@@ -81,6 +82,13 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
                 ? 'Select for ${state.bookingForElder!.name}'
                 : 'Available Caregivers';
           } else if (_selectedIndex == 2) {
+            body = ChatInboxPage(
+              repository: MockChatRepository.instance,
+              currentUser: ChatDirectory.asifRahman,
+              showHeader: false,
+            );
+            title = 'Chats';
+          } else if (_selectedIndex == 3) {
             body = const FamilyDonationTab();
             title = 'Donation';
           } else {

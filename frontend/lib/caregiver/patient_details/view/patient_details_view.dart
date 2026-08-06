@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
-import '../../patient_chat/patient_chat.dart';
 import '../cubit/patient_details_cubit.dart';
 import '../utils/time_ago.dart';
 import '../widgets/care_reminder_tile.dart';
@@ -446,11 +446,22 @@ class _ChatButton extends StatelessWidget {
     return SizedBox(
       height: 54,
       child: OutlinedButton.icon(
-        onPressed: () {
+        onPressed: () async {
+          final repository = MockChatRepository.instance;
+          final patient = ChatDirectory.resolveOrCreateContact(patientName);
+          final conversation = await repository.createDirectConversation(
+            currentUser: ChatDirectory.shakibKhan,
+            other: patient,
+          );
+          if (!context.mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => PatientChatPage(contactName: patientName),
+              builder: (_) => ConversationPage(
+                repository: repository,
+                conversationId: conversation.id,
+                currentUser: ChatDirectory.shakibKhan,
+              ),
             ),
           );
         },
