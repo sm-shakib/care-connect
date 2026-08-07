@@ -242,55 +242,66 @@ class _GroupCallAvatars extends StatelessWidget {
 
   final List<ChatParticipant> participants;
 
+  // Bubble diameter and how much each successive bubble overlaps the last.
+  static const double _bubbleSize = 72;
+  static const double _overlap = 20;
+  static const double _step = _bubbleSize - _overlap;
+
   @override
   Widget build(BuildContext context) {
     const maxShown = 4;
     final shown = participants.take(maxShown).toList();
     final overflow = participants.length - shown.length;
+    final bubbleCount = shown.length + (overflow > 0 ? 1 : 0);
+    final totalWidth = bubbleCount == 0 ? 0.0 : _bubbleSize + (bubbleCount - 1) * _step;
 
     Widget bubble(Widget inner) => Container(
-          width: 72,
-          height: 72,
+          width: _bubbleSize,
+          height: _bubbleSize,
           decoration: const BoxDecoration(color: Color(0xFF0B1F1C), shape: BoxShape.circle),
           padding: const EdgeInsets.all(4),
           child: inner,
         );
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < shown.length; i++)
-          Padding(
-            padding: EdgeInsets.only(left: i == 0 ? 0 : -20),
-            child: bubble(
-              CircleAvatar(
-                backgroundColor: shown[i].avatarColor,
-                child: Text(
-                  shown[i].initials,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.darkTeal,
+    // Positioned (rather than negative Padding, which asserts non-negative
+    // insets) so bubbles can overlap.
+    return SizedBox(
+      width: totalWidth,
+      height: _bubbleSize,
+      child: Stack(
+        children: [
+          for (var i = 0; i < shown.length; i++)
+            Positioned(
+              left: i * _step,
+              child: bubble(
+                CircleAvatar(
+                  backgroundColor: shown[i].avatarColor,
+                  child: Text(
+                    shown[i].initials,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkTeal,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        if (overflow > 0)
-          Padding(
-            padding: const EdgeInsets.only(left: -20),
-            child: bubble(
-              CircleAvatar(
-                backgroundColor: Colors.white24,
-                child: Text(
-                  '+$overflow',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+          if (overflow > 0)
+            Positioned(
+              left: shown.length * _step,
+              child: bubble(
+                CircleAvatar(
+                  backgroundColor: Colors.white24,
+                  child: Text(
+                    '+$overflow',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
