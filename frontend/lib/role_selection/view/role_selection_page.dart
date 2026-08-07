@@ -43,6 +43,7 @@ class _RoleSelectionView extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       l10n.roleSelectionTitle,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -123,7 +124,6 @@ class _RoleSelectionView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
@@ -132,12 +132,11 @@ class _RoleSelectionView extends StatelessWidget {
           Text(
             l10n.careConnectTitle,
             style: TextStyle(
-              fontSize: 25,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(width: 48),
         ],
       ),
     );

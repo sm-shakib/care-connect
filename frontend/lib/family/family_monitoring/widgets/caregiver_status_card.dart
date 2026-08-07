@@ -26,7 +26,10 @@ class CaregiverStatusCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute<void>(
-            builder: (_) => CaregiverDetailsPage(caregiver: caregiver),
+            builder: (_) => CaregiverDetailsPage(
+              caregiver: caregiver,
+              isAssigned: true,
+            ),
           ),
         );
       },

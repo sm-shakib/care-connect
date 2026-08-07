@@ -7,6 +7,10 @@ import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../../models/caregiver.dart';
 import '../../caregiver_profile/widgets/verified_document_tile.dart';
+import '../../../family/widgets/booking_options_sheet.dart';
+import '../../../family/widgets/file_complaint_sheet.dart';
+import '../../../family/data/booking_dummy_data.dart';
+import '../../../family/models/booking_schedule.dart';
 
 const List<CaregiverDocumentType> _kRequiredDocuments = [
   CaregiverDocumentType.nationalId,
@@ -17,11 +21,13 @@ const List<CaregiverDocumentType> _kRequiredDocuments = [
 class CaregiverDetailsPage extends StatelessWidget {
   final Caregiver caregiver;
   final Elder? bookingForElder;
+  final bool isAssigned;
 
   const CaregiverDetailsPage({
     super.key,
     required this.caregiver,
     this.bookingForElder,
+    this.isAssigned = false,
   });
 
   @override
@@ -244,32 +250,100 @@ class CaregiverDetailsPage extends StatelessWidget {
               ),
             ),
 
+            if (isAssigned) ...[
+              const SizedBox(height: 25),
+              _SectionTitle(title: "Schedule"),
+              const SizedBox(height: 12),
+              _BookingScheduleCard(
+                schedule: BookingDummyData.getScheduleForCaregiver(caregiver.id),
+              ),
+            ],
+
             const SizedBox(height: 32),
 
-            /// Booking Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkTeal,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            /// Booking or Active Caregiver Actions
+            if (!isAssigned)
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkTeal,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () => _handleBooking(context),
+                  child: const Text(
+                    "Book Now",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                onPressed: () => _handleBooking(context),
-                child: const Text(
-                  "Book Now",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 56,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showFileComplaintSheet(context),
+                        icon: const Icon(Icons.report_problem_outlined, size: 20),
+                        label: const Text(
+                          'File Complaint',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.redAccent,
+                          side: const BorderSide(color: Colors.redAccent, width: 1.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // TODO: Implement Payment functionality
+                        },
+                        icon: const Icon(Icons.payments_outlined),
+                        label: const Text(
+                          'Payment',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.darkTeal,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
             const SizedBox(height: 24),
           ],
         ),
       ),
+    );
+  }
+
+  void _showFileComplaintSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FileComplaintSheet(caregiverName: caregiver.name),
     );
   }
 
@@ -295,7 +369,7 @@ class CaregiverDetailsPage extends StatelessWidget {
 
   void _handleBooking(BuildContext context) {
     if (bookingForElder != null) {
-      _showSuccessDialog(context, bookingForElder!);
+      _showBookingOptionsSheet(context, bookingForElder!);
     } else {
       _showElderSelectionDialog(context);
     }
@@ -330,7 +404,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                   subtitle: Text(elder.relationship),
                   onTap: () {
                     Navigator.pop(dialogContext); // Close selection dialog
-                    _showSuccessDialog(pageContext, elder);
+                    _showBookingOptionsSheet(pageContext, elder);
                   },
                 );
               },
@@ -338,6 +412,22 @@ class CaregiverDetailsPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showBookingOptionsSheet(BuildContext context, Elder elder) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => BookingOptionsSheet(
+        caregiverName: caregiver.name,
+        elderName: elder.name,
+        onConfirm: () {
+          Navigator.pop(sheetContext); // Close options sheet
+          _showSuccessDialog(context, elder);
+        },
+      ),
     );
   }
 
@@ -357,15 +447,15 @@ class CaregiverDetailsPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                const Icon(Icons.hourglass_empty, color: Colors.amber, size: 80),
                 const SizedBox(height: 20),
                 const Text(
-                  "Booking Confirmed!",
+                  "Request Sent",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "You have successfully booked\n${caregiver.name} for ${elder.name}.",
+                  "Your booking request for ${caregiver.name} has been sent.\n\nWaiting for admin approval.",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 16, color: AppColors.onSurfaceVariantLight),
@@ -397,6 +487,46 @@ class CaregiverDetailsPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _BookingScheduleCard extends StatelessWidget {
+  const _BookingScheduleCard({required this.schedule});
+
+  final BookingSchedule schedule;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        children: [
+          _InfoRow(
+            icon: Icons.calendar_today_outlined,
+            label: 'Service Period',
+            value: schedule.periodLabel,
+          ),
+          _InfoRow(
+            icon: Icons.repeat_outlined,
+            label: 'Working Days',
+            value: schedule.workingDaysLabel,
+          ),
+          _InfoRow(
+            icon: Icons.access_time_outlined,
+            label: 'Daily Timing',
+            value: schedule.timingLabel,
+            isLast: true,
+          ),
+        ],
+      ),
     );
   }
 }

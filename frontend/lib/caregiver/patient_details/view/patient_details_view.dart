@@ -496,7 +496,7 @@ class _EditCarePlanButton extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.onSurface,
+          backgroundColor: AppColors.darkTeal,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
