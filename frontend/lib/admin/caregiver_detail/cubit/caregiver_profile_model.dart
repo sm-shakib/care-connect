@@ -52,17 +52,19 @@ class CaregiverDocument extends Equatable {
 /// A single recent booking summary row.
 class CaregiverBookingSummary extends Equatable {
   const CaregiverBookingSummary({
+    required this.id,
     required this.elderlyUserName,
     required this.dateRangeLabel,
     required this.statusLabel,
   });
 
+  final String id;
   final String elderlyUserName;
   final String dateRangeLabel;
   final String statusLabel;
 
   @override
-  List<Object?> get props => [elderlyUserName, dateRangeLabel, statusLabel];
+  List<Object?> get props => [id, elderlyUserName, dateRangeLabel, statusLabel];
 }
 
 /// Status of a single payout to this caregiver.

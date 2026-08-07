@@ -85,9 +85,9 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
       title: 'Dementia Care Specialist',
       avatarUrl:
       'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-      phone: '+880 1712-345678',
+      phone: '+880 1711-223344',
       email: 'adib.khan@careconnect.com',
-      address: 'House 12, Road 5, Dhanmondi, Dhaka',
+      address: 'House 15, Road 4, Dhanmondi, Dhaka',
       gender: 'Male',
       age: 29,
       experienceYears: 8,
@@ -108,12 +108,12 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           'creating calm, structured routines that preserve dignity and '
           'reduce anxiety for both patients and their families.',
       checklist: [
-        ChecklistItem(label: 'National ID verified', isVerified: true),
+        ChecklistItem(label: 'National ID', isVerified: true),
         ChecklistItem(
-          label: 'Professional Certificate reviewed',
+          label: 'Professional Certificate',
           isVerified: true,
         ),
-        ChecklistItem(label: 'Police Clearance reviewed', isVerified: false),
+        ChecklistItem(label: 'Police Clearance', isVerified: false),
       ],
       documents: [
         UploadedDocument(
@@ -139,7 +139,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
       title: 'Post-Op Recovery Specialist',
       avatarUrl:
       'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-      phone: '+880 1812-987654',
+      phone: '+880 1512-345678',
       email: 'shakib.khan@careconnect.com',
       address: 'Flat 4B, Gulshan Avenue, Gulshan-1, Dhaka',
       gender: 'Male',
@@ -162,13 +162,12 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           'Experienced in wound care, pain management, and coordinating '
           'with surgeons on recovery milestones.',
       checklist: [
-        ChecklistItem(label: 'National ID verified', isVerified: true),
+        ChecklistItem(label: 'National ID', isVerified: true),
         ChecklistItem(
-          label: 'Professional Certificate reviewed',
+          label: 'Professional Certificate',
           isVerified: true,
         ),
-        ChecklistItem(label: 'Police Clearance reviewed', isVerified: true),
-
+        ChecklistItem(label: 'Police Clearance', isVerified: true),
       ],
       documents: [
         UploadedDocument(
@@ -193,7 +192,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
       title: 'General Care Assistant',
       avatarUrl:
       'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-      phone: '+880 1912-112233',
+      phone: '+880 1912-556677',
       email: 'shihab.khan@careconnect.com',
       address: 'House 7, Sector 11, Uttara, Dhaka',
       gender: 'Male',
@@ -214,13 +213,12 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           'day-to-day support for elderly clients, including meal '
           'preparation, mobility assistance, and companionship.',
       checklist: [
-        ChecklistItem(label: 'National ID verified', isVerified: true),
+        ChecklistItem(label: 'National ID', isVerified: true),
         ChecklistItem(
-          label: 'Professional Certificate reviewed',
+          label: 'Professional Certificate',
           isVerified: false,
         ),
-        ChecklistItem(label: 'Police Clearance reviewed', isVerified: false),
-
+        ChecklistItem(label: 'Police Clearance', isVerified: false),
       ],
       documents: [
         UploadedDocument(
@@ -238,7 +236,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
       title: 'Palliative Care Specialist',
       avatarUrl:
       'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-      phone: '+880 1611-556677',
+      phone: '+880 1611-001122',
       email: 'mafia.messi@careconnect.com',
       address: 'Road 27, Banani, Dhaka',
       gender: 'Female',
@@ -260,13 +258,12 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           'and comfort-focused care, known for building deep trust with '
           'patients and families during difficult transitions.',
       checklist: [
-        ChecklistItem(label: 'National ID verified', isVerified: true),
+        ChecklistItem(label: 'National ID', isVerified: true),
         ChecklistItem(
-          label: 'Professional Certificate reviewed',
+          label: 'Professional Certificate',
           isVerified: true,
         ),
-        ChecklistItem(label: 'Police Clearance reviewed', isVerified: true),
-
+        ChecklistItem(label: 'Police Clearance', isVerified: true),
       ],
       documents: [
         UploadedDocument(

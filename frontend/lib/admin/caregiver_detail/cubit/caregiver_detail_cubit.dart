@@ -104,7 +104,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       gender: 'Female',
       experienceYears: 8,
       availability: 'Full-time',
-      dailyRate: 35,
+      dailyRate: 350,
       phone: '+880 1812-987654',
       email: 'fatema.begum@careconnect.com',
       address: 'House 22, Road 8, Banani, Dhaka',
@@ -116,39 +116,44 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       // Placeholder labels — swap for the real CaregiverDocumentType
       // enum values once shared.
       verificationChecklist: const [
-        VerificationChecklistItem(label: 'ID Proof', isVerified: true),
-        VerificationChecklistItem(label: 'Nursing License', isVerified: true),
+        VerificationChecklistItem(label: 'National ID', isVerified: true),
         VerificationChecklistItem(
-          label: 'Background Check',
+          label: 'Professional Certificate',
+          isVerified: true,
+        ),
+        VerificationChecklistItem(
+          label: 'Police Clearance',
           isVerified: true,
         ),
       ],
       documents: const [
         CaregiverDocument(
-          title: 'Nursing License',
-          subtitle: 'Professional Certificate',
+          title: 'National ID',
+          subtitle: 'National ID Card',
           previewUrl:
-          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-          iconName: 'description',
+              'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+          iconName: 'badge',
         ),
         CaregiverDocument(
-          title: 'ID Document',
-          subtitle: 'National ID',
+          title: 'Professional Certificate',
+          subtitle: 'Nursing License',
           previewUrl:
-          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-          iconName: 'badge',
+              'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+          iconName: 'description',
         ),
       ],
       recentBookings: const [
         CaregiverBookingSummary(
+          id: 'BK-3082',
           elderlyUserName: 'Abdul Karim',
           dateRangeLabel: 'Oct 20 - 25',
-          statusLabel: 'Completed',
+          statusLabel: 'Ongoing',
         ),
         CaregiverBookingSummary(
+          id: 'BK-3081',
           elderlyUserName: 'Rahima Khatun',
           dateRangeLabel: 'Oct 12 - 15',
-          statusLabel: 'Completed',
+          statusLabel: 'Upcoming',
         ),
       ],
       totalEarned: 14250,

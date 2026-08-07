@@ -29,7 +29,7 @@ class CaregiverVerificationCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.outlineVariantLight),
           ),
           child: Row(

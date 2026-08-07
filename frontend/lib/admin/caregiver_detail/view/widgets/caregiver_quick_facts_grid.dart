@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../theme/app_colors.dart';
-import '../../cubit/family_member_profile_model.dart';
+import '../../cubit/caregiver_profile_model.dart';
 
-/// Single-card list of quick facts (Gender, Age, Phone, Email, Address),
-/// styled to match [CaregiverContactCard] and [ElderlyQuickFactsGrid].
-class FamilyMemberQuickFactsGrid extends StatelessWidget {
-  const FamilyMemberQuickFactsGrid({
+/// Single-card list of quick facts (Gender, Experience, Rate, Availability,
+/// Phone, Email, Address), styled to match [ElderlyQuickFactsGrid].
+class CaregiverQuickFactsGrid extends StatelessWidget {
+  const CaregiverQuickFactsGrid({
     required this.profile,
     this.onViewOnMap,
     super.key,
   });
 
-  final FamilyMemberProfile profile;
+  final CaregiverProfile profile;
   final VoidCallback? onViewOnMap;
 
   Future<void> _launchDialer(String phoneNumber) async {
@@ -81,7 +81,23 @@ class FamilyMemberQuickFactsGrid extends StatelessWidget {
             value: profile.gender,
           ),
           const SizedBox(height: 16),
-          _FactRow(icon: Icons.cake, label: 'Age', value: '${profile.age} Years'),
+          _FactRow(
+            icon: Icons.work_history,
+            label: 'Experience',
+            value: '${profile.experienceYears} Years',
+          ),
+          const SizedBox(height: 16),
+          _FactRow(
+            icon: Icons.payments,
+            label: 'Rate',
+            value: 'TK${profile.dailyRate.toStringAsFixed(0)}/hr',
+          ),
+          const SizedBox(height: 16),
+          _FactRow(
+            icon: Icons.calendar_today,
+            label: 'Availability',
+            value: profile.availability,
+          ),
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.call,

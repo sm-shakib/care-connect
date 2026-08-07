@@ -24,7 +24,7 @@ class CaregiverDocumentsSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 200,
+          height: 220,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: documents.length,
@@ -121,14 +121,30 @@ class _DocumentCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        document.title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.onSurfaceVariantLight,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            document.title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.onSurfaceVariantLight,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            document.subtitle,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurfaceVariantLight
+                                  .withValues(alpha: 0.7),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../booking_detail/view/booking_detail_page.dart';
 import '../cubit/caregiver_detail_cubit.dart';
 import '../cubit/caregiver_detail_state.dart';
 import 'widgets/caregiver_actions_bar.dart';
-import 'widgets/caregiver_contact_card.dart';
 import 'widgets/caregiver_documents_section.dart';
 import 'widgets/caregiver_earnings_section.dart';
 import 'widgets/caregiver_profile_header.dart';
+import 'widgets/caregiver_quick_facts_grid.dart';
 import 'widgets/caregiver_recent_bookings_section.dart';
 import 'widgets/caregiver_specializations_section.dart';
-import 'widgets/caregiver_stats_grid.dart';
 import 'widgets/caregiver_verification_status_card.dart';
 
 enum _MenuAction { toggleStatus, remove }
@@ -101,9 +101,7 @@ class CaregiverDetailView extends StatelessWidget {
                     children: [
                       CaregiverProfileHeader(profile: profile),
                       const SizedBox(height: 24),
-                      CaregiverStatsGrid(profile: profile),
-                      const SizedBox(height: 12),
-                      CaregiverContactCard(profile: profile),
+                      CaregiverQuickFactsGrid(profile: profile),
                       const SizedBox(height: 20),
                       CaregiverSpecializationsSection(
                         specializations: profile.specializations,
@@ -137,6 +135,11 @@ class CaregiverDetailView extends StatelessWidget {
                         onViewAll: () {
                           // TODO(careconnect): navigate to this
                           // caregiver's full booking history.
+                        },
+                        onBookingTap: (booking) {
+                          Navigator.of(context).push(
+                            BookingDetailPage.route(bookingId: booking.id),
+                          );
                         },
                       ),
                     ],

@@ -6,12 +6,14 @@ enum AccountStatus { active, suspended }
 /// An elderly user linked to this family member.
 class LinkedElderlyUser extends Equatable {
   const LinkedElderlyUser({
+    required this.id,
     required this.name,
     required this.avatarUrl,
     required this.relationship,
     required this.isPrimaryContact,
   });
 
+  final String id;
   final String name;
   final String avatarUrl;
 
@@ -22,7 +24,8 @@ class LinkedElderlyUser extends Equatable {
   final bool isPrimaryContact;
 
   @override
-  List<Object?> get props => [name, avatarUrl, relationship, isPrimaryContact];
+  List<Object?> get props =>
+      [id, name, avatarUrl, relationship, isPrimaryContact];
 }
 
 /// A single notification-category row in the "Alert Preferences" card.

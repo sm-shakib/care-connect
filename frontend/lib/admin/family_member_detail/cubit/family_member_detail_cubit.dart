@@ -89,6 +89,7 @@ class FamilyMemberDetailCubit extends Cubit<FamilyMemberDetailState> {
       address: 'House 7, Sector 11, Uttara, Dhaka',
       linkedElderlyUsers: [
         LinkedElderlyUser(
+          id: '1',
           name: 'Abdul Karim',
           avatarUrl:
           'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',

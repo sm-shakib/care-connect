@@ -70,9 +70,9 @@ class UserManagementCubit extends Cubit<UserManagementState> {
       role: UserRole.family,
       phone: '+880 1912-112233',
       joinedDate: DateTime(2024, 1, 20),
-      status: UserStatus.suspended,
+      status: UserStatus.active,
     ),
-    UserAccount(
+    /*UserAccount(
       id: '4',
       name: 'Nusrat Jahan',
       avatarUrl:
@@ -81,6 +81,6 @@ class UserManagementCubit extends Cubit<UserManagementState> {
       phone: '+880 1611-556677',
       joinedDate: DateTime(2024, 2, 14),
       status: UserStatus.active,
-    ),
+    ),*/
   ];
 }

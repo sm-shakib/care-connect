@@ -8,11 +8,13 @@ class CaregiverRecentBookingsSection extends StatelessWidget {
   const CaregiverRecentBookingsSection({
     required this.bookings,
     this.onViewAll,
+    this.onBookingTap,
     super.key,
   });
 
   final List<CaregiverBookingSummary> bookings;
   final VoidCallback? onViewAll;
+  final ValueChanged<CaregiverBookingSummary>? onBookingTap;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,10 @@ class CaregiverRecentBookingsSection extends StatelessWidget {
                 for (var i = 0; i < bookings.length; i++) ...[
                   if (i > 0)
                     Divider(height: 1, color: AppColors.outlineVariantLight),
-                  _BookingRow(booking: bookings[i]),
+                  _BookingRow(
+                    booking: bookings[i],
+                    onTap: () => onBookingTap?.call(bookings[i]),
+                  ),
                 ],
               ],
             ),
@@ -81,65 +86,70 @@ class CaregiverRecentBookingsSection extends StatelessWidget {
 }
 
 class _BookingRow extends StatelessWidget {
-  const _BookingRow({required this.booking});
+  const _BookingRow({required this.booking, this.onTap});
 
   final CaregiverBookingSummary booking;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.secondaryContainerLight,
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.secondaryContainerLight,
+                shape: BoxShape.circle,
+              ),
+              child:
+                  Icon(Icons.person, color: AppColors.onSecondaryContainerLight),
             ),
-            child: Icon(Icons.person, color: AppColors.onSecondaryContainerLight),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  booking.elderlyUserName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    booking.elderlyUserName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  booking.dateRangeLabel,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.onSurfaceVariantLight,
+                  Text(
+                    booking.dateRangeLabel,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.onSurfaceVariantLight,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerHighestLight,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              booking.statusLabel,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.onSurfaceVariantLight,
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerHighestLight,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                booking.statusLabel,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurfaceVariantLight,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

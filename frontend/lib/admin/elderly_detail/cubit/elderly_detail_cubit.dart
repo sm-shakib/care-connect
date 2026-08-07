@@ -76,7 +76,7 @@ class ElderlyDetailCubit extends Cubit<ElderlyDetailState> {
       id: '1',
       name: 'Abdul Karim',
       avatarUrl:
-      'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       status: AccountStatus.active,
       gender: 'Male',
       age: 72,
@@ -84,13 +84,14 @@ class ElderlyDetailCubit extends Cubit<ElderlyDetailState> {
       email: 'abdul.karim@email.com',
       address: 'House 12, Road 5, Dhanmondi, Dhaka',
       healthCondition:
-      'Diabetes Type 2, Hypertension. Requires assistance with '
+          'Diabetes Type 2, Hypertension. Requires assistance with '
           'mobility. No known allergies.',
       linkedFamilyMembers: [
         LinkedFamilyMember(
+          id: '3',
           name: 'Rafiqul Islam',
           avatarUrl:
-          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+              'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
           relationship: 'Son',
           isPrimaryContact: true,
         ),
