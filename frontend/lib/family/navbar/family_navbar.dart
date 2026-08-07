@@ -44,6 +44,11 @@ class FamilyBottomNavBar extends StatelessWidget {
             label: 'Caregivers',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chats',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.volunteer_activism_outlined),
             activeIcon: Icon(Icons.volunteer_activism),
             label: 'Donation',

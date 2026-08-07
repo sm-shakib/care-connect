@@ -48,6 +48,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CareConnect uses your microphone to record voice messages and for voice/video calls.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CareConnect uses your camera for video calls and for attaching photos in chat.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CareConnect needs access to your photo library to attach photos and videos in chat.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>CareConnect can save chat photos and videos to your photo library.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

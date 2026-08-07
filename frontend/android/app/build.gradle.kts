@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.verygoodcore.frontend"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -95,4 +95,8 @@ flutter {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
+    // See the root build.gradle.kts for the androidx.concurrent:concurrent-futures
+    // workaround needed by camera_android_camerax — applied there to every
+    // subproject since the failing compile task runs inside that plugin
+    // module, not this one.
 }

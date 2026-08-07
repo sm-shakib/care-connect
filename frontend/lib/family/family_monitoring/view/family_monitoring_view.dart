@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/family_monitoring/view/edit_reminders_page.dart';
-import 'package:frontend/family/family_monitoring/view/family_chat_page.dart';
 import 'package:frontend/family/family_monitoring/widgets/appointment_section.dart';
 import 'package:frontend/family/family_monitoring/widgets/available_caregivers_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/blood_pressure_card.dart';
@@ -14,6 +13,7 @@ import 'package:frontend/family/family_monitoring/widgets/medication_section.dar
 import 'package:frontend/family/family_monitoring/widgets/monitoring_header.dart';
 import 'package:frontend/family/family_monitoring/widgets/other_reminders_section.dart';
 import 'package:frontend/family/models/elder.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FamilyMonitoringView extends StatelessWidget {
@@ -196,14 +196,25 @@ class _ChatButton extends StatelessWidget {
     return SizedBox(
       height: 54,
       child: OutlinedButton.icon(
-        onPressed: () {
-          // Typically family chats with their assigned caregivers. 
-          // For now, let's open chat with the first one or a generic team chat.
+        onPressed: () async {
+          // Family chats with the elder's assigned (primary) caregiver.
           final contactName = elder.caregivers.isNotEmpty ? elder.caregivers.first : 'Care Team';
+          final repository = MockChatRepository.instance;
+          final caregiver =
+              ChatDirectory.resolveOrCreateContact(contactName, role: ChatRole.caregiver);
+          final conversation = await repository.createDirectConversation(
+            currentUser: ChatDirectory.asifRahman,
+            other: caregiver,
+          );
+          if (!context.mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => FamilyChatPage(contactName: contactName),
+              builder: (_) => ConversationPage(
+                repository: repository,
+                conversationId: conversation.id,
+                currentUser: ChatDirectory.asifRahman,
+              ),
             ),
           );
         },
