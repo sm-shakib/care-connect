@@ -29,123 +29,131 @@ class FamilyMonitoringView extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              const SizedBox(height: 8),
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const SizedBox(height: 8),
 
-              MonitoringHeader(
-                elderName: elder.name,
-                imageUrl: elder.imageUrl,
-                gender: elder.gender,
-              ),
-
-              const SizedBox(height: 20),
-
-              /// Care Team Section (Active Caregivers)
-              if (elder.caregivers.isNotEmpty) ...[
-                const Text(
-                  'Active Caregivers',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkTeal,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLowestLight,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                        color: AppColors.outlineVariantLight.withValues(alpha: 0.8)),
-                  ),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < elder.caregivers.length; i++) ...[
-                        CaregiverStatusCard(
-                          caregiverName: elder.caregivers[i],
-                          onTap: () {
-                            // Handled inside widget
-                          },
-                        ),
-                        if (i != elder.caregivers.length - 1)
-                          Divider(
-                              height: 1,
-                              color: AppColors.outlineVariantLight
-                                  .withValues(alpha: 0.3)),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              const Text(
-                'Browse Caregivers',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkTeal,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              /// Available Caregivers card
-              AvailableCaregiversCard(
-                onTap: () {
-                  // Set the booking context and notify the parent to switch tabs
-                  context.read<FamilyDashboardCubit>().startBookingForElder(elder);
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              /// Vitals Row
-              HeartRateCard(
-                heartRate: elder.vitals.heartRate,
-                status: elder.vitals.heartRateStatus,
-              ),
-
-              const SizedBox(height: 16),
-
-              BloodPressureCard(
-                systolic: elder.vitals.systolic,
-                diastolic: elder.vitals.diastolic,
-                status: elder.vitals.bpStatus,
-              ),
-
-              const SizedBox(height: 16),
-
-              /// Live Location
-              LiveLocationCard(
-                locationImage: 'assets/images/map.png',
-                updatedTime: elder.lastLocationUpdate,
-              ),
-
-              const SizedBox(height: 24),
-
-              /// Medication Reminder
-              MedicationSection(medications: elder.medications),
-
-              const SizedBox(height: 24),
-
-              /// Other Reminders
-              OtherRemindersSection(reminders: elder.otherReminders),
-
-              const SizedBox(height: 24),
-
-              /// Medical Progress
-              // MedicalProgressSection(records: elder.medicalRecords),
-              
-              const SizedBox(height: 24),
-
-              /// Appointments
-              AppointmentSection(appointments: elder.appointments),
-
-              const SizedBox(height: 24),
-            ],
+          MonitoringHeader(
+            elderName: elder.name,
+            imageUrl: elder.imageUrl,
+            gender: elder.gender,
           ),
+
+          const SizedBox(height: 24),
+
+          /// Care Team Section (Active Caregivers)
+          if (elder.caregivers.isNotEmpty) ...[
+            const Text(
+              'Active Caregivers',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkTeal,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowestLight,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                    color: AppColors.outlineVariantLight.withValues(alpha: 0.8)),
+              ),
+              child: Column(
+                children: [
+                  for (var i = 0; i < elder.caregivers.length; i++) ...[
+                    CaregiverStatusCard(
+                      caregiverName: elder.caregivers[i],
+                      onTap: () {
+                        // Handled inside widget
+                      },
+                    ),
+                    if (i != elder.caregivers.length - 1)
+                      Divider(
+                          height: 1,
+                          color: AppColors.outlineVariantLight
+                              .withValues(alpha: 0.3)),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          const Text(
+            'Browse Caregivers',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTeal,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          /// Available Caregivers card
+          AvailableCaregiversCard(
+            onTap: () {
+              // Set the booking context and notify the parent to switch tabs
+              context.read<FamilyDashboardCubit>().startBookingForElder(elder);
+            },
+          ),
+
+          const SizedBox(height: 24),
+
+          const Text(
+            'Health Status',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTeal,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          /// Vitals Row
+          HeartRateCard(
+            heartRate: elder.vitals.heartRate,
+            status: elder.vitals.heartRateStatus,
+          ),
+
+          const SizedBox(height: 16),
+
+          BloodPressureCard(
+            systolic: elder.vitals.systolic,
+            diastolic: elder.vitals.diastolic,
+            status: elder.vitals.bpStatus,
+          ),
+
+          const SizedBox(height: 16),
+
+          /// Live Location
+          LiveLocationCard(
+            locationImage: 'assets/images/map.png',
+            updatedTime: elder.lastLocationUpdate,
+          ),
+
+          const SizedBox(height: 24),
+
+          /// Medication Reminder
+          MedicationSection(medications: elder.medications),
+
+          const SizedBox(height: 24),
+
+          /// Other Reminders
+          OtherRemindersSection(reminders: elder.otherReminders),
+
+          const SizedBox(height: 24),
+
+          /// Medical Progress
+          // MedicalProgressSection(records: elder.medicalRecords),
+          
+          /// Appointments
+          AppointmentSection(appointments: elder.appointments),
+
+          const SizedBox(height: 24),
+        ],
+      ),
         ),
         _BottomActionButtons(elder: elder),
       ],
@@ -242,7 +250,7 @@ class _EditRemindersButton extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
+          backgroundColor: AppColors.darkTeal,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

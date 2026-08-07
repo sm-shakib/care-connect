@@ -44,29 +44,38 @@ class CaregiverCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // CircleAvatar(
+              //   radius: 34,
+              //   backgroundColor: AppColors.paleMint,
+              //   child: ClipOval(
+              //     child: caregiver.imageUrl.isNotEmpty
+              //         ? Image.network(
+              //       caregiver.imageUrl,
+              //       fit: BoxFit.cover,
+              //       width: 68,
+              //       height: 68,
+              //       errorBuilder: (context, error, stackTrace) => Icon(
+              //         caregiver.gender == 'Male'
+              //             ? Icons.man
+              //             : Icons.woman,
+              //         color: AppColors.primaryLight,
+              //         size: 38,
+              //       ),
+              //     )
+              //         : Icon(
+              //       caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+              //       color: AppColors.primaryLight,
+              //       size: 38,
+              //     ),
+              //   ),
+              // ),
               CircleAvatar(
-                radius: 34,
+                radius: 33,
                 backgroundColor: AppColors.paleMint,
-                child: ClipOval(
-                  child: caregiver.imageUrl.isNotEmpty
-                      ? Image.network(
-                    caregiver.imageUrl,
-                    fit: BoxFit.cover,
-                    width: 68,
-                    height: 68,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      caregiver.gender == 'Male'
-                          ? Icons.man
-                          : Icons.woman,
-                      color: AppColors.primaryLight,
-                      size: 38,
-                    ),
-                  )
-                      : Icon(
-                    caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-                    color: AppColors.primaryLight,
-                    size: 38,
-                  ),
+                child: Icon(
+                  caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                  size: 38,
+                  color: AppColors.primaryLight,
                 ),
               ),
               const SizedBox(width: 16),
@@ -216,7 +225,7 @@ class CaregiverCard extends StatelessWidget {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(28),
                 ),
               ),
               child: const Text(
