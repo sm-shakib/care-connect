@@ -30,7 +30,7 @@ class ReviewBottomActionBar extends StatefulWidget {
 }
 
 class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
-  bool _isExpanded = true;
+  bool _isExpanded = false;
 
   bool get _overLimit => widget.notes.length > kAdminNotesMaxLength;
 
@@ -79,7 +79,7 @@ class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
                       onPressed: () =>
                           setState(() => _isExpanded = !_isExpanded),
                       icon: Icon(
-                        _isExpanded ? Icons.expand_less : Icons.expand_more,
+                        _isExpanded ? Icons.expand_more : Icons.expand_less,
                         color: AppColors.onSurfaceVariantLight,
                       ),
                       visualDensity: VisualDensity.compact,

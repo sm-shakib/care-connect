@@ -17,14 +17,18 @@ class UserFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final filters = UserManagementFilter.values
+        .where((f) => f != UserManagementFilter.admin)
+        .toList();
+
     return SizedBox(
       height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: UserManagementFilter.values.length,
+        itemCount: filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final filter = UserManagementFilter.values[index];
+          final filter = filters[index];
           final isSelected = filter == selected;
           return _FilterChip(
             label: filter.label,

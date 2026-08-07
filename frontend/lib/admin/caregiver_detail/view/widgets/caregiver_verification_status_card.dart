@@ -3,17 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
 
-/// "Verification Status" card: overall Verified/Pending pill plus a
-/// checklist of individually-verified items. Styled to match the
-/// "Health Conditions" card pattern elsewhere in this app (tertiary
-/// icon + tertiary header text, tertiary-tinted background/border) —
-/// the original HTML's own comment says "Matching Health Conditions
-/// Styling", so this deliberately isn't styled like the plain
-/// on-surface headers used on most other cards.
-///
-/// NOTE: checklist item labels are placeholders until the real
-/// `CaregiverDocumentType` values are available — see
-/// `caregiver_detail_cubit.dart`.
+/// "Verification Status" card: a completion badge plus a checklist of
+/// verified items (each with a filled green/primary check bullet).
+/// Styled to match [VerificationChecklistCard] in the review module.
 class CaregiverVerificationStatusCard extends StatelessWidget {
   const CaregiverVerificationStatusCard({
     required this.isVerified,
@@ -26,13 +18,21 @@ class CaregiverVerificationStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final completedCount = checklist.where((item) => item.isVerified).length;
+
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.tertiaryContainerLight.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.tertiaryFixedDimLight),
+        color: AppColors.surfaceContainerLowestLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.outlineVariantLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,69 +40,42 @@ class CaregiverVerificationStatusCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.verified_user, color: AppColors.tertiaryLight),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Verification Status',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.tertiaryLight,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
+              Text(
+                'Verification Status',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onSurfaceLight,
                 ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isVerified
-                      ? AppColors.primaryLight
-                      : AppColors.surfaceContainerHighLight,
+                  color: AppColors.primaryLight.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isVerified ? Icons.check_circle : Icons.hourglass_empty,
-                      size: 16,
-                      color: isVerified
-                          ? AppColors.onPrimaryLight
-                          : AppColors.onSurfaceVariantLight,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isVerified ? 'Verified' : 'Pending',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isVerified
-                            ? AppColors.onPrimaryLight
-                            : AppColors.onSurfaceVariantLight,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  '$completedCount/${checklist.length} Complete',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryLight,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          for (var i = 0; i < checklist.length; i++) ...[
-            if (i > 0) ...[
-              const SizedBox(height: 8),
-              Divider(
-                height: 1,
-                color: AppColors.outlineVariantLight.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 8),
+          Column(
+            children: [
+              for (final item in checklist) ...[
+                _ChecklistRow(item: item),
+                if (item != checklist.last) const SizedBox(height: 12),
+              ],
             ],
-            _ChecklistRow(item: checklist[i]),
-          ],
+          ),
         ],
       ),
     );
@@ -117,20 +90,29 @@ class _ChecklistRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          item.label,
-          style: TextStyle(fontSize: 16, color: AppColors.onSurfaceLight),
-        ),
-        Text(
-          item.isVerified ? 'Verified' : 'Missing',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
             color: item.isVerified
                 ? AppColors.primaryLight
-                : AppColors.errorLight,
+                : AppColors.surfaceContainerHighLight,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            item.isVerified ? Icons.check : Icons.close,
+            size: 16,
+            color: item.isVerified
+                ? Colors.white
+                : AppColors.onSurfaceVariantLight,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            item.label,
+            style: TextStyle(fontSize: 16, color: AppColors.onSurfaceLight),
           ),
         ),
       ],

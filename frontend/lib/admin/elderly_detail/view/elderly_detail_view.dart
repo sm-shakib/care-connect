@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../family_member_detail/view/family_member_detail_page.dart';
 import '../cubit/elderly_detail_cubit.dart';
 import '../cubit/elderly_detail_state.dart';
 import 'widgets/elderly_actions_bar.dart';
@@ -87,13 +88,6 @@ class ElderlyDetailView extends StatelessWidget {
                       const SizedBox(height: 24),
                       ElderlyQuickFactsGrid(profile: profile),
                       const SizedBox(height: 12),
-                      ElderlyAddressCard(
-                        address: profile.address,
-                        onViewOnMap: () {
-                          // TODO(careconnect): open a map view/deep link.
-                        },
-                      ),
-                      const SizedBox(height: 12),
                       ElderlyHealthConditionCard(
                         healthCondition: profile.healthCondition,
                       ),
@@ -105,8 +99,11 @@ class ElderlyDetailView extends StatelessWidget {
                           // edit flow.
                         },
                         onMemberTap: (member) {
-                          // TODO(careconnect): navigate to that family
-                          // member's own detail page.
+                          Navigator.of(context).push(
+                            FamilyMemberDetailPage.route(
+                              userId: member.id,
+                            ),
+                          );
                         },
                       ),
                       const SizedBox(height: 20),

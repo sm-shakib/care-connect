@@ -32,7 +32,7 @@ class CaregiverVerificationView extends StatelessWidget {
                       .read<CaregiverVerificationCubit>()
                       .searchChanged,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 BlocBuilder<CaregiverVerificationCubit,
                     CaregiverVerificationState>(
                   buildWhen: (previous, current) =>
@@ -46,7 +46,7 @@ class CaregiverVerificationView extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 Expanded(
                   child: BlocBuilder<CaregiverVerificationCubit,
                       CaregiverVerificationState>(

@@ -52,7 +52,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Abdul Jabbar',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801712345678',
+        phoneNumber: '+880 1712-001122',
       ),
       caregiver: BookingParticipant(
         id: 'user-caregiver-1',
@@ -60,7 +60,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Salma Aktar',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801812345678',
+        phoneNumber: '+880 1812-001122',
       ),
       startDateLabel: 'Nov 02, 2023',
       endDateLabel: 'Nov 02, 2023',
@@ -92,7 +92,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Rahima Khatun',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801912345678',
+        phoneNumber: '+880 1912-001122',
       ),
       caregiver: BookingParticipant(
         id: 'user-caregiver-2',
@@ -100,7 +100,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Shakib Khan',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801512345678',
+        phoneNumber: '+880 1512-345678',
       ),
       startDateLabel: 'Oct 25, 2023',
       endDateLabel: 'Oct 27, 2023',
@@ -126,7 +126,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Rahela Begum',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801612345678',
+        phoneNumber: '+880 1612-001122',
       ),
       caregiver: BookingParticipant(
         id: 'user-caregiver-3',
@@ -134,7 +134,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
         name: 'Delwar Hossain',
         avatarUrl:
         'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-        phoneNumber: '+8801312345678',
+        phoneNumber: '+880 1312-001122',
       ),
       startDateLabel: 'Nov 05, 2023',
       endDateLabel: 'Nov 10, 2023',

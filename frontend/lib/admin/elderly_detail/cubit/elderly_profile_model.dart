@@ -6,19 +6,22 @@ enum AccountStatus { active, suspended }
 /// A family member linked to this elderly user.
 class LinkedFamilyMember extends Equatable {
   const LinkedFamilyMember({
+    required this.id,
     required this.name,
     required this.avatarUrl,
     required this.relationship,
     required this.isPrimaryContact,
   });
 
+  final String id;
   final String name;
   final String avatarUrl;
   final String relationship;
   final bool isPrimaryContact;
 
   @override
-  List<Object?> get props => [name, avatarUrl, relationship, isPrimaryContact];
+  List<Object?> get props =>
+      [id, name, avatarUrl, relationship, isPrimaryContact];
 }
 
 /// Outcome of a past SOS event, shown in the "Recent SOS Events" list.

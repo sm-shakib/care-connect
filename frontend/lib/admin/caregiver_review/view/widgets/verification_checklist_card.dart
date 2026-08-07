@@ -40,14 +40,15 @@ class VerificationChecklistCard extends StatelessWidget {
               Text(
                 'Verification Status',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurfaceLight,
                 ),
               ),
+              const SizedBox(width: 4),
               Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
@@ -55,7 +56,7 @@ class VerificationChecklistCard extends StatelessWidget {
                 child: Text(
                   '$completedCount/${checklist.length} Complete',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryLight,
                   ),

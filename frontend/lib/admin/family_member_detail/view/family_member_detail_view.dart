@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../elderly_detail/view/elderly_detail_page.dart';
 import '../cubit/family_member_detail_cubit.dart';
 import '../cubit/family_member_detail_state.dart';
 import 'widgets/alert_preferences_card.dart';
 import 'widgets/family_member_actions_bar.dart';
-import 'widgets/family_member_address_card.dart';
 import 'widgets/family_member_profile_header.dart';
 import 'widgets/family_member_quick_facts_grid.dart';
 import 'widgets/linked_elderly_users_section.dart';
@@ -86,19 +86,15 @@ class FamilyMemberDetailView extends StatelessWidget {
                       FamilyMemberProfileHeader(profile: profile),
                       const SizedBox(height: 24),
                       FamilyMemberQuickFactsGrid(profile: profile),
-                      const SizedBox(height: 12),
-                      FamilyMemberAddressCard(
-                        address: profile.address,
-                        onViewOnMap: () {
-                          // TODO(careconnect): open a map view/deep link.
-                        },
-                      ),
                       const SizedBox(height: 20),
                       LinkedElderlyUsersSection(
                         users: profile.linkedElderlyUsers,
                         onUserTap: (user) {
-                          // TODO(careconnect): navigate to that elderly
-                          // user's own detail page (ElderlyDetailPage).
+                          Navigator.of(context).push(
+                            ElderlyDetailPage.route(
+                              userId: user.id,
+                            ),
+                          );
                         },
                       ),
                       const SizedBox(height: 20),
