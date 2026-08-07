@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
+import 'package:frontend/elderly/view/elderly_notifications_page.dart';
 import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/elderly/view/sos_alert_page.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
 import 'package:frontend/shared/medicine/view/medicine_page.dart';
@@ -39,6 +41,8 @@ class _ElderlyDashboardView extends StatefulWidget {
 class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   int _selectedIndex = 0;
 
+  static const List<String> _titles = ['CareConnect', 'Medicine', 'Chat', 'My Profile'];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -46,14 +50,19 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.all(8),
-          child: _AppBarLogo(),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: theme.colorScheme.surface,
+        automaticallyImplyLeading: false,
+        shape: Border(
+          bottom: BorderSide(color: AppColors.outlineVariantLight),
         ),
-        title: const Text(
-          'CareConnect',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.darkTeal),
+        title: Text(
+          _titles[_selectedIndex],
+          style: const TextStyle(
+            color: AppColors.darkTeal,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           BlocBuilder<DashboardCubit, DashboardState>(
@@ -94,6 +103,18 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
                       ),
                     ),
                 ],
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined,
+                color: AppColors.darkTeal, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => const ElderlyNotificationsPage(),
+                ),
               );
             },
           ),
@@ -155,7 +176,18 @@ class _DashboardHomeBody extends StatelessWidget {
                 _PendingRequestBanner(count: state.bindingRequests.length),
                 const SizedBox(height: 12),
               ],
-              GreetingsSection(userName: state.userName),
+              GreetingsSection(
+                userName: state.userName,
+                onSosTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SosAlertPage(),
+                      fullscreenDialog: true,
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               MedicationCard(
                 medications: state.medications,
@@ -184,27 +216,6 @@ class _DashboardHomeBody extends StatelessWidget {
 }
 
 
-class _AppBarLogo extends StatelessWidget {
-  const _AppBarLogo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        //color: AppColors.darkTeal,
-      ),
-      child: const Icon(
-        Icons.medical_services_rounded,
-        color: AppColors.darkTeal,
-        size: 32,
-      ),
-    );
-  }
-}
-
 class _MedicineTabBody extends StatelessWidget {
   const _MedicineTabBody();
 
@@ -225,6 +236,7 @@ class _ChatTabBody extends StatelessWidget {
     return ChatInboxPage(
       repository: MockChatRepository.instance,
       currentUser: ChatDirectory.adib,
+      showHeader: false,
     );
   }
 }

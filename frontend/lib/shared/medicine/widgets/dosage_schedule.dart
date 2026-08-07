@@ -39,6 +39,7 @@ class DosageSchedule extends StatelessWidget {
     final picked = await showTimePicker(
       context: context,
       initialTime: scheduleTimes[index] ?? TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input,
     );
     if (picked != null) onTimeChanged(index, picked);
   }
@@ -136,15 +137,14 @@ class DosageSchedule extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
+        Column(
           children: [
-            for (var i = 0; i < timesPerDay; i++)
+            for (var i = 0; i < timesPerDay; i++) ...[
               InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () => _pickTime(context, i),
                 child: Container(
+                  width: double.infinity,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
@@ -156,7 +156,6 @@ class DosageSchedule extends StatelessWidget {
                     ),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
                         Icons.access_time,
@@ -165,7 +164,7 @@ class DosageSchedule extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        scheduleTimes[i]?.format(context) ?? 'Set time',
+                        'Dose ${i + 1}: ${scheduleTimes[i]?.format(context) ?? 'Set time'}',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -176,6 +175,8 @@ class DosageSchedule extends StatelessWidget {
                   ),
                 ),
               ),
+              if (i != timesPerDay - 1) const SizedBox(height: 10),
+            ],
           ],
         ),
       ],

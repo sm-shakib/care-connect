@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/elderly/navbar/navbar_button.dart';
 import 'package:frontend/elderly/navbar/navbar_item.dart';
-import 'package:frontend/theme/app_colors.dart';
 
 
 class ElderlyBottomNavBar extends StatelessWidget {
@@ -16,10 +15,10 @@ class ElderlyBottomNavBar extends StatelessWidget {
 	final ValueChanged<int> onChanged;
 
 	static const List<NavbarItem> _items = [
-		NavbarItem(icon: Icon(Icons.home_outlined, color: AppColors.primaryLight), label: 'Home'),
-		NavbarItem(icon: Icon(Icons.medication_outlined, color: AppColors.primaryLight), label: 'Medicine'),
-		NavbarItem(icon: Icon(Icons.chat_bubble_outline, color: AppColors.primaryLight), label: 'Chat'),
-		NavbarItem(icon: Icon(Icons.person_outline, color: AppColors.primaryLight), label: 'My Profile'),
+		NavbarItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
+		NavbarItem(icon: Icons.medication_outlined, activeIcon: Icons.medication, label: 'Medicine'),
+		NavbarItem(icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble, label: 'Chat'),
+		NavbarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'My Profile'),
 	];
 
 	@override
@@ -39,11 +38,14 @@ class ElderlyBottomNavBar extends StatelessWidget {
 						height: 72,
 						child: Row(
 							children: List.generate(_items.length, (index) {
+								final isSelected = index == selectedIndex;
+								final item = _items[index];
 								return Expanded(
 									child: NavbarButton(
-										item: _items[index],
-										isSelected: index == selectedIndex,
-										onPressed: () => onChanged(index), icon: _items[index].icon, label: _items[index].label,
+										icon: isSelected ? item.activeIcon : item.icon,
+										label: item.label,
+										isSelected: isSelected,
+										onPressed: () => onChanged(index),
 									),
 								);
 							}),
@@ -54,4 +56,3 @@ class ElderlyBottomNavBar extends StatelessWidget {
 		);
 	}
 }
-

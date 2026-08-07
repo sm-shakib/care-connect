@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/elderly/navbar/navbar_item.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class NavbarButton extends StatelessWidget {
@@ -9,10 +8,9 @@ class NavbarButton extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onPressed,
-    required NavbarItem item,
   });
 
-  final Icon icon;
+  final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onPressed;
@@ -20,15 +18,13 @@ class NavbarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foregroundColor = isSelected
-        ? AppColors.onPrimaryContainerLight
+        ? AppColors.darkTeal
         : AppColors.onSurfaceVariantLight;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Material(
-        color: isSelected
-            ? AppColors.primaryContainerLight
-            : Colors.transparent,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
@@ -39,16 +35,13 @@ class NavbarButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconTheme(
-                  data: IconThemeData(color: foregroundColor, size: 28),
-                  child: icon,
-                ),
+                Icon(icon, color: foregroundColor, size: 28),
                 const SizedBox(height: 4),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     color: foregroundColor,
                   ),
                   maxLines: 1,
