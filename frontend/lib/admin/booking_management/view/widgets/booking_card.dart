@@ -54,13 +54,13 @@ class BookingCard extends StatelessWidget {
                 children: [
                   Text(
                     'TK${booking.totalAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primaryLight,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Total Amount',
                     style: TextStyle(
                       fontSize: 14,
@@ -75,7 +75,7 @@ class BookingCard extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: AppColors.outlineVariantLight),
                 bottom: BorderSide(color: AppColors.outlineVariantLight),
@@ -83,13 +83,13 @@ class BookingCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today,
+                const Icon(Icons.calendar_today,
                     size: 20, color: AppColors.primaryLight),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     booking.dateLabel,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.onSurfaceLight,
                     ),
@@ -101,13 +101,8 @@ class BookingCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final badge in booking.badges) _BadgeChip(type: badge),
-            ],
-          ),
+          // Show only the booking status as a single chip
+          _StatusChip(status: booking.status),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -151,7 +146,7 @@ class _PersonRow extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: AppColors.surfaceContainerHighLight,
-                child: Icon(Icons.person, color: AppColors.outlineLight),
+                child: const Icon(Icons.person, color: AppColors.outlineLight),
               ),
             ),
           ),
@@ -164,7 +159,7 @@ class _PersonRow extends StatelessWidget {
             children: [
               Text(
                 person.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurfaceLight,
@@ -174,7 +169,7 @@ class _PersonRow extends StatelessWidget {
               ),
               Text(
                 person.role,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.onSurfaceVariantLight,
@@ -188,75 +183,14 @@ class _PersonRow extends StatelessWidget {
   }
 }
 
-class _BadgeChip extends StatelessWidget {
-  const _BadgeChip({required this.type});
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.status});
 
-  final BookingBadgeType type;
-
-  (IconData, String, Color, Color) get _style {
-    switch (type) {
-      case BookingBadgeType.confirmed:
-        return (
-        Icons.check_circle,
-        'Confirmed',
-        AppColors.primaryContainerLight,
-        AppColors.onPrimaryContainerLight,
-        );
-      case BookingBadgeType.paid:
-        return (
-        Icons.payments,
-        'Paid',
-        AppColors.tertiaryContainerLight,
-        AppColors.onTertiaryContainerLight,
-        );
-      case BookingBadgeType.notStarted:
-        return (
-        Icons.timer,
-        'Not Started',
-        AppColors.surfaceVariantLight,
-        AppColors.onSurfaceVariantLight,
-        );
-      case BookingBadgeType.ongoing:
-        return (
-        Icons.sync,
-        'Ongoing',
-        AppColors.secondaryContainerLight,
-        AppColors.onSecondaryContainerLight,
-        );
-      case BookingBadgeType.partiallyPaid:
-        return (
-        Icons.pending,
-        'Partially Paid',
-        AppColors.errorContainerLight,
-        AppColors.onErrorContainerLight,
-        );
-      case BookingBadgeType.checkedIn:
-        return (
-        Icons.location_on,
-        'Checked-in',
-        AppColors.onPrimaryFixedVariantLight,
-        AppColors.primaryFixedLight,
-        );
-      case BookingBadgeType.pending:
-        return (
-        Icons.history,
-        'Pending',
-        AppColors.surfaceVariantLight,
-        AppColors.onSurfaceVariantLight,
-        );
-      case BookingBadgeType.unpaid:
-        return (
-        Icons.info,
-        'Unpaid',
-        AppColors.errorContainerLight,
-        AppColors.onErrorContainerLight,
-        );
-    }
-  }
+  final BookingStatus status;
 
   @override
   Widget build(BuildContext context) {
-    final (icon, label, bg, fg) = _style;
+    final (icon, bg, fg) = _style;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -269,7 +203,7 @@ class _BadgeChip extends StatelessWidget {
           Icon(icon, size: 14, color: fg),
           const SizedBox(width: 4),
           Text(
-            label,
+            status.label,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -279,5 +213,28 @@ class _BadgeChip extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  (IconData, Color, Color) get _style {
+    switch (status) {
+      case BookingStatus.upcoming:
+        return (
+          Icons.schedule,
+          AppColors.surfaceContainerHighLight,
+          AppColors.onSurfaceVariantLight,
+        );
+      case BookingStatus.ongoing:
+        return (
+          Icons.sync,
+          AppColors.tertiaryContainerLight,
+          AppColors.onTertiaryContainerLight,
+        );
+      case BookingStatus.completed:
+        return (
+          Icons.check_circle,
+          AppColors.primaryContainerLight,
+          AppColors.onPrimaryContainerLight,
+        );
+    }
   }
 }

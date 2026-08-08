@@ -26,7 +26,7 @@ class BookingParticipant extends Equatable {
 /// `booking_management` (rather than imported) so this feature stays
 /// self-contained — same approach used for status enums across other
 /// detail/list feature pairs in this app.
-enum BookingDetailStatus { upcoming, ongoing, completed, cancelled }
+enum BookingDetailStatus { upcoming, ongoing, completed }
 
 extension BookingDetailStatusX on BookingDetailStatus {
   String get label {
@@ -37,8 +37,6 @@ extension BookingDetailStatusX on BookingDetailStatus {
         return 'Ongoing';
       case BookingDetailStatus.completed:
         return 'Completed';
-      case BookingDetailStatus.cancelled:
-        return 'Cancelled';
     }
   }
 }

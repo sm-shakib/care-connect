@@ -11,25 +11,21 @@ class ComplaintStatusCard extends StatelessWidget {
 
   final ComplaintDetail complaint;
 
-  (Color, Color) get _badgeColors {
+  Color get _badgeBgColor {
     switch (complaint.status) {
-      case ComplaintDetailStatus.open:
-        return (
-        AppColors.surfaceContainerHighLight,
-        AppColors.onSurfaceVariantLight,
-        );
-      case ComplaintDetailStatus.inProgress:
-        return (
-        AppColors.secondaryContainerLight,
-        AppColors.onSecondaryContainerLight,
-        );
+      case ComplaintDetailStatus.pendingReview:
+        return AppColors.surfaceContainerHighLight;
       case ComplaintDetailStatus.resolved:
-        return (
-        AppColors.primaryContainerLight,
-        AppColors.onPrimaryContainerLight,
-        );
-      case ComplaintDetailStatus.escalated:
-        return (AppColors.errorContainerLight, AppColors.onErrorContainerLight);
+        return AppColors.primaryContainerLight;
+    }
+  }
+
+  Color get _badgeFgColor {
+    switch (complaint.status) {
+      case ComplaintDetailStatus.pendingReview:
+        return AppColors.onSurfaceVariantLight;
+      case ComplaintDetailStatus.resolved:
+        return AppColors.onPrimaryContainerLight;
     }
   }
 
@@ -43,8 +39,6 @@ class ComplaintStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (badgeBg, badgeFg) = _badgeColors;
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -53,7 +47,7 @@ class ComplaintStatusCard extends StatelessWidget {
         border: Border.all(color: AppColors.outlineVariantLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -69,7 +63,7 @@ class ComplaintStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Complaint ID',
                       style: TextStyle(
                         fontSize: 14,
@@ -79,7 +73,7 @@ class ComplaintStatusCard extends StatelessWidget {
                     ),
                     Text(
                       '#${complaint.id}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primaryLight,
@@ -91,9 +85,9 @@ class ComplaintStatusCard extends StatelessWidget {
               const SizedBox(width: 8),
               Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: badgeBg,
+                  color: _badgeBgColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -101,7 +95,7 @@ class ComplaintStatusCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: badgeFg,
+                    color: _badgeFgColor,
                   ),
                 ),
               ),
@@ -110,7 +104,7 @@ class ComplaintStatusCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.calendar_today,
                 size: 18,
                 color: AppColors.onSurfaceVariantLight,
@@ -118,7 +112,7 @@ class ComplaintStatusCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Filed on ${_formatDate(complaint.filedDate)}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.onSurfaceVariantLight,
                 ),

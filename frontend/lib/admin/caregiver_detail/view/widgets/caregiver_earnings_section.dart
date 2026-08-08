@@ -3,12 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
 
-/// "Earnings" section. The 2x2 stat grid mirrors the original design
-/// exactly, but the decorative bar chart underneath it was replaced
-/// with a real **Recent Payouts** list (same visual pattern as
-/// `central_fund`'s Transactions tab) — the chart had no data behind
-/// it and gave the admin nothing to act on. The payouts list does:
-/// failed payouts get a "Retry Payout" button right there.
+/// "Earnings" section. Shows the total amount earned and a list of
+/// recent earnings per booking.
 class CaregiverEarningsSection extends StatelessWidget {
   const CaregiverEarningsSection({
     required this.profile,
@@ -39,31 +35,15 @@ class CaregiverEarningsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Earnings',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurfaceLight,
-              ),
-            ),
-            TextButton(
-              onPressed: onViewStatements,
-              child: Text(
-                'View Statements',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryLight,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          'Earnings',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.onSurfaceLight,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -76,36 +56,16 @@ class CaregiverEarningsSection extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _StatTile(
-                icon: Icons.schedule_send,
-                label: 'Pending',
-                value: 'TK${_formatAmount(profile.pendingAmount)}',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _StatTile(
-                icon: Icons.calendar_today,
+                icon: Icons.calendar_month,
                 label: 'This Month',
                 value: 'TK${_formatAmount(profile.thisMonthAmount)}',
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StatTile(
-                icon: Icons.account_balance_wallet,
-                label: 'Next Payout',
-                value: profile.nextPayoutDateLabel ?? '—',
-              ),
-            ),
           ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          'Recent Payouts',
+        const SizedBox(height: 20),
+        /*Text(
+          'Recent Earnings',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -123,7 +83,7 @@ class CaregiverEarningsSection extends StatelessWidget {
               border: Border.all(color: AppColors.outlineVariantLight),
             ),
             child: Text(
-              'No payouts yet.',
+              'No earnings yet.',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
           )
@@ -139,7 +99,7 @@ class CaregiverEarningsSection extends StatelessWidget {
                   const SizedBox(height: 8),
               ],
             ],
-          ),
+          ),*/
       ],
     );
   }
@@ -204,27 +164,27 @@ class _PayoutRow extends StatelessWidget {
     switch (payout.status) {
       case PayoutStatus.completed:
         return (
-        Icons.check,
-        AppColors.primaryContainerLight,
-        AppColors.onPrimaryContainerLight,
+          Icons.check,
+          AppColors.primaryContainerLight,
+          AppColors.onPrimaryContainerLight,
         );
       case PayoutStatus.pending:
         return (
-        Icons.schedule,
-        AppColors.surfaceContainerHighLight,
-        AppColors.onSurfaceVariantLight,
+          Icons.schedule,
+          AppColors.surfaceContainerHighLight,
+          AppColors.onSurfaceVariantLight,
         );
       case PayoutStatus.processing:
         return (
-        Icons.sync,
-        AppColors.secondaryContainerLight,
-        AppColors.onSecondaryContainerLight,
+          Icons.sync,
+          AppColors.secondaryContainerLight,
+          AppColors.onSecondaryContainerLight,
         );
       case PayoutStatus.failed:
         return (
-        Icons.error_outline,
-        AppColors.errorContainerLight,
-        AppColors.errorLight,
+          Icons.error_outline,
+          AppColors.errorContainerLight,
+          AppColors.errorLight,
         );
     }
   }
@@ -265,7 +225,7 @@ class _PayoutRow extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration:
-                BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                    BoxDecoration(color: iconBg, shape: BoxShape.circle),
                 child: Icon(icon, color: iconFg, size: 20),
               ),
               const SizedBox(width: 12),

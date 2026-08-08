@@ -88,79 +88,75 @@ class ComplaintDetailCubit extends Cubit<ComplaintDetailState> {
   static final Map<String, ComplaintDetail> _mockComplaints = {
     'CP-1024': ComplaintDetail(
       id: 'CP-1024',
-      status: ComplaintDetailStatus.escalated,
+      status: ComplaintDetailStatus.pendingReview,
       statusDetail: 'Pending Review',
       filedDate: DateTime(2023, 10, 24),
       reporter: const Person(
+        id: 'user-elderly-1',
         name: 'Abdur Rahim',
-        role: 'Nurse Lead',
+        role: 'Elderly',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       against: const Person(
+        id: 'user-caregiver-1',
         name: 'Nasrin Akter',
-        role: 'Care Assistant',
+        role: 'Caregiver',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       category: 'Health Safety',
-      description:
-      'Reported incident occurred during the morning shift handover. '
-          'Nurse Lead Abdur Rahim noted that prescribed medication for '
-          'Patient Room 402 was not documented in the electronic health '
-          'record system. Upon further investigation, the morning '
-          'routine appeared incomplete, creating a potential risk for '
-          "the resident's schedule. This is the second recorded "
-          'documentation lapse in a month for this staff member.',
+      description: 'Nasrin used a dismissive tone with the patient during a '
+          'home visit and left before the scheduled end time without '
+          'notice. This complaint has been queued for admin review.',
       internalNotes: const [],
     ),
     'CP-1025': ComplaintDetail(
       id: 'CP-1025',
-      status: ComplaintDetailStatus.inProgress,
-      statusDetail: 'Under Investigation',
+      status: ComplaintDetailStatus.pendingReview,
+      statusDetail: 'Pending Review',
       filedDate: DateTime(2023, 10, 24),
       reporter: const Person(
+        id: 'user-family-1',
         name: 'Jashim Uddin',
         role: 'Family Member',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       against: const Person(
+        id: 'user-caregiver-2',
         name: 'Kamal Hossain',
         role: 'Caregiver',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       category: 'Late Arrival',
-      description:
-      'Family member Jashim Uddin reported that caregiver Kamal '
-          'Hossain arrived over 45 minutes late for a scheduled morning '
-          "visit on three separate occasions this week, disrupting the "
-          "patient's medication and meal schedule. Admin has requested "
-          "the caregiver's shift logs for the affected dates.",
+      description: 'Kamal used a dismissive tone with the patient during a '
+          'home visit and left before the scheduled end time without '
+          'notice. This complaint has been queued for admin review.',
       internalNotes: const [],
     ),
     'CP-1026': ComplaintDetail(
       id: 'CP-1026',
-      status: ComplaintDetailStatus.open,
-      statusDetail: 'Queued',
+      status: ComplaintDetailStatus.resolved,
+      statusDetail: 'Resolved',
       filedDate: DateTime(2023, 10, 23),
       reporter: const Person(
+        id: 'user-family-2',
         name: 'Rummana Akter',
         role: 'Family Member',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       against: const Person(
+        id: 'user-caregiver-3',
         name: 'Milon Hossain',
         role: 'Caregiver',
         avatarUrl:
-        'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+            'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       ),
       category: 'Unprofessionalism',
-      description:
-      'Family member Rummana Akter reported that caregiver Milon '
-          'Hossain used a dismissive tone with the patient during a '
+      description: 'Milon used a dismissive tone with the patient during a '
           'home visit and left before the scheduled end time without '
           'notice. This complaint has been queued for admin review.',
       internalNotes: const [],

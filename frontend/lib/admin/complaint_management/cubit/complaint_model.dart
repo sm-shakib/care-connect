@@ -4,19 +4,15 @@ import 'package:equatable/equatable.dart';
 /// filter chips (minus "All"). Each card also shows a more specific
 /// free-text [Complaint.statusDetail] (e.g. "Pending Review") for
 /// nuance beyond this bucket.
-enum ComplaintStatus { open, inProgress, resolved, escalated }
+enum ComplaintStatus { pendingReview, resolved }
 
 extension ComplaintStatusX on ComplaintStatus {
   String get label {
     switch (this) {
-      case ComplaintStatus.open:
-        return 'Open';
-      case ComplaintStatus.inProgress:
-        return 'In Progress';
+      case ComplaintStatus.pendingReview:
+        return 'Pending Review';
       case ComplaintStatus.resolved:
         return 'Resolved';
-      case ComplaintStatus.escalated:
-        return 'Escalated';
     }
   }
 }

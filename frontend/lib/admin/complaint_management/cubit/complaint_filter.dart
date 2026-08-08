@@ -1,21 +1,17 @@
 import 'complaint_model.dart';
 
 /// Filter chip options shown at the top of the complaints list.
-enum ComplaintFilter { all, open, inProgress, resolved, escalated }
+enum ComplaintFilter { all, pendingReview, resolved }
 
 extension ComplaintFilterX on ComplaintFilter {
   String get label {
     switch (this) {
       case ComplaintFilter.all:
         return 'All';
-      case ComplaintFilter.open:
-        return 'Open';
-      case ComplaintFilter.inProgress:
-        return 'In Progress';
+      case ComplaintFilter.pendingReview:
+        return 'Pending Review';
       case ComplaintFilter.resolved:
         return 'Resolved';
-      case ComplaintFilter.escalated:
-        return 'Escalated';
     }
   }
 
@@ -24,14 +20,10 @@ extension ComplaintFilterX on ComplaintFilter {
     switch (this) {
       case ComplaintFilter.all:
         return true;
-      case ComplaintFilter.open:
-        return status == ComplaintStatus.open;
-      case ComplaintFilter.inProgress:
-        return status == ComplaintStatus.inProgress;
+      case ComplaintFilter.pendingReview:
+        return status == ComplaintStatus.pendingReview;
       case ComplaintFilter.resolved:
         return status == ComplaintStatus.resolved;
-      case ComplaintFilter.escalated:
-        return status == ComplaintStatus.escalated;
     }
   }
 }

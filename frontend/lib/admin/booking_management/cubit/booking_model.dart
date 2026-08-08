@@ -18,7 +18,7 @@ class BookingPerson extends Equatable {
 
 /// The coarse status bucket a booking belongs to — matches the filter
 /// chips (minus "All").
-enum BookingStatus { upcoming, ongoing, completed, cancelled }
+enum BookingStatus { upcoming, ongoing, completed }
 
 extension BookingStatusX on BookingStatus {
   String get label {
@@ -29,8 +29,6 @@ extension BookingStatusX on BookingStatus {
         return 'Ongoing';
       case BookingStatus.completed:
         return 'Completed';
-      case BookingStatus.cancelled:
-        return 'Cancelled';
     }
   }
 }

@@ -3,19 +3,15 @@ import 'package:equatable/equatable.dart';
 /// Status bucket for a complaint. Duplicated from `complaint_management`
 /// (rather than imported) so this feature stays self-contained — same
 /// approach used for the bottom nav bars across features.
-enum ComplaintDetailStatus { open, inProgress, resolved, escalated }
+enum ComplaintDetailStatus { pendingReview, resolved }
 
 extension ComplaintDetailStatusX on ComplaintDetailStatus {
   String get label {
     switch (this) {
-      case ComplaintDetailStatus.open:
-        return 'Open';
-      case ComplaintDetailStatus.inProgress:
-        return 'In Progress';
+      case ComplaintDetailStatus.pendingReview:
+        return 'Pending Review';
       case ComplaintDetailStatus.resolved:
         return 'Resolved';
-      case ComplaintDetailStatus.escalated:
-        return 'Escalated';
     }
   }
 }
@@ -24,17 +20,19 @@ extension ComplaintDetailStatusX on ComplaintDetailStatus {
 /// complaint is against).
 class Person extends Equatable {
   const Person({
+    required this.id,
     required this.name,
     required this.role,
     required this.avatarUrl,
   });
 
+  final String id;
   final String name;
   final String role;
   final String avatarUrl;
 
   @override
-  List<Object?> get props => [name, role, avatarUrl];
+  List<Object?> get props => [id, name, role, avatarUrl];
 }
 
 /// A single internal admin note logged against a complaint.

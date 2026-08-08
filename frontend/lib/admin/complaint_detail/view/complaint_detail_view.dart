@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../theme/app_colors.dart';
+import '../../caregiver_detail/view/caregiver_detail_page.dart';
+import '../../elderly_detail/view/elderly_detail_page.dart';
+import '../../family_member_detail/view/family_member_detail_page.dart';
 import '../cubit/complaint_detail_cubit.dart';
+import '../cubit/complaint_detail_model.dart';
 import '../cubit/complaint_detail_state.dart';
 import 'widgets/add_note_sheet.dart';
 import 'widgets/complaint_actions_bar.dart';
@@ -80,6 +84,8 @@ class ComplaintDetailView extends StatelessWidget {
                       PeopleInvolvedSection(
                         reporter: complaint.reporter,
                         against: complaint.against,
+                        onReporterTap: () => _openPersonDetail(context, complaint.reporter),
+                        onAgainstTap: () => _openPersonDetail(context, complaint.against),
                       ),
                       const SizedBox(height: 12),
                       DescriptionSection(description: complaint.description),
@@ -149,5 +155,30 @@ class ComplaintDetailView extends StatelessWidget {
   double _horizontalPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return width < 360 ? 16 : 20;
+  }
+
+  void _openPersonDetail(BuildContext context, Person person) {
+    switch (person.role.toLowerCase()) {
+      case 'elderly':
+        Navigator.of(context).push(
+          ElderlyDetailPage.route(userId: person.id),
+        );
+      case 'family member':
+        Navigator.of(context).push(
+          FamilyMemberDetailPage.route(userId: person.id),
+        );
+      case 'caregiver':
+        Navigator.of(context).push(
+          CaregiverDetailPage.route(userId: person.id),
+        );
+      default:
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('${person.role} profile page coming soon.'),
+            ),
+          );
+    }
   }
 }

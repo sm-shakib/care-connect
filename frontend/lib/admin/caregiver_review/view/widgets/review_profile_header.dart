@@ -78,7 +78,7 @@ class ReviewProfileHeader extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 2),
+        /*const SizedBox(height: 2),
         Text(
           application.title,
           style: TextStyle(
@@ -87,7 +87,7 @@ class ReviewProfileHeader extends StatelessWidget {
             color: AppColors.primaryLight,
           ),
           textAlign: TextAlign.center,
-        ),
+        ),*/
       ],
     );
   }

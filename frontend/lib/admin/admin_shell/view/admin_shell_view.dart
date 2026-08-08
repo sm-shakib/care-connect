@@ -125,7 +125,7 @@ class AdminShellView extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.notifications, color: AppColors.primaryLight),
+          icon: const Icon(Icons.notifications_outlined, color: AppColors.primaryLight),
           onPressed: () {
             Navigator.of(context).push(
               NotificationsPage.route(context.read<DashboardCubit>()),
