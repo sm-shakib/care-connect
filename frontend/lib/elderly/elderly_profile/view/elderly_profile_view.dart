@@ -61,7 +61,7 @@ class ElderlyProfileView extends StatelessWidget {
                           child: Text(
                             'Version 1.0.0',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                             ),
                           ),
@@ -90,7 +90,7 @@ class _ProfileTopBar extends StatelessWidget {
           Text(
             'Profile',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.darkTeal,
             ),
@@ -122,13 +122,13 @@ class _PersonalInfoCard extends StatelessWidget {
                   onImagePicked: cubit.profileImagePicked,
                 )
               : CircleAvatar(
-                  radius: 48,
+                  radius: 54,
                   backgroundColor: AppColors.paleMint,
                   backgroundImage: state.profileImageBytes != null
                       ? MemoryImage(state.profileImageBytes!)
                       : null,
                   child: state.profileImageBytes == null
-                      ? const Icon(Icons.person, size: 44, color: AppColors.darkTeal)
+                      ? const Icon(Icons.person, size: 50, color: AppColors.darkTeal)
                       : null,
                 ),
         ),
@@ -138,7 +138,7 @@ class _PersonalInfoCard extends StatelessWidget {
             state.name,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 21,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
             ),
@@ -150,7 +150,7 @@ class _PersonalInfoCard extends StatelessWidget {
             state.email,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: colorScheme.onSurfaceVariant,
             ),
           ),
@@ -181,6 +181,7 @@ class _PersonalInfoCard extends StatelessWidget {
                         isOutlined: true,
                         icon: null,
                         onPressed: cubit.cancelEditing,
+                        fontSize: 18,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -190,6 +191,7 @@ class _PersonalInfoCard extends StatelessWidget {
                         icon: Icons.check,
                         isLoading: state.isSaving,
                         onPressed: cubit.saveChanges,
+                        fontSize: 18,
                       ),
                     ),
                   ],
@@ -281,26 +283,26 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 18, color: AppColors.darkTeal),
+            child: Icon(icon, size: 22, color: AppColors.darkTeal),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
                 ),
                 Text(
                   value,
-                  style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
+                  style: TextStyle(fontSize: 18, color: colorScheme.onSurface),
                 ),
               ],
             ),
@@ -330,6 +332,8 @@ class _EditableInfoFields extends StatelessWidget {
           prefixIcon: Icons.person_outline,
           initialValue: state.name,
           onChanged: cubit.nameChanged,
+          labelFontSize: 16,
+          fontSize: 18,
         ),
         const SizedBox(height: 16),
         AuthTextField(
@@ -340,6 +344,8 @@ class _EditableInfoFields extends StatelessWidget {
           keyboardType: TextInputType.phone,
           initialValue: state.phone,
           onChanged: cubit.phoneChanged,
+          labelFontSize: 16,
+          fontSize: 18,
         ),
         const SizedBox(height: 16),
         AuthTextField(
@@ -349,6 +355,8 @@ class _EditableInfoFields extends StatelessWidget {
           prefixIcon: Icons.location_on_outlined,
           initialValue: state.address,
           onChanged: cubit.addressChanged,
+          labelFontSize: 16,
+          fontSize: 18,
         ),
         const SizedBox(height: 16),
         _ReadOnlyEditField(
@@ -362,6 +370,8 @@ class _EditableInfoFields extends StatelessWidget {
           label: 'Date of Birth',
           value: state.dateOfBirth,
           onChanged: cubit.dateOfBirthChanged,
+          labelFontSize: 16,
+          fontSize: 18,
         ),
         const SizedBox(height: 16),
         AuthTextField(
@@ -371,6 +381,8 @@ class _EditableInfoFields extends StatelessWidget {
           prefixIcon: Icons.favorite_border,
           initialValue: state.healthCondition,
           onChanged: cubit.healthConditionChanged,
+          labelFontSize: 16,
+          fontSize: 18,
         ),
       ],
     );
@@ -398,7 +410,7 @@ class _ReadOnlyEditField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
           ),
@@ -414,12 +426,12 @@ class _ReadOnlyEditField extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
-              const SizedBox(width: 10),
+              Icon(icon, size: 22, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
+              const SizedBox(width: 12),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 18,
                   color: colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
                 ),
               ),
@@ -444,11 +456,11 @@ class _DonationSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.volunteer_activism, size: 40, color: AppColors.primaryLight),
+          const Icon(Icons.volunteer_activism, size: 48, color: AppColors.primaryLight),
           const SizedBox(height: 12),
           const Text(
             'Central Donation Fund',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -466,7 +478,7 @@ class _DonationSection extends StatelessWidget {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Donate Now', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('Donate Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             ),
           ),
         ],
@@ -490,17 +502,17 @@ class _AssistanceSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.volunteer_activism_outlined, size: 40, color: Colors.blue),
+          const Icon(Icons.volunteer_activism_outlined, size: 48, color: Colors.blue),
           const SizedBox(height: 12),
           const Text(
             'Assistance',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           const SizedBox(height: 8),
           Text(
             'If you cannot afford a caregiver, you can apply for assistance from the Central Fund.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+            style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -518,7 +530,7 @@ class _AssistanceSection extends StatelessWidget {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Apply for Assistance', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('Apply for Assistance', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             ),
           ),
         ],
@@ -584,12 +596,12 @@ class _ActionsSection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
+        title: const Text('Logout', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to log out?', style: TextStyle(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(fontSize: 16)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -599,7 +611,7 @@ class _ActionsSection extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.warningRed),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+            child: const Text('Logout', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -631,18 +643,18 @@ class _ActionRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-              Icon(icon, color: color),
-              const SizedBox(width: 12),
+              Icon(icon, color: color, size: 28),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(fontSize: 16, color: color),
+                  style: TextStyle(fontSize: 18, color: color),
                 ),
               ),
-              Icon(Icons.chevron_right, color: color.withValues(alpha: 0.6)),
+              Icon(Icons.chevron_right, color: color.withValues(alpha: 0.6), size: 24),
             ],
           ),
         ),

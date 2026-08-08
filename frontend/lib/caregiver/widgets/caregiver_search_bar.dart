@@ -10,24 +10,20 @@ class CaregiverSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
-      padding:
-      const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText:
-          "Search by name or specialty...",
-          prefixIcon: const Icon(Icons.search),
+          hintText: "Search by name or specialty...",
+          prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           filled: true,
-          fillColor: Colors.white,
-          contentPadding:
-          const EdgeInsets.symmetric(
-            vertical: 14,
-          ),
+          fillColor: const Color(0xFFF1F5F9),
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
           border: OutlineInputBorder(
-            borderRadius:
-            BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(24),
             borderSide: BorderSide.none,
           ),
         ),

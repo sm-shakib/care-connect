@@ -9,14 +9,16 @@ import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
 import 'package:frontend/elderly/view/sos_alert_page.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
-import 'package:frontend/shared/medicine/view/medicine_page.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
+import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import 'cubit/dashboard_cubit.dart';
 import 'cubit/dashboard_state.dart';
+import 'view/edit_reminders_page.dart';
 import 'view/widgets/caregiver_card.dart';
 import 'view/widgets/chat_card.dart';
+import 'view/widgets/dashboard_card_header.dart';
 import 'view/widgets/greetings_section.dart';
 import 'view/widgets/medication_card.dart';
 import '../navbar/elderly_navbar.dart';
@@ -27,8 +29,13 @@ class ElderlyDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => DashboardCubit()..loadDashboard(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DashboardCubit()..loadDashboard()),
+        // Shared with the "Medicine" tab so both it and the "Edit Reminders"
+        // screen operate on the same list of medicines.
+        BlocProvider(create: (_) => MedicineCubit()..loadMedicines()),
+      ],
       child: const _ElderlyDashboardView(),
     );
   }
@@ -57,11 +64,13 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      // backgroundColor: theme.colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: theme.colorScheme.surface,
+        // backgroundColor: theme.colorScheme.surface,
+        backgroundColor: const Color(0xFFFBFEFC),
         automaticallyImplyLeading: false,
         shape: Border(
           bottom: BorderSide(color: AppColors.outlineVariantLight),
@@ -134,7 +143,10 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            _DashboardHomeBody(onOpenChat: () => setState(() => _selectedIndex = 3)),
+            _DashboardHomeBody(
+              onOpenChat: () => setState(() => _selectedIndex = 3),
+              onOpenMedicine: () => setState(() => _selectedIndex = 2),
+            ),
             const _CaregiversTabBody(),
             const _MedicineTabBody(),
             const _ChatTabBody(),
@@ -156,9 +168,10 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
 
 
 class _DashboardHomeBody extends StatelessWidget {
-  const _DashboardHomeBody({this.onOpenChat});
+  const _DashboardHomeBody({this.onOpenChat, this.onOpenMedicine});
 
   final VoidCallback? onOpenChat;
+  final VoidCallback? onOpenMedicine;
 
   @override
   Widget build(BuildContext context) {
@@ -199,23 +212,38 @@ class _DashboardHomeBody extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
+              DashboardCardHeader(
+                icon: Icons.medication_outlined,
+                title: "Today's Medication",
+                trailingLabel: 'View all',
+                onTrailingTap: onOpenMedicine,
+              ),
+              const SizedBox(height: 12),
               MedicationCard(
                 medications: state.medications,
                 onMarkTaken: (medication) => context
                     .read<DashboardCubit>()
                     .markMedicationTaken(medication.id),
-                onViewAll: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => const MedicinePage(isElderly: true),
-                    ),
-                  );
-                },
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
+              OtherRemindersSection(reminders: state.otherReminders),
+              const SizedBox(height: 24),
+              AppointmentsSection(appointments: state.appointments),
+              const SizedBox(height: 24),
+              const _EditRemindersButton(),
+              const SizedBox(height: 24),
+              const DashboardCardHeader(
+                icon: Icons.favorite_outline,
+                title: 'Your Caregiver',
+              ),
+              const SizedBox(height: 12),
               CaregiverCard(caregiver: state.caregiver),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
+              const DashboardCardHeader(
+                icon: Icons.chat_bubble_outline,
+                title: 'Chat',
+              ),
+              const SizedBox(height: 12),
               ChatCard(chat: state.chatPreview, onTap: onOpenChat),
             ],
           ),
@@ -258,9 +286,54 @@ class _MedicineTabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => MedicineCubit()..loadMedicines(),
-      child: const MedicineView(isElderly: true),
+    // Reads the MedicineCubit provided by ElderlyDashboardPage, shared with
+    // the "Edit Reminders" screen so both operate on the same medicines.
+    return const MedicineView(isElderly: true);
+  }
+}
+
+/// Full-width button that opens the shared "Edit Reminders" screen. Since
+/// [Navigator.push] mounts the new route outside this widget's provider
+/// subtree, the cubits it needs are explicitly forwarded across the route
+/// boundary.
+class _EditRemindersButton extends StatelessWidget {
+  const _EditRemindersButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboardCubit = context.read<DashboardCubit>();
+    final medicineCubit = context.read<MedicineCubit>();
+
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: dashboardCubit),
+                  BlocProvider.value(value: medicineCubit),
+                ],
+                child: const ElderlyEditRemindersPage(),
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.edit_document),
+        label: const Text(
+          'Edit Reminders',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.darkTeal,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
     );
   }
 }

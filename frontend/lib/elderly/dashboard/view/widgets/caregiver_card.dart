@@ -23,25 +23,36 @@ class CaregiverCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         onTap: caregiver == null ? null : () => _openCaregiverDetails(context),
         child: Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: colorScheme.outlineVariant),
+            color: colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DashboardCardHeader(
-                icon: Icons.favorite_outline,
-                title: 'Your Caregiver',
-              ),
-              const SizedBox(height: 14),
               if (caregiver == null)
                 Text(
                   'No caregiver assigned yet.',
@@ -115,13 +126,13 @@ class _CaregiverDetails extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  Text(
-                    caregiver.profession,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  // Text(
+                  //   caregiver.profession,
+                  //   style: TextStyle(
+                  //     fontSize: 15,
+                  //     color: colorScheme.onSurfaceVariant,
+                  //   ),
+                  // ),
                 ],
               ),
             ),

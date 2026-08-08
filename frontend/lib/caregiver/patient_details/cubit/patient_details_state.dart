@@ -13,11 +13,13 @@ class PatientDetailsState extends Equatable {
     this.heartRateRecent = const [40, 60, 80, 50, 70],
     this.medications = const [],
     this.otherReminders = const [],
+    this.appointments = const [],
     this.gender,
     this.dateOfBirth,
     this.phone = '',
     this.email = '',
     this.address = '',
+    this.healthCondition = '',
   });
 
   final String patientId;
@@ -32,8 +34,9 @@ class PatientDetailsState extends Equatable {
   final DateTime? heartRateCheckedAt;
   final List<int> heartRateRecent;
 
-  final List<MedicationReminder> medications;
+  final List<Medicine> medications;
   final List<CareReminder> otherReminders;
+  final List<Appointment> appointments;
 
   // Basic info collected during the elderly's signup.
   final Gender? gender;
@@ -41,9 +44,10 @@ class PatientDetailsState extends Equatable {
   final String phone;
   final String email;
   final String address;
+  final String healthCondition;
 
   int get medicationsRemainingCount =>
-      medications.where((m) => m.status != MedicationStatus.taken).length;
+      medications.where((m) => !m.isTakenToday).length;
 
   PatientDetailsState copyWith({
     int? bpSystolic,
@@ -53,13 +57,15 @@ class PatientDetailsState extends Equatable {
     int? heartRateBpm,
     DateTime? heartRateCheckedAt,
     List<int>? heartRateRecent,
-    List<MedicationReminder>? medications,
+    List<Medicine>? medications,
     List<CareReminder>? otherReminders,
+    List<Appointment>? appointments,
     Gender? gender,
     DateTime? dateOfBirth,
     String? phone,
     String? email,
     String? address,
+    String? healthCondition,
   }) {
     return PatientDetailsState(
       patientId: patientId,
@@ -73,11 +79,13 @@ class PatientDetailsState extends Equatable {
       heartRateRecent: heartRateRecent ?? this.heartRateRecent,
       medications: medications ?? this.medications,
       otherReminders: otherReminders ?? this.otherReminders,
+      appointments: appointments ?? this.appointments,
       gender: gender ?? this.gender,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       address: address ?? this.address,
+      healthCondition: healthCondition ?? this.healthCondition,
     );
   }
 
@@ -94,10 +102,12 @@ class PatientDetailsState extends Equatable {
     heartRateRecent,
     medications,
     otherReminders,
+    appointments,
     gender,
     dateOfBirth,
     phone,
     email,
     address,
+    healthCondition,
   ];
 }

@@ -1,8 +1,9 @@
-import 'appointment.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/reminders/models/appointment.dart';
+import 'package:frontend/shared/reminders/models/care_reminder.dart';
+
 import 'health_vitals.dart';
 import 'medical_record.dart';
-import 'medication.dart';
-import 'reminder.dart';
 
 class Elder {
   const Elder({
@@ -33,10 +34,10 @@ class Elder {
   final String healthStatus;
   final String imageUrl;
   final List<String> caregivers;
-  final List<Medication> medications;
+  final List<Medicine> medications;
   final List<MedicalRecord> medicalRecords;
   final List<Appointment> appointments;
-  final List<Reminder> otherReminders;
+  final List<CareReminder> otherReminders;
   
   // New dynamic health fields
   final HealthVitals vitals;
@@ -53,10 +54,10 @@ class Elder {
     String? healthStatus,
     String? imageUrl,
     List<String>? caregivers,
-    List<Medication>? medications,
+    List<Medicine>? medications,
     List<MedicalRecord>? medicalRecords,
     List<Appointment>? appointments,
-    List<Reminder>? otherReminders,
+    List<CareReminder>? otherReminders,
     HealthVitals? vitals,
     String? lastLocationUpdate,
     String? locationImage,

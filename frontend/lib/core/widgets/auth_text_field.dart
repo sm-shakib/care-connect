@@ -17,6 +17,8 @@ class AuthTextField extends StatelessWidget {
     this.maxLines = 1,
     this.initialValue,
     this.controller,
+    this.fontSize,
+    this.labelFontSize,
   });
 
   final String label;
@@ -30,6 +32,8 @@ class AuthTextField extends StatelessWidget {
   final int maxLines;
   final String? initialValue;
   final TextEditingController? controller;
+  final double? fontSize;
+  final double? labelFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +46,8 @@ class AuthTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: labelFontSize ?? 14,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
           ),
@@ -56,7 +60,7 @@ class AuthTextField extends StatelessWidget {
           keyboardType: keyboardType,
           maxLines: obscureText ? 1 : maxLines,
           onChanged: onChanged,
-          style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
+          style: TextStyle(fontSize: fontSize ?? 15, color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),

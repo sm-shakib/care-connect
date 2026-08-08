@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/medicine.dart';
@@ -72,9 +73,11 @@ class MedicineInfo extends StatelessWidget {
         const SizedBox(height: 14),
         TextFormField(
           controller: dosageController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
-            labelText: 'Dosage (e.g. 1 tablet)',
+            labelText: 'Dosage (e.g. 1)',
             labelStyle: const TextStyle(fontSize: 20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

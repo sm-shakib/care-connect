@@ -37,6 +37,7 @@ class DashboardCardHeader extends StatelessWidget {
         if (trailingLabel != null)
           TextButton(
             onPressed: onTrailingTap,
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: Text(
               trailingLabel!,
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),

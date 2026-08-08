@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/theme/app_colors.dart';
-import '../../models/reminder.dart';
 
+import '../../../theme/app_colors.dart';
+import '../models/care_reminder.dart';
+
+/// Read-only "Other Reminders" card, listing non-medication reminders
+/// (e.g. therapy, hydration) for an elder being monitored.
 class OtherRemindersSection extends StatelessWidget {
-  const OtherRemindersSection({super.key, required this.reminders});
+  const OtherRemindersSection({required this.reminders, super.key});
 
-  final List<Reminder> reminders;
+  final List<CareReminder> reminders;
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +17,19 @@ class OtherRemindersSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Other Reminders",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.darkTeal,
-          ),
+        const Row(
+          children: [
+            Icon(Icons.event_note, color: AppColors.primaryLight, size: 26),
+            SizedBox(width: 10),
+            Text(
+              'Other Reminders',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         if (reminders.isEmpty)
@@ -34,7 +43,7 @@ class OtherRemindersSection extends StatelessWidget {
               children: [
                 Icon(Icons.info_outline, color: AppColors.outlineLight),
                 SizedBox(width: 12),
-                Text("No other reminders set."),
+                Text('No other reminders set.'),
               ],
             ),
           )
@@ -43,8 +52,11 @@ class OtherRemindersSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.8)),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.outlineVariant,
+                width: 1.6,
+              ),
             ),
             child: Column(
               children: [
@@ -63,13 +75,13 @@ class OtherRemindersSection extends StatelessWidget {
 
 class _ReminderTile extends StatelessWidget {
   const _ReminderTile({required this.reminder});
-  final Reminder reminder;
+  final CareReminder reminder;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accentColor = reminder.iconColorIsError ? colorScheme.error : colorScheme.secondary;
-    final accentBackground = reminder.iconColorIsError
+    final accentColor = reminder.isAttentionNeeded ? colorScheme.error : colorScheme.secondary;
+    final accentBackground = reminder.isAttentionNeeded
         ? colorScheme.errorContainer.withValues(alpha: 0.25)
         : colorScheme.secondaryContainer.withValues(alpha: 0.2);
 
@@ -93,11 +105,15 @@ class _ReminderTile extends StatelessWidget {
               children: [
                 Text(
                   reminder.title,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
                 Text(
                   reminder.subtitle,
-                  style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

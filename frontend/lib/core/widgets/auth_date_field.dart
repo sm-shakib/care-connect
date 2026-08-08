@@ -13,6 +13,8 @@ class AuthDateField extends StatelessWidget {
     this.errorText,
     this.firstDate,
     this.lastDate,
+    this.fontSize,
+    this.labelFontSize,
   });
 
   final String label;
@@ -22,6 +24,8 @@ class AuthDateField extends StatelessWidget {
   final String? errorText;
   final DateTime? firstDate;
   final DateTime? lastDate;
+  final double? fontSize;
+  final double? labelFontSize;
 
   String _formatDate(DateTime date) {
     const months = [
@@ -66,8 +70,8 @@ class AuthDateField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: labelFontSize ?? 14,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
           ),
@@ -96,7 +100,7 @@ class AuthDateField extends StatelessWidget {
                 Text(
                   value != null ? _formatDate(value!) : hintText,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: fontSize ?? 15,
                     color: value != null
                         ? colorScheme.onSurface
                         : colorScheme.onSurfaceVariant,

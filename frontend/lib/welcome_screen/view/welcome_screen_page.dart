@@ -162,28 +162,28 @@ class WelcomeScreenPage extends StatelessWidget {
                   const SizedBox(height: 18),
 
                   // ---------- Footer link ----------
-                  RichText(
-                    text: TextSpan(
-                      style: textTheme.labelMedium?.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      children: [
-                        TextSpan(text: '${l10n.needHelp} '),
-                        TextSpan(
-                          text: l10n.contactSupport,
-                          style: TextStyle(
-                            color: AppColors.darkTeal,
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: (TapGestureRecognizer()
-                            ..onTap = onContactSupport),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // RichText(
+                  //   text: TextSpan(
+                  //     style: textTheme.labelMedium?.copyWith(
+                  //       fontSize: 13,
+                  //       fontWeight: FontWeight.w400,
+                  //       color: colorScheme.onSurfaceVariant,
+                  //     ),
+                  //     children: [
+                  //       TextSpan(text: '${l10n.needHelp} '),
+                  //       TextSpan(
+                  //         text: l10n.contactSupport,
+                  //         style: TextStyle(
+                  //           color: AppColors.darkTeal,
+                  //           fontWeight: FontWeight.w600,
+                  //           decoration: TextDecoration.underline,
+                  //         ),
+                  //         recognizer: (TapGestureRecognizer()
+                  //           ..onTap = onContactSupport),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),

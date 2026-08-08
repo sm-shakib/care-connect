@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:frontend/core/enums/gender.dart';
-
-import '../models/care_reminder.dart';
-import '../models/medication_reminder.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/reminders/models/appointment.dart';
+import 'package:frontend/shared/reminders/models/care_reminder.dart';
 
 /// Basic info collected during the elderly's signup, shown read-only
 /// on the patient details page.
@@ -14,6 +14,7 @@ class PatientBasicInfo {
     required this.phone,
     required this.email,
     required this.address,
+    required this.healthCondition,
   });
 
   final Gender gender;
@@ -21,6 +22,7 @@ class PatientBasicInfo {
   final String phone;
   final String email;
   final String address;
+  final String healthCondition;
 }
 
 // TODO: replace with a real repository call keyed by patientId once the
@@ -33,33 +35,40 @@ class PatientDetailsDummyData {
       phone: '+8801717790950',
       email: 'karim@gmail.com',
       address: 'Pallabi, Dhaka',
+      healthCondition: 'High Blood Pressure, Diabetes Type 2',
     );
   }
 
-  static List<MedicationReminder> medications() {
+  static List<Medicine> medications() {
     final now = DateTime.now();
     return [
-      MedicationReminder(
+      Medicine(
         id: 'm1',
-        name: 'Metoprolol 25mg',
-        dose: '1 tablet',
-        scheduledTime: DateTime(now.year, now.month, now.day, 8, 0),
-        status: MedicationStatus.taken,
-        takenAt: DateTime(now.year, now.month, now.day, 8, 0),
+        name: 'Metoprolol',
+        dosage: '1',
+        form: MedicineForm.tablet,
+        timesPerDay: 1,
+        scheduleTimes: const ['8:00 AM'],
+        startDate: now.subtract(const Duration(days: 30)),
+        isTakenToday: true,
       ),
-      MedicationReminder(
+      Medicine(
         id: 'm2',
-        name: 'Lisinopril 10mg',
-        dose: '1 tablet',
-        scheduledTime: DateTime(now.year, now.month, now.day, 13, 0),
-        status: MedicationStatus.dueNow,
+        name: 'Lisinopril',
+        dosage: '1',
+        form: MedicineForm.tablet,
+        timesPerDay: 1,
+        scheduleTimes: const ['1:00 PM'],
+        startDate: now.subtract(const Duration(days: 30)),
       ),
-      MedicationReminder(
+      Medicine(
         id: 'm3',
-        name: 'Atorvastatin 40mg',
-        dose: '1 tablet',
-        scheduledTime: DateTime(now.year, now.month, now.day, 20, 0),
-        status: MedicationStatus.upcoming,
+        name: 'Atorvastatin',
+        dosage: '1',
+        form: MedicineForm.tablet,
+        timesPerDay: 1,
+        scheduleTimes: const ['8:00 PM'],
+        startDate: now.subtract(const Duration(days: 30)),
       ),
     ];
   }
@@ -72,13 +81,19 @@ class PatientDetailsDummyData {
         subtitle: 'Session at 2:00 PM',
         icon: Icons.fitness_center,
       ),
-      // CareReminder(
-      //   id: 'r2',
-      //   title: 'Hydration Goal',
-      //   subtitle: '8 Glasses (4/8 reached)',
-      //   icon: Icons.water_drop,
-      //   iconColorIsError: true,
-      // ),
+    ];
+  }
+
+  static List<Appointment> appointments() {
+    return const [
+      Appointment(
+        id: 'a1',
+        doctorName: 'Dr. Ariful Islam',
+        specialty: 'Cardiologist',
+        date: 'Aug 16, 2026',
+        time: '10:30 AM',
+        location: 'City Hospital, Dhaka',
+      ),
     ];
   }
 }

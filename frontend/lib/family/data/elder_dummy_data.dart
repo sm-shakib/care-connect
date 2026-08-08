@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/reminders/models/appointment.dart';
+import 'package:frontend/shared/reminders/models/care_reminder.dart';
 
-import '../models/appointment.dart';
 import '../models/elder.dart';
 import '../models/health_vitals.dart';
 import '../models/medical_record.dart';
-import '../models/medication.dart';
-import '../models/reminder.dart';
 
-const elderList = [
+final _fourteenDaysAgo = DateTime.now().subtract(const Duration(days: 14));
+
+// Not `const`: medications carry a runtime `startDate` (DateTime.now()-based).
+final elderList = [
   Elder(
     id: '1',
     name: 'Abdul Karim',
@@ -16,7 +19,7 @@ const elderList = [
     gender: 'Male',
     hasCaregiver: true,
     healthStatus: 'Healthy',
-    caregivers: ['Sarah Jenkins', 'Michael Chen'],
+    caregivers: ['Nusrat Jahan', 'Asif Ahmed'],
     imageUrl: 'https://i.pravatar.cc/150?u=abdul',
     vitals: HealthVitals(
       heartRate: 72,
@@ -28,19 +31,24 @@ const elderList = [
     lastLocationUpdate: 'Updated 2 min ago',
     locationImage: 'assets/images/map.png',
     medications: [
-      Medication(
+      Medicine(
         id: 'm1',
         name: 'Metformin',
-        dosage: '500mg',
-        time: '08:00 AM',
-        isTaken: true,
+        dosage: '1',
+        form: MedicineForm.tablet,
+        timesPerDay: 1,
+        scheduleTimes: ['08:00 AM'],
+        startDate: _fourteenDaysAgo,
+        isTakenToday: true,
       ),
-      Medication(
+      Medicine(
         id: 'm2',
         name: 'Atorvastatin',
-        dosage: '20mg',
-        time: '09:00 PM',
-        isTaken: false,
+        dosage: '1',
+        form: MedicineForm.tablet,
+        timesPerDay: 1,
+        scheduleTimes: ['09:00 PM'],
+        startDate: _fourteenDaysAgo,
       ),
     ],
     medicalRecords: [
@@ -58,19 +66,19 @@ const elderList = [
         id: 'a1',
         doctorName: 'Dr. Ariful Islam',
         specialty: 'Cardiologist',
-        date: 'Nov 15, 2023',
+        date: 'Aug 16, 2026',
         time: '10:30 AM',
         location: 'City Hospital, Dhaka',
       ),
     ],
     otherReminders: [
-      Reminder(
+      CareReminder(
         id: 'rem1',
         title: 'Physical Therapy',
         subtitle: 'At 2:00 PM',
         icon: Icons.fitness_center,
       ),
-      Reminder(
+      CareReminder(
         id: 'rem2',
         title: 'Hydration',
         subtitle: 'Drink 2L water',

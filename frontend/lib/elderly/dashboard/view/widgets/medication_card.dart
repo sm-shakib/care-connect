@@ -22,39 +22,37 @@ class MedicationCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colorScheme.outlineVariant),
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.outlineVariant,
+          width: 1.6,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DashboardCardHeader(
-            icon: Icons.medication_outlined,
-            title: "Today's Medication",
-            trailingLabel: 'View all',
-            onTrailingTap: onViewAll,
-          ),
-          const SizedBox(height: 14),
           if (medications.isEmpty)
-            Text(
-              'No medications scheduled today.',
-              style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'No medications scheduled today.',
+                style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+              ),
             )
           else
-            ...medications.map(
-              (medication) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _MedicationTile(
-                  medication: medication,
-                  onMarkTaken: onMarkTaken == null
-                      ? null
-                      : () => onMarkTaken!(medication),
-                ),
+            for (var i = 0; i < medications.length; i++) ...[
+              _MedicationTile(
+                medication: medications[i],
+                onMarkTaken: onMarkTaken == null
+                    ? null
+                    : () => onMarkTaken!(medications[i]),
               ),
-            ),
+              if (i != medications.length - 1)
+                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            ],
         ],
       ),
     );
@@ -71,12 +69,8 @@ class _MedicationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
           _TimeBadge(time: medication.time),
@@ -96,7 +90,7 @@ class _MedicationTile extends StatelessWidget {
                 Text(
                   medication.dosage,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 15,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -123,7 +117,7 @@ class _MedicationTile extends StatelessWidget {
               ),
               child: const Text(
                 'Mark taken',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
         ],
@@ -148,7 +142,7 @@ class _TimeBadge extends StatelessWidget {
       child: Text(
         time,
         style: const TextStyle(
-          fontSize: 13,
+          fontSize: 15,
           fontWeight: FontWeight.w700,
           color: AppColors.onPrimaryContainerLight,
         ),

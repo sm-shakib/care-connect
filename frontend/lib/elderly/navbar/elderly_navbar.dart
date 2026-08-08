@@ -28,13 +28,14 @@ class ElderlyBottomNavBar extends StatelessWidget {
 
 		return Container(
 			decoration: BoxDecoration(
-				color: colorScheme.surface,
+				// color: colorScheme.surface,
+				color: const Color(0xFFFBFEFC),
 				border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
 			),
 			child: SafeArea(
 				top: false,
 				child: Padding(
-					padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+					padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
 					child: SizedBox(
 						height: 72,
 						child: Row(

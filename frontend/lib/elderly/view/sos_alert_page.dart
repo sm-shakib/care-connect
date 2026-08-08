@@ -28,8 +28,8 @@ class _NotifiedContact {
 }
 
 const _notifiedContacts = [
-  _NotifiedContact('Nusrat Jahan', 'Family'),
-  _NotifiedContact('Shakib Khan', 'Caregiver'),
+  _NotifiedContact('Saikat Ali', 'Family'),
+  _NotifiedContact('Nusrat Jahan', 'Caregiver'),
 ];
 
 class _SosAlertPageState extends State<SosAlertPage>

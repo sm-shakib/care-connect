@@ -11,8 +11,10 @@ class BindingRequestsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      // backgroundColor: AppColors.backgroundLight,
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
+        backgroundColor: const Color(0xFFFBFEFC),
         title: const Text('Family Requests'),
         centerTitle: true,
       ),
