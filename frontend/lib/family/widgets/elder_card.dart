@@ -71,7 +71,7 @@ class ElderCard extends StatelessWidget {
                         Icon(
                           elder.gender == 'Male' ? Icons.man : Icons.woman,
                           size: 34,
-                          color: AppColors.primaryLight,
+                          color: AppColors.darkTeal,
                         ),
                 ),
               ),

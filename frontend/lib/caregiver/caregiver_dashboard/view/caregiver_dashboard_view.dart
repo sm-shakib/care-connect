@@ -81,28 +81,7 @@ class CaregiverDashboardView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PreviousPatientsPage(),
-                          ),
-                        ),
-                        icon: const Icon(Icons.history, size: 18),
-                        label: const Text('Previous Patients'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.darkTeal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 18),
                 Expanded(
                   child: activePatients.isEmpty
                       ? Center(
@@ -131,6 +110,33 @@ class CaregiverDashboardView extends StatelessWidget {
                         },
                       );
                     },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PreviousPatientsPage(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.history),
+                      label: const Text(
+                        'Previous Patients',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.darkTeal,
+                        side: const BorderSide(color: AppColors.darkTeal, width: 1.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
