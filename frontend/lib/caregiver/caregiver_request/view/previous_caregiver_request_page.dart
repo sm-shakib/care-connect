@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../cubit/caregiver_request_cubit.dart';
 import '../cubit/caregiver_request_state.dart';
@@ -23,9 +24,9 @@ class PreviousBookingRequestsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Previous Requests',
-          style: TextStyle(
+        title: Text(
+          context.l10n.previousRequestsLabel,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
           ),
@@ -36,10 +37,10 @@ class PreviousBookingRequestsPage extends StatelessWidget {
           final pastRequests = state.pastRequests;
 
           if (pastRequests.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'No previous requests.',
-                style: TextStyle(color: AppColors.onSurfaceVariantLight),
+                context.l10n.noPreviousRequestsFound,
+                style: const TextStyle(color: AppColors.onSurfaceVariantLight),
               ),
             );
           }
@@ -78,10 +79,10 @@ class PreviousBookingRequestsPage extends StatelessWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Requested by ${request.requesterName}'),
+                      Text(context.l10n.requestedByLabel(request.requesterName ?? 'User')),
                       const SizedBox(height: 4),
                       Text(
-                        request.periodLabel,
+                        request.periodLabel ?? '',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
@@ -95,7 +96,7 @@ class PreviousBookingRequestsPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      isAccepted ? 'ACCEPTED' : 'REJECTED',
+                      isAccepted ? context.l10n.acceptedStatusLabel : context.l10n.rejectedStatusLabel,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,

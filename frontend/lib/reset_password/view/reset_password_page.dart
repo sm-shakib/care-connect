@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/reset_password/cubit/reset_password_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -51,9 +52,9 @@ class _ResetPasswordView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 12),
-                      const Text(
-                        'Reset Password',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.resetPasswordTitle,
+                        style: const TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkTeal,
@@ -61,8 +62,7 @@ class _ResetPasswordView extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Create a new password for your account. Make sure '
-                        "it's at least 8 characters long.",
+                        context.l10n.resetPasswordSubtitle,
                         style: TextStyle(
                           fontSize: 14,
                           color: colorScheme.onSurfaceVariant,
@@ -75,7 +75,7 @@ class _ResetPasswordView extends StatelessWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _FieldLabel('New Password'),
+                              _FieldLabel(context.l10n.newPasswordLabel),
                               const SizedBox(height: 8),
                               _RecoveryTextField(
                                 hintText: '••••••••',
@@ -97,7 +97,7 @@ class _ResetPasswordView extends StatelessWidget {
                                     .newPasswordChanged(value),
                               ),
                               const SizedBox(height: 20),
-                              const _FieldLabel('Confirm Password'),
+                              _FieldLabel(context.l10n.confirmPasswordLabel),
                               const SizedBox(height: 8),
                               _RecoveryTextField(
                                 hintText: '••••••••',
@@ -122,7 +122,7 @@ class _ResetPasswordView extends StatelessWidget {
                                   !state.passwordsMatch) ...[
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Passwords do not match.',
+                                  context.l10n.passwordsDoNotMatchError,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: colorScheme.error,
@@ -135,7 +135,7 @@ class _ResetPasswordView extends StatelessWidget {
                                   ResetPasswordStatus.failure) ...[
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Something went wrong. Please try again.',
+                                  context.l10n.genericFailureMessage,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: colorScheme.error,
@@ -170,7 +170,7 @@ class _ResetPasswordView extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            context.l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -209,19 +209,19 @@ class _ResetPasswordView extends StatelessWidget {
                   color: Colors.white,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Reset Password',
-                    style: TextStyle(
+                    context.l10n.resetPasswordTitle,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.check, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.check, color: Colors.white, size: 20),
                 ],
               ),
       ),

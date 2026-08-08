@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
@@ -48,14 +49,14 @@ class MedicationReminderTile extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                     ),
                     Text(
-                      'Taken at $takenLabel',
+                      context.l10n.medicationTakenAtLabel(takenLabel),
                       style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
               ),
               Text(
-                'DONE',
+                context.l10n.doneStatusLabel,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -92,7 +93,7 @@ class MedicationReminderTile extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                     ),
                     Text(
-                      'Scheduled: $scheduledLabel',
+                      context.l10n.medicationScheduledLabel(scheduledLabel),
                       style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                     ),
                   ],
@@ -108,7 +109,7 @@ class MedicationReminderTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                   ),
                 ),
-                child: const Text('Mark Taken', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(context.l10n.markTakenLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -142,7 +143,7 @@ class MedicationReminderTile extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                       ),
                       Text(
-                        'Scheduled: $scheduledLabel',
+                        context.l10n.medicationScheduledLabel(scheduledLabel),
                         style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                       ),
                     ],

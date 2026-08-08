@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 class PatientSearchBar extends StatelessWidget {
   const PatientSearchBar({super.key, this.onChanged});
@@ -14,7 +15,7 @@ class PatientSearchBar extends StatelessWidget {
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search patients...',
+          hintText: context.l10n.searchPatientsHint,
           prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           filled: true,
           // fillColor: colorScheme.surfaceContainerLowest,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/patient_details_cubit.dart';
@@ -59,35 +60,35 @@ class _TopBar extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          IconButton(
-            //icon: Icon(Icons.arrow_back, color: colorScheme.primary),
-            icon: Icon(Icons.arrow_back, color: AppColors.darkTeal),
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Edit Reminders',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    //color: colorScheme.primary,
-                    color: AppColors.darkTeal,
-                  ),
+          child: Row(
+            children: [
+              IconButton(
+                //icon: Icon(Icons.arrow_back, color: colorScheme.primary),
+                icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.editRemindersTitle,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        //color: colorScheme.primary,
+                        color: AppColors.darkTeal,
+                      ),
+                    ),
+                    Text(
+                      context.l10n.editRemindersForLabel(patientName),
+                      style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                    ),
+                  ],
                 ),
-                Text(
-                  'for $patientName',
-                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }
@@ -113,7 +114,7 @@ class _MedicationsSection extends StatelessWidget {
                 Icon(Icons.medication, color: AppColors.darkTeal),
                 const SizedBox(width: 8),
                 Text(
-                  'Medicine Reminders',
+                  context.l10n.medicineRemindersTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -125,7 +126,7 @@ class _MedicationsSection extends StatelessWidget {
             TextButton.icon(
               onPressed: () => _showMedicationFormSheet(context, cubit: cubit),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
+              label: Text(context.l10n.addLabel),
               style: TextButton.styleFrom(foregroundColor: AppColors.darkTeal),
             ),
           ],
@@ -135,7 +136,7 @@ class _MedicationsSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'No medication reminders yet.',
+              context.l10n.noMedicationRemindersYet,
               style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           )
@@ -191,7 +192,7 @@ class _MedicationEditTile extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                 ),
                 Text(
-                  '${medication.dose} • Scheduled: $scheduledLabel',
+                  '${medication.dose} • ${context.l10n.medicationScheduledLabel(scheduledLabel)}',
                   style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                 ),
               ],
@@ -205,8 +206,8 @@ class _MedicationEditTile extends StatelessWidget {
             icon: Icon(Icons.delete_outline, color: colorScheme.error),
             onPressed: () => _confirmDelete(
               context,
-              title: 'Delete this reminder?',
-              message: 'This will remove "${medication.name}" from the care plan.',
+              title: context.l10n.deleteReminderTitle,
+              message: context.l10n.deleteMedicationMessage(medication.name),
               onConfirm: onDelete,
             ),
           ),
@@ -237,7 +238,7 @@ class _OtherRemindersSection extends StatelessWidget {
                 Icon(Icons.event_note, color: colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text(
-                  'Other Reminders',
+                  context.l10n.otherRemindersTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -249,7 +250,7 @@ class _OtherRemindersSection extends StatelessWidget {
             TextButton.icon(
               onPressed: () => _showCareReminderFormSheet(context, cubit: cubit),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
+              label: Text(context.l10n.addLabel),
               style: TextButton.styleFrom(foregroundColor: AppColors.darkTeal),
             ),
           ],
@@ -259,7 +260,7 @@ class _OtherRemindersSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'No other reminders yet.',
+              context.l10n.noOtherRemindersYet,
               style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           )
@@ -333,8 +334,8 @@ class _CareReminderEditTile extends StatelessWidget {
             icon: Icon(Icons.delete_outline, color: colorScheme.error),
             onPressed: () => _confirmDelete(
               context,
-              title: 'Delete this reminder?',
-              message: 'This will remove "${reminder.title}" from the care plan.',
+              title: context.l10n.deleteReminderTitle,
+              message: context.l10n.deleteCareReminderMessage(reminder.title),
               onConfirm: onDelete,
             ),
           ),
@@ -358,14 +359,17 @@ void _confirmDelete(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancelLabel),
         ),
         TextButton(
           onPressed: () {
             onConfirm();
             Navigator.of(dialogContext).pop();
           },
-          child: Text('Delete', style: TextStyle(color: Theme.of(dialogContext).colorScheme.error)),
+          child: Text(
+            context.l10n.deleteLabel,
+            style: TextStyle(color: Theme.of(dialogContext).colorScheme.error),
+          ),
         ),
       ],
     ),
@@ -405,16 +409,16 @@ Future<void> _showMedicationFormSheet(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  existing == null ? 'Add Medication Reminder' : 'Edit Medication Reminder',
+                  existing == null ? context.l10n.addMedicationReminderTitle : context.l10n.editMedicationReminderTitle,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
                 ),
                 const SizedBox(height: 16),
-                _FormField(label: 'Name', controller: nameController, hint: 'e.g. Metoprolol 25mg'),
+                _FormField(label: context.l10n.nameLabel, controller: nameController, hint: 'e.g. Metoprolol 25mg'),
                 const SizedBox(height: 14),
-                _FormField(label: 'Dose', controller: doseController, hint: 'e.g. 1 tablet'),
+                _FormField(label: context.l10n.doseLabel, controller: doseController, hint: 'e.g. 1 tablet'),
                 const SizedBox(height: 14),
                 Text(
-                  'Scheduled Time',
+                  context.l10n.scheduledTimeLabel,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
                 ),
                 const SizedBox(height: 6),
@@ -486,7 +490,7 @@ Future<void> _showMedicationFormSheet(
                       backgroundColor: AppColors.darkTeal,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text(context.l10n.saveLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -542,16 +546,16 @@ Future<void> _showCareReminderFormSheet(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  existing == null ? 'Add Reminder' : 'Edit Reminder',
+                  existing == null ? context.l10n.addReminderTitle : context.l10n.editReminderTitle,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
                 ),
                 const SizedBox(height: 16),
-                _FormField(label: 'Title', controller: titleController, hint: 'e.g. Physical Therapy'),
+                _FormField(label: context.l10n.titleLabel, controller: titleController, hint: 'e.g. Physical Therapy'),
                 const SizedBox(height: 14),
-                _FormField(label: 'Details', controller: subtitleController, hint: 'e.g. Session at 2:00 PM'),
+                _FormField(label: context.l10n.detailsLabel, controller: subtitleController, hint: 'e.g. Session at 2:00 PM'),
                 const SizedBox(height: 14),
                 Text(
-                  'Icon',
+                  context.l10n.iconLabel,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
                 ),
                 const SizedBox(height: 8),
@@ -589,7 +593,7 @@ Future<void> _showCareReminderFormSheet(
                   value: isUrgent,
                   onChanged: (value) => setSheetState(() => isUrgent = value),
                   activeColor: colorScheme.error,
-                  title: const Text('Show as attention-needed', style: TextStyle(fontSize: 14)),
+                  title: Text(context.l10n.attentionNeededLabel, style: const TextStyle(fontSize: 14)),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -625,7 +629,7 @@ Future<void> _showCareReminderFormSheet(
                       backgroundColor: AppColors.darkTeal,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text(context.l10n.saveLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

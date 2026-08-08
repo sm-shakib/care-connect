@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/forgot_password/cubit/forgot_password_cubit.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
@@ -59,9 +60,9 @@ class _ForgotPasswordView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 12),
-                      const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.forgotPasswordTitle,
+                        style: const TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkTeal,
@@ -69,9 +70,7 @@ class _ForgotPasswordView extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "No worries. Enter the email or phone number linked "
-                        "to your account and we'll send you a code to reset "
-                        'your password.',
+                        context.l10n.forgotPasswordSubtitle,
                         style: TextStyle(
                           fontSize: 14,
                           color: colorScheme.onSurfaceVariant,
@@ -84,10 +83,10 @@ class _ForgotPasswordView extends StatelessWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _FieldLabel('Email or Phone Number'),
+                              _FieldLabel(context.l10n.emailOrPhoneLabel),
                               const SizedBox(height: 8),
                               _RecoveryTextField(
-                                hintText: 'e.g. name@email.com',
+                                hintText: context.l10n.emailHint,
                                 prefixIcon: Icons.mail_outline,
                                 keyboardType: TextInputType.emailAddress,
                                 hasError: state.showFormatError,
@@ -98,7 +97,7 @@ class _ForgotPasswordView extends StatelessWidget {
                               if (state.showFormatError) ...[
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Enter a valid email or phone number.',
+                                  context.l10n.validEmailOrPhoneError,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: colorScheme.error,
@@ -111,7 +110,7 @@ class _ForgotPasswordView extends StatelessWidget {
                                   ForgotPasswordStatus.failure) ...[
                                 const SizedBox(height: 16),
                                 Text(
-                                  "Something went wrong. Please try again.",
+                                  context.l10n.genericFailureMessage,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: colorScheme.error,
@@ -147,7 +146,7 @@ class _ForgotPasswordView extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            context.l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -186,19 +185,19 @@ class _ForgotPasswordView extends StatelessWidget {
                   color: Colors.white,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Send Reset Code',
-                    style: TextStyle(
+                    context.l10n.sendResetCodeLabel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
                 ],
               ),
       ),
@@ -211,16 +210,16 @@ class _ForgotPasswordView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Remember your password?',
-            style: TextStyle(fontSize: 14, color: AppColors.darkTeal),
+          Text(
+            context.l10n.rememberPasswordLabel,
+            style: const TextStyle(fontSize: 14, color: AppColors.darkTeal),
           ),
           const SizedBox(width: 4),
           GestureDetector(
             onTap: onBackToLogin,
-            child: const Text(
-              'Login',
-              style: TextStyle(
+            child: Text(
+              context.l10n.login,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkTeal,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -22,16 +23,16 @@ class CaregiverDashboardPage extends StatefulWidget {
 class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
   int _selectedIndex = 0;
 
-  static const List<String> _titles = [
-    'CareConnect',
-    'Requests',
-    'Chats',
-    'Donations',
-    'Profile'
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final titles = [
+      context.l10n.careConnectTitle,
+      context.l10n.requestsLabel,
+      context.l10n.chatsLabel,
+      context.l10n.donationsLabel,
+      context.l10n.profileLabel,
+    ];
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => CaregiverDashboardCubit()),
@@ -80,7 +81,7 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
                   //const Icon(Icons.healing, color: AppColors.darkTeal, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    _titles[_selectedIndex],
+                    titles[_selectedIndex],
                     style: const TextStyle(
                       color: AppColors.darkTeal,
                       fontWeight: FontWeight.bold,
