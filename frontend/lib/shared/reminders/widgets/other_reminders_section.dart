@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/theme/app_colors.dart';
-import '../../models/reminder.dart';
 
+import '../../../theme/app_colors.dart';
+import '../models/care_reminder.dart';
+
+/// Read-only "Other Reminders" card, listing non-medication reminders
+/// (e.g. therapy, hydration) for an elder being monitored.
 class OtherRemindersSection extends StatelessWidget {
-  const OtherRemindersSection({super.key, required this.reminders});
+  const OtherRemindersSection({required this.reminders, super.key});
 
-  final List<Reminder> reminders;
+  final List<CareReminder> reminders;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +18,7 @@ class OtherRemindersSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Other Reminders",
+          'Other Reminders',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -34,7 +37,7 @@ class OtherRemindersSection extends StatelessWidget {
               children: [
                 Icon(Icons.info_outline, color: AppColors.outlineLight),
                 SizedBox(width: 12),
-                Text("No other reminders set."),
+                Text('No other reminders set.'),
               ],
             ),
           )
@@ -63,13 +66,13 @@ class OtherRemindersSection extends StatelessWidget {
 
 class _ReminderTile extends StatelessWidget {
   const _ReminderTile({required this.reminder});
-  final Reminder reminder;
+  final CareReminder reminder;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accentColor = reminder.iconColorIsError ? colorScheme.error : colorScheme.secondary;
-    final accentBackground = reminder.iconColorIsError
+    final accentColor = reminder.isAttentionNeeded ? colorScheme.error : colorScheme.secondary;
+    final accentBackground = reminder.isAttentionNeeded
         ? colorScheme.errorContainer.withValues(alpha: 0.25)
         : colorScheme.secondaryContainer.withValues(alpha: 0.2);
 

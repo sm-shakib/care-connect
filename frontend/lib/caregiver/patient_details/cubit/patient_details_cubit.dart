@@ -2,10 +2,11 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/reminders/models/appointment.dart';
+import 'package:frontend/shared/reminders/models/care_reminder.dart';
 
 import '../data/patient_details_dummy_data.dart';
-import '../models/care_reminder.dart';
-import '../models/medication_reminder.dart';
 
 part 'patient_details_state.dart';
 
@@ -33,6 +34,7 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
         heartRateCheckedAt: now.subtract(const Duration(minutes: 15)),
         medications: PatientDetailsDummyData.medications(),
         otherReminders: PatientDetailsDummyData.otherReminders(),
+        appointments: PatientDetailsDummyData.appointments(),
         gender: basicInfo.gender,
         dateOfBirth: basicInfo.dateOfBirth,
         phone: basicInfo.phone,
@@ -43,12 +45,9 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
   }
 
   void markMedicationTaken(String medicationId) {
-    final updated = state.medications.map((medication) {
-      if (medication.id != medicationId) return medication;
-      return medication.copyWith(
-        status: MedicationStatus.taken,
-        takenAt: DateTime.now(),
-      );
+    final updated = state.medications.map((medicine) {
+      if (medicine.id != medicationId) return medicine;
+      return medicine.copyWith(isTakenToday: true);
     }).toList();
     emit(state.copyWith(medications: updated));
   }
@@ -79,13 +78,13 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
   // ---- Reminder editing (Add / Modify / Delete) ----
   // TODO: sync these changes to a real backend once the care-plan API exists.
 
-  void addMedication(MedicationReminder medication) {
-    emit(state.copyWith(medications: [...state.medications, medication]));
+  void addMedication(Medicine medicine) {
+    emit(state.copyWith(medications: [...state.medications, medicine]));
   }
 
-  void updateMedication(MedicationReminder updatedMedication) {
+  void updateMedication(Medicine updatedMedicine) {
     final updated = state.medications
-        .map((m) => m.id == updatedMedication.id ? updatedMedication : m)
+        .map((m) => m.id == updatedMedicine.id ? updatedMedicine : m)
         .toList();
     emit(state.copyWith(medications: updated));
   }
@@ -111,5 +110,22 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
     final updated =
     state.otherReminders.where((r) => r.id != reminderId).toList();
     emit(state.copyWith(otherReminders: updated));
+  }
+
+  void addAppointment(Appointment appointment) {
+    emit(state.copyWith(appointments: [...state.appointments, appointment]));
+  }
+
+  void updateAppointment(Appointment updatedAppointment) {
+    final updated = state.appointments
+        .map((a) => a.id == updatedAppointment.id ? updatedAppointment : a)
+        .toList();
+    emit(state.copyWith(appointments: updated));
+  }
+
+  void deleteAppointment(String appointmentId) {
+    final updated =
+    state.appointments.where((a) => a.id != appointmentId).toList();
+    emit(state.copyWith(appointments: updated));
   }
 }

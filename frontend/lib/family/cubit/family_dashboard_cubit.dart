@@ -1,9 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:frontend/family/data/elder_dummy_data.dart';
-import '../models/appointment.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/reminders/models/appointment.dart';
+import 'package:frontend/shared/reminders/models/care_reminder.dart';
+
 import '../models/elder.dart';
-import '../models/medication.dart';
-import '../models/reminder.dart';
 import 'family_dashboard_state.dart';
 
 class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
@@ -97,7 +98,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   /// Medication Management
-  void addMedication(String elderId, Medication medication) {
+  void addMedication(String elderId, Medicine medication) {
     final updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       return elder.copyWith(medications: [...elder.medications, medication]);
@@ -105,7 +106,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     _emitUpdatedElders(updatedElders, elderId);
   }
 
-  void updateMedication(String elderId, Medication medication) {
+  void updateMedication(String elderId, Medicine medication) {
     final updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedMedications = elder.medications.map((m) {
@@ -127,7 +128,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   /// Other Reminders Management
-  void addReminder(String elderId, Reminder reminder) {
+  void addReminder(String elderId, CareReminder reminder) {
     final updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       return elder.copyWith(otherReminders: [...elder.otherReminders, reminder]);
@@ -135,7 +136,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     _emitUpdatedElders(updatedElders, elderId);
   }
 
-  void updateReminder(String elderId, Reminder reminder) {
+  void updateReminder(String elderId, CareReminder reminder) {
     final updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedReminders = elder.otherReminders.map((r) {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_colors.dart';
-import '../../models/appointment.dart';
 
-class AppointmentSection extends StatelessWidget {
-  const AppointmentSection({super.key, required this.appointments});
+import '../../../theme/app_colors.dart';
+import '../models/appointment.dart';
+
+/// Read-only "Upcoming Appointments" list for an elder being monitored.
+class AppointmentsSection extends StatelessWidget {
+  const AppointmentsSection({required this.appointments, super.key});
 
   final List<Appointment> appointments;
 
@@ -13,7 +15,7 @@ class AppointmentSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Upcoming Appointments",
+          'Upcoming Appointments',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -31,13 +33,13 @@ class AppointmentSection extends StatelessWidget {
             child: const Row(
               children: [
                 Icon(Icons.info_outline, color: AppColors.outlineLight),
-                const SizedBox(width: 12),
-                Text("No upcoming appointments."),
+                SizedBox(width: 12),
+                Text('No upcoming appointments.'),
               ],
             ),
           )
         else
-          ...appointments.map((apt) => _AppointmentTile(appointment: apt)),
+          ...appointments.map((appointment) => _AppointmentTile(appointment: appointment)),
       ],
     );
   }
@@ -72,7 +74,7 @@ class _AppointmentTile extends StatelessWidget {
                 const Icon(Icons.calendar_month, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  "${appointment.date} at ${appointment.time}",
+                  '${appointment.date} at ${appointment.time}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -107,8 +109,7 @@ class _AppointmentTile extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 14, color: AppColors.primaryLight),
+                          const Icon(Icons.location_on_outlined, size: 14, color: AppColors.primaryLight),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -128,12 +129,11 @@ class _AppointmentTile extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.paleMint,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.directions,
-                      color: AppColors.darkTeal, size: 20),
+                  child: const Icon(Icons.directions, color: AppColors.darkTeal, size: 20),
                 ),
               ],
             ),

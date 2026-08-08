@@ -6,13 +6,13 @@ import 'package:intl/intl.dart';
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/shared/chat/chat.dart';
+import 'package:frontend/shared/medicine/widgets/medicine_card.dart';
+import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/patient_details_cubit.dart';
 import '../utils/time_ago.dart';
-import '../widgets/care_reminder_tile.dart';
-import '../widgets/medication_reminder_tile.dart';
 import '../widgets/vital_stat_card.dart';
 import 'edit_reminders_page.dart';
 import '../widgets/file_complaint_sheet.dart' as caregiver_sheet;
@@ -110,7 +110,9 @@ class PatientDetailsView extends StatelessWidget {
                         const SizedBox(height: 28),
                         _MedicineRemindersSection(state: state, cubit: cubit),
                         const SizedBox(height: 28),
-                        _OtherRemindersSection(state: state),
+                        OtherRemindersSection(reminders: state.otherReminders),
+                        const SizedBox(height: 28),
+                        AppointmentsSection(appointments: state.appointments),
                         const SizedBox(height: 12),
                       ],
                     ),
@@ -434,66 +436,13 @@ class _MedicineRemindersSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         for (final medication in state.medications) ...[
-          MedicationReminderTile(
-            medication: medication,
-            onMarkTaken: () => cubit.markMedicationTaken(medication.id),
+          MedicineCard(
+            medicine: medication,
+            isElderly: true,
+            onTakeMedicine: () => cubit.markMedicationTaken(medication.id),
           ),
           const SizedBox(height: 10),
         ],
-      ],
-    );
-  }
-}
-
-class _OtherRemindersSection extends StatelessWidget {
-  const _OtherRemindersSection({required this.state});
-
-  final PatientDetailsState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.event_note, color: colorScheme.secondary),
-            const SizedBox(width: 8),
-            Text(
-              context.l10n.otherRemindersTitle,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < state.otherReminders.length; i++) ...[
-                CareReminderTile(
-                  reminder: state.otherReminders[i],
-                  onTap: () {
-                    // TODO: navigate to this reminder's detail/edit view.
-                  },
-                ),
-                if (i != state.otherReminders.length - 1)
-                  Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-              ],
-            ],
-          ),
-        ),
       ],
     );
   }

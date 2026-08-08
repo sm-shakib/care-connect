@@ -38,6 +38,12 @@ class MedicineCubit extends Cubit<MedicineState> {
     emit(state.copyWith(medicines: updated));
   }
 
+  void deleteMedicine(String medicineId) {
+    final updated =
+        state.medicines.where((medicine) => medicine.id != medicineId).toList();
+    emit(state.copyWith(medicines: updated));
+  }
+
   void markTaken(String medicineId) {
     final updated = state.medicines.map((medicine) {
       if (medicine.id != medicineId) return medicine;

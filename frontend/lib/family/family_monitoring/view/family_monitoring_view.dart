@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/family_monitoring/view/edit_reminders_page.dart';
-import 'package:frontend/family/family_monitoring/widgets/appointment_section.dart';
 import 'package:frontend/family/family_monitoring/widgets/available_caregivers_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/blood_pressure_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/caregiver_status_card.dart';
@@ -11,9 +10,9 @@ import 'package:frontend/family/family_monitoring/widgets/live_location_card.dar
 import 'package:frontend/family/family_monitoring/widgets/medical_progress_section.dart';
 import 'package:frontend/family/family_monitoring/widgets/medication_section.dart';
 import 'package:frontend/family/family_monitoring/widgets/monitoring_header.dart';
-import 'package:frontend/family/family_monitoring/widgets/other_reminders_section.dart';
 import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/shared/chat/chat.dart';
+import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FamilyMonitoringView extends StatelessWidget {
@@ -147,9 +146,9 @@ class FamilyMonitoringView extends StatelessWidget {
 
           /// Medical Progress
           // MedicalProgressSection(records: elder.medicalRecords),
-          
+
           /// Appointments
-          AppointmentSection(appointments: elder.appointments),
+          AppointmentsSection(appointments: elder.appointments),
 
           const SizedBox(height: 24),
         ],

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_colors.dart';
-import '../../models/medication.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/medicine/widgets/medicine_card.dart';
 
+import '../../../theme/app_colors.dart';
+
+/// Read-only medication schedule for an elder being monitored, reusing
+/// the shared [MedicineCard] used across the medicine feature.
 class MedicationSection extends StatelessWidget {
   const MedicationSection({super.key, required this.medications});
 
-  final List<Medication> medications;
+  final List<Medicine> medications;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,7 @@ class MedicationSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Medication Schedule",
+          'Medication Schedule',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -32,65 +36,16 @@ class MedicationSection extends StatelessWidget {
               children: [
                 Icon(Icons.info_outline, color: AppColors.outlineLight),
                 SizedBox(width: 12),
-                Text("No medications scheduled for today."),
+                Text('No medications scheduled for today.'),
               ],
             ),
           )
         else
-          ...medications.map((med) => _MedicationTile(medication: med)),
+          for (final medicine in medications) ...[
+            MedicineCard(medicine: medicine),
+            const SizedBox(height: 12),
+          ],
       ],
-    );
-  }
-}
-
-class _MedicationTile extends StatelessWidget {
-  const _MedicationTile({required this.medication});
-  final Medication medication;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: medication.isTaken
-            ? AppColors.paleMint
-            : AppColors.surfaceContainerLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.medication,
-            color: medication.isTaken
-                ? AppColors.primaryTeal
-                : AppColors.outlineLight,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  medication.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "${medication.dosage} • ${medication.time}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.onSurfaceVariantLight,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            medication.isTaken ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: medication.isTaken ? Colors.green : AppColors.outlineLight,
-          ),
-        ],
-      ),
     );
   }
 }
