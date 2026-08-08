@@ -28,7 +28,7 @@ class DashboardCardHeader extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 19,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
             ),

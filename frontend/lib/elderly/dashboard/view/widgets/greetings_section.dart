@@ -35,7 +35,7 @@ class GreetingsSection extends StatelessWidget {
               Text(
                 '$_greeting, $userName',
                 style: TextStyle(
-                  fontSize: 27,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: colorScheme.onSurface,
                 ),
@@ -44,7 +44,7 @@ class GreetingsSection extends StatelessWidget {
               Text(
                 "Here's your care summary for today.",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),

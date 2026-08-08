@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
+import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_cubit.dart';
+import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_body.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'package:frontend/elderly/view/elderly_notifications_page.dart';
-import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
 import 'package:frontend/elderly/view/sos_alert_page.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
@@ -41,7 +44,13 @@ class _ElderlyDashboardView extends StatefulWidget {
 class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   int _selectedIndex = 0;
 
-  static const List<String> _titles = ['CareConnect', 'Medicine', 'Chat', 'My Profile'];
+  static const List<String> _titles = [
+    'CareConnect',
+    'Caregivers',
+    'Medicine',
+    'Chat',
+    'My Profile',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +134,8 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            _DashboardHomeBody(onOpenChat: () => setState(() => _selectedIndex = 2)),
+            _DashboardHomeBody(onOpenChat: () => setState(() => _selectedIndex = 3)),
+            const _CaregiversTabBody(),
             const _MedicineTabBody(),
             const _ChatTabBody(),
             const ElderlyProfilePage(),
@@ -215,6 +225,33 @@ class _DashboardHomeBody extends StatelessWidget {
   }
 }
 
+
+class _CaregiversTabBody extends StatelessWidget {
+  const _CaregiversTabBody();
+
+  @override
+  Widget build(BuildContext context) {
+    // The elder books for themselves, so no "which elder?" step is needed.
+    final selfName = context.read<DashboardCubit>().state.userName;
+
+    return BlocProvider(
+      create: (_) => CaregiverListCubit()..loadCaregivers(),
+      child: CaregiverListBody(
+        onCaregiverTap: (caregiver) {
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => CaregiverDetailsPage(
+                caregiver: caregiver,
+                selfBookingElderName: selfName,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
 
 class _MedicineTabBody extends StatelessWidget {
   const _MedicineTabBody();

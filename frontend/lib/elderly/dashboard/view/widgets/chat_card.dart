@@ -73,7 +73,7 @@ class _ChatPreviewRow extends StatelessWidget {
                     child: Text(
                       chat.senderName,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,
                       ),
