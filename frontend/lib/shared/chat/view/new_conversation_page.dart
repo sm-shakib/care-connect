@@ -96,6 +96,7 @@ class _NewConversationPageState extends State<NewConversationPage> {
     final contacts = ChatDirectory.contactsFor(widget.currentUser);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
         title: Text(_groupMode ? 'New group' : 'New chat'),
         actions: [

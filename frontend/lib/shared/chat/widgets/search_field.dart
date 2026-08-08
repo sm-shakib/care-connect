@@ -33,7 +33,8 @@ class SearchField extends StatelessWidget {
                 onPressed: onClear,
               ),
         filled: true,
-        fillColor: colorScheme.surfaceContainerLow,
+        // fillColor: colorScheme.surfaceContainerLow,
+        fillColor: const Color(0xFFF1F5F9),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24),

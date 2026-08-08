@@ -48,7 +48,8 @@ class _ChatInboxView extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      // backgroundColor: colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.darkTeal,
         onPressed: () {

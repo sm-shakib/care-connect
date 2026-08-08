@@ -53,6 +53,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     final toAdd = await showModalBottomSheet<List<ChatParticipant>>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: const Color(0xFFFBFEFC),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -161,6 +162,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(title: const Text('Group info')),
       body: StreamBuilder<Conversation?>(
         stream: _stream,

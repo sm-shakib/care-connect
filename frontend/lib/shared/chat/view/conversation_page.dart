@@ -111,7 +111,8 @@ class _ConversationViewState extends State<_ConversationView> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      // backgroundColor: colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
       body: SafeArea(
         child: BlocConsumer<ConversationCubit, ConversationState>(
           listener: (context, state) => _scrollToBottom(),
@@ -222,6 +223,10 @@ class _ConversationAppBar extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: colorScheme.primary),
+            color: const Color(0xFFFBFEFC),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             onSelected: (value) {
               final cubit = context.read<ConversationCubit>();
               switch (value) {
@@ -312,7 +317,8 @@ class _SearchResultBar extends StatelessWidget {
     final count = state.searchResultIds.length;
     return Container(
       width: double.infinity,
-      color: colorScheme.surfaceContainerLow,
+      // color: colorScheme.surfaceContainerLow,
+      color: const Color(0xFFFBFEFC),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         count == 0 ? 'No matches' : '$count match${count == 1 ? '' : 'es'} found',
