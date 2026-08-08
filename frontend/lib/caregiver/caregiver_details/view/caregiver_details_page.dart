@@ -393,12 +393,19 @@ class CaregiverDetailsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final elder = elders[index];
                 return ListTile(
+                  // leading: CircleAvatar(
+                  //   backgroundColor: AppColors.paleMint,
+                  //   backgroundImage: elder.imageUrl.isNotEmpty ? NetworkImage(elder.imageUrl) : null,
+                  //   child: elder.imageUrl.isEmpty
+                  //       ? Icon(elder.gender == 'Male' ? Icons.man : Icons.woman, color: AppColors.primaryLight)
+                  //       : null,
+                  // ),
                   leading: CircleAvatar(
                     backgroundColor: AppColors.paleMint,
-                    backgroundImage: elder.imageUrl.isNotEmpty ? NetworkImage(elder.imageUrl) : null,
-                    child: elder.imageUrl.isEmpty
-                        ? Icon(elder.gender == 'Male' ? Icons.man : Icons.woman, color: AppColors.primaryLight)
-                        : null,
+                    child: Icon(
+                      elder.gender == 'Male' ? Icons.man : Icons.woman,
+                      color: AppColors.darkTeal,
+                    ),
                   ),
                   title: Text(elder.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(elder.relationship),
@@ -423,7 +430,7 @@ class CaregiverDetailsPage extends StatelessWidget {
       builder: (sheetContext) => BookingOptionsSheet(
         caregiverName: caregiver.name,
         elderName: elder.name,
-        onConfirm: () {
+        onConfirm: (reason) {
           Navigator.pop(sheetContext); // Close options sheet
           _showSuccessDialog(context, elder);
         },
@@ -455,7 +462,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "Your booking request for ${caregiver.name} has been sent.\n\nWaiting for admin approval.",
+                  "Your booking request for ${caregiver.name} has been sent.\n\nWaiting for approval.",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 16, color: AppColors.onSurfaceVariantLight),

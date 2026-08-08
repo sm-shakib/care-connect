@@ -17,27 +17,36 @@ class MonitoringHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // CircleAvatar(
+        //   radius: 22,
+        //   backgroundColor: AppColors.paleMint,
+        //   child: ClipOval(
+        //     child: imageUrl.isNotEmpty
+        //         ? Image.network(
+        //             imageUrl,
+        //             fit: BoxFit.cover,
+        //             width: 44,
+        //             height: 44,
+        //             errorBuilder: (context, error, stackTrace) => Icon(
+        //               gender == 'Male' ? Icons.man : Icons.woman,
+        //               color: AppColors.primaryLight,
+        //               size: 26,
+        //             ),
+        //           )
+        //         : Icon(
+        //             gender == 'Male' ? Icons.man : Icons.woman,
+        //             color: AppColors.primaryLight,
+        //             size: 26,
+        //           ),
+        //   ),
+        // ),
         CircleAvatar(
           radius: 22,
           backgroundColor: AppColors.paleMint,
-          child: ClipOval(
-            child: imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: 44,
-                    height: 44,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      gender == 'Male' ? Icons.man : Icons.woman,
-                      color: AppColors.primaryLight,
-                      size: 26,
-                    ),
-                  )
-                : Icon(
-                    gender == 'Male' ? Icons.man : Icons.woman,
-                    color: AppColors.primaryLight,
-                    size: 26,
-                  ),
+          child: Icon(
+            gender == 'Male' ? Icons.man : Icons.woman,
+            color: AppColors.darkTeal,
+            size: 26,
           ),
         ),
         const SizedBox(width: 12),

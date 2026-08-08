@@ -7,6 +7,7 @@ import 'package:frontend/theme/app_colors.dart';
 import '../../caregiver_donation/caregiver_donation_tab.dart';
 import '../../caregiver_notifications/caregiver_notifications.dart';
 import '../../caregiver_profile/caregiver_profile.dart';
+import '../../caregiver_request/caregiver_request.dart';
 import '../cubit/caregiver_dashboard_cubit.dart';
 import '../widgets/caregiver_bottom_navbar.dart';
 import 'caregiver_dashboard_view.dart';
@@ -21,12 +22,21 @@ class CaregiverDashboardPage extends StatefulWidget {
 class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
   int _selectedIndex = 0;
 
-  static const List<String> _titles = ['CareConnect', 'Chats', 'Donations', 'Profile'];
+  static const List<String> _titles = [
+    'CareConnect',
+    'Requests',
+    'Chats',
+    'Donations',
+    'Profile'
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => CaregiverDashboardCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => CaregiverDashboardCubit()),
+        BlocProvider(create: (_) => CaregiverRequestCubit()),
+      ],
       child: Builder(
         builder: (context) {
           Widget body;
@@ -35,19 +45,22 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
               body = const CaregiverDashboardView();
               break;
             case 1:
+              body = const CaregiverRequestsView();
+              break;
+            case 2:
               body = ChatInboxPage(
                 repository: MockChatRepository.instance,
                 currentUser: ChatDirectory.shakibKhan,
                 showHeader: false,
               );
               break;
-            case 2:
+            case 3:
               body = const CaregiverDonationTab();
               break;
             default:
-            // showTopBar: false — this shell's own AppBar below already
-            // shows "Profile" as the title, so the page's built-in
-            // back-arrow + "Profile" bar is hidden to avoid duplication.
+              // showTopBar: false — this shell's own AppBar below already
+              // shows "Profile" as the title, so the page's built-in
+              // back-arrow + "Profile" bar is hidden to avoid duplication.
               body = const CaregiverProfilePage(showTopBar: false);
           }
 

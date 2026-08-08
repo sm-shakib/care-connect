@@ -9,6 +9,8 @@ import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
+import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
+import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/caregiver_profile_cubit.dart';
@@ -658,7 +660,15 @@ class _EarningsCard extends StatelessWidget {
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                // TODO: navigate to full earnings history page.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => BlocProvider(
+                      create: (_) => CaregiverEarningsCubit(),
+                      child: const CaregiverEarningsView(),
+                    ),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 //backgroundColor: colorScheme.primary,
@@ -779,13 +789,63 @@ class _ActionsSection extends StatelessWidget {
   final CaregiverProfileCubit cubit;
   final VoidCallback? onLogOut;
 
+  void _showLanguagePicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFFFBFEFC),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final currentLocale = Localizations.localeOf(context);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Select Language',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                  title: const Text('English'),
+                  trailing: currentLocale.languageCode == 'en'
+                      ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                      : null,
+                  onTap: () {
+                    context.read<LocaleCubit>().setLocale(const Locale('en'));
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                  title: const Text('বাংলা (Bangla)'),
+                  trailing: currentLocale.languageCode == 'bn'
+                      ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                      : null,
+                  onTap: () {
+                    context.read<LocaleCubit>().setLocale(const Locale('bn'));
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
-        if (!state.isEditing)
+        if (!state.isEditing) ...[
           _ActionRow(
             icon: Icons.edit_outlined,
             label: 'Edit Profile',
@@ -794,7 +854,18 @@ class _ActionsSection extends StatelessWidget {
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: cubit.startEditing,
           ),
-        // const SizedBox(height: 10),
+          const SizedBox(height: 10),
+          _ActionRow(
+            icon: Icons.language_outlined,
+            label: Localizations.localeOf(context).languageCode == 'en'
+                ? 'App Language: English'
+                : 'অ্যাপের ভাষা: বাংলা',
+            color: colorScheme.onSurface,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: () => _showLanguagePicker(context),
+          ),
+        ],
+        const SizedBox(height: 10),
         // _ActionRow(
         //   icon: Icons.help_outline,
         //   label: 'Help & Support',

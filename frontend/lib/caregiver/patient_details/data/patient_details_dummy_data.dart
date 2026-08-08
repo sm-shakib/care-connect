@@ -72,13 +72,13 @@ class PatientDetailsDummyData {
         subtitle: 'Session at 2:00 PM',
         icon: Icons.fitness_center,
       ),
-      CareReminder(
-        id: 'r2',
-        title: 'Hydration Goal',
-        subtitle: '8 Glasses (4/8 reached)',
-        icon: Icons.water_drop,
-        iconColorIsError: true,
-      ),
+      // CareReminder(
+      //   id: 'r2',
+      //   title: 'Hydration Goal',
+      //   subtitle: '8 Glasses (4/8 reached)',
+      //   icon: Icons.water_drop,
+      //   iconColorIsError: true,
+      // ),
     ];
   }
 }

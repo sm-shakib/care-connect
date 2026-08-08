@@ -21,7 +21,7 @@ class CaregiverProfileDummyData {
     CaregiverDocumentType.policeClearance: 'police_clearance.pdf',
   };
 
-  static const double totalEarningsThisMonth = 3240.00;
+  static const double totalEarningsThisMonth = 4250.00;
   static const double lastPayoutAmount = 850.00;
   static final DateTime lastPayoutDate = DateTime(2024, 6, 15);
   static const List<double> earningsSparkline = [40, 60, 35, 75, 50, 90, 85];

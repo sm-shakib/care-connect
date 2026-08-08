@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -13,63 +15,64 @@ import 'package:frontend/admin/dashboard/dashboard.dart';
 import 'package:frontend/admin/admin_shell/admin_shell.dart';
 
 
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
 
   @override
-  State<App> createState() => _AppState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => LocaleCubit(),
+      child: const AppView(),
+    );
+  }
 }
 
-class _AppState extends State<App> {
-  Locale _locale = const Locale('en');
-
-  void _toggleLocale() {
-    setState(() {
-      _locale = _locale.languageCode == 'en'
-          ? const Locale('bn')
-          : const Locale('en');
-    });
-  }
+class AppView extends StatelessWidget {
+  const AppView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-        ),
-      ),
-      locale: _locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: SplashPage(
-        duration: const Duration(milliseconds: 3000),
-        nextScreen: Builder(
-          builder: (context) => WelcomeScreenPage(
-            onGetStarted: () async {
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => const RoleSelectionPage(),
-                ),
-              );
-            },
-            onLogin: () async {
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => const LoginPage(),
-                ),
-              );
-            },
-            onContactSupport: () {
-              // TODO: open support link
-            },
-            onLanguageToggle: _toggleLocale,
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        return MaterialApp(
+          theme: ThemeData(
+            fontFamily: 'Roboto',
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+            ),
           ),
-        ),
-      ),
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: SplashPage(
+            duration: const Duration(milliseconds: 3000),
+            nextScreen: Builder(
+              builder: (context) => WelcomeScreenPage(
+                onGetStarted: () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const RoleSelectionPage(),
+                    ),
+                  );
+                },
+                onLogin: () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                },
+                onContactSupport: () {
+                  // TODO: open support link
+                },
+                onLanguageToggle: () => context.read<LocaleCubit>().toggleLocale(),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

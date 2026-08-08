@@ -13,7 +13,7 @@ class BookingOptionsSheet extends StatefulWidget {
 
   final String caregiverName;
   final String elderName;
-  final VoidCallback onConfirm;
+  final void Function(String reason) onConfirm;
 
   @override
   State<BookingOptionsSheet> createState() => _BookingOptionsSheetState();
@@ -25,6 +25,7 @@ class _BookingOptionsSheetState extends State<BookingOptionsSheet> {
   final Set<int> _selectedDays = {};
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
+  final _reasonController = TextEditingController();
 
   final List<String> _dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -33,7 +34,14 @@ class _BookingOptionsSheetState extends State<BookingOptionsSheet> {
       _endDate != null &&
       _selectedDays.isNotEmpty &&
       _startTime != null &&
-      _endTime != null;
+      _endTime != null &&
+      _reasonController.text.trim().isNotEmpty;
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -197,11 +205,32 @@ class _BookingOptionsSheetState extends State<BookingOptionsSheet> {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+
+          /// Booking Reason
+          _SectionTitle(title: 'Booking Reason'),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _reasonController,
+            maxLines: 3,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'e.g. Needs assistance with post-surgery recovery and daily medications.',
+              hintStyle: const TextStyle(fontSize: 14),
+              filled: true,
+              fillColor: const Color(0xFFF1F5F9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.all(16),
+            ),
+          ),
           const SizedBox(height: 32),
 
           PrimaryPillButton(
             label: 'Confirm Booking Request',
-            onPressed: _isFormValid ? widget.onConfirm : null,
+            onPressed: _isFormValid ? () => widget.onConfirm(_reasonController.text.trim()) : null,
           ),
         ],
       ),

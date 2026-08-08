@@ -14,6 +14,7 @@ import '../widgets/care_reminder_tile.dart';
 import '../widgets/medication_reminder_tile.dart';
 import '../widgets/vital_stat_card.dart';
 import 'edit_reminders_page.dart';
+import '../widgets/file_complaint_sheet.dart' as caregiver_sheet;
 
 class PatientDetailsView extends StatelessWidget {
   const PatientDetailsView({super.key});
@@ -23,8 +24,69 @@ class PatientDetailsView extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      //backgroundColor: colorScheme.surface,
       backgroundColor: const Color(0xFFFBFEFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFBFEFC),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: Border(
+          bottom: BorderSide(color: AppColors.outlineVariantLight),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Patient Details',
+          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+        ),
+        actions: [
+          BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
+            builder: (context, state) {
+              return PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: AppColors.darkTeal),
+                color: const Color(0xFFFBFEFC),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                onSelected: (value) {
+                  if (value == 'complaint') {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => caregiver_sheet.FileComplaintSheet(patientName: state.patientName),
+                    );
+                  } else if (value == 'complete') {
+                    _confirmServiceCompletion(context, state.patientName);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'complaint',
+                    child: Row(
+                      children: [
+                        Icon(Icons.report_problem_outlined, color: Colors.redAccent, size: 20),
+                        SizedBox(width: 12),
+                        Text('File Complaint'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'complete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_outline, color: AppColors.darkTeal, size: 20),
+                        SizedBox(width: 12),
+                        Text('Mark as Completed'),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
           builder: (context, state) {
@@ -32,13 +94,13 @@ class PatientDetailsView extends StatelessWidget {
 
             return Column(
               children: [
-                const CareConnectAppBar(),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: 12),
                         _PatientHeader(name: state.patientName),
                         const SizedBox(height: 20),
                         _BasicInfoSection(state: state),
@@ -64,6 +126,33 @@ class PatientDetailsView extends StatelessWidget {
       ),
     );
   }
+}
+
+void _confirmServiceCompletion(BuildContext context, String patientName) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text('Complete Service?'),
+      content: Text('Are you sure you want to mark the care service for $patientName as completed?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Service marked as completed.')),
+            );
+          },
+          style: FilledButton.styleFrom(backgroundColor: AppColors.darkTeal),
+          child: const Text('Yes, Complete'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _PatientHeader extends StatelessWidget {
@@ -486,8 +575,6 @@ class _EditCarePlanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return SizedBox(
       height: 54,
       child: ElevatedButton.icon(
