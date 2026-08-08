@@ -15,19 +15,21 @@ class BentoGrid extends StatelessWidget {
                 height: 140,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2DD4BF),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFBACAC5)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.account_balance_wallet, color: Color(0xFF00574D), size: 24),
+                    Icon(Icons.account_balance_wallet,
+                        color: Color(0xFF006B5F), size: 24),
                     SizedBox(height: 8),
                     Text(
                       'Current Fund Balance',
                       style: TextStyle(
-                        color: Color(0xFF00574D),
+                        color: Color(0xFF3C4A46),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -40,7 +42,7 @@ class BentoGrid extends StatelessWidget {
                       child: Text(
                         '৳ 450,200',
                         style: TextStyle(
-                          color: Color(0xFF003832),
+                          color: Color(0xFF006B5F),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -65,7 +67,8 @@ class BentoGrid extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.volunteer_activism, color: Color(0xFF006B5F), size: 24),
+                    Icon(Icons.volunteer_activism,
+                        color: Color(0xFF006B5F), size: 24),
                     SizedBox(height: 8),
                     Text(
                       'Total Donations',
@@ -82,7 +85,7 @@ class BentoGrid extends StatelessWidget {
                       child: Text(
                         '৳ 1.2M',
                         style: TextStyle(
-                          color: Color(0xFF1A1C1C),
+                          color: Color(0xFF006B5F),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -111,7 +114,8 @@ class BentoGrid extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.assignment_late_outlined, color: Color(0xFF006B5F), size: 24),
+                    Icon(Icons.assignment_late_outlined,
+                        color: Color(0xFF006B5F), size: 24),
                     SizedBox(height: 8),
                     Text(
                       'Pending Aid',
@@ -145,19 +149,21 @@ class BentoGrid extends StatelessWidget {
                 height: 140,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2DD4BF),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFBACAC5)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.handshake_outlined, color: Color(0xFF00574D), size: 24),
+                    Icon(Icons.handshake_outlined,
+                        color: Color(0xFF006B5F), size: 24),
                     SizedBox(height: 8),
                     Text(
                       'Aid Distributed',
                       style: TextStyle(
-                        color: Color(0xFF00574D),
+                        color: Color(0xFF3C4A46),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -169,7 +175,7 @@ class BentoGrid extends StatelessWidget {
                       child: Text(
                         '৳ 741,800',
                         style: TextStyle(
-                          color: Color(0xFF003832),
+                          color: Color(0xFF006B5F),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),

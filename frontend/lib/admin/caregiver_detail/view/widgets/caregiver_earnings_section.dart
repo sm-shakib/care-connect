@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
+import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
 
 /// "Earnings" section. Shows the total amount earned and a list of
-/// recent earnings per booking.
+/// recent earnings per booking, styled like the Caregiver Profile's
+/// earnings card.
 class CaregiverEarningsSection extends StatelessWidget {
   const CaregiverEarningsSection({
     required this.profile,
@@ -18,24 +22,18 @@ class CaregiverEarningsSection extends StatelessWidget {
   final ValueChanged<Payout>? onRetryPayout;
 
   static String _formatAmount(double value) {
-    final digits = value.toStringAsFixed(2);
-    final parts = digits.split('.');
-    final whole = parts[0];
-    final buffer = StringBuffer();
-    for (var i = 0; i < whole.length; i++) {
-      final remaining = whole.length - i;
-      if (i > 0 && remaining % 3 == 0) buffer.write(',');
-      buffer.write(whole[i]);
-    }
-    return '${buffer.toString()}.${parts[1]}';
+    final formatter = NumberFormat('#,##0.00');
+    return formatter.format(value);
   }
 
   @override
   Widget build(BuildContext context) {
+    final monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Earnings',
           style: TextStyle(
             fontSize: 20,
@@ -44,259 +42,89 @@ class CaregiverEarningsSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _StatTile(
-                icon: Icons.payments,
-                label: 'Total Earned',
-                value: 'TK${_formatAmount(profile.totalEarned)}',
+        // Earnings Summary Card (Styled like _EarningsCard in Caregiver Profile)
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowestLight,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: AppColors.outlineVariantLight.withOpacity(0.4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StatTile(
-                icon: Icons.calendar_month,
-                label: 'This Month',
-                value: 'TK${_formatAmount(profile.thisMonthAmount)}',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        /*Text(
-          'Recent Earnings',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.onSurfaceLight,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (profile.recentPayouts.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowLight,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.outlineVariantLight),
-            ),
-            child: Text(
-              'No earnings yet.',
-              style: TextStyle(color: AppColors.onSurfaceVariantLight),
-            ),
-          )
-        else
-          Column(
-            children: [
-              for (final payout in profile.recentPayouts) ...[
-                _PayoutRow(
-                  payout: payout,
-                  onRetry: () => onRetryPayout?.call(payout),
-                ),
-                if (payout != profile.recentPayouts.last)
-                  const SizedBox(height: 8),
-              ],
             ],
-          ),*/
-      ],
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariantLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: AppColors.primaryLight),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.onSurfaceVariantLight,
-            ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.onSurfaceLight,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PayoutRow extends StatelessWidget {
-  const _PayoutRow({required this.payout, this.onRetry});
-
-  final Payout payout;
-  final VoidCallback? onRetry;
-
-  (IconData, Color, Color) get _iconStyle {
-    switch (payout.status) {
-      case PayoutStatus.completed:
-        return (
-          Icons.check,
-          AppColors.primaryContainerLight,
-          AppColors.onPrimaryContainerLight,
-        );
-      case PayoutStatus.pending:
-        return (
-          Icons.schedule,
-          AppColors.surfaceContainerHighLight,
-          AppColors.onSurfaceVariantLight,
-        );
-      case PayoutStatus.processing:
-        return (
-          Icons.sync,
-          AppColors.secondaryContainerLight,
-          AppColors.onSecondaryContainerLight,
-        );
-      case PayoutStatus.failed:
-        return (
-          Icons.error_outline,
-          AppColors.errorContainerLight,
-          AppColors.errorLight,
-        );
-    }
-  }
-
-  Color get _statusColor {
-    switch (payout.status) {
-      case PayoutStatus.completed:
-        return AppColors.primaryLight;
-      case PayoutStatus.pending:
-        return AppColors.onSurfaceVariantLight;
-      case PayoutStatus.processing:
-        return AppColors.secondaryLight;
-      case PayoutStatus.failed:
-        return AppColors.errorLight;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, iconBg, iconFg) = _iconStyle;
-    final isFailed = payout.status == PayoutStatus.failed;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isFailed ? AppColors.errorLight : AppColors.outlineVariantLight,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration:
-                    BoxDecoration(color: iconBg, shape: BoxShape.circle),
-                child: Icon(icon, color: iconFg, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      payout.periodLabel,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      '${payout.method} • ${payout.dateLabel}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.onSurfaceVariantLight,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    'TK${payout.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                    '৳${_formatAmount(profile.totalEarned)}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.onSurfaceLight,
                     ),
                   ),
-                  Text(
-                    payout.status.label,
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Total Earned',
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _statusColor,
+                      color: AppColors.onSurfaceVariantLight,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          if (isFailed) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: OutlinedButton.icon(
-                onPressed: onRetry,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.errorLight,
-                  side: BorderSide(color: AppColors.errorLight),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => BlocProvider(
+                          create: (_) => CaregiverEarningsCubit(),
+                          child: const CaregiverEarningsView(),
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkTeal,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'View Earnings History',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 6),
+                      Icon(Icons.chevron_right, size: 20),
+                    ],
                   ),
                 ),
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text(
-                  'Retry Payout',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
               ),
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

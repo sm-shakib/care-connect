@@ -93,7 +93,7 @@ class ElderlyDetailCubit extends Cubit<ElderlyDetailState> {
           avatarUrl:
               'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
           relationship: 'Son',
-          isPrimaryContact: true,
+          isPrimaryContact: false,
         ),
       ],
       recentSosEvents: [

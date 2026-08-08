@@ -42,7 +42,7 @@ class PersonalDetailsGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 label: 'Daily Rate',
-                value: 'Tk${application.hourlyRate.toStringAsFixed(0)}/hr',
+                value: '৳${application.hourlyRate.toStringAsFixed(0)}/hr',
               ),
             ),
           ],

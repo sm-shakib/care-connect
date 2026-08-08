@@ -236,14 +236,14 @@ class _RoleStyle {
       case UserRole.elderly:
         return _RoleStyle(
           label: 'Elderly',
-          backgroundColor: AppColors.secondaryContainerLight,
-          textColor: AppColors.onSecondaryContainerLight,
+          backgroundColor: AppColors.surfaceContainerHighLight,
+          textColor: AppColors.onSurfaceVariantLight,
         );
       case UserRole.caregiver:
         return _RoleStyle(
           label: 'Caregiver',
-          backgroundColor: AppColors.tertiaryContainerLight,
-          textColor: AppColors.onTertiaryContainerLight,
+          backgroundColor: AppColors.surfaceContainerHighLight,
+          textColor: AppColors.onSurfaceVariantLight,
         );
       case UserRole.family:
         return _RoleStyle(
@@ -254,8 +254,8 @@ class _RoleStyle {
       case UserRole.admin:
         return _RoleStyle(
           label: 'Admin',
-          backgroundColor: AppColors.onPrimaryFixedVariantLight,
-          textColor: AppColors.onPrimaryFixedLight,
+          backgroundColor: AppColors.surfaceContainerHighLight,
+          textColor: AppColors.onSurfaceVariantLight,
         );
     }
   }

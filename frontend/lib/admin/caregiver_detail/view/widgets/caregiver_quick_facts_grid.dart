@@ -90,7 +90,7 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
           _FactRow(
             icon: Icons.payments,
             label: 'Rate',
-            value: 'TK${profile.dailyRate.toStringAsFixed(0)}/hr',
+            value: '৳${profile.dailyRate.toStringAsFixed(0)}/hr',
           ),
           const SizedBox(height: 16),
           _FactRow(
