@@ -1,69 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
+import 'package:frontend/caregiver/data/caregiver_dummy_data.dart';
+import 'package:frontend/shared/chat/chat.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../cubit/dashboard_models.dart';
 import 'dashboard_card_header.dart';
 
-/// Card showing the elderly user's assigned caregiver and quick actions
-/// to call or message them.
+/// Card showing the elderly user's assigned caregiver with a quick action
+/// to message them. Tapping the card opens the caregiver's full details,
+/// matching the family user's assigned-caregiver flow.
 class CaregiverCard extends StatelessWidget {
   const CaregiverCard({
     required this.caregiver,
-    this.onCall,
-    this.onMessage,
     super.key,
   });
 
   final CaregiverSummary? caregiver;
-  final VoidCallback? onCall;
-  final VoidCallback? onMessage;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
+    return Material(
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const DashboardCardHeader(
-            icon: Icons.favorite_outline,
-            title: 'Your Caregiver',
+        onTap: caregiver == null ? null : () => _openCaregiverDetails(context),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: colorScheme.outlineVariant),
           ),
-          const SizedBox(height: 14),
-          if (caregiver == null)
-            Text(
-              'No caregiver assigned yet.',
-              style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
-            )
-          else
-            _CaregiverDetails(
-              caregiver: caregiver!,
-              onCall: onCall,
-              onMessage: onMessage,
-            ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const DashboardCardHeader(
+                icon: Icons.favorite_outline,
+                title: 'Your Caregiver',
+              ),
+              const SizedBox(height: 14),
+              if (caregiver == null)
+                Text(
+                  'No caregiver assigned yet.',
+                  style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+                )
+              else
+                _CaregiverDetails(caregiver: caregiver!),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openCaregiverDetails(BuildContext context) {
+    // Look up the full caregiver profile to show on the details page, the
+    // same way the family user's assigned-caregiver card does.
+    final fullCaregiver = caregiverList.firstWhere(
+      (c) => c.name == caregiver!.name,
+      orElse: () => caregiverList.first,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => CaregiverDetailsPage(
+          caregiver: fullCaregiver,
+          isAssigned: true,
+        ),
       ),
     );
   }
 }
 
 class _CaregiverDetails extends StatelessWidget {
-  const _CaregiverDetails({
-    required this.caregiver,
-    this.onCall,
-    this.onMessage,
-  });
+  const _CaregiverDetails({required this.caregiver});
 
   final CaregiverSummary caregiver;
-  final VoidCallback? onCall;
-  final VoidCallback? onMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +110,7 @@ class _CaregiverDetails extends StatelessWidget {
                   Text(
                     caregiver.name,
                     style: TextStyle(
-                      fontSize: 19,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
                     ),
@@ -102,7 +118,7 @@ class _CaregiverDetails extends StatelessWidget {
                   Text(
                     caregiver.profession,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 15,
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
@@ -132,40 +148,21 @@ class _CaregiverDetails extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 52,
-                child: OutlinedButton.icon(
-                  onPressed: onCall,
-                  icon: const Icon(Icons.call_outlined, size: 20),
-                  label: const Text(
-                    'Call',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: () => _openConversation(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryLight,
+              foregroundColor: Colors.white,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SizedBox(
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: onMessage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: const Icon(Icons.chat_bubble_outline, size: 20),
-                  label: const Text(
-                    'Message',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
+            icon: const Icon(Icons.chat_bubble_outline, size: 20),
+            label: const Text(
+              'Message',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-          ],
+          ),
         ),
       ],
     );
@@ -175,5 +172,31 @@ class _CaregiverDetails extends StatelessWidget {
     final parts = name.trim().split(RegExp(r'\s+'));
     final letters = parts.take(2).map((p) => p.isEmpty ? '' : p[0]).join();
     return letters.toUpperCase();
+  }
+
+  Future<void> _openConversation(BuildContext context) async {
+    // Open (or start) a direct conversation with this caregiver, the same
+    // way the family user's "Chat" action does from monitoring.
+    final repository = MockChatRepository.instance;
+    final contact = ChatDirectory.resolveOrCreateContact(
+      caregiver.name,
+      role: ChatRole.caregiver,
+    );
+    final conversation = await repository.createDirectConversation(
+      currentUser: ChatDirectory.adib,
+      other: contact,
+    );
+    if (!context.mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => ConversationPage(
+          repository: repository,
+          conversationId: conversation.id,
+          currentUser: ChatDirectory.adib,
+        ),
+      ),
+    );
   }
 }

@@ -23,11 +23,18 @@ class CaregiverDetailsPage extends StatelessWidget {
   final Elder? bookingForElder;
   final bool isAssigned;
 
+  /// When set, "Book Now" books the caregiver for the current elder (the
+  /// app user themselves) using this name, skipping the family-only "which
+  /// elder is this for?" selection dialog. Used by the elder's own
+  /// caregiver list, which has no [FamilyDashboardCubit] in the widget tree.
+  final String? selfBookingElderName;
+
   const CaregiverDetailsPage({
     super.key,
     required this.caregiver,
     this.bookingForElder,
     this.isAssigned = false,
+    this.selfBookingElderName,
   });
 
   @override
@@ -368,8 +375,15 @@ class CaregiverDetailsPage extends StatelessWidget {
   }
 
   void _handleBooking(BuildContext context) {
-    if (bookingForElder != null) {
-      _showBookingOptionsSheet(context, bookingForElder!);
+    if (selfBookingElderName != null) {
+      // Elder booking for themselves: no elder to choose, book directly.
+      _showBookingOptionsSheet(context, elderName: selfBookingElderName!);
+    } else if (bookingForElder != null) {
+      _showBookingOptionsSheet(
+        context,
+        elderName: bookingForElder!.name,
+        elder: bookingForElder,
+      );
     } else {
       _showElderSelectionDialog(context);
     }
@@ -411,7 +425,11 @@ class CaregiverDetailsPage extends StatelessWidget {
                   subtitle: Text(elder.relationship),
                   onTap: () {
                     Navigator.pop(dialogContext); // Close selection dialog
-                    _showBookingOptionsSheet(pageContext, elder);
+                    _showBookingOptionsSheet(
+                      pageContext,
+                      elderName: elder.name,
+                      elder: elder,
+                    );
                   },
                 );
               },
@@ -422,14 +440,21 @@ class CaregiverDetailsPage extends StatelessWidget {
     );
   }
 
-  void _showBookingOptionsSheet(BuildContext context, Elder elder) {
+  /// Shows the booking form for [elderName]. [elder] should be passed
+  /// whenever a real [Elder] record exists (family flow) so the resulting
+  /// booking can be attached to it; leave it null for self-booking.
+  void _showBookingOptionsSheet(
+    BuildContext context, {
+    required String elderName,
+    Elder? elder,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) => BookingOptionsSheet(
         caregiverName: caregiver.name,
-        elderName: elder.name,
+        elderName: elderName,
         onConfirm: (reason) {
           Navigator.pop(sheetContext); // Close options sheet
           _showSuccessDialog(context, elder);
@@ -438,9 +463,7 @@ class CaregiverDetailsPage extends StatelessWidget {
     );
   }
 
-  void _showSuccessDialog(BuildContext pageContext, Elder elder) {
-    final cubit = pageContext.read<FamilyDashboardCubit>();
-
+  void _showSuccessDialog(BuildContext pageContext, Elder? elder) {
     showDialog(
       context: pageContext,
       barrierDismissible: false,
@@ -480,8 +503,12 @@ class CaregiverDetailsPage extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      // Actually add the caregiver to the elder's list in the state
-                      cubit.addCaregiverToElder(elder.id, caregiver.name);
+                      if (elder != null) {
+                        // Actually add the caregiver to the elder's list in the state
+                        pageContext
+                            .read<FamilyDashboardCubit>()
+                            .addCaregiverToElder(elder.id, caregiver.name);
+                      }
 
                       Navigator.pop(dialogContext); // Close dialog
                       Navigator.pop(pageContext); // Close details page

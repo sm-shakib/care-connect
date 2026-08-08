@@ -107,7 +107,7 @@ class _SosAlertPageState extends State<SosAlertPage>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 16,
+                  fontSize: 15,
                   height: 1.4,
                 ),
               ),

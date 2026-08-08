@@ -51,7 +51,7 @@ class ElderlyProfilePage extends StatelessWidget {
             const SizedBox(height: 16),
             const Text(
               'Adib',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const Text(
               'Elderly User',
@@ -178,7 +178,7 @@ class ElderlyProfilePage extends StatelessWidget {
       child: ListTile(
         leading: Icon(icon, color: AppColors.primaryLight),
         title: Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        subtitle: Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        subtitle: Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
       ),
     );
   }
