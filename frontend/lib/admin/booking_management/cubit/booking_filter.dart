@@ -1,7 +1,7 @@
 import 'booking_model.dart';
 
 /// Filter chip options shown at the top of the bookings list.
-enum BookingFilter { all, upcoming, ongoing, completed, cancelled }
+enum BookingFilter { all, upcoming, ongoing, completed }
 
 extension BookingFilterX on BookingFilter {
   String get label {
@@ -14,8 +14,6 @@ extension BookingFilterX on BookingFilter {
         return 'Ongoing';
       case BookingFilter.completed:
         return 'Completed';
-      case BookingFilter.cancelled:
-        return 'Cancelled';
     }
   }
 
@@ -30,8 +28,6 @@ extension BookingFilterX on BookingFilter {
         return status == BookingStatus.ongoing;
       case BookingFilter.completed:
         return status == BookingStatus.completed;
-      case BookingFilter.cancelled:
-        return status == BookingStatus.cancelled;
     }
   }
 }

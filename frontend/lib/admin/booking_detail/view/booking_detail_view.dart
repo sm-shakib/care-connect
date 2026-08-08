@@ -106,14 +106,12 @@ class BookingDetailView extends StatelessWidget {
                     const SizedBox(height: 20),
                     LocationCard(
                       address: booking.address,
-                      onViewOnMap: () {
-                        // TODO(careconnect): open a map view/deep link.
-                      },
                     ),
-                    const SizedBox(height: 20),
+                    /*const SizedBox(height: 20),
                     PaymentStatusSection(badges: booking.paymentBadges),
                     const SizedBox(height: 20),
                     CareLogsSection(logs: booking.careLogs),
+                     */
                   ],
                 ),
               ),
@@ -121,7 +119,7 @@ class BookingDetailView extends StatelessWidget {
           );
         },
       ),
-      bottomSheet: BookingDetailActionsBar(
+      /*bottomSheet: BookingDetailActionsBar(
         onSupport: () {
           // TODO(careconnect): open an admin support/escalation flow
           // for this specific booking.
@@ -129,7 +127,7 @@ class BookingDetailView extends StatelessWidget {
         onModify: () {
           // TODO(careconnect): open a booking edit flow.
         },
-      ),
+      ),*/
     );
   }
 

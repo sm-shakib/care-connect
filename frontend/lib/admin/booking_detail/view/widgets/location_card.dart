@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../theme/app_colors.dart';
 
@@ -12,6 +13,17 @@ class LocationCard extends StatelessWidget {
 
   final String address;
   final VoidCallback? onViewOnMap;
+
+  Future<void> _launchMap(String address) async {
+    final query = Uri.encodeComponent(address);
+    final uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$query');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Fallback
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +69,7 @@ class LocationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 InkWell(
-                  onTap: onViewOnMap,
+                  onTap: onViewOnMap ?? () => _launchMap(address),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

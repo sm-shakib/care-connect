@@ -118,7 +118,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
     'BK-3083': BookingDetail(
       id: 'BK-3083',
       category: 'General Care',
-      status: BookingDetailStatus.upcoming,
+      status: BookingDetailStatus.completed,
       totalAmount: 3200,
       careRecipient: BookingParticipant(
         id: 'user-elderly-3',
@@ -140,7 +140,7 @@ class BookingDetailCubit extends Cubit<BookingDetailState> {
       endDateLabel: 'Nov 10, 2023',
       dailyTimingLabel: '10:00 AM - 06:00 PM (8 hrs)',
       address: 'House 7, Sector 11, Uttara, Dhaka',
-      paymentBadges: [PaymentBadgeType.pending, PaymentBadgeType.unpaid],
+      paymentBadges: [PaymentBadgeType.confirmed, PaymentBadgeType.paid],
       careLogs: [],
     ),
   };

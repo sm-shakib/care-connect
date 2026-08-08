@@ -104,8 +104,8 @@ class BookingManagementCubit extends Cubit<BookingManagementState> {
       ),
       totalAmount: 3200,
       dateLabel: 'Nov 05 - Nov 10, 2023',
-      status: BookingStatus.upcoming,
-      badges: [BookingBadgeType.pending, BookingBadgeType.unpaid],
+      status: BookingStatus.completed,
+      badges: [BookingBadgeType.confirmed, BookingBadgeType.paid],
     ),
   ];
 }

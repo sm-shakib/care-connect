@@ -106,8 +106,8 @@ class ElderlyDetailView extends StatelessWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 20),
-                      RecentSosEventsSection(events: profile.recentSosEvents),
+                      /*const SizedBox(height: 20),
+                      RecentSosEventsSection(events: profile.recentSosEvents),*/
                     ],
                   ),
                 ),
@@ -133,26 +133,58 @@ class ElderlyDetailView extends StatelessWidget {
   }
 
   Future<void> _confirmRemove(
-      BuildContext context,
-      ElderlyDetailCubit cubit,
-      ) async {
+    BuildContext context,
+    ElderlyDetailCubit cubit,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove this user?'),
-        content: const Text(
-          "This permanently deletes the elderly user's account and "
-              'cannot be undone.',
+        backgroundColor: AppColors.surfaceContainerLowestLight,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text(
+          'Remove this user?',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: AppColors.onSurfaceLight,
+          ),
         ),
+        content: Text(
+          'This permanently deletes the elderly user\'s account and '
+          'cannot be undone.',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.onSurfaceVariantLight,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(0, 0, 24, 24),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: AppColors.outlineLight,
+              ),
+            ),
           ),
-          TextButton(
+          const SizedBox(width: 8),
+          ElevatedButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.errorLight),
-            child: const Text('Remove'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.errorLight,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'Remove',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

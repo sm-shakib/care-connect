@@ -97,7 +97,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       avatarUrl:
       'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       status: AccountStatus.active,
-      title: 'Registered Nurse',
+      title: 'Caregiver',
       isVerified: true,
       rating: 4.9,
       reviewCount: 42,
@@ -109,9 +109,9 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       email: 'fatema.begum@careconnect.com',
       address: 'House 22, Road 8, Banani, Dhaka',
       specializations: const [
-        SpecializationTag(label: 'Geriatrics', isPrimary: true),
-        SpecializationTag(label: 'Dementia Care'),
-        SpecializationTag(label: 'Wound Care'),
+        //SpecializationTag(label: 'Geriatrics', isPrimary: true),
+        SpecializationTag(label: 'Dementia Care', isPrimary: true),
+        //SpecializationTag(label: 'Wound Care'),
       ],
       // Placeholder labels — swap for the real CaregiverDocumentType
       // enum values once shared.
@@ -163,7 +163,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       recentPayouts: const [
         Payout(
           id: 'payout-1',
-          periodLabel: 'Oct 1 - Oct 15',
+          periodLabel: 'BK-3082 - Elderly Companion Care',
           amount: 4500,
           method: 'Bank Transfer',
           status: PayoutStatus.pending,
@@ -171,7 +171,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
         ),
         Payout(
           id: 'payout-2',
-          periodLabel: 'Sep 16 - Sep 30',
+          periodLabel: 'BK-3081 - Post-Op Recovery',
           amount: 2100,
           method: 'Bkash',
           status: PayoutStatus.completed,
@@ -179,7 +179,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
         ),
         Payout(
           id: 'payout-3',
-          periodLabel: 'Sep 1 - Sep 15',
+          periodLabel: 'BK-3079 - General Care',
           amount: 3000,
           method: 'Bkash',
           status: PayoutStatus.failed,

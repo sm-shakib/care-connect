@@ -13,21 +13,19 @@ class BookingSummaryCard extends StatelessWidget {
     switch (booking.status) {
       case BookingDetailStatus.upcoming:
         return (
-        AppColors.surfaceContainerHighLight,
-        AppColors.onSurfaceVariantLight,
+          AppColors.surfaceContainerHighLight,
+          AppColors.onSurfaceVariantLight,
         );
       case BookingDetailStatus.ongoing:
         return (
-        AppColors.tertiaryContainerLight,
-        AppColors.onTertiaryContainerLight,
+          AppColors.tertiaryContainerLight,
+          AppColors.onTertiaryContainerLight,
         );
       case BookingDetailStatus.completed:
         return (
-        AppColors.primaryContainerLight,
-        AppColors.onPrimaryContainerLight,
+          AppColors.primaryContainerLight,
+          AppColors.onPrimaryContainerLight,
         );
-      case BookingDetailStatus.cancelled:
-        return (AppColors.errorContainerLight, AppColors.onErrorContainerLight);
     }
   }
 
@@ -39,8 +37,6 @@ class BookingSummaryCard extends StatelessWidget {
         return Icons.check_circle;
       case BookingDetailStatus.completed:
         return Icons.task_alt;
-      case BookingDetailStatus.cancelled:
-        return Icons.cancel;
     }
   }
 

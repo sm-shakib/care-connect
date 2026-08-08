@@ -64,7 +64,7 @@ class ComplaintManagementCubit extends Cubit<ComplaintManagementState> {
       reporterName: 'Abdur Rahim',
       againstName: 'Nasrin Akter',
       category: 'Health Safety',
-      status: ComplaintStatus.escalated,
+      status: ComplaintStatus.pendingReview,
       statusDetail: 'Pending Review',
     ),
     Complaint(
@@ -73,8 +73,8 @@ class ComplaintManagementCubit extends Cubit<ComplaintManagementState> {
       reporterName: 'Jashim Uddin',
       againstName: 'Kamal Hossain',
       category: 'Late Arrival',
-      status: ComplaintStatus.inProgress,
-      statusDetail: 'Under Investigation',
+      status: ComplaintStatus.pendingReview,
+      statusDetail: 'Pending Review',
     ),
     Complaint(
       id: 'CP-1026',
@@ -82,8 +82,8 @@ class ComplaintManagementCubit extends Cubit<ComplaintManagementState> {
       reporterName: 'Rummana Akter',
       againstName: 'Milon Hossain',
       category: 'Unprofessionalism',
-      status: ComplaintStatus.open,
-      statusDetail: 'Queued',
+      status: ComplaintStatus.resolved,
+      statusDetail: 'Resolved',
     ),
   ];
 }

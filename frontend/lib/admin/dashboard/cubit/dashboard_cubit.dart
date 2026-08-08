@@ -58,12 +58,12 @@ class DashboardCubit extends Cubit<DashboardState> {
       subtitle: 'Filed by Abdur Rahim against Nasrin Akter',
       timeAgo: '15m ago',
     ),
-    ActivityItem(
+    /*ActivityItem(
       id: 'act-3',
       type: ActivityType.booking,
       title: 'Booking Conflict',
       subtitle: 'Overlapping shifts detected in Zone B',
       timeAgo: '1h ago',
-    ),
+    ),*/
   ];
 }

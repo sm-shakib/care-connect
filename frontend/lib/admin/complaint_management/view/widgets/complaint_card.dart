@@ -20,14 +20,10 @@ class ComplaintCard extends StatelessWidget {
 
   Color get _statusDotColor {
     switch (complaint.status) {
-      case ComplaintStatus.open:
+      case ComplaintStatus.pendingReview:
         return AppColors.outlineLight;
-      case ComplaintStatus.inProgress:
-        return AppColors.secondaryLight;
       case ComplaintStatus.resolved:
         return AppColors.primaryLight;
-      case ComplaintStatus.escalated:
-        return AppColors.errorLight;
     }
   }
 
@@ -43,7 +39,7 @@ class ComplaintCard extends StatelessWidget {
         border: Border.all(color: AppColors.outlineVariantLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -54,7 +50,7 @@ class ComplaintCard extends StatelessWidget {
         children: [
           Text(
             complaint.id,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.primaryLight,
@@ -62,7 +58,7 @@ class ComplaintCard extends StatelessWidget {
           ),
           Text(
             _formatDateTime(complaint.reportedAt),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.onSurfaceVariantLight,
@@ -73,10 +69,10 @@ class ComplaintCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: AppColors.outlineVariantLight.withValues(alpha: 0.3),
+                  color: AppColors.outlineVariantLight.withOpacity(0.3),
                 ),
                 bottom: BorderSide(
-                  color: AppColors.outlineVariantLight.withValues(alpha: 0.3),
+                  color: AppColors.outlineVariantLight.withOpacity(0.3),
                 ),
               ),
             ),
@@ -133,7 +129,7 @@ class ComplaintCard extends StatelessWidget {
                     onPressed: onView,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryLight,
-                      side: BorderSide(color: AppColors.outlineLight),
+                      side: const BorderSide(color: AppColors.outlineLight),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -209,7 +205,7 @@ class _DetailField extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -233,7 +229,7 @@ class _DetailField extends StatelessWidget {
             Flexible(
               child: Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                   color: AppColors.onSurfaceLight,

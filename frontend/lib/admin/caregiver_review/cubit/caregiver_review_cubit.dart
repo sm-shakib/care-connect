@@ -99,8 +99,8 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           iconName: 'psychology',
           isPrimary: true,
         ),
-        SpecializationTag(label: 'General Care', iconName: 'medical_services'),
-        SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
+        //SpecializationTag(label: 'General Care', iconName: 'medical_services'),
+        //SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
       ],
       bio:
       'Compassionate caregiver with 8 years of experience supporting '
@@ -153,8 +153,8 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           iconName: 'medical_services',
           isPrimary: true,
         ),
-        SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
-        SpecializationTag(label: 'Mobility Support', iconName: 'psychology'),
+        //SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
+        //SpecializationTag(label: 'Mobility Support', iconName: 'psychology'),
       ],
       bio:
       'Registered nurse specializing in post-surgical recovery care, '
@@ -206,7 +206,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           iconName: 'medical_services',
           isPrimary: true,
         ),
-        SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
+        //SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
       ],
       bio:
       'Early-career caregiver with 3 years of experience providing '
@@ -250,8 +250,8 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
           iconName: 'psychology',
           isPrimary: true,
         ),
-        SpecializationTag(label: 'Dementia Care', iconName: 'medical_services'),
-        SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
+        //SpecializationTag(label: 'Dementia Care', iconName: 'medical_services'),
+        //SpecializationTag(label: 'First Aid/CPR', iconName: 'emergency'),
       ],
       bio:
       'Veteran caregiver with 20 years of experience in end-of-life '
