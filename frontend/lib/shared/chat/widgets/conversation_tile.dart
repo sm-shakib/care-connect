@@ -48,6 +48,7 @@ class ConversationTile extends StatelessWidget {
   Future<void> _showOptions(BuildContext context) async {
     final action = await showModalBottomSheet<_TileAction>(
       context: context,
+      backgroundColor: const Color(0xFFFBFEFC),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

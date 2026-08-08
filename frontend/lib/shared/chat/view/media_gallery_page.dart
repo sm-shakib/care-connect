@@ -23,7 +23,11 @@ class MediaGalleryPage extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: const Color(0xFFFBFEFC),
         appBar: AppBar(
+          backgroundColor: const Color(0xFFFBFEFC),
+          elevation: 0,
+          scrolledUnderElevation: 0,
           title: const Text('Media & files'),
           bottom: const TabBar(
             labelColor: AppColors.darkTeal,
@@ -69,7 +73,10 @@ class _MediaGrid extends StatelessWidget {
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: source == null
-              ? Container(color: Theme.of(context).colorScheme.surfaceContainerLow)
+              ? Container(
+                  // color: Theme.of(context).colorScheme.surfaceContainerLow
+                  color: const Color(0xFFFBFEFC),
+                )
               : source.startsWith('http')
                   ? Image.network(source, fit: BoxFit.cover)
                   : Image.file(File(source), fit: BoxFit.cover),
@@ -97,7 +104,8 @@ class _FileList extends StatelessWidget {
         return AttachmentDocumentTile(
           attachment: attachment,
           isSender: false,
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          // color: Theme.of(context).colorScheme.surfaceContainerLow,
+          color: const Color(0xFFFBFEFC),
           textColor: Theme.of(context).colorScheme.onSurface,
         );
       },
@@ -123,7 +131,8 @@ class _VoiceList extends StatelessWidget {
         return VoiceMessageBubble(
           attachment: attachment,
           isSender: false,
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          // color: Theme.of(context).colorScheme.surfaceContainerLow,
+          color: const Color(0xFFFBFEFC),
           textColor: Theme.of(context).colorScheme.onSurface,
         );
       },

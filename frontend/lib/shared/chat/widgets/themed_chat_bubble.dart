@@ -38,7 +38,8 @@ class ThemedChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSender = message.isFromMe;
-    final bubbleColor = isSender ? AppColors.darkTeal : colorScheme.surfaceContainerLow;
+    // final bubbleColor = isSender ? AppColors.darkTeal : const Color(0xFFFBFEFC);
+    final bubbleColor = isSender ? AppColors.darkTeal : const Color(0xFFF1F5F9);
     final textColor = isSender ? Colors.white : colorScheme.onSurface;
     final timeLabel = DateFormat('h:mm a').format(message.timestamp);
 

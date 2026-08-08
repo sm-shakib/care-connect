@@ -39,17 +39,22 @@ class FamilyDashboardView extends StatelessWidget {
               onChanged: (val) => context.read<FamilyDashboardCubit>().searchElders(val),
               decoration: InputDecoration(
                 hintText: 'Search your loved ones...',
-                prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
+                prefixIcon: const Icon(Icons.search, color: AppColors.onSurfaceVariantLight),
                 filled: true,
-                fillColor: Colors.white,
+                // fillColor: Colors.white,
+                fillColor: const Color(0xFFF1F5F9),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),

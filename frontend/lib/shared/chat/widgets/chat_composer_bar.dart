@@ -107,7 +107,8 @@ class _ChatComposerBarState extends State<ChatComposerBar> {
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerLow,
+                  // fillColor: colorScheme.surfaceContainerLow,
+                  fillColor: const Color(0xFFF1F5F9),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
@@ -156,7 +157,8 @@ class _RecordingBar extends StatelessWidget {
       top: false,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        color: colorScheme.surfaceContainerLow,
+        // color: colorScheme.surfaceContainerLow,
+        color: const Color(0xFFF1F5F9),
         child: Row(
           children: [
             IconButton(

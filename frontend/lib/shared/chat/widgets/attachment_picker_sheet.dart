@@ -22,7 +22,8 @@ class AttachmentPickerSheet {
 
     return showModalBottomSheet<void>(
       context: context,
-      backgroundColor: colorScheme.surface,
+      // backgroundColor: colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
