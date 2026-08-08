@@ -96,7 +96,7 @@ class _FamilyMemberRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.outlineVariantLight),
@@ -122,45 +122,57 @@ class _FamilyMemberRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      member.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.onSurfaceLight,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            member.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurfaceLight,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          member.relationship,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryLight,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      member.relationship,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.onSurfaceVariantLight,
+                    if (member.isPrimaryContact) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryContainerLight,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          'Primary',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.onSecondaryContainerLight,
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   ],
                 ),
               ),
-              if (member.isPrimaryContact)
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryContainerLight,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Primary',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onSecondaryContainerLight,
-                    ),
-                  ),
-                ),
+              const SizedBox(width: 8),
+              Icon(Icons.chevron_right, color: AppColors.outlineLight),
             ],
           ),
         ),

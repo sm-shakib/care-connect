@@ -94,7 +94,7 @@ class FamilyMemberDetailCubit extends Cubit<FamilyMemberDetailState> {
           avatarUrl:
           'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
           relationship: 'Father',
-          isPrimaryContact: true,
+          isPrimaryContact: false,
         ),
       ],
       alertPreferences: [

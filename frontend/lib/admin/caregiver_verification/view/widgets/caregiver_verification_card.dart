@@ -73,7 +73,7 @@ class CaregiverVerificationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'TK${caregiver.hourlyRate.toStringAsFixed(0)}/hr',
+                      '৳${caregiver.hourlyRate.toStringAsFixed(0)}/hr',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
