@@ -19,7 +19,7 @@ class ElderlyBottomNavBar extends StatelessWidget {
 		NavbarItem(icon: Icons.people_outline, activeIcon: Icons.people, label: 'Caregivers'),
 		NavbarItem(icon: Icons.medication_outlined, activeIcon: Icons.medication, label: 'Medicine'),
 		NavbarItem(icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble, label: 'Chat'),
-		NavbarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'My Profile'),
+		NavbarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
 	];
 
 	@override

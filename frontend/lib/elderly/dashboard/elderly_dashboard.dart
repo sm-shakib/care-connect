@@ -5,7 +5,7 @@ import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_cubit.dar
 import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_body.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'package:frontend/elderly/view/elderly_notifications_page.dart';
-import 'package:frontend/elderly/view/elderly_profile_page.dart';
+import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
 import 'package:frontend/elderly/view/sos_alert_page.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
