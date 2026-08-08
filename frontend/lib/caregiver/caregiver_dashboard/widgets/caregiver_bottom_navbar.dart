@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class CaregiverBottomNavBar extends StatelessWidget {
@@ -33,31 +33,31 @@ class CaregiverBottomNavBar extends StatelessWidget {
         unselectedItemColor: AppColors.onSurfaceVariantLight,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         showUnselectedLabels: true,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: context.l10n.homeLabel,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            activeIcon: Icon(Icons.assignment),
-            label: 'Requests',
+            icon: const Icon(Icons.assignment_outlined),
+            activeIcon: const Icon(Icons.assignment),
+            label: context.l10n.requestsLabel,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
-            label: 'Chat',
+            icon: const Icon(Icons.chat_bubble_outline),
+            activeIcon: const Icon(Icons.chat_bubble),
+            label: context.l10n.chatsLabel,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.volunteer_activism_outlined),
-            activeIcon: Icon(Icons.volunteer_activism),
-            label: 'Donation',
+            icon: const Icon(Icons.volunteer_activism_outlined),
+            activeIcon: const Icon(Icons.volunteer_activism),
+            label: context.l10n.donationsLabel,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: context.l10n.profileLabel,
           ),
         ],
       ),

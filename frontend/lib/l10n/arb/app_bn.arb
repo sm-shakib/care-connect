@@ -126,5 +126,263 @@
 
     "uploadLabel": "আপলোড",
 
-    "replaceLabel": "পরিবর্তন করুন"
+    "replaceLabel": "পরিবর্তন করুন",
+
+    "loginWelcomeTitle": "স্বাগতম!",
+
+    "loginSubtitle": "আপনার সেবার যাত্রা অব্যাহত রাখতে লগইন করুন।",
+
+    "emailOrPhoneLabel": "ইমেইল অথবা ফোন নম্বর",
+
+    "forgotPasswordLabel": "পাসওয়ার্ড ভুলে গেছেন?",
+
+    "dontHaveAccountLabel": "অ্যাকাউন্ট নেই?",
+
+    "signupLabel": "সাইন আপ",
+
+    "forgotPasswordTitle": "পাসওয়ার্ড ভুলে গেছেন?",
+
+    "forgotPasswordSubtitle": "চিন্তা করবেন না। আপনার অ্যাকাউন্টের সাথে যুক্ত ইমেইল অথবা ফোন নম্বরটি দিন এবং আমরা আপনাকে পাসওয়ার্ড রিসেট করার জন্য একটি কোড পাঠাব।",
+
+    "validEmailOrPhoneError": "একটি সঠিক ইমেইল অথবা ফোন নম্বর দিন।",
+
+    "sendResetCodeLabel": "রিসেট কোড পাঠান",
+
+    "rememberPasswordLabel": "পাসওয়ার্ড মনে আছে?",
+
+    "resetPasswordTitle": "পাসওয়ার্ড রিসেট",
+
+    "resetPasswordSubtitle": "আপনার অ্যাকাউন্টের জন্য একটি নতুন পাসওয়ার্ড তৈরি করুন। নিশ্চিত করুন যে এটি অন্তত ৮ অক্ষরের।",
+
+    "newPasswordLabel": "নতুন পাসওয়ার্ড",
+
+    "passwordsDoNotMatchError": "পাসওয়ার্ড মিলছে না।",
+
+    "otpTitle": "ভেরিফিকেশন কোড দিন",
+
+    "otpSubtitle": "আমরা {emailOrPhone} ঠিকানায় একটি ৬-সংখ্যার কোড পাঠিয়েছি। চালিয়ে যেতে এটি নিচে লিখুন।",
+
+    "incorrectCodeError": "ভুল কোড। আবার চেষ্টা করুন।",
+
+    "verifyLabel": "যাচাই করুন",
+
+    "didNotReceiveCodeLabel": "কোড পাননি?",
+
+    "resendCodeLabel": "কোড পুনরায় পাঠান",
+
+    "resendTimerLabel": "{seconds} সেকেন্ড পর পুনরায় পাঠান",
+
+    "homeLabel": "হোম",
+
+    "requestsLabel": "অনুরোধ",
+
+    "chatsLabel": "চ্যাট",
+
+    "donationsLabel": "দান",
+
+    "profileLabel": "প্রোফাইল",
+
+    "activePatientsTitle": "সক্রিয় রোগী",
+
+    "patientsUnderCareSubtitle": "আপনার অধীনে {count} জন রোগী আছেন",
+
+    "noActivePatientsFound": "কোনো সক্রিয় রোগী পাওয়া যায়নি।",
+
+    "previousPatientsLabel": "পূর্ববর্তী রোগী",
+
+    "noPreviousPatientsFound": "কোনো পূর্ববর্তী রোগী পাওয়া যায়নি।",
+
+    "searchPatientsHint": "রোগী খুঁজুন...",
+
+    "noNewBookingRequests": "কোনো নতুন বুকিং অনুরোধ নেই।",
+
+    "previousRequestsLabel": "পূর্ববর্তী অনুরোধ",
+
+    "requestForElderLabel": "{name} এর জন্য অনুরোধ",
+
+    "requestedByLabel": "প্রেরক: {name}",
+
+    "requestDetailsTitle": "অনুরোধের বিবরণ",
+
+    "locationTitle": "অবস্থান",
+
+    "bookingReasonTitle": "বুকিংয়ের কারণ",
+
+    "noReasonProvided": "কোনো নির্দিষ্ট কারণ দেওয়া হয়নি।",
+
+    "careScheduleTitle": "সেবার সময়সূচী",
+
+    "servicePeriodLabel": "সেবার সময়কাল",
+
+    "workingDaysLabel": "কাজের দিন",
+
+    "dailyTimingLabel": "দৈনিক সময়",
+
+    "rejectLabel": "প্রত্যাখ্যান",
+
+    "acceptLabel": "গ্রহণ",
+
+    "acceptedStatusLabel": "গৃহীত",
+
+    "rejectedStatusLabel": "প্রত্যাখ্যাত",
+
+    "noPreviousRequestsFound": "কোনো পূর্ববর্তী অনুরোধ নেই।",
+
+    "patientDetailsTitle": "রোগীর বিবরণ",
+
+    "fileComplaintLabel": "অভিযোগ করুন",
+
+    "markAsCompletedLabel": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+
+    "medicineRemindersTitle": "ওষুধের রিমাইন্ডার",
+
+    "remainingCountLabel": "{count} টি বাকি",
+
+    "otherRemindersTitle": "অন্যান্য রিমাইন্ডার",
+
+    "logBloodPressureTitle": "রক্তচাপ লিপিবদ্ধ করুন",
+
+    "logBpLabel": "বিপি লিখুন",
+
+    "logHeartRateTitle": "হৃৎস্পন্দন লিপিবদ্ধ করুন",
+
+    "logHeartRateLabel": "পালস লিখুন",
+
+    "saveReadingLabel": "তথ্য সংরক্ষণ করুন",
+
+    "bloodPressureTitle": "রক্তচাপ",
+
+    "heartRateTitle": "হৃৎস্পন্দন",
+
+    "lastCheckedLabel": "সর্বশেষ পরীক্ষা: {time}",
+
+    "systolicLabel": "সিস্টোলিক",
+
+    "diastolicLabel": "ডায়াস্টোলিক",
+
+    "bpmLabel": "বিপিএম",
+
+    "serviceCompletedDialogTitle": "সেবা সম্পন্ন করবেন?",
+
+    "serviceCompletedDialogContent": "আপনি কি নিশ্চিত যে আপনি {name} এর জন্য সেবাটি সম্পন্ন হিসেবে চিহ্নিত করতে চান?",
+
+    "yesCompleteLabel": "হ্যাঁ, সম্পন্ন",
+
+    "serviceCompletedSnackBar": "সেবা সম্পন্ন হিসেবে চিহ্নিত করা হয়েছে।",
+
+    "fileComplaintTitle": "অভিযোগ দায়ের করুন",
+
+    "reportIssueLabel": "{name} এর সেবা সংক্রান্ত একটি সমস্যা রিপোর্ট করুন",
+
+    "categoryLabel": "বিভাগ",
+
+    "descriptionLabel": "বিবরণ",
+
+    "selectCategoryHint": "বিভাগ নির্বাচন করুন",
+
+    "describeIssueHint": "বিস্তারিত বিবরণ দিন...",
+
+    "submitComplaintLabel": "অভিযোগ জমা দিন",
+
+    "complaintSubmittedTitle": "অভিযোগ জমা দেওয়া হয়েছে",
+
+    "complaintReceivedMessage": "আপনার রিপোর্টটি পাওয়া গেছে। অ্যাডমিন এটি পর্যালোচনা করবেন এবং প্রয়োজনে আপনার সাথে যোগাযোগ করবেন।",
+
+    "closeLabel": "বন্ধ করুন",
+
+    "complaintCategoryBehaviorElder": "আচরণগত সমস্যা (বৃদ্ধ)",
+
+    "complaintCategoryBehaviorFamily": "আচরণগত সমস্যা (পরিবার)",
+
+    "complaintCategoryPayment": "পেমেন্ট সংক্রান্ত বিরোধ",
+
+    "complaintCategoryUnsafeEnv": "অনিরাপদ কাজের পরিবেশ",
+
+    "complaintCategoryUnreasonableDemands": "অযৌক্তিক দাবি",
+
+    "complaintCategoryOthers": "অন্যান্য",
+
+    "medicationTakenAtLabel": "সেবন করা হয়েছে: {time}",
+
+    "medicationScheduledLabel": "সময়সূচী: {time}",
+
+    "doneStatusLabel": "সম্পন্ন",
+
+    "markTakenLabel": "গৃহীত",
+
+    "editRemindersTitle": "রিমাইন্ডার পরিবর্তন",
+
+    "editRemindersForLabel": "{name} এর জন্য",
+
+    "addLabel": "যোগ করুন",
+
+    "noMedicationRemindersYet": "এখনও কোনো ওষুধের রিমাইন্ডার নেই।",
+
+    "noOtherRemindersYet": "এখনও কোনো অন্যান্য রিমাইন্ডার নেই।",
+
+    "deleteReminderTitle": "এই রিমাইন্ডারটি মুছবেন?",
+
+    "deleteMedicationMessage": "এটি কেয়ার প্ল্যান থেকে \"{name}\" মুছে ফেলবে।",
+
+    "deleteCareReminderMessage": "এটি কেয়ার প্ল্যান থেকে \"{title}\" মুছে ফেলবে।",
+
+    "addMedicationReminderTitle": "ওষুধের রিমাইন্ডার যোগ করুন",
+
+    "editMedicationReminderTitle": "ওষুধের রিমাইন্ডার পরিবর্তন করুন",
+
+    "nameLabel": "নাম",
+
+    "doseLabel": "মাত্রা",
+
+    "scheduledTimeLabel": "নির্ধারিত সময়",
+
+    "addReminderTitle": "রিমাইন্ডার যোগ করুন",
+
+    "editReminderTitle": "রিমাইন্ডার পরিবর্তন করুন",
+
+    "titleLabel": "শিরোনাম",
+
+    "detailsLabel": "বিস্তারিত",
+
+    "iconLabel": "আইকন",
+
+    "attentionNeededLabel": "বিশেষ মনোযোগ প্রয়োজন হিসেবে দেখান",
+
+    "remindersLabel": "রিমাইন্ডার",
+
+    "profileAppBarTitle": "সেবা প্রদানকারীর প্রোফাইল",
+
+    "appVersionLabel": "ভার্সন {version}",
+
+    "cancelLabel": "বাতিল",
+
+    "saveLabel": "সংরক্ষণ",
+
+    "deleteLabel": "মুছে ফেলুন",
+
+    "experienceLabel": "অভিজ্ঞতা",
+
+    "yearsLabel": "বছর",
+
+    "locationLabel": "অবস্থান",
+
+    "earningsSummaryTitle": "আয়ের সারাংশ",
+
+    "viewEarningsHistoryLabel": "আয়ের ইতিহাস দেখুন",
+
+    "verifiedDocumentsTitle": "যাচাইকৃত ডকুমেন্ট",
+
+    "editProfileLabel": "প্রোফাইল পরিবর্তন",
+
+    "appLanguageLabel": "অ্যাপের ভাষা",
+
+    "appLanguageValue": "অ্যাপের ভাষা: {language}",
+
+    "logoutLabel": "লগ আউট",
+
+    "selectLanguageTitle": "ভাষা নির্বাচন করুন",
+
+    "englishLanguageName": "English",
+
+    "banglaLanguageName": "বাংলা (Bangla)"
 }

@@ -318,5 +318,746 @@
     "replaceLabel": "Replace",
     "@replaceLabel": {
         "description": "Button label to replace an already-uploaded document"
+    },
+
+    "loginWelcomeTitle": "Welcome Back!",
+    "@loginWelcomeTitle": {
+        "description": "Welcome message title on the login page"
+    },
+
+    "loginSubtitle": "Log in to continue your care journey.",
+    "@loginSubtitle": {
+        "description": "Subtitle text on the login page"
+    },
+
+    "emailOrPhoneLabel": "Email or Phone Number",
+    "@emailOrPhoneLabel": {
+        "description": "Label for the email or phone number input field"
+    },
+
+    "forgotPasswordLabel": "Forgot Password?",
+    "@forgotPasswordLabel": {
+        "description": "Link text for the forgot password action"
+    },
+
+    "dontHaveAccountLabel": "Don't have an account?",
+    "@dontHaveAccountLabel": {
+        "description": "Question text shown before the signup link"
+    },
+
+    "signupLabel": "Sign up",
+    "@signupLabel": {
+        "description": "Link text for the signup action"
+    },
+
+    "forgotPasswordTitle": "Forgot Password?",
+    "@forgotPasswordTitle": {
+        "description": "Page title for the forgot password recovery screen"
+    },
+
+    "forgotPasswordSubtitle": "No worries. Enter the email or phone number linked to your account and we'll send you a code to reset your password.",
+    "@forgotPasswordSubtitle": {
+        "description": "Instructional subtitle on the forgot password page"
+    },
+
+    "validEmailOrPhoneError": "Enter a valid email or phone number.",
+    "@validEmailOrPhoneError": {
+        "description": "Validation error for invalid email or phone format"
+    },
+
+    "sendResetCodeLabel": "Send Reset Code",
+    "@sendResetCodeLabel": {
+        "description": "Label for the button that requests a reset code"
+    },
+
+    "rememberPasswordLabel": "Remember your password?",
+    "@rememberPasswordLabel": {
+        "description": "Question text shown before the back to login link"
+    },
+
+    "resetPasswordTitle": "Reset Password",
+    "@resetPasswordTitle": {
+        "description": "Page title for the reset password screen"
+    },
+
+    "resetPasswordSubtitle": "Create a new password for your account. Make sure it's at least 8 characters long.",
+    "@resetPasswordSubtitle": {
+        "description": "Instructional subtitle on the reset password page"
+    },
+
+    "newPasswordLabel": "New Password",
+    "@newPasswordLabel": {
+        "description": "Label for the new password input field"
+    },
+
+    "passwordsDoNotMatchError": "Passwords do not match.",
+    "@passwordsDoNotMatchError": {
+        "description": "Error message shown when password and confirm password don't match"
+    },
+
+    "otpTitle": "Enter Verification Code",
+    "@otpTitle": {
+        "description": "Title on the OTP verification page"
+    },
+
+    "otpSubtitle": "We sent a 6-digit code to {emailOrPhone}. Enter it below to continue.",
+    "@otpSubtitle": {
+        "description": "Instructional subtitle on the OTP page",
+        "placeholders": {
+            "emailOrPhone": {
+                "type": "String",
+                "example": "name@email.com"
+            }
+        }
+    },
+
+    "incorrectCodeError": "Incorrect code. Please try again.",
+    "@incorrectCodeError": {
+        "description": "Error shown when user enters a wrong OTP"
+    },
+
+    "verifyLabel": "Verify",
+    "@verifyLabel": {
+        "description": "Label for the OTP verification button"
+    },
+
+    "didNotReceiveCodeLabel": "Didn't receive the code?",
+    "@didNotReceiveCodeLabel": {
+        "description": "Question shown before the resend code action"
+    },
+
+    "resendCodeLabel": "Resend Code",
+    "@resendCodeLabel": {
+        "description": "Label for the resend code link"
+    },
+
+    "resendTimerLabel": "Resend in {seconds}s",
+    "@resendTimerLabel": {
+        "description": "Label for the resend countdown timer",
+        "placeholders": {
+            "seconds": {
+                "type": "int",
+                "example": "30"
+            }
+        }
+    },
+
+    "homeLabel": "Home",
+    "@homeLabel": {
+        "description": "Label for the Home navigation item"
+    },
+
+    "requestsLabel": "Requests",
+    "@requestsLabel": {
+        "description": "Label for the Requests navigation item"
+    },
+
+    "chatsLabel": "Chats",
+    "@chatsLabel": {
+        "description": "Label for the Chats navigation item"
+    },
+
+    "donationsLabel": "Donations",
+    "@donationsLabel": {
+        "description": "Label for the Donations navigation item"
+    },
+
+    "profileLabel": "Profile",
+    "@profileLabel": {
+        "description": "Label for the Profile navigation item"
+    },
+
+    "activePatientsTitle": "Active Patients",
+    "@activePatientsTitle": {
+        "description": "Heading for the active patients section"
+    },
+
+    "patientsUnderCareSubtitle": "{count} patients under your care",
+    "@patientsUnderCareSubtitle": {
+        "description": "Subtitle showing the count of patients under care",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "noActivePatientsFound": "No active patients found.",
+    "@noActivePatientsFound": {
+        "description": "Message shown when no active patients match the search"
+    },
+
+    "previousPatientsLabel": "Previous Patients",
+    "@previousPatientsLabel": {
+        "description": "Label for the previous patients history action or title"
+    },
+
+    "noPreviousPatientsFound": "No previous patients found.",
+    "@noPreviousPatientsFound": {
+        "description": "Message shown when no previous patients are found"
+    },
+
+    "searchPatientsHint": "Search patients...",
+    "@searchPatientsHint": {
+        "description": "Hint text for the patient search field"
+    },
+
+    "noNewBookingRequests": "No new booking requests.",
+    "@noNewBookingRequests": {
+        "description": "Message shown when there are no pending booking requests"
+    },
+
+    "previousRequestsLabel": "Previous Requests",
+    "@previousRequestsLabel": {
+        "description": "Label for the previous requests history action or title"
+    },
+
+    "requestForElderLabel": "Request for {name}",
+    "@requestForElderLabel": {
+        "description": "Card title for a booking request",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Abdul Karim"
+            }
+        }
+    },
+
+    "requestedByLabel": "From: {name}",
+    "@requestedByLabel": {
+        "description": "Label showing who sent the booking request",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "John Doe"
+            }
+        }
+    },
+
+    "requestDetailsTitle": "Request Details",
+    "@requestDetailsTitle": {
+        "description": "Page title for booking request details"
+    },
+
+    "locationTitle": "Location",
+    "@locationTitle": {
+        "description": "Section title for location info"
+    },
+
+    "bookingReasonTitle": "Booking Reason",
+    "@bookingReasonTitle": {
+        "description": "Section title for the reason of booking"
+    },
+
+    "noReasonProvided": "No specific reason provided.",
+    "@noReasonProvided": {
+        "description": "Placeholder text when no booking reason is given"
+    },
+
+    "careScheduleTitle": "Care Schedule",
+    "@careScheduleTitle": {
+        "description": "Section title for the care schedule info"
+    },
+
+    "servicePeriodLabel": "Service Period",
+    "@servicePeriodLabel": {
+        "description": "Label for the start/end dates of service"
+    },
+
+    "workingDaysLabel": "Working Days",
+    "@workingDaysLabel": {
+        "description": "Label for the weekly working days"
+    },
+
+    "dailyTimingLabel": "Daily Timing",
+    "@dailyTimingLabel": {
+        "description": "Label for the daily shift hours"
+    },
+
+    "rejectLabel": "Reject",
+    "@rejectLabel": {
+        "description": "Label for the reject action button"
+    },
+
+    "acceptLabel": "Accept",
+    "@acceptLabel": {
+        "description": "Label for the accept action button"
+    },
+
+    "acceptedStatusLabel": "ACCEPTED",
+    "@acceptedStatusLabel": {
+        "description": "Badge text for an accepted request"
+    },
+
+    "rejectedStatusLabel": "REJECTED",
+    "@rejectedStatusLabel": {
+        "description": "Badge text for a rejected request"
+    },
+
+    "noPreviousRequestsFound": "No previous requests.",
+    "@noPreviousRequestsFound": {
+        "description": "Message shown when the request history is empty"
+    },
+
+    "patientDetailsTitle": "Patient Details",
+    "@patientDetailsTitle": {
+        "description": "Page title for patient details"
+    },
+
+    "fileComplaintLabel": "File Complaint",
+    "@fileComplaintLabel": {
+        "description": "Menu item label to file a complaint"
+    },
+
+    "markAsCompletedLabel": "Mark as Completed",
+    "@markAsCompletedLabel": {
+        "description": "Menu item label to mark service as completed"
+    },
+
+    "medicineRemindersTitle": "Medicine Reminders",
+    "@medicineRemindersTitle": {
+        "description": "Section title for medication reminders"
+    },
+
+    "remainingCountLabel": "{count} Remaining",
+    "@remainingCountLabel": {
+        "description": "Label showing the count of remaining items",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+
+    "otherRemindersTitle": "Other Reminders",
+    "@otherRemindersTitle": {
+        "description": "Section title for non-medicine reminders"
+    },
+
+    "logBloodPressureTitle": "Log Blood Pressure",
+    "@logBloodPressureTitle": {
+        "description": "Title for the blood pressure logging sheet"
+    },
+
+    "logBpLabel": "Log BP",
+    "@logBpLabel": {
+        "description": "Button label to log blood pressure"
+    },
+
+    "logHeartRateTitle": "Log Heart Rate",
+    "@logHeartRateTitle": {
+        "description": "Title for the heart rate logging sheet"
+    },
+
+    "logHeartRateLabel": "Log Heart Rate",
+    "@logHeartRateLabel": {
+        "description": "Button label to log heart rate"
+    },
+
+    "saveReadingLabel": "Save Reading",
+    "@saveReadingLabel": {
+        "description": "Label for the button that saves a vital reading"
+    },
+
+    "bloodPressureTitle": "Blood Pressure",
+    "@bloodPressureTitle": {
+        "description": "Title for the blood pressure stat card"
+    },
+
+    "heartRateTitle": "Heart Rate",
+    "@heartRateTitle": {
+        "description": "Title for the heart rate stat card"
+    },
+
+    "lastCheckedLabel": "Last checked: {time}",
+    "@lastCheckedLabel": {
+        "description": "Label showing when a stat was last checked",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "2 mins ago"
+            }
+        }
+    },
+
+    "systolicLabel": "Systolic",
+    "@systolicLabel": {
+        "description": "Label for systolic blood pressure input"
+    },
+
+    "diastolicLabel": "Diastolic",
+    "@diastolicLabel": {
+        "description": "Label for diastolic blood pressure input"
+    },
+
+    "bpmLabel": "BPM",
+    "@bpmLabel": {
+        "description": "Label for beats per minute (heart rate)"
+    },
+
+    "serviceCompletedDialogTitle": "Complete Service?",
+    "@serviceCompletedDialogTitle": {
+        "description": "Title for the service completion confirmation dialog"
+    },
+
+    "serviceCompletedDialogContent": "Are you sure you want to mark the care service for {name} as completed?",
+    "@serviceCompletedDialogContent": {
+        "description": "Content for the service completion confirmation dialog",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Abdul Karim"
+            }
+        }
+    },
+
+    "yesCompleteLabel": "Yes, Complete",
+    "@yesCompleteLabel": {
+        "description": "Label for the confirmation button to complete service"
+    },
+
+    "serviceCompletedSnackBar": "Service marked as completed.",
+    "@serviceCompletedSnackBar": {
+        "description": "SnackBar message shown after service completion"
+    },
+
+    "fileComplaintTitle": "File a Complaint",
+    "@fileComplaintTitle": {
+        "description": "Title for the complaint filing sheet"
+    },
+
+    "reportIssueLabel": "Report an issue regarding the care service for {name}",
+    "@reportIssueLabel": {
+        "description": "Instructional text for reporting an issue",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Abdul Karim"
+            }
+        }
+    },
+
+    "categoryLabel": "Category",
+    "@categoryLabel": {
+        "description": "Label for the category selection field"
+    },
+
+    "descriptionLabel": "Description",
+    "@descriptionLabel": {
+        "description": "Label for the description input field"
+    },
+
+    "selectCategoryHint": "Select category",
+    "@selectCategoryHint": {
+        "description": "Hint text for the category dropdown"
+    },
+
+    "describeIssueHint": "Describe the issue in detail...",
+    "@describeIssueHint": {
+        "description": "Hint text for the description text field"
+    },
+
+    "submitComplaintLabel": "Submit Complaint",
+    "@submitComplaintLabel": {
+        "description": "Label for the button that submits a complaint"
+    },
+
+    "complaintSubmittedTitle": "Complaint Submitted",
+    "@complaintSubmittedTitle": {
+        "description": "Title for the success dialog after filing a complaint"
+    },
+
+    "complaintReceivedMessage": "Your report has been received. Admin will review it and get back to you if needed.",
+    "@complaintReceivedMessage": {
+        "description": "Message shown after a complaint is successfully submitted"
+    },
+
+    "closeLabel": "Close",
+    "@closeLabel": {
+        "description": "Generic close button label"
+    },
+
+    "complaintCategoryBehaviorElder": "Behavioral Issue (Elder)",
+    "@complaintCategoryBehaviorElder": {
+        "description": "Complaint category for issues with the elder"
+    },
+
+    "complaintCategoryBehaviorFamily": "Behavioral Issue (Family)",
+    "@complaintCategoryBehaviorFamily": {
+        "description": "Complaint category for issues with the family"
+    },
+
+    "complaintCategoryPayment": "Payment Dispute",
+    "@complaintCategoryPayment": {
+        "description": "Complaint category for payment issues"
+    },
+
+    "complaintCategoryUnsafeEnv": "Unsafe Working Environment",
+    "@complaintCategoryUnsafeEnv": {
+        "description": "Complaint category for unsafe working conditions"
+    },
+
+    "complaintCategoryUnreasonableDemands": "Unreasonable Demands",
+    "@complaintCategoryUnreasonableDemands": {
+        "description": "Complaint category for unreasonable family demands"
+    },
+
+    "complaintCategoryOthers": "Others",
+    "@complaintCategoryOthers": {
+        "description": "Generic 'others' complaint category"
+    },
+
+    "medicationTakenAtLabel": "Taken at {time}",
+    "@medicationTakenAtLabel": {
+        "description": "Label showing when medication was taken",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "8:00 AM"
+            }
+        }
+    },
+
+    "medicationScheduledLabel": "Scheduled: {time}",
+    "@medicationScheduledLabel": {
+        "description": "Label showing when medication is scheduled",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "1:00 PM"
+            }
+        }
+    },
+
+    "doneStatusLabel": "DONE",
+    "@doneStatusLabel": {
+        "description": "Badge text for a completed task"
+    },
+
+    "markTakenLabel": "Mark Taken",
+    "@markTakenLabel": {
+        "description": "Label for button to mark medication as taken"
+    },
+
+    "editRemindersTitle": "Edit Reminders",
+    "@editRemindersTitle": {
+        "description": "Page title for editing care plan reminders"
+    },
+
+    "editRemindersForLabel": "for {name}",
+    "@editRemindersForLabel": {
+        "description": "Subtitle showing which patient the reminders are for",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Abdul Karim"
+            }
+        }
+    },
+
+    "addLabel": "Add",
+    "@addLabel": {
+        "description": "Generic add button label"
+    },
+
+    "noMedicationRemindersYet": "No medication reminders yet.",
+    "@noMedicationRemindersYet": {
+        "description": "Message shown when the medication list is empty"
+    },
+
+    "noOtherRemindersYet": "No other reminders yet.",
+    "@noOtherRemindersYet": {
+        "description": "Message shown when the other reminders list is empty"
+    },
+
+    "deleteReminderTitle": "Delete this reminder?",
+    "@deleteReminderTitle": {
+        "description": "Title for the reminder deletion confirmation dialog"
+    },
+
+    "deleteMedicationMessage": "This will remove \"{name}\" from the care plan.",
+    "@deleteMedicationMessage": {
+        "description": "Content for the medication deletion confirmation dialog",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Metoprolol"
+            }
+        }
+    },
+
+    "deleteCareReminderMessage": "This will remove \"{title}\" from the care plan.",
+    "@deleteCareReminderMessage": {
+        "description": "Content for the care reminder deletion confirmation dialog",
+        "placeholders": {
+            "title": {
+                "type": "String",
+                "example": "Physical Therapy"
+            }
+        }
+    },
+
+    "addMedicationReminderTitle": "Add Medication Reminder",
+    "@addMedicationReminderTitle": {
+        "description": "Title for the add medication form sheet"
+    },
+
+    "editMedicationReminderTitle": "Edit Medication Reminder",
+    "@editMedicationReminderTitle": {
+        "description": "Title for the edit medication form sheet"
+    },
+
+    "nameLabel": "Name",
+    "@nameLabel": {
+        "description": "Label for a name input field"
+    },
+
+    "doseLabel": "Dose",
+    "@doseLabel": {
+        "description": "Label for the medication dose input field"
+    },
+
+    "scheduledTimeLabel": "Scheduled Time",
+    "@scheduledTimeLabel": {
+        "description": "Label for the time selection field"
+    },
+
+    "addReminderTitle": "Add Reminder",
+    "@addReminderTitle": {
+        "description": "Title for the add care reminder form sheet"
+    },
+
+    "editReminderTitle": "Edit Reminder",
+    "@editReminderTitle": {
+        "description": "Title for the edit care reminder form sheet"
+    },
+
+    "titleLabel": "Title",
+    "@titleLabel": {
+        "description": "Label for a title input field"
+    },
+
+    "detailsLabel": "Details",
+    "@detailsLabel": {
+        "description": "Label for a details/subtitle input field"
+    },
+
+    "iconLabel": "Icon",
+    "@iconLabel": {
+        "description": "Label for an icon selection section"
+    },
+
+    "attentionNeededLabel": "Show as attention-needed",
+    "@attentionNeededLabel": {
+        "description": "Label for the urgent/attention switch"
+    },
+
+    "deleteLabel": "Delete",
+    "@deleteLabel": {
+        "description": "Generic delete button label"
+    },
+
+    "remindersLabel": "Reminders",
+    "@remindersLabel": {
+        "description": "Label for the reminders action button"
+    },
+
+    "profileAppBarTitle": "Caregiver Profile",
+    "@profileAppBarTitle": {
+        "description": "Title shown in the app bar of the caregiver profile page"
+    },
+
+    "appVersionLabel": "Version {version}",
+    "@appVersionLabel": {
+        "description": "Label for the app version at the bottom of the profile",
+        "placeholders": {
+            "version": {
+                "type": "String",
+                "example": "1.0.0"
+            }
+        }
+    },
+
+    "cancelLabel": "Cancel",
+    "@cancelLabel": {
+        "description": "Generic cancel button label"
+    },
+
+    "saveLabel": "Save",
+    "@saveLabel": {
+        "description": "Generic save button label"
+    },
+
+    "experienceLabel": "Experience",
+    "@experienceLabel": {
+        "description": "Label for the years of experience field or stat"
+    },
+
+    "yearsLabel": "Years",
+    "@yearsLabel": {
+        "description": "Plural label for years"
+    },
+
+    "locationLabel": "Location",
+    "@locationLabel": {
+        "description": "Label for the location stat"
+    },
+
+    "earningsSummaryTitle": "Earnings Summary",
+    "@earningsSummaryTitle": {
+        "description": "Title for the earnings section on the profile"
+    },
+
+    "viewEarningsHistoryLabel": "View Earnings History",
+    "@viewEarningsHistoryLabel": {
+        "description": "Label for the button to view full earnings history"
+    },
+
+    "verifiedDocumentsTitle": "Verified Documents",
+    "@verifiedDocumentsTitle": {
+        "description": "Title for the verified documents section on the profile"
+    },
+
+    "editProfileLabel": "Edit Profile",
+    "@editProfileLabel": {
+        "description": "Label for the edit profile action button"
+    },
+
+    "appLanguageLabel": "App Language",
+    "@appLanguageLabel": {
+        "description": "Label for the app language selection action"
+    },
+
+    "appLanguageValue": "App Language: {language}",
+    "@appLanguageValue": {
+        "description": "Display value for the current app language",
+        "placeholders": {
+            "language": {
+                "type": "String",
+                "example": "English"
+            }
+        }
+    },
+
+    "logoutLabel": "Log Out",
+    "@logoutLabel": {
+        "description": "Label for the logout action button"
+    },
+
+    "selectLanguageTitle": "Select Language",
+    "@selectLanguageTitle": {
+        "description": "Title for the language selection bottom sheet"
+    },
+
+    "englishLanguageName": "English",
+    "@englishLanguageName": {
+        "description": "Display name for the English language"
+    },
+
+    "banglaLanguageName": "বাংলা (Bangla)",
+    "@banglaLanguageName": {
+        "description": "Display name for the Bangla language"
     }
 }

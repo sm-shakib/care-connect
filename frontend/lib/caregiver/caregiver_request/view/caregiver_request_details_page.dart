@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../../models/booking_request.dart';
 import '../cubit/caregiver_request_cubit.dart';
@@ -24,9 +25,9 @@ class BookingRequestDetailsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Request Details',
-          style: TextStyle(
+        title: Text(
+          context.l10n.requestDetailsTitle,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: AppColors.darkTeal,
           ),
@@ -57,7 +58,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    request.elderName ?? 'Elder',
+                    request.elderName ?? context.l10n.roleElderlyPersonTitle,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -66,7 +67,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Requested by ${request.requesterName ?? 'User'}',
+                    context.l10n.requestedByLabel(request.requesterName ?? 'User'),
                     style: const TextStyle(
                       fontSize: 15,
                       color: AppColors.onSurfaceVariantLight,
@@ -79,18 +80,18 @@ class BookingRequestDetailsPage extends StatelessWidget {
             const SizedBox(height: 32),
 
             /// Location
-            _SectionTitle(title: 'Location'),
+            _SectionTitle(title: context.l10n.locationTitle),
             const SizedBox(height: 12),
             _InfoBox(
               icon: Icons.location_on_outlined,
-              label: 'Address',
+              label: context.l10n.addressLabel,
               value: request.location ?? '',
             ),
 
             const SizedBox(height: 24),
 
             /// Booking Reason
-            _SectionTitle(title: 'Booking Reason'),
+            _SectionTitle(title: context.l10n.bookingReasonTitle),
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -106,7 +107,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
               child: Text(
                 (request.bookingReason ?? '').isNotEmpty
                     ? request.bookingReason!
-                    : 'No specific reason provided.',
+                    : context.l10n.noReasonProvided,
                 style: const TextStyle(
                   fontSize: 15,
                   height: 1.5,
@@ -118,7 +119,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             /// Schedule
-            _SectionTitle(title: 'Care Schedule'),
+            _SectionTitle(title: context.l10n.careScheduleTitle),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
@@ -131,17 +132,17 @@ class BookingRequestDetailsPage extends StatelessWidget {
                 children: [
                   _InfoRow(
                     icon: Icons.calendar_today_outlined,
-                    label: 'Service Period',
+                    label: context.l10n.servicePeriodLabel,
                     value: request.periodLabel ?? '',
                   ),
                   _InfoRow(
                     icon: Icons.repeat_outlined,
-                    label: 'Working Days',
+                    label: context.l10n.workingDaysLabel,
                     value: request.workingDaysLabel ?? '',
                   ),
                   _InfoRow(
                     icon: Icons.access_time_outlined,
-                    label: 'Daily Timing',
+                    label: context.l10n.dailyTimingLabel,
                     value: request.timingLabel ?? '',
                     isLast: true,
                   ),
@@ -170,9 +171,9 @@ class BookingRequestDetailsPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Reject',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        child: Text(
+                          context.l10n.rejectLabel,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),
@@ -194,9 +195,9 @@ class BookingRequestDetailsPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Accept',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        child: Text(
+                          context.l10n.acceptLabel,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),
@@ -214,7 +215,9 @@ class BookingRequestDetailsPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    request.status == BookingRequestStatus.accepted ? 'ACCEPTED' : 'REJECTED',
+                    request.status == BookingRequestStatus.accepted
+                        ? context.l10n.acceptedStatusLabel
+                        : context.l10n.rejectedStatusLabel,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

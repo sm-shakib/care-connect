@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/otp_verification/cubit/otp_verification_cubit.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -139,9 +140,9 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 12),
-                        const Text(
-                          'Enter Verification Code',
-                          style: TextStyle(
+                        Text(
+                          context.l10n.otpTitle,
+                          style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                             color: AppColors.darkTeal,
@@ -149,8 +150,7 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'We sent a 6-digit code to ${widget.emailOrPhone}. '
-                          'Enter it below to continue.',
+                          context.l10n.otpSubtitle(widget.emailOrPhone),
                           style: TextStyle(
                             fontSize: 14,
                             color: colorScheme.onSurfaceVariant,
@@ -162,7 +162,7 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
                         if (state.isFailure) ...[
                           const SizedBox(height: 16),
                           Text(
-                            'Incorrect code. Please try again.',
+                            context.l10n.incorrectCodeError,
                             style: TextStyle(
                               fontSize: 13,
                               color: colorScheme.error,
@@ -198,7 +198,7 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
             onPressed: widget.onBack ?? () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            context.l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -289,19 +289,19 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
                   color: Colors.white,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Verify',
-                    style: TextStyle(
+                    context.l10n.verifyLabel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
                 ],
               ),
       ),
@@ -312,9 +312,9 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
-          "Didn't receive the code?",
-          style: TextStyle(fontSize: 14, color: AppColors.darkTeal),
+        Text(
+          context.l10n.didNotReceiveCodeLabel,
+          style: const TextStyle(fontSize: 14, color: AppColors.darkTeal),
         ),
         const SizedBox(width: 4),
         GestureDetector(
@@ -323,8 +323,8 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
               : null,
           child: Text(
             state.canResend
-                ? 'Resend Code'
-                : 'Resend in ${state.resendSecondsRemaining}s',
+                ? context.l10n.resendCodeLabel
+                : context.l10n.resendTimerLabel(state.resendSecondsRemaining),
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

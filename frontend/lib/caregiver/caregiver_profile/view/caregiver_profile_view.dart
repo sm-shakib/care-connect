@@ -11,6 +11,7 @@ import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/caregiver_profile_cubit.dart';
@@ -58,7 +59,7 @@ class CaregiverProfileView extends StatelessWidget {
                         const SizedBox(height: 24),
                         Center(
                           child: Text(
-                            'Version 1.0.0',
+                            context.l10n.appVersionLabel('1.0.0'),
                             style: TextStyle(
                               fontSize: 12,
                               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
@@ -171,7 +172,7 @@ class _PersonalInfoCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: PrimaryPillButton(
-                        label: 'Cancel',
+                        label: context.l10n.cancelLabel,
                         isOutlined: true,
                         icon: null,
                         onPressed: cubit.cancelEditing,
@@ -180,7 +181,7 @@ class _PersonalInfoCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: PrimaryPillButton(
-                        label: 'Save',
+                        label: context.l10n.saveLabel,
                         icon: Icons.check,
                         isLoading: state.isSaving,
                         onPressed: cubit.saveChanges,
@@ -211,15 +212,15 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatBox(
             colorScheme: colorScheme,
-            label: 'Experience',
-            value: '${state.experienceYears} Years',
+            label: context.l10n.experienceLabel,
+            value: '${state.experienceYears} ${context.l10n.yearsLabel}',
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatBox(
             colorScheme: colorScheme,
-            label: 'Location',
+            label: context.l10n.locationLabel,
             value: state.address,
           ),
         ),
@@ -285,40 +286,40 @@ class _ReadOnlyInfoRows extends StatelessWidget {
       children: [
         _InfoRow(
           icon: Icons.work_history_outlined,
-          label: 'Experience',
-          value: '${state.experienceYears} Years',
+          label: context.l10n.experienceLabel,
+          value: '${state.experienceYears} ${context.l10n.yearsLabel}',
         ),
         _InfoRow(
           icon: Icons.phone_outlined,
-          label: 'Phone Number',
+          label: context.l10n.phoneNumberLabel,
           value: state.phone,
         ),
         _InfoRow(
           icon: Icons.location_on_outlined,
-          label: 'Address',
+          label: context.l10n.addressLabel,
           value: state.address,
         ),
         // _InfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
         _InfoRow(
           icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
-          label: 'Gender',
+          label: context.l10n.genderLabel,
           value: state.gender?.label ?? '—',
         ),
-        _InfoRow(icon: Icons.cake_outlined, label: 'Date of Birth', value: dobLabel),
+        _InfoRow(icon: Icons.cake_outlined, label: context.l10n.dateOfBirthLabel, value: dobLabel),
         _InfoRow(
           icon: Icons.medical_services_outlined,
-          label: 'Specializations',
+          label: context.l10n.specializationsLabel,
           value: state.specializations,
         ),
         _InfoRow(
           icon: Icons.event_available_outlined,
-          label: 'Availability',
+          label: context.l10n.availabilityLabel,
           value: state.availabilityType?.label ?? '—',
         ),
         _InfoRow(
           icon: Icons.payments_outlined,
           // label: 'Daily Rate',
-          label: 'Hourly Rate',
+          label: context.l10n.dailyRateLabel,
           // value: '৳${state.dailyRate}',
           value: '৳${state.dailyRate}/hr',
           isLast: true,
@@ -576,7 +577,7 @@ class _EarningsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Earnings Summary',
+                context.l10n.earningsSummaryTitle,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -677,12 +678,12 @@ class _EarningsCard extends StatelessWidget {
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('View Earnings History', style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(width: 6),
-                  Icon(Icons.chevron_right, size: 20),
+                  Text(context.l10n.viewEarningsHistoryLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.chevron_right, size: 20),
                 ],
               ),
             ),
@@ -742,7 +743,7 @@ class _VerifiedDocumentsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Verified Documents',
+          context.l10n.verifiedDocumentsTitle,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
@@ -804,14 +805,14 @@ class _ActionsSection extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Select Language',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+                Text(
+                  context.l10n.selectLanguageTitle,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
                 ),
                 const SizedBox(height: 12),
                 ListTile(
                   leading: const Icon(Icons.language, color: AppColors.darkTeal),
-                  title: const Text('English'),
+                  title: Text(context.l10n.englishLanguageName),
                   trailing: currentLocale.languageCode == 'en'
                       ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
                       : null,
@@ -822,7 +823,7 @@ class _ActionsSection extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.language, color: AppColors.darkTeal),
-                  title: const Text('বাংলা (Bangla)'),
+                  title: Text(context.l10n.banglaLanguageName),
                   trailing: currentLocale.languageCode == 'bn'
                       ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
                       : null,
@@ -848,7 +849,7 @@ class _ActionsSection extends StatelessWidget {
         if (!state.isEditing) ...[
           _ActionRow(
             icon: Icons.edit_outlined,
-            label: 'Edit Profile',
+            label: context.l10n.editProfileLabel,
             color: colorScheme.onSurface,
             //backgroundColor: colorScheme.surfaceContainerLow,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
@@ -857,9 +858,11 @@ class _ActionsSection extends StatelessWidget {
           const SizedBox(height: 10),
           _ActionRow(
             icon: Icons.language_outlined,
-            label: Localizations.localeOf(context).languageCode == 'en'
-                ? 'App Language: English'
-                : 'অ্যাপের ভাষা: বাংলা',
+            label: context.l10n.appLanguageValue(
+              Localizations.localeOf(context).languageCode == 'en'
+                  ? context.l10n.englishLanguageName
+                  : context.l10n.banglaLanguageName,
+            ),
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: () => _showLanguagePicker(context),
@@ -879,7 +882,7 @@ class _ActionsSection extends StatelessWidget {
         const SizedBox(height: 10),
         _ActionRow(
           icon: Icons.logout,
-          label: 'Log Out',
+          label: context.l10n.logoutLabel,
           color: colorScheme.error,
           backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.2),
           onTap: () {

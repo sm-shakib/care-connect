@@ -7,6 +7,7 @@ import '../cubit/caregiver_dashboard_cubit.dart';
 import '../cubit/caregiver_dashboard_state.dart';
 import '../widgets/patient_card.dart';
 import '../widgets/patient_search_bar.dart';
+import 'package:frontend/l10n/l10n.dart';
 import '../../patient_details/patient_details.dart';
 
 class PreviousPatientsView extends StatelessWidget {
@@ -32,7 +33,7 @@ class PreviousPatientsView extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Previous Patients',
+                      context.l10n.previousPatientsLabel,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -50,7 +51,7 @@ class PreviousPatientsView extends StatelessWidget {
                   child: previousPatients.isEmpty
                       ? Center(
                     child: Text(
-                      'No previous patients found.',
+                      context.l10n.noPreviousPatientsFound,
                       style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   )

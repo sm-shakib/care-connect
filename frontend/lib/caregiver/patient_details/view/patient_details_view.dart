@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/shared/chat/chat.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/patient_details_cubit.dart';
@@ -36,9 +37,9 @@ class PatientDetailsView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Patient Details',
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+        title: Text(
+          context.l10n.patientDetailsTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal),
         ),
         actions: [
           BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
@@ -60,23 +61,23 @@ class PatientDetailsView extends StatelessWidget {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'complaint',
                     child: Row(
                       children: [
-                        Icon(Icons.report_problem_outlined, color: Colors.redAccent, size: 20),
-                        SizedBox(width: 12),
-                        Text('File Complaint'),
+                        const Icon(Icons.report_problem_outlined, color: Colors.redAccent, size: 20),
+                        const SizedBox(width: 12),
+                        Text(context.l10n.fileComplaintLabel),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'complete',
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle_outline, color: AppColors.darkTeal, size: 20),
-                        SizedBox(width: 12),
-                        Text('Mark as Completed'),
+                        const Icon(Icons.check_circle_outline, color: AppColors.darkTeal, size: 20),
+                        const SizedBox(width: 12),
+                        Text(context.l10n.markAsCompletedLabel),
                       ],
                     ),
                   ),
@@ -133,22 +134,22 @@ void _confirmServiceCompletion(BuildContext context, String patientName) {
     context: context,
     builder: (dialogContext) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Complete Service?'),
-      content: Text('Are you sure you want to mark the care service for $patientName as completed?'),
+      title: Text(context.l10n.serviceCompletedDialogTitle),
+      content: Text(context.l10n.serviceCompletedDialogContent(patientName)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancelLabel),
         ),
         FilledButton(
           onPressed: () {
             Navigator.pop(dialogContext);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Service marked as completed.')),
+              SnackBar(content: Text(context.l10n.serviceCompletedSnackBar)),
             );
           },
           style: FilledButton.styleFrom(backgroundColor: AppColors.darkTeal),
-          child: const Text('Yes, Complete'),
+          child: Text(context.l10n.yesCompleteLabel),
         ),
       ],
     ),
@@ -209,13 +210,13 @@ class _BasicInfoSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _BasicInfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
-          _BasicInfoRow(icon: Icons.cake_outlined, label: 'Date of Birth', value: dobLabel),
-          _BasicInfoRow(icon: Icons.phone_outlined, label: 'Phone Number', value: state.phone),
-          _BasicInfoRow(icon: Icons.mail_outline, label: 'Email', value: state.email),
+          _BasicInfoRow(icon: Icons.wc_outlined, label: context.l10n.genderLabel, value: state.gender?.label ?? '—'),
+          _BasicInfoRow(icon: Icons.cake_outlined, label: context.l10n.dateOfBirthLabel, value: dobLabel),
+          _BasicInfoRow(icon: Icons.phone_outlined, label: context.l10n.phoneNumberLabel, value: state.phone),
+          _BasicInfoRow(icon: Icons.mail_outline, label: context.l10n.emailLabel, value: state.email),
           _BasicInfoRow(
             icon: Icons.location_on_outlined,
-            label: 'Address',
+            label: context.l10n.addressLabel,
             value: state.address,
             isLast: true,
           ),
@@ -290,14 +291,14 @@ class _VitalsRow extends StatelessWidget {
         VitalStatCard(
           icon: Icons.monitor_heart,
           iconColor: colorScheme.primary,
-          title: 'Blood Pressure',
+          title: context.l10n.bloodPressureTitle,
           //statusLabel: state.bpStatusLabel,
           valueWidget: RichText(
             text: TextSpan(
               children: [
                 TextSpan(
                   text: '${state.bpSystolic}/${state.bpDiastolic} ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                     //color: colorScheme.primary,
@@ -311,15 +312,15 @@ class _VitalsRow extends StatelessWidget {
               ],
             ),
           ),
-          lastCheckedText: 'Last checked: ${formatTimeAgo(state.bpCheckedAt)}',
-          buttonLabel: 'Log BP',
+          lastCheckedText: context.l10n.lastCheckedLabel(formatTimeAgo(state.bpCheckedAt)),
+          buttonLabel: context.l10n.logBpLabel,
           onButtonTap: () => _showLogBloodPressureSheet(context, cubit),
         ),
         const SizedBox(height: 14),
         VitalStatCard(
           icon: Icons.favorite,
           iconColor: colorScheme.secondary,
-          title: 'Heart Rate',
+          title: context.l10n.heartRateTitle,
           valueWidget: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -328,7 +329,7 @@ class _VitalsRow extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: '${state.heartRateBpm} ',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
                         //color: colorScheme.secondary,
@@ -346,8 +347,8 @@ class _VitalsRow extends StatelessWidget {
               _HeartRateMiniChart(values: state.heartRateRecent, color: AppColors.darkTeal/*colorScheme.secondary*/),
             ],
           ),
-          lastCheckedText: 'Last checked: ${formatTimeAgo(state.heartRateCheckedAt)}',
-          buttonLabel: 'Log Heart Rate',
+          lastCheckedText: context.l10n.lastCheckedLabel(formatTimeAgo(state.heartRateCheckedAt)),
+          buttonLabel: context.l10n.logHeartRateLabel,
           onButtonTap: () => _showLogHeartRateSheet(context, cubit),
         ),
       ],
@@ -408,10 +409,10 @@ class _MedicineRemindersSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.medication, color: AppColors.darkTeal /*colorScheme.primary*/),
+                const Icon(Icons.medication, color: AppColors.darkTeal /*colorScheme.primary*/),
                 const SizedBox(width: 8),
                 Text(
-                  'Medicine Reminders',
+                  context.l10n.medicineRemindersTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -421,8 +422,8 @@ class _MedicineRemindersSection extends StatelessWidget {
               ],
             ),
             Text(
-              '${state.medicationsRemainingCount} Remaining',
-              style: TextStyle(
+              context.l10n.remainingCountLabel(state.medicationsRemainingCount),
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
                 //color: colorScheme.primary,
@@ -461,7 +462,7 @@ class _OtherRemindersSection extends StatelessWidget {
             Icon(Icons.event_note, color: colorScheme.secondary),
             const SizedBox(width: 8),
             Text(
-              'Other Reminders',
+              context.l10n.otherRemindersTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -555,7 +556,7 @@ class _ChatButton extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.chat_bubble_outline, size: 20),
-        label: const Text('Chat', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(context.l10n.chatsLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.darkTeal,
           side: const BorderSide(color: AppColors.darkTeal, width: 1.4),
@@ -589,9 +590,9 @@ class _EditCarePlanButton extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.edit_document),
-        label: const Text(
-          'Edit Reminders',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        label: Text(
+          context.l10n.remindersLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.darkTeal,
@@ -629,19 +630,19 @@ Future<void> _showLogBloodPressureSheet(BuildContext context, PatientDetailsCubi
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Log Blood Pressure',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+            Text(
+              context.l10n.logBloodPressureTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: _LargeNumberField(label: 'Systolic', controller: systolicController),
+                  child: _LargeNumberField(label: context.l10n.systolicLabel, controller: systolicController),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _LargeNumberField(label: 'Diastolic', controller: diastolicController),
+                  child: _LargeNumberField(label: context.l10n.diastolicLabel, controller: diastolicController),
                 ),
               ],
             ),
@@ -661,7 +662,7 @@ Future<void> _showLogBloodPressureSheet(BuildContext context, PatientDetailsCubi
                   backgroundColor: AppColors.darkTeal,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text('Save Reading', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text(context.l10n.saveReadingLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -693,12 +694,12 @@ Future<void> _showLogHeartRateSheet(BuildContext context, PatientDetailsCubit cu
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Log Heart Rate',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+            Text(
+              context.l10n.logHeartRateTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
             ),
             const SizedBox(height: 16),
-            _LargeNumberField(label: 'BPM', controller: bpmController),
+            _LargeNumberField(label: context.l10n.bpmLabel, controller: bpmController),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
@@ -714,7 +715,7 @@ Future<void> _showLogHeartRateSheet(BuildContext context, PatientDetailsCubit cu
                   backgroundColor: AppColors.darkTeal,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text('Save Reading', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text(context.l10n.saveReadingLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
           ],

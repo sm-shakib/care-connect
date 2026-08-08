@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FileComplaintSheet extends StatefulWidget {
@@ -66,9 +67,9 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'File a Complaint',
-                style: TextStyle(
+              Text(
+                context.l10n.fileComplaintTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.darkTeal,
@@ -82,7 +83,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Report an issue regarding the care service for ${widget.patientName}',
+            context.l10n.reportIssueLabel(widget.patientName),
             style: const TextStyle(
               fontSize: 14,
               color: AppColors.onSurfaceVariantLight,
@@ -90,7 +91,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Category',
+            context.l10n.categoryLabel,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -100,7 +101,14 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedCategory,
-            items: _categories
+            items: [
+              context.l10n.complaintCategoryBehaviorElder,
+              context.l10n.complaintCategoryBehaviorFamily,
+              context.l10n.complaintCategoryPayment,
+              context.l10n.complaintCategoryUnsafeEnv,
+              context.l10n.complaintCategoryUnreasonableDemands,
+              context.l10n.complaintCategoryOthers,
+            ]
                 .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                 .toList(),
             onChanged: (val) {
@@ -110,7 +118,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
             style: const TextStyle(fontSize: 15, color: AppColors.onSurfaceLight),
             icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.darkTeal),
             decoration: InputDecoration(
-              hintText: 'Select category',
+              hintText: context.l10n.selectCategoryHint,
               hintStyle: const TextStyle(color: AppColors.onSurfaceVariantLight),
               filled: true,
               fillColor: const Color(0xFFF1F5F9),
@@ -131,7 +139,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Description',
+            context.l10n.descriptionLabel,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -144,7 +152,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
             maxLines: 4,
             style: const TextStyle(fontSize: 15),
             decoration: InputDecoration(
-              hintText: 'Describe the issue in detail...',
+              hintText: context.l10n.describeIssueHint,
               hintStyle: const TextStyle(color: AppColors.onSurfaceVariantLight),
               filled: true,
               fillColor: const Color(0xFFF1F5F9),
@@ -182,9 +190,9 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
                   borderRadius: BorderRadius.circular(28),
                 ),
               ),
-              child: const Text(
-                'Submit Complaint',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              child: Text(
+                context.l10n.submitComplaintLabel,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
           ),
@@ -203,15 +211,15 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
           children: [
             const Icon(Icons.check_circle, color: Colors.green, size: 64),
             const SizedBox(height: 16),
-            const Text(
-              'Complaint Submitted',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.complaintSubmittedTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Your report has been received. Admin will review it and get back to you if needed.',
+            Text(
+              context.l10n.complaintReceivedMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.onSurfaceVariantLight),
+              style: const TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -225,7 +233,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Close'),
+                child: Text(context.l10n.closeLabel),
               ),
             ),
           ],

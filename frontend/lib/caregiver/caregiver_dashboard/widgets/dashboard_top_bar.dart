@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 /// Top bar for root dashboard screens: brand icon + title on the left,
@@ -29,8 +29,8 @@ class DashboardTopBar extends StatelessWidget {
           const Icon(Icons.medical_services_rounded, color: AppColors.darkTeal, size: 32),
           const SizedBox(width: 10),
           Text(
-            'CareConnect',
-            style: TextStyle(
+            context.l10n.careConnectTitle,
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               //color: colorScheme.primary,

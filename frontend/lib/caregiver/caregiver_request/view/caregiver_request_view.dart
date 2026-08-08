@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../cubit/caregiver_request_cubit.dart';
 import '../cubit/caregiver_request_state.dart';
@@ -20,10 +21,10 @@ class CaregiverRequestsView extends StatelessWidget {
           children: [
             Expanded(
               child: pendingRequests.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'No new booking requests.',
-                        style: TextStyle(color: AppColors.onSurfaceVariantLight),
+                        context.l10n.noNewBookingRequests,
+                        style: const TextStyle(color: AppColors.onSurfaceVariantLight),
                       ),
                     )
                   : ListView.builder(
@@ -52,9 +53,9 @@ class CaregiverRequestsView extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.history),
-                  label: const Text(
-                    'Previous Requests',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  label: Text(
+                    context.l10n.previousRequestsLabel,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.darkTeal,
@@ -132,7 +133,7 @@ class _BookingRequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Request for ${request.elderName}',
+                      context.l10n.requestForElderLabel(request.elderName ?? 'Elder'),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -141,7 +142,7 @@ class _BookingRequestCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'From: ${request.requesterName}',
+                      context.l10n.requestedByLabel(request.requesterName ?? 'User'),
                       style: const TextStyle(
                         color: AppColors.onSurfaceVariantLight,
                         fontSize: 14,

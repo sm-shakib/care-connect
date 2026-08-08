@@ -8,6 +8,7 @@ import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -98,9 +99,9 @@ class _LoginViewState extends State<_LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 12),
-                    const Text(
-                      'Welcome Back!',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.loginWelcomeTitle,
+                      style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: AppColors.darkTeal,
@@ -108,7 +109,7 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Log in to continue your care journey.',
+                      context.l10n.loginSubtitle,
                       style: TextStyle(
                         fontSize: 14,
                         color: colorScheme.onSurfaceVariant,
@@ -133,10 +134,10 @@ class _LoginViewState extends State<_LoginView> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const _FieldLabel('Email or Phone Number'),
+                            _FieldLabel(context.l10n.emailOrPhoneLabel),
                             const SizedBox(height: 8),
                             _LoginTextField(
-                              hintText: 'e.g. name@email.com',
+                              hintText: context.l10n.emailHint,
                               prefixIcon: Icons.mail_outline,
                               keyboardType: TextInputType.emailAddress,
                               onChanged: (value) => context
@@ -147,7 +148,7 @@ class _LoginViewState extends State<_LoginView> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const _FieldLabel('Password'),
+                                _FieldLabel(context.l10n.passwordLabel),
                                 GestureDetector(
                                   onTap: widget.onForgotPassword ??
                                           () async {
@@ -181,9 +182,9 @@ class _LoginViewState extends State<_LoginView> {
                                           ),
                                         );
                                       },
-                                  child: const Text(
-                                    'Forgot Password?',
-                                    style: TextStyle(
+                                  child: Text(
+                                    context.l10n.forgotPasswordLabel,
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.darkTeal,
@@ -241,7 +242,7 @@ class _LoginViewState extends State<_LoginView> {
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           Text(
-            'CareConnect',
+            context.l10n.careConnectTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -332,19 +333,19 @@ class _LoginViewState extends State<_LoginView> {
             color: Colors.white,
           ),
         )
-            : const Row(
+            : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Login',
-              style: TextStyle(
+              context.l10n.login,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
           ],
         ),
       ),
@@ -370,9 +371,9 @@ class _LoginViewState extends State<_LoginView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            "Don't have an account?",
-            style: TextStyle(fontSize: 14, color: AppColors.darkTeal),
+          Text(
+            context.l10n.dontHaveAccountLabel,
+            style: const TextStyle(fontSize: 14, color: AppColors.darkTeal),
           ),
           const SizedBox(width: 4),
           GestureDetector(
@@ -385,9 +386,9 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                   );
                 },
-            child: const Text(
-              'Sign up',
-              style: TextStyle(
+            child: Text(
+              context.l10n.signupLabel,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkTeal,

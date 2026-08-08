@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/caregiver_dashboard_cubit.dart';
@@ -45,7 +46,7 @@ class CaregiverDashboardView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Active Patients',
+                              context.l10n.activePatientsTitle,
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ class CaregiverDashboardView extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${state.activePatients.length} patients under your care',
+                              context.l10n.patientsUnderCareSubtitle(state.activePatients.length),
                               style: TextStyle(
                                 fontSize: 14,
                                 color: colorScheme.onSurfaceVariant,
@@ -86,7 +87,7 @@ class CaregiverDashboardView extends StatelessWidget {
                   child: activePatients.isEmpty
                       ? Center(
                     child: Text(
-                      'No active patients found.',
+                      context.l10n.noActivePatientsFound,
                       style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   )
@@ -125,9 +126,9 @@ class CaregiverDashboardView extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.history),
-                      label: const Text(
-                        'Previous Patients',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      label: Text(
+                        context.l10n.previousPatientsLabel,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.darkTeal,
