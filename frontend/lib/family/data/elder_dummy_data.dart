@@ -19,7 +19,7 @@ final elderList = [
     gender: 'Male',
     hasCaregiver: true,
     healthStatus: 'Healthy',
-    caregivers: ['Sarah Jenkins', 'Michael Chen'],
+    caregivers: ['Nusrat Jahan', 'Asif Ahmed'],
     imageUrl: 'https://i.pravatar.cc/150?u=abdul',
     vitals: HealthVitals(
       heartRate: 72,
@@ -66,7 +66,7 @@ final elderList = [
         id: 'a1',
         doctorName: 'Dr. Ariful Islam',
         specialty: 'Cardiologist',
-        date: 'Nov 15, 2023',
+        date: 'Aug 16, 2026',
         time: '10:30 AM',
         location: 'City Hospital, Dhaka',
       ),

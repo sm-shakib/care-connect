@@ -151,7 +151,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       id: 'apt_1',
       doctorName: 'Dr. Ariful Islam',
       specialty: 'Cardiologist',
-      date: 'Nov 15, 2023',
+      date: 'Aug 16, 2026',
       time: '10:30 AM',
       location: 'City Hospital, Dhaka',
     ),
@@ -159,7 +159,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   static const _mockCaregiver = CaregiverSummary(
     id: 'C-1',
-    name: 'Shakib Khan',
+    name: 'Nusrat Jahan',
     profession: 'Registered Nurse',
     nextVisitLabel: 'Today, 3:00 PM',
     phone: '+1 555-0134',

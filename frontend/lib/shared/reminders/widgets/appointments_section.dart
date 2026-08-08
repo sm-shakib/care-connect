@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/appointment.dart';
@@ -14,13 +15,19 @@ class AppointmentsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Upcoming Appointments',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.darkTeal,
-          ),
+        const Row(
+          children: [
+            Icon(Icons.calendar_month, color: AppColors.primaryLight, size: 26),
+            SizedBox(width: 10),
+            Text(
+              'Upcoming Appointments',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         if (appointments.isEmpty)
@@ -49,14 +56,26 @@ class _AppointmentTile extends StatelessWidget {
   const _AppointmentTile({required this.appointment});
   final Appointment appointment;
 
+  Future<void> _openMaps(String location) async {
+    final query = Uri.encodeComponent(location);
+    final googleMapsUrl = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query');
+    
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariantLight),
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          width: 1.6,
+        ),
       ),
       child: Column(
         children: [
@@ -65,8 +84,8 @@ class _AppointmentTile extends StatelessWidget {
             decoration: const BoxDecoration(
               color: AppColors.secondaryLight,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
             ),
             child: Row(
@@ -77,6 +96,7 @@ class _AppointmentTile extends StatelessWidget {
                   '${appointment.date} at ${appointment.time}',
                   style: const TextStyle(
                     color: Colors.white,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -95,27 +115,27 @@ class _AppointmentTile extends StatelessWidget {
                         appointment.doctorName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 18,
                           color: AppColors.deepTrustBlue,
                         ),
                       ),
                       Text(
                         appointment.specialty,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 15,
                           color: AppColors.outlineLight,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined, size: 14, color: AppColors.primaryLight),
+                          const Icon(Icons.location_on_outlined, size: 16, color: AppColors.primaryLight),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               appointment.location,
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 color: AppColors.onSurfaceVariantLight,
                               ),
                               maxLines: 1,
@@ -127,13 +147,22 @@ class _AppointmentTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: AppColors.paleMint,
-                    shape: BoxShape.circle,
+                const SizedBox(width: 8),
+                Material(
+                  color: AppColors.paleMint,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    onTap: () => _openMaps(appointment.location),
+                    customBorder: const CircleBorder(),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(
+                        Icons.directions,
+                        color: AppColors.darkTeal,
+                        size: 28,
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.directions, color: AppColors.darkTeal, size: 20),
                 ),
               ],
             ),

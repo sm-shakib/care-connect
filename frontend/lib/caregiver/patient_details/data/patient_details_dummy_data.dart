@@ -14,6 +14,7 @@ class PatientBasicInfo {
     required this.phone,
     required this.email,
     required this.address,
+    required this.healthCondition,
   });
 
   final Gender gender;
@@ -21,6 +22,7 @@ class PatientBasicInfo {
   final String phone;
   final String email;
   final String address;
+  final String healthCondition;
 }
 
 // TODO: replace with a real repository call keyed by patientId once the
@@ -33,6 +35,7 @@ class PatientDetailsDummyData {
       phone: '+8801717790950',
       email: 'karim@gmail.com',
       address: 'Pallabi, Dhaka',
+      healthCondition: 'High Blood Pressure, Diabetes Type 2',
     );
   }
 
@@ -87,7 +90,7 @@ class PatientDetailsDummyData {
         id: 'a1',
         doctorName: 'Dr. Ariful Islam',
         specialty: 'Cardiologist',
-        date: 'Nov 15, 2023',
+        date: 'Aug 16, 2026',
         time: '10:30 AM',
         location: 'City Hospital, Dhaka',
       ),

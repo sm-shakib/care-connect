@@ -97,8 +97,10 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      // backgroundColor: AppColors.backgroundLight,
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
+        backgroundColor: const Color(0xFFFBFEFC),
         title: const Text('Apply for Assistance'),
         centerTitle: true,
       ),

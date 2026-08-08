@@ -5,6 +5,7 @@ import 'package:frontend/caregiver_signup/caregiver_signup.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:frontend/family/view/payment/caregiver_payment_page.dart';
 import '../../models/caregiver.dart';
 import '../../caregiver_profile/widgets/verified_document_tile.dart';
 import '../../../family/widgets/booking_options_sheet.dart';
@@ -103,38 +104,38 @@ class CaregiverDetailsPage extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  Text(
-                    caregiver.profession,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (caregiver.isVerified)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.verified, color: Colors.blue, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Verified Professional',
-                              style: TextStyle(
-                                  color: Colors.blue.shade800,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  // Text(
+                  //   caregiver.profession,
+                  //   style: TextStyle(
+                  //     fontSize: 15,
+                  //     color: colorScheme.onSurfaceVariant,
+                  //   ),
+                  // ),
+                  // if (caregiver.isVerified)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 8),
+                  //     child: Container(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.blue.shade50,
+                  //         borderRadius: BorderRadius.circular(30),
+                  //       ),
+                  //       child: Row(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           const Icon(Icons.verified, color: Colors.blue, size: 14),
+                  //           const SizedBox(width: 4),
+                  //           Text(
+                  //             'Verified Professional',
+                  //             style: TextStyle(
+                  //                 color: Colors.blue.shade800,
+                  //                 fontSize: 12,
+                  //                 fontWeight: FontWeight.bold),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
                 ],
               ),
             ),
@@ -318,7 +319,12 @@ class CaregiverDetailsPage extends StatelessWidget {
                       height: 56,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // TODO: Implement Payment functionality
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CaregiverPaymentPage(caregiver: caregiver),
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.payments_outlined),
                         label: const Text(

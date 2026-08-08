@@ -17,13 +17,19 @@ class OtherRemindersSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Other Reminders',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.darkTeal,
-          ),
+        const Row(
+          children: [
+            Icon(Icons.event_note, color: AppColors.primaryLight, size: 26),
+            SizedBox(width: 10),
+            Text(
+              'Other Reminders',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         if (reminders.isEmpty)
@@ -46,8 +52,11 @@ class OtherRemindersSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.8)),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.outlineVariant,
+                width: 1.6,
+              ),
             ),
             child: Column(
               children: [
@@ -96,11 +105,15 @@ class _ReminderTile extends StatelessWidget {
               children: [
                 Text(
                   reminder.title,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
                 Text(
                   reminder.subtitle,
-                  style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

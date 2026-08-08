@@ -48,7 +48,7 @@ class FamilyMonitoringView extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkTeal,
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 12),
@@ -85,7 +85,7 @@ class FamilyMonitoringView extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkTeal,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 12),
@@ -105,7 +105,7 @@ class FamilyMonitoringView extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkTeal,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 12),

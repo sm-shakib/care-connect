@@ -15,7 +15,7 @@ class Appointment extends Equatable {
   final String doctorName;
   final String specialty;
 
-  /// Pre-formatted date label, e.g. "Nov 15, 2023".
+  /// Pre-formatted date label, e.g. "Aug 16, 2026".
   final String date;
 
   /// Pre-formatted time label, e.g. "10:30 AM".

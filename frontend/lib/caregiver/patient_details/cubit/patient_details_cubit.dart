@@ -40,6 +40,7 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
         phone: basicInfo.phone,
         email: basicInfo.email,
         address: basicInfo.address,
+        healthCondition: basicInfo.healthCondition,
       ),
     );
   }

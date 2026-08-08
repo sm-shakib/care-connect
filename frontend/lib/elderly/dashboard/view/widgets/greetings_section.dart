@@ -71,22 +71,18 @@ class _SosButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.sos, color: Colors.white, size: 28),
-              SizedBox(height: 4),
-              Text(
-                'SOS',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                ),
-              ),
-            ],
+        child: Container(
+          width: 64,
+          height: 64,
+          alignment: Alignment.center,
+          child: const Text(
+            'SOS',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 20,
+              letterSpacing: 1.2,
+            ),
           ),
         ),
       ),

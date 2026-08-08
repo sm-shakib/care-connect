@@ -35,8 +35,8 @@ class NavbarButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: foregroundColor, size: 24),
-                const SizedBox(height: 4),
+                Icon(icon, color: foregroundColor, size: 28),
+                const SizedBox(height: 6),
                 // FittedBox shrinks the label instead of letting it
                 // truncate on narrow screens / longer labels.
                 FittedBox(
@@ -44,7 +44,7 @@ class NavbarButton extends StatelessWidget {
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                       color: foregroundColor,
                     ),

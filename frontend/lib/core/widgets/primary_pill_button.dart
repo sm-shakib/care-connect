@@ -11,6 +11,7 @@ class PrimaryPillButton extends StatelessWidget {
     this.isLoading = false,
     this.icon = Icons.arrow_forward,
     this.isOutlined = false,
+    this.fontSize,
   });
 
   final String label;
@@ -18,6 +19,7 @@ class PrimaryPillButton extends StatelessWidget {
   final bool isLoading;
   final IconData? icon;
   final bool isOutlined;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +39,8 @@ class PrimaryPillButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: fontSize ?? 16,
               fontWeight: FontWeight.w600,
               color: AppColors.darkTeal,
             ),
@@ -74,8 +76,8 @@ class PrimaryPillButton extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: fontSize ?? 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),

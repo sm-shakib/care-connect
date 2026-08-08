@@ -14,6 +14,8 @@ class CaregiverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -23,7 +25,10 @@ class CaregiverCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowestLight,
         borderRadius: BorderRadius.circular(20),
-
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.10),
@@ -40,9 +45,9 @@ class CaregiverCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Top Section with Robust Gender Fallback
+          /// Top Section: Avatar, Name, Specialty
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // CircleAvatar(
               //   radius: 34,
@@ -70,154 +75,150 @@ class CaregiverCard extends StatelessWidget {
               //   ),
               // ),
               CircleAvatar(
-                radius: 33,
+                radius: 30,
                 backgroundColor: AppColors.paleMint,
                 child: Icon(
                   caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-                  size: 38,
+                  size: 34,
                   color: AppColors.primaryLight,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            caregiver.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.onSurfaceLight,
-                            ),
-                          ),
-                        ),
-                        // const Icon(
-                        //   Icons.star_rounded,
-                        //   color: Colors.amber,
-                        //   size: 18,
-                        // ),
-                        // const SizedBox(width: 2),
-                        // Text(
-                        //   caregiver.rating.toString(),
-                        //   style: const TextStyle(
-                        //     fontWeight: FontWeight.w600,
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
                     Text(
-                      caregiver.profession,
+                      caregiver.name,
                       style: const TextStyle(
-                        color: AppColors.onSurfaceVariantLight,
-                        fontSize: 15,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onSurfaceLight,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
-                    if (caregiver.isVerified)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                    if (caregiver.specialties.isNotEmpty)
+                      Text(
+                        caregiver.specialties.first,
+                        style: const TextStyle(
+                          color: AppColors.onSurfaceVariantLight,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.verified,
-                              size: 14,
-                              color: Colors.green,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              "NID Verified",
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+
+                    // const SizedBox(height: 4),
+                    // Text(
+                    //   caregiver.profession,
+                    //   style: const TextStyle(
+                    //     color: AppColors.onSurfaceVariantLight,
+                    //     fontSize: 15,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 8),
+                    // if (caregiver.isVerified)
+                    //   Container(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 10,
+                    //       vertical: 4,
+                    //     ),
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.green.shade50,
+                    //       borderRadius: BorderRadius.circular(30),
+                    //     ),
+                    //     child: const Row(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         Icon(
+                    //           Icons.verified,
+                    //           size: 14,
+                    //           color: Colors.green,
+                    //         ),
+                    //         SizedBox(width: 4),
+                    //         Text(
+                    //           "NID Verified",
+                    //           style: TextStyle(
+                    //             color: Colors.green,
+                    //             fontWeight: FontWeight.w600,
+                    //             fontSize: 12,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
                   ],
                 ),
               ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "${caregiver.hourlyRate} ৳/hr",
+                    style: const TextStyle(
+                      color: AppColors.darkTeal,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.red,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        "${caregiver.distance}km",
+                        style: const TextStyle(
+                          color: AppColors.onSurfaceVariantLight,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           /// Specialties
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: caregiver.specialties
-                .take(2)
-                .map(
-                  (item) => Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            )
-                .toList(),
-          ),
-
-          const SizedBox(height: 18),
-
-          /// Distance & Price
-          Row(
-            children: [
-              const Icon(
-                Icons.location_on_outlined,
-                color: Colors.red,
-                size: 18,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                "${caregiver.distance} km away",
-                style: const TextStyle(
-                  color: AppColors.onSurfaceVariantLight,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                "${caregiver.hourlyRate} ৳/hr",
-                style: const TextStyle(
-                  color: AppColors.darkTeal,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 18),
+          // Wrap(
+          //   spacing: 8,
+          //   runSpacing: 8,
+          //   children: caregiver.specialties
+          //       .take(2)
+          //       .map(
+          //         (item) => Container(
+          //       padding: const EdgeInsets.symmetric(
+          //         horizontal: 12,
+          //         vertical: 7,
+          //       ),
+          //       decoration: BoxDecoration(
+          //         color: AppColors.surfaceContainerLight,
+          //         borderRadius: BorderRadius.circular(10),
+          //       ),
+          //       child: Text(
+          //         item,
+          //         style: const TextStyle(
+          //           fontSize: 13,
+          //         ),
+          //       ),
+          //     ),
+          //   )
+          //       .toList(),
+          // ),
 
           /// Button
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 44,
             child: ElevatedButton(
               onPressed: onTap,
               style: ElevatedButton.styleFrom(
@@ -225,14 +226,14 @@ class CaregiverCard extends StatelessWidget {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 "View Details",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 15,
                 ),
               ),
             ),

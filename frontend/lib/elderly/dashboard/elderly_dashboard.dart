@@ -18,6 +18,7 @@ import 'cubit/dashboard_state.dart';
 import 'view/edit_reminders_page.dart';
 import 'view/widgets/caregiver_card.dart';
 import 'view/widgets/chat_card.dart';
+import 'view/widgets/dashboard_card_header.dart';
 import 'view/widgets/greetings_section.dart';
 import 'view/widgets/medication_card.dart';
 import '../navbar/elderly_navbar.dart';
@@ -63,11 +64,13 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      // backgroundColor: theme.colorScheme.surface,
+      backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: theme.colorScheme.surface,
+        // backgroundColor: theme.colorScheme.surface,
+        backgroundColor: const Color(0xFFFBFEFC),
         automaticallyImplyLeading: false,
         shape: Border(
           bottom: BorderSide(color: AppColors.outlineVariantLight),
@@ -209,22 +212,38 @@ class _DashboardHomeBody extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
+              DashboardCardHeader(
+                icon: Icons.medication_outlined,
+                title: "Today's Medication",
+                trailingLabel: 'View all',
+                onTrailingTap: onOpenMedicine,
+              ),
+              const SizedBox(height: 12),
               MedicationCard(
                 medications: state.medications,
                 onMarkTaken: (medication) => context
                     .read<DashboardCubit>()
                     .markMedicationTaken(medication.id),
-                onViewAll: onOpenMedicine,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
               OtherRemindersSection(reminders: state.otherReminders),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
               AppointmentsSection(appointments: state.appointments),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
               const _EditRemindersButton(),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
+              const DashboardCardHeader(
+                icon: Icons.favorite_outline,
+                title: 'Your Caregiver',
+              ),
+              const SizedBox(height: 12),
               CaregiverCard(caregiver: state.caregiver),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
+              const DashboardCardHeader(
+                icon: Icons.chat_bubble_outline,
+                title: 'Chat',
+              ),
+              const SizedBox(height: 12),
               ChatCard(chat: state.chatPreview, onTap: onOpenChat),
             ],
           ),

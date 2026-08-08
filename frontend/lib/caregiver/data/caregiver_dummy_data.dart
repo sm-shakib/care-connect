@@ -4,7 +4,7 @@ import '../models/caregiver.dart';
 final List<Caregiver> caregiverList = [
   Caregiver(
     id: '1',
-    name: 'Sarah Jenkins',
+    name: 'Nusrat Jahan',
     profession: 'Registered Nurse',
     imageUrl: 'https://i.pravatar.cc/150?u=sarah',
     rating: 4.9,
@@ -12,7 +12,7 @@ final List<Caregiver> caregiverList = [
     distance: 2.3,
     hourlyRate: 250,
     isVerified: true,
-    specialties: ['Elder Care', 'Dementia Care'],
+    specialties: ['Senior Care'],
     specializations: 'Elderly mobility support, dementia care, and wound management.',
     about:
     'Experienced registered nurse with over 8 years of providing compassionate home healthcare for elderly patients.',
@@ -20,7 +20,7 @@ final List<Caregiver> caregiverList = [
     availabilityType: 'Full-time',
     phone: '+880 1711 111111',
     email: 'sarah.j@example.com',
-    address: 'Seattle, WA',
+    address: 'Sector 4, Uttara, Dhaka',
     dateOfBirth: DateTime(1995, 5, 20),
     documents: {
       CaregiverDocumentType.nationalId: 'nid_scan.pdf',
@@ -30,7 +30,7 @@ final List<Caregiver> caregiverList = [
   ),
   Caregiver(
     id: '2',
-    name: 'Emma Wilson',
+    name: 'Fatema Akhter',
     profession: 'Care Assistant',
     imageUrl: 'https://i.pravatar.cc/150?u=emma',
     rating: 4.8,
@@ -38,7 +38,7 @@ final List<Caregiver> caregiverList = [
     distance: 3.8,
     hourlyRate: 200,
     isVerified: true,
-    specialties: ['Post Surgery', 'Mobility Assistance'],
+    specialties: ['Home Nursing'],
     specializations: 'Assisting with daily activities, medication reminders, and post-operative recovery.',
     about:
     'Dedicated caregiver specializing in post-surgery recovery and daily living assistance.',
@@ -46,7 +46,7 @@ final List<Caregiver> caregiverList = [
     availabilityType: 'Part-time',
     phone: '+880 1722 222222',
     email: 'emma.w@example.com',
-    address: 'Bellevue, WA',
+    address: 'Banani, Dhaka',
     dateOfBirth: DateTime(1998, 8, 15),
     documents: {
       CaregiverDocumentType.nationalId: 'nid_emma.pdf',
@@ -56,7 +56,7 @@ final List<Caregiver> caregiverList = [
   ),
   Caregiver(
     id: '3',
-    name: 'Michael Brown',
+    name: 'Asif Ahmed',
     profession: 'Physiotherapist',
     imageUrl: 'https://i.pravatar.cc/150?u=michael',
     rating: 4.7,
@@ -64,7 +64,7 @@ final List<Caregiver> caregiverList = [
     distance: 5.0,
     hourlyRate: 350,
     isVerified: false,
-    specialties: ['Physiotherapy', 'Rehabilitation'],
+    specialties: ['Physiotherapy'],
     specializations: 'Specialized physiotherapy for stroke recovery and joint mobility.',
     about:
     'Licensed physiotherapist helping patients recover mobility and independence.',
@@ -72,7 +72,7 @@ final List<Caregiver> caregiverList = [
     availabilityType: 'On-call',
     phone: '+880 1733 333333',
     email: 'michael.b@example.com',
-    address: 'Tacoma, WA',
+    address: 'Dhanmondi, Dhaka',
     dateOfBirth: DateTime(1990, 3, 10),
     documents: {},
   ),

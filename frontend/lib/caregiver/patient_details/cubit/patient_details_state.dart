@@ -19,6 +19,7 @@ class PatientDetailsState extends Equatable {
     this.phone = '',
     this.email = '',
     this.address = '',
+    this.healthCondition = '',
   });
 
   final String patientId;
@@ -43,6 +44,7 @@ class PatientDetailsState extends Equatable {
   final String phone;
   final String email;
   final String address;
+  final String healthCondition;
 
   int get medicationsRemainingCount =>
       medications.where((m) => !m.isTakenToday).length;
@@ -63,6 +65,7 @@ class PatientDetailsState extends Equatable {
     String? phone,
     String? email,
     String? address,
+    String? healthCondition,
   }) {
     return PatientDetailsState(
       patientId: patientId,
@@ -82,6 +85,7 @@ class PatientDetailsState extends Equatable {
       phone: phone ?? this.phone,
       email: email ?? this.email,
       address: address ?? this.address,
+      healthCondition: healthCondition ?? this.healthCondition,
     );
   }
 
@@ -104,5 +108,6 @@ class PatientDetailsState extends Equatable {
     phone,
     email,
     address,
+    healthCondition,
   ];
 }

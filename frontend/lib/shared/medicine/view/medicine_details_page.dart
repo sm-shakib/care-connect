@@ -15,7 +15,12 @@ class MedicineDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Medicine Details'), centerTitle: true),
+      backgroundColor: const Color(0xFFFBFEFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFBFEFC),
+        title: const Text('Medicine Details'), 
+        centerTitle: true,
+      ),
       body: MedicineDetailsView(
         medicine: medicine,
         onEdit: () async {
