@@ -42,7 +42,7 @@ class MedicationSection extends StatelessWidget {
           )
         else
           for (final medicine in medications) ...[
-            MedicineCard(medicine: medicine),
+            MedicineCard(medicine: medicine, showTakenStatus: true),
             const SizedBox(height: 12),
           ],
       ],

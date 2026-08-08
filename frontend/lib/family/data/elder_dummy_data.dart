@@ -34,7 +34,7 @@ final elderList = [
       Medicine(
         id: 'm1',
         name: 'Metformin',
-        dosage: '500mg',
+        dosage: '1',
         form: MedicineForm.tablet,
         timesPerDay: 1,
         scheduleTimes: ['08:00 AM'],
@@ -44,7 +44,7 @@ final elderList = [
       Medicine(
         id: 'm2',
         name: 'Atorvastatin',
-        dosage: '20mg',
+        dosage: '1',
         form: MedicineForm.tablet,
         timesPerDay: 1,
         scheduleTimes: ['09:00 PM'],

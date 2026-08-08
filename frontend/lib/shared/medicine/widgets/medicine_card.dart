@@ -9,11 +9,15 @@ import '../models/medicine.dart';
 ///
 /// Top section is split into an image, the name/dosage/form, and the next
 /// scheduled time. The bottom section shows a "Take Medicine" button, which
-/// is only rendered for elderly users.
+/// is only rendered for elderly users. Set [showTakenStatus] to show a
+/// read-only "Taken" / "Not taken yet" indicator instead — used when a
+/// family member or caregiver is monitoring the elder rather than acting
+/// on their behalf.
 class MedicineCard extends StatelessWidget {
   const MedicineCard({
     required this.medicine,
     this.isElderly = false,
+    this.showTakenStatus = false,
     this.onTap,
     this.onTakeMedicine,
     super.key,
@@ -21,6 +25,7 @@ class MedicineCard extends StatelessWidget {
 
   final Medicine medicine;
   final bool isElderly;
+  final bool showTakenStatus;
   final VoidCallback? onTap;
   final VoidCallback? onTakeMedicine;
 
@@ -44,6 +49,7 @@ class MedicineCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _MedicineThumbnail(imagePath: medicine.imagePath),
                   const SizedBox(width: 16),
@@ -51,6 +57,8 @@ class MedicineCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _TimeBadge(time: medicine.nextReminder),
+                        const SizedBox(height: 10),
                         Text(
                           medicine.name,
                           style: TextStyle(
@@ -58,22 +66,26 @@ class MedicineCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: colorScheme.onSurface,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${medicine.dosage}\n''${medicine.form.label}',
+                          '${medicine.dosage} ${medicine.form.label}',
                           style: TextStyle(
                             fontSize: 20,
                             color: colorScheme.onSurfaceVariant,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (showTakenStatus) ...[
+                          const SizedBox(height: 8),
+                          _TakenStatus(isTaken: medicine.isTakenToday),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  _TimeBadge(time: medicine.nextReminder),
                 ],
               ),
               if (isElderly) ...[
@@ -148,6 +160,39 @@ class _MedicineThumbnail extends StatelessWidget {
               size: 40,
             )
           : Image.file(File(imagePath!), fit: BoxFit.cover),
+    );
+  }
+}
+
+/// Read-only "Taken" / "Not taken yet" indicator: a check mark plus text.
+class _TakenStatus extends StatelessWidget {
+  const _TakenStatus({required this.isTaken});
+
+  final bool isTaken;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isTaken ? Colors.green.shade700 : colorScheme.outline;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          isTaken ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: color,
+          size: 20,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          isTaken ? 'Taken' : 'Not taken yet',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }

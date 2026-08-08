@@ -42,7 +42,7 @@ class PatientDetailsDummyData {
       Medicine(
         id: 'm1',
         name: 'Metoprolol',
-        dosage: '25mg',
+        dosage: '1',
         form: MedicineForm.tablet,
         timesPerDay: 1,
         scheduleTimes: const ['8:00 AM'],
@@ -52,7 +52,7 @@ class PatientDetailsDummyData {
       Medicine(
         id: 'm2',
         name: 'Lisinopril',
-        dosage: '10mg',
+        dosage: '1',
         form: MedicineForm.tablet,
         timesPerDay: 1,
         scheduleTimes: const ['1:00 PM'],
@@ -61,7 +61,7 @@ class PatientDetailsDummyData {
       Medicine(
         id: 'm3',
         name: 'Atorvastatin',
-        dosage: '40mg',
+        dosage: '1',
         form: MedicineForm.tablet,
         timesPerDay: 1,
         scheduleTimes: const ['8:00 PM'],

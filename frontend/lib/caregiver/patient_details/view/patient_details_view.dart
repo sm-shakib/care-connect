@@ -439,6 +439,7 @@ class _MedicineRemindersSection extends StatelessWidget {
           MedicineCard(
             medicine: medication,
             isElderly: true,
+            showTakenStatus: true,
             onTakeMedicine: () => cubit.markMedicationTaken(medication.id),
           ),
           const SizedBox(height: 10),

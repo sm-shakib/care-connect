@@ -56,7 +56,7 @@ class MedicineCubit extends Cubit<MedicineState> {
     Medicine(
       id: 'MED-1',
       name: 'Metformin',
-      dosage: '1 tablet',
+      dosage: '1',
       form: MedicineForm.tablet,
       timesPerDay: 1,
       scheduleTimes: const ['8:00 AM'],
@@ -69,7 +69,7 @@ class MedicineCubit extends Cubit<MedicineState> {
     Medicine(
       id: 'MED-2',
       name: 'Lisinopril',
-      dosage: '1 tablet',
+      dosage: '1',
       form: MedicineForm.tablet,
       timesPerDay: 1,
       scheduleTimes: const ['1:00 PM'],
@@ -81,7 +81,7 @@ class MedicineCubit extends Cubit<MedicineState> {
     Medicine(
       id: 'MED-3',
       name: 'Atorvastatin',
-      dosage: '1 capsule',
+      dosage: '1',
       form: MedicineForm.capsule,
       timesPerDay: 1,
       scheduleTimes: const ['9:00 PM'],

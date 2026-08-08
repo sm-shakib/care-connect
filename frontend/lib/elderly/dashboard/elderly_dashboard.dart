@@ -140,12 +140,11 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            _DashboardHomeBody(onOpenChat: () => setState(() => _selectedIndex = 3)),
-            const _CaregiversTabBody(),
             _DashboardHomeBody(
-              onOpenChat: () => setState(() => _selectedIndex = 2),
-              onOpenMedicine: () => setState(() => _selectedIndex = 1),
+              onOpenChat: () => setState(() => _selectedIndex = 3),
+              onOpenMedicine: () => setState(() => _selectedIndex = 2),
             ),
+            const _CaregiversTabBody(),
             const _MedicineTabBody(),
             const _ChatTabBody(),
             const ElderlyProfilePage(),
