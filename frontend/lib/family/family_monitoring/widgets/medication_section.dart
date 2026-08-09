@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 /// Read-only medication schedule for an elder being monitored, using the
 /// unified list design pattern from the elderly dashboard.
 class MedicationSection extends StatelessWidget {
-  const MedicationSection({super.key, required this.medications});
+  const MedicationSection({required this.medications, super.key});
 
   final List<Medicine> medications;
 
@@ -16,13 +17,14 @@ class MedicationSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.medication_outlined, color: AppColors.primaryLight, size: 26),
-            SizedBox(width: 10),
+            const Icon(Icons.medication_outlined,
+                color: AppColors.primaryLight, size: 26),
+            const SizedBox(width: 10),
             Text(
-              'Medication Schedule',
-              style: TextStyle(
+              context.l10n.medicineRemindersTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -42,11 +44,11 @@ class MedicationSection extends StatelessWidget {
                 width: 1.6,
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.outlineLight),
-                SizedBox(width: 12),
-                Text('No medications scheduled for today.'),
+                const Icon(Icons.info_outline, color: AppColors.outlineLight),
+                const SizedBox(width: 12),
+                Text(context.l10n.noMedicationsScheduled),
               ],
             ),
           )
@@ -66,7 +68,10 @@ class MedicationSection extends StatelessWidget {
                 for (var i = 0; i < medications.length; i++) ...[
                   _MedicationTile(medicine: medications[i]),
                   if (i != medications.length - 1)
-                    Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                    Divider(
+                      height: 1,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
                 ],
               ],
             ),
@@ -96,7 +101,7 @@ class _MedicationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  medicine.name,
+                  medicine.getName(context),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -104,7 +109,7 @@ class _MedicationTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${medicine.dosage} ${medicine.form.label}',
+                  '${medicine.dosage} ${medicine.form.label(context)}',
                   style: TextStyle(
                     fontSize: 15,
                     color: colorScheme.onSurfaceVariant,

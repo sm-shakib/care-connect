@@ -212,7 +212,10 @@ class _BasicInfoSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _BasicInfoRow(icon: Icons.wc_outlined, label: context.l10n.genderLabel, value: state.gender?.label ?? '—'),
+          _BasicInfoRow(
+              icon: Icons.wc_outlined,
+              label: context.l10n.genderLabel,
+              value: state.gender?.label(context) ?? '—'),
           _BasicInfoRow(icon: Icons.cake_outlined, label: context.l10n.dateOfBirthLabel, value: dobLabel),
           _BasicInfoRow(icon: Icons.phone_outlined, label: context.l10n.phoneNumberLabel, value: state.phone),
           _BasicInfoRow(icon: Icons.mail_outline, label: context.l10n.emailLabel, value: state.email),
@@ -508,7 +511,7 @@ class _MedicationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  medicine.name,
+                  medicine.getName(context),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -516,7 +519,7 @@ class _MedicationTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${medicine.dosage} ${medicine.form.label}',
+                  '${medicine.dosage} ${medicine.form.label(context)}',
                   style: TextStyle(
                     fontSize: 15,
                     color: colorScheme.onSurfaceVariant,

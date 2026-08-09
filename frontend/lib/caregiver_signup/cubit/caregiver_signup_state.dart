@@ -6,33 +6,35 @@ enum CaregiverSignupStatus { initial, submitting, success, failure }
 enum AvailabilityType { fullTime, partTime, onCall, weekendsOnly }
 
 extension AvailabilityTypeLabel on AvailabilityType {
-  String get label {
+  String label(BuildContext context) {
     switch (this) {
       case AvailabilityType.fullTime:
-        return 'Full-time';
+        return context.l10n.availabilityFullTime;
       case AvailabilityType.partTime:
-        return 'Part-time';
+        return context.l10n.availabilityPartTime;
       case AvailabilityType.onCall:
-        return 'On-call';
+        return context.l10n.availabilityOnCall;
       case AvailabilityType.weekendsOnly:
-        return 'Weekends Only';
+        return context.l10n.availabilityWeekendsOnly;
     }
   }
 }
+
+
 
 /// Required documents mapped to rows in `Caregiver_Documents`
 /// (one row per uploaded document: document_type + document_url).
 enum CaregiverDocumentType { nationalId, certificate, policeClearance }
 
 extension CaregiverDocumentTypeLabel on CaregiverDocumentType {
-  String get label {
+  String label(BuildContext context) {
     switch (this) {
       case CaregiverDocumentType.nationalId:
-        return 'National ID / Passport';
+        return context.l10n.documentNationalId;
       case CaregiverDocumentType.certificate:
-        return 'Caregiving Certificate / License';
+        return context.l10n.documentCertificate;
       case CaregiverDocumentType.policeClearance:
-        return 'Police Clearance Certificate';
+        return context.l10n.documentPoliceClearance;
     }
   }
 }
@@ -146,7 +148,7 @@ class CaregiverSignupState extends Equatable {
 
   // ---- Step 3 errors ----
   bool get isStep3Valid => CaregiverDocumentType.values
-      .every((type) => uploadedDocuments.containsKey(type));
+      .every(uploadedDocuments.containsKey);
 
   CaregiverSignupState copyWith({
     int? currentStep,

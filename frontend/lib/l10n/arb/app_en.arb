@@ -600,6 +600,41 @@
         "description": "Message shown when the request history is empty"
     },
 
+    "profileTitle": "Profile",
+    "@profileTitle": {
+        "description": "General profile page title"
+    },
+
+    "centralDonationFundTitle": "Central Donation Fund",
+    "@centralDonationFundTitle": {
+        "description": "Title for the central donation fund section"
+    },
+
+    "donateNowLabel": "Donate Now",
+    "@donateNowLabel": {
+        "description": "Label for the button to start a donation flow"
+    },
+
+    "assistanceTitle": "Assistance",
+    "@assistanceTitle": {
+        "description": "Title for the assistance application section"
+    },
+
+    "assistanceSubtitle": "If you cannot afford a caregiver, you can apply for assistance from the Central Fund.",
+    "@assistanceSubtitle": {
+        "description": "Instructional text about the assistance program"
+    },
+
+    "applyForAssistanceLabel": "Apply for Assistance",
+    "@applyForAssistanceLabel": {
+        "description": "Label for the button to apply for financial assistance"
+    },
+
+    "donationHistoryLabel": "Donation History",
+    "@donationHistoryLabel": {
+        "description": "Label for the donation history action button"
+    },
+
     "patientDetailsTitle": "Patient Details",
     "@patientDetailsTitle": {
         "description": "Page title for patient details"
@@ -980,6 +1015,571 @@
         }
     },
 
+    "dashboardNavCaregivers": "Caregivers",
+    "@dashboardNavCaregivers": {
+        "description": "Label for the Caregivers tab in the elderly dashboard"
+    },
+
+    "dashboardNavMedicine": "Medicine",
+    "@dashboardNavMedicine": {
+        "description": "Label for the Medicine tab in the elderly dashboard"
+    },
+
+    "dashboardNavChat": "Chat",
+    "@dashboardNavChat": {
+        "description": "Label for the Chat tab in the elderly dashboard"
+    },
+
+    "dashboardNavProfile": "My Profile",
+    "@dashboardNavProfile": {
+        "description": "Label for the Profile tab in the elderly dashboard"
+    },
+
+    "dashboardMedicationTitle": "Today's Medication",
+    "@dashboardMedicationTitle": {
+        "description": "Title for the medication section on the elderly dashboard"
+    },
+
+    "dashboardMedicationViewAll": "View all",
+    "@dashboardMedicationViewAll": {
+        "description": "Link text to view all medications"
+    },
+
+    "dashboardCaregiverTitle": "Your Caregiver",
+    "@dashboardCaregiverTitle": {
+        "description": "Title for the caregiver section on the elderly dashboard"
+    },
+
+    "dashboardChatTitle": "Chat",
+    "@dashboardChatTitle": {
+        "description": "Title for the chat section on the elderly dashboard"
+    },
+
+    "dashboardEditRemindersLabel": "Edit Reminders",
+    "@dashboardEditRemindersLabel": {
+        "description": "Label for the button to edit reminders"
+    },
+
+    "dashboardPendingRequestSingle": "You have a new family binding request!",
+    "@dashboardPendingRequestSingle": {
+        "description": "Banner text for a single pending family request"
+    },
+
+    "dashboardPendingRequestMultiple": "You have {count} new family binding requests!",
+    "@dashboardPendingRequestMultiple": {
+        "description": "Banner text for multiple pending family requests",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "dashboardViewLabel": "VIEW",
+    "@dashboardViewLabel": {
+        "description": "Link text to view pending requests"
+    },
+
+    "greetingMorning": "Good morning",
+    "@greetingMorning": {
+        "description": "Morning greeting"
+    },
+
+    "greetingAfternoon": "Good afternoon",
+    "@greetingAfternoon": {
+        "description": "Afternoon greeting"
+    },
+
+    "greetingEvening": "Good evening",
+    "@greetingEvening": {
+        "description": "Evening greeting"
+    },
+
+    "greetingSummary": "Here's your care summary for today.",
+    "@greetingSummary": {
+        "description": "Subtitle below the greeting on the dashboard"
+    },
+
+    "sosLabel": "SOS",
+    "@sosLabel": {
+        "description": "Label for the emergency SOS button"
+    },
+
+    "noMedicationsScheduled": "No medications scheduled today.",
+    "@noMedicationsScheduled": {
+        "description": "Placeholder text when no medications are scheduled"
+    },
+
+    "upcomingAppointmentsTitle": "Upcoming Appointments",
+    "@upcomingAppointmentsTitle": {
+        "description": "Title for the appointments section"
+    },
+
+    "noUpcomingAppointments": "No upcoming appointments.",
+    "@noUpcomingAppointments": {
+        "description": "Placeholder text when no appointments are scheduled"
+    },
+
+    "appointmentDateAtTime": "{date} at {time}",
+    "@appointmentDateAtTime": {
+        "description": "Format for appointment date and time",
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "12 Aug"
+            },
+            "time": {
+                "type": "String",
+                "example": "10:00 AM"
+            }
+        }
+    },
+
+    "noOtherRemindersSet": "No other reminders set.",
+    "@noOtherRemindersSet": {
+        "description": "Placeholder text when no other reminders are set"
+    },
+
+    "dashboardNoCaregiver": "No caregiver assigned yet.",
+    "@dashboardNoCaregiver": {
+        "description": "Placeholder text when no caregiver is assigned"
+    },
+
+    "dashboardNextVisit": "Next visit: {time}",
+    "@dashboardNextVisit": {
+        "description": "Label for the next caregiver visit time",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "Today at 2:00 PM"
+            }
+        }
+    },
+
+    "dashboardNoMessages": "No messages yet.",
+    "@dashboardNoMessages": {
+        "description": "Placeholder text when there are no chat messages"
+    },
+
+    "messageLabel": "Message",
+    "@messageLabel": {
+        "description": "Button label to start messaging"
+    },
+
+    "medicineTitle": "Medicine",
+    "@medicineTitle": {
+        "description": "Title for the medicine page"
+    },
+
+    "addMedicineLabel": "Add Medicine",
+    "@addMedicineLabel": {
+        "description": "Label for the button to add a new medicine"
+    },
+
+    "noMedicinesAdded": "No medicines added yet",
+    "@noMedicinesAdded": {
+        "description": "Empty state title when no medicines are added"
+    },
+
+    "addMedicineSubtitle": "Add your medicines to keep track of dosage, schedule, and refills.",
+    "@addMedicineSubtitle": {
+        "description": "Empty state subtitle for the medicine page"
+    },
+
+    "takeMedicineLabel": "Take Medicine",
+    "@takeMedicineLabel": {
+        "description": "Button label for taking a medicine"
+    },
+
+    "takenStatusLabel": "Taken",
+    "@takenStatusLabel": {
+        "description": "Status label indicating medicine has been taken"
+    },
+
+    "notTakenYetStatusLabel": "Not taken yet",
+    "@notTakenYetStatusLabel": {
+        "description": "Status label indicating medicine hasn't been taken yet"
+    },
+
+    "medicineDetailsTitle": "Medicine Details",
+    "@medicineDetailsTitle": {
+        "description": "Title for the medicine details page"
+    },
+
+    "nextReminderTitle": "NEXT REMINDER",
+    "@nextReminderTitle": {
+        "description": "Title for the next reminder section"
+    },
+
+    "dosageTitle": "Dosage",
+    "@dosageTitle": {
+        "description": "Title for the dosage section"
+    },
+
+    "scheduleTitle": "Schedule",
+    "@scheduleTitle": {
+        "description": "Title for the schedule section"
+    },
+
+    "refillReminderTitle": "Refill Reminder",
+    "@refillReminderTitle": {
+        "description": "Title for the refill reminder section"
+    },
+
+    "timesPerDayLabel": "{count}x per day",
+    "@timesPerDayLabel": {
+        "description": "Label for frequency of intake",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "sinceLabel": "Since {date}",
+    "@sinceLabel": {
+        "description": "Label for the start date of a medicine",
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "Jan 1, 2024"
+            }
+        }
+    },
+
+    "unitsLeftLabel": "{count} units left",
+    "@unitsLeftLabel": {
+        "description": "Label for remaining medicine units",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+
+    "notifyAtLabel": "Notify at {count} units",
+    "@notifyAtLabel": {
+        "description": "Label for the refill notification threshold",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+
+    "refillLowWarning": "Running low — consider ordering a refill.",
+    "@refillLowWarning": {
+        "description": "Warning message when medicine units are low"
+    },
+
+    "disabledLabel": "Disabled",
+    "@disabledLabel": {
+        "description": "Label indicating a feature is disabled"
+    },
+
+    "saveMedicineLabel": "Save Medicine",
+    "@saveMedicineLabel": {
+        "description": "Label for the button to save a new medicine"
+    },
+
+    "saveChangesLabel": "Save Changes",
+    "@saveChangesLabel": {
+        "description": "Label for the button to save changes to a medicine"
+    },
+
+    "medicineFormTablet": "Tablet",
+    "@medicineFormTablet": {
+        "description": "Label for tablet medicine form"
+    },
+
+    "medicineFormCapsule": "Capsule",
+    "@medicineFormCapsule": {
+        "description": "Label for capsule medicine form"
+    },
+
+    "medicineFormSyrup": "Syrup",
+    "@medicineFormSyrup": {
+        "description": "Label for syrup medicine form"
+    },
+
+    "medicineFormInjection": "Injection",
+    "@medicineFormInjection": {
+        "description": "Label for injection medicine form"
+    },
+
+    "medicineFormOther": "Other",
+    "@medicineFormOther": {
+        "description": "Label for other medicine forms"
+    },
+
+    "fillMedicineDetailsError": "Please fill in the medicine name, dosage, and all schedule times.",
+    "@fillMedicineDetailsError": {
+        "description": "Error message for incomplete medicine form"
+    },
+
+    "medicineLoadError": "Unable to load your medicines. Please try again.",
+    "@medicineLoadError": {
+        "description": "Error message when medicine list fails to load"
+    },
+
+    "addPhotoLabel": "Add photo",
+    "@addPhotoLabel": {
+        "description": "Label for the button to add a medicine photo"
+    },
+
+    "medicineInfoTitle": "Medicine Info",
+    "@medicineInfoTitle": {
+        "description": "Title for the medicine information section"
+    },
+
+    "medicineNameLabel": "Medicine name",
+    "@medicineNameLabel": {
+        "description": "Label for the medicine name input field"
+    },
+
+    "dosageHintLabel": "Dosage (e.g. 1)",
+    "@dosageHintLabel": {
+        "description": "Hint label for the dosage input field"
+    },
+
+    "formLabel": "Form",
+    "@formLabel": {
+        "description": "Label for the medicine form dropdown"
+    },
+
+    "timesPerDayTitle": "Times per day",
+    "@timesPerDayTitle": {
+        "description": "Title for the intake frequency section"
+    },
+
+    "startDateTitle": "Start date",
+    "@startDateTitle": {
+        "description": "Title for the medicine start date section"
+    },
+
+    "timesTitle": "Times",
+    "@timesTitle": {
+        "description": "Title for the dose timing section"
+    },
+
+    "doseIndexLabel": "Dose {number}",
+    "@doseIndexLabel": {
+        "description": "Label for a specific dose index",
+        "placeholders": {
+            "number": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+
+    "setTimeLabel": "Set time",
+    "@setTimeLabel": {
+        "description": "Placeholder for unset dose time"
+    },
+
+    "availableUnitsLabel": "Available units",
+    "@availableUnitsLabel": {
+        "description": "Label for the available medicine units field"
+    },
+
+    "notifyThresholdLabel": "Notify threshold",
+    "@notifyThresholdLabel": {
+        "description": "Label for the notification threshold field"
+    },
+
+    "editMedicineLabel": "Edit Medicine",
+    "@editMedicineLabel": {
+        "description": "Label for the button/title to edit a medicine"
+    },
+
+    "medicationsTitle": "Medications",
+    "@medicationsTitle": {
+        "description": "Title for the medications section"
+    },
+
+    "noMedicationsYet": "No medications yet.",
+    "@noMedicationsYet": {
+        "description": "Placeholder text when no medications are added"
+    },
+
+    "noAppointmentsScheduled": "No appointments scheduled.",
+    "@noAppointmentsScheduled": {
+        "description": "Placeholder text when no appointments are scheduled"
+    },
+
+    "viewDetailsLabel": "View Details",
+    "@viewDetailsLabel": {
+        "description": "Label for the button to view caregiver details"
+    },
+
+    "hourlyRateLabel": "{rate} ৳/hr",
+    "@hourlyRateLabel": {
+        "description": "Label for the hourly rate of a caregiver",
+        "placeholders": {
+            "rate": {
+                "type": "int",
+                "example": "250"
+            }
+        }
+    },
+
+    "distanceLabel": "{distance}km",
+    "@distanceLabel": {
+        "description": "Label for the distance to a caregiver",
+        "placeholders": {
+            "distance": {
+                "type": "double",
+                "example": "2.3"
+            }
+        }
+    },
+
+    "caregiverDetailsTitle": "Caregiver Details",
+    "@caregiverDetailsTitle": {
+        "description": "Title for the caregiver details page"
+    },
+
+    "caregiverInfoSectionTitle": "Caregiver Information",
+    "@caregiverInfoSectionTitle": {
+        "description": "Title for the caregiver info section"
+    },
+
+    "specialtiesTitle": "Specialties",
+    "@specialtiesTitle": {
+        "description": "Title for the specialties section"
+    },
+
+    "bookNowLabel": "Book Now",
+    "@bookNowLabel": {
+        "description": "Label for the button to start a booking"
+    },
+
+    "paymentLabel": "Payment",
+    "@paymentLabel": {
+        "description": "Label for the payment action"
+    },
+
+    "requestSentTitle": "Request Sent",
+    "@requestSentTitle": {
+        "description": "Title for the success dialog after sending a booking request"
+    },
+
+    "bookingRequestSentMessage": "Your booking request for {name} has been sent.\n\nWaiting for approval.",
+    "@bookingRequestSentMessage": {
+        "description": "Content for the booking request success dialog",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Nusrat Jahan"
+            }
+        }
+    },
+
+    "doneLabel": "Done",
+    "@doneLabel": {
+        "description": "Generic done button label"
+    },
+
+    "expLabel": "Exp",
+    "@expLabel": {
+        "description": "Short label for experience"
+    },
+
+    "rateLabel": "Rate",
+    "@rateLabel": {
+        "description": "Short label for rate"
+    },
+
+    "distLabel": "Dist",
+    "@distLabel": {
+        "description": "Short label for distance"
+    },
+
+    "bookForWhichElderTitle": "Book for which Elder?",
+    "@bookForWhichElderTitle": {
+        "description": "Title for the elder selection dialog"
+    },
+
+    "searchCaregiversHint": "Search by name or specialty...",
+    "@searchCaregiversHint": {
+        "description": "Hint text for the caregiver search field"
+    },
+
+    "filterAll": "All",
+    "@filterAll": {
+        "description": "Label for the 'All' caregiver filter"
+    },
+
+    "filterPhysiotherapy": "Physiotherapy",
+    "@filterPhysiotherapy": {
+        "description": "Label for the 'Physiotherapy' caregiver filter"
+    },
+
+    "filterSeniorCare": "Senior Care",
+    "@filterSeniorCare": {
+        "description": "Label for the 'Senior Care' caregiver filter"
+    },
+
+    "filterHomeNursing": "Home Nursing",
+    "@filterHomeNursing": {
+        "description": "Label for the 'Home Nursing' caregiver filter"
+    },
+
+    "genderMale": "Male",
+    "@genderMale": {
+        "description": "Label for male gender"
+    },
+
+    "genderFemale": "Female",
+    "@genderFemale": {
+        "description": "Label for female gender"
+    },
+
+    "availabilityFullTime": "Full-time",
+    "@availabilityFullTime": {
+        "description": "Label for full-time availability"
+    },
+
+    "availabilityPartTime": "Part-time",
+    "@availabilityPartTime": {
+        "description": "Label for part-time availability"
+    },
+
+    "availabilityOnCall": "On-call",
+    "@availabilityOnCall": {
+        "description": "Label for on-call availability"
+    },
+
+    "availabilityWeekendsOnly": "Weekends Only",
+    "@availabilityWeekendsOnly": {
+        "description": "Label for weekends only availability"
+    },
+
+    "documentNationalId": "National ID / Passport",
+    "@documentNationalId": {
+        "description": "Label for National ID document"
+    },
+
+    "documentCertificate": "Caregiving Certificate / License",
+    "@documentCertificate": {
+        "description": "Label for Caregiving Certificate document"
+    },
+
+    "documentPoliceClearance": "Police Clearance Certificate",
+    "@documentPoliceClearance": {
+        "description": "Label for Police Clearance document"
+    },
+
+    "verifiedStatusLabel": "VERIFIED",
+    "@verifiedStatusLabel": {
+        "description": "Badge text for a verified item"
+    },
+
     "cancelLabel": "Cancel",
     "@cancelLabel": {
         "description": "Generic cancel button label"
@@ -995,9 +1595,15 @@
         "description": "Label for the years of experience field or stat"
     },
 
-    "yearsLabel": "Years",
+    "yearsLabel": "{count} years",
     "@yearsLabel": {
-        "description": "Plural label for years"
+        "description": "Label for duration in years",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
     },
 
     "locationLabel": "Location",
@@ -1044,6 +1650,16 @@
     "logoutLabel": "Log Out",
     "@logoutLabel": {
         "description": "Label for the logout action button"
+    },
+
+    "logoutDialogTitle": "Log Out",
+    "@logoutDialogTitle": {
+        "description": "Title for the logout confirmation dialog"
+    },
+
+    "logoutDialogContent": "Are you sure you want to log out?",
+    "@logoutDialogContent": {
+        "description": "Content for the logout confirmation dialog"
     },
 
     "selectLanguageTitle": "Select Language",

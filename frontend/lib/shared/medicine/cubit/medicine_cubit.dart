@@ -21,6 +21,8 @@ class MedicineCubit extends Cubit<MedicineState> {
       emit(
         state.copyWith(
           status: MedicineStatus.failure,
+          // Since Cubits shouldn't have BuildContext, we might need to handle 
+          // this in the UI or use a static error key.
           errorMessage: 'Unable to load your medicines. Please try again.',
         ),
       );
@@ -55,7 +57,9 @@ class MedicineCubit extends Cubit<MedicineState> {
   static final _mockMedicines = [
     Medicine(
       id: 'MED-1',
+      // Old technique: name: 'Metformin (মেটফরমিন)',
       name: 'Metformin',
+      nameBn: 'মেটফরমিন',
       dosage: '1',
       form: MedicineForm.tablet,
       timesPerDay: 1,
@@ -68,7 +72,9 @@ class MedicineCubit extends Cubit<MedicineState> {
     ),
     Medicine(
       id: 'MED-2',
+      // Old technique: name: 'Lisinopril (লিসিনোপ্রিল)',
       name: 'Lisinopril',
+      nameBn: 'লিসিনোপ্রিল',
       dosage: '1',
       form: MedicineForm.tablet,
       timesPerDay: 1,
@@ -80,7 +86,9 @@ class MedicineCubit extends Cubit<MedicineState> {
     ),
     Medicine(
       id: 'MED-3',
+      // Old technique: name: 'Atorvastatin (অ্যাটোরভাস্ট্যাটিন)',
       name: 'Atorvastatin',
+      nameBn: 'অ্যাটোরভাস্ট্যাটিন',
       dosage: '1',
       form: MedicineForm.capsule,
       timesPerDay: 1,

@@ -208,7 +208,7 @@ class _BasicInfoStep extends StatelessWidget {
           label: l10n.genderLabel,
           value: state.gender,
           items: Gender.values,
-          itemLabel: (gender) => gender.label,
+          itemLabel: (gender) => gender.label(context),
           errorText: state.genderError,
           onChanged: cubit.genderChanged,
         ),
@@ -341,7 +341,7 @@ class _ProfessionalInfoStep extends StatelessWidget {
           label: l10n.availabilityLabel,
           value: state.availabilityType,
           items: AvailabilityType.values,
-          itemLabel: (type) => type.label,
+          itemLabel: (type) => type.label(context),
           errorText: state.availabilityTypeError,
           onChanged: cubit.availabilityTypeChanged,
         ),
@@ -395,7 +395,7 @@ class _DocumentsStep extends StatelessWidget {
         const SizedBox(height: 24),
         for (final type in CaregiverDocumentType.values) ...[
           DocumentUploadTile(
-            documentTypeLabel: type.label,
+            documentTypeLabel: type.label(context),
             fileName: state.uploadedDocuments[type]?.name,
             onFilePicked: (file) => cubit.documentPicked(type, file),
           ),

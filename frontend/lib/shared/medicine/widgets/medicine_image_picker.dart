@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../theme/app_colors.dart';
@@ -40,9 +41,10 @@ class MedicineImagePicker extends StatelessWidget {
                   Icons.photo_camera_outlined,
                   color: AppColors.primaryLight,
                 ),
-                title: const Text(
-                  'Take a photo',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                title: Text(
+                  context.l10n.takeAPhoto,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -54,9 +56,10 @@ class MedicineImagePicker extends StatelessWidget {
                   Icons.photo_library_outlined,
                   color: AppColors.primaryLight,
                 ),
-                title: const Text(
-                  'Choose from gallery',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                title: Text(
+                  context.l10n.chooseFromGallery,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -87,7 +90,7 @@ class MedicineImagePicker extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: imagePath == null
-            ? const Column(
+            ?  Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
@@ -97,8 +100,8 @@ class MedicineImagePicker extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Add photo',
-                    style: TextStyle(
+                    context.l10n.addPhotoLabel,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primaryLight,

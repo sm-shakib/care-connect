@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/utils/validators.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 part 'caregiver_signup_state.dart';
 
@@ -66,7 +69,7 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
     if (!canAdvance) return;
 
     if (state.isLastStep) {
-      submit();
+      unawaited(submit());
     } else {
       emit(
         state.copyWith(
@@ -112,9 +115,9 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
       //     file: entry.value,
       //   );
       // }
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future<void>.delayed(const Duration(milliseconds: 1000));
       emit(state.copyWith(status: CaregiverSignupStatus.success));
-    } catch (_) {
+    } on Exception catch (_) {
       emit(state.copyWith(status: CaregiverSignupStatus.failure));
     }
   }

@@ -228,6 +228,20 @@
 
     "noPreviousRequestsFound": "কোনো পূর্ববর্তী অনুরোধ নেই।",
 
+    "profileTitle": "প্রোফাইল",
+
+    "centralDonationFundTitle": "কেন্দ্রীয় সহায়তা তহবিল",
+
+    "donateNowLabel": "এখনই দান করুন",
+
+    "assistanceTitle": "সহায়তা",
+
+    "assistanceSubtitle": "আপনি যদি সেবা প্রদানকারীর খরচ বহন করতে না পারেন, তবে আপনি কেন্দ্রীয় তহবিল থেকে সহায়তার জন্য আবেদন করতে পারেন।",
+
+    "applyForAssistanceLabel": "সহায়তার জন্য আবেদন করুন",
+
+    "donationHistoryLabel": "দানের ইতিহাস",
+
     "patientDetailsTitle": "রোগীর বিবরণ",
 
     "fileComplaintLabel": "অভিযোগ করুন",
@@ -354,6 +368,114 @@
 
     "appVersionLabel": "ভার্সন {version}",
 
+    "dashboardNavCaregivers": "সেবা প্রদানকারী",
+    "dashboardNavMedicine": "ওষুধ",
+    "dashboardNavChat": "চ্যাট",
+    "dashboardNavProfile": "প্রোফাইল",
+    "dashboardMedicationTitle": "আজকের ওষুধ",
+    "dashboardMedicationViewAll": "সব দেখুন",
+    "dashboardCaregiverTitle": "আপনার সেবা প্রদানকারী",
+    "dashboardChatTitle": "চ্যাট",
+    "dashboardEditRemindersLabel": "রিমাইন্ডার পরিবর্তন",
+    "dashboardPendingRequestSingle": "আপনার একটি নতুন পরিবারের অনুরোধ আছে!",
+    "dashboardPendingRequestMultiple": "আপনার {count} টি নতুন পরিবারের অনুরোধ আছে!",
+    "dashboardViewLabel": "দেখুন",
+    "greetingMorning": "শুভ সকাল",
+    "greetingAfternoon": "শুভ অপরাহ্ন",
+    "greetingEvening": "শুভ সন্ধ্যা",
+    "greetingSummary": "এখানে আপনার আজকের সেবার সারাংশ রয়েছে।",
+    "sosLabel": "এসওএস",
+    "noMedicationsScheduled": "আজ কোনো ওষুধের সময়সূচী নেই।",
+    "upcomingAppointmentsTitle": "আগামী অ্যাপয়েন্টমেন্ট",
+    "noUpcomingAppointments": "কোনো আগামী অ্যাপয়েন্টমেন্ট নেই।",
+    "appointmentDateAtTime": "{date}, সময়: {time}",
+    "noOtherRemindersSet": "অন্য কোনো রিমাইন্ডার সেট করা নেই।",
+
+    "dashboardNoCaregiver": "এখনও কোনো সেবা প্রদানকারী নিযুক্ত নেই।",
+    "dashboardNextVisit": "পরবর্তী ভিজিট: {time}",
+    "dashboardNoMessages": "এখনও কোনো মেসেজ নেই।",
+    "messageLabel": "মেসেজ",
+
+    "medicineTitle": "ওষুধ",
+    "addMedicineLabel": "ওষুধ যোগ করুন",
+    "noMedicinesAdded": "এখনও কোনো ওষুধ যোগ করা হয়নি",
+    "addMedicineSubtitle": "মাত্রা, সময়সূচী এবং রিফিল ট্র্যাক রাখতে আপনার ওষুধগুলো যোগ করুন।",
+    "takeMedicineLabel": "ওষুধ সেবন করুন",
+    "takenStatusLabel": "সেবন করা হয়েছে",
+    "notTakenYetStatusLabel": "এখনও সেবন করা হয়নি",
+    "medicineDetailsTitle": "ওষুধের বিবরণ",
+    "nextReminderTitle": "পরবর্তী রিমাইন্ডার",
+    "dosageTitle": "মাত্রা",
+    "scheduleTitle": "সময়সূচী",
+    "refillReminderTitle": "রিফিল রিমাইন্ডার",
+    "timesPerDayLabel": "দিনে {count} বার",
+    "sinceLabel": "{date} থেকে",
+    "unitsLeftLabel": "{count} টি ইউনিট বাকি",
+    "notifyAtLabel": "{count} টি ইউনিটে বিজ্ঞপ্তি দিন",
+    "refillLowWarning": "ওষুধ কমে আসছে — নতুন করে রিফিল করার কথা ভাবুন।",
+    "disabledLabel": "নিষ্ক্রিয়",
+    "saveMedicineLabel": "ওষুধ সংরক্ষণ করুন",
+    "saveChangesLabel": "পরিবর্তন সংরক্ষণ করুন",
+    "medicineFormTablet": "ট্যাবলেট",
+    "medicineFormCapsule": "ক্যাপসুল",
+    "medicineFormSyrup": "সিরাপ",
+    "medicineFormInjection": "ইনজেকশন",
+    "medicineFormOther": "অন্যান্য",
+    "fillMedicineDetailsError": "অনুগ্রহ করে ওষুধের নাম, মাত্রা এবং সমস্ত সময়সূচী পূরণ করুন।",
+    "medicineLoadError": "আপনার ওষুধের তালিকা লোড করা সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "addPhotoLabel": "ছবি যোগ করুন",
+    "medicineInfoTitle": "ওষুধের তথ্য",
+    "medicineNameLabel": "ওষুধের নাম",
+    "dosageHintLabel": "মাত্রা (যেমন ১)",
+    "formLabel": "ধরণ",
+    "timesPerDayTitle": "দিনে কতবার",
+    "startDateTitle": "শুরু করার তারিখ",
+    "timesTitle": "সময়সমূহ",
+    "doseIndexLabel": "ডোজ {number}",
+    "setTimeLabel": "সময় সেট করুন",
+    "availableUnitsLabel": "উপলব্ধ ইউনিট",
+    "notifyThresholdLabel": "বিজ্ঞপ্তি দেওয়ার সীমা",
+
+    "editMedicineLabel": "ওষুধ পরিবর্তন",
+    "medicationsTitle": "ওষুধ",
+    "noMedicationsYet": "এখনও কোনো ওষুধ নেই।",
+    "noAppointmentsScheduled": "কোনো অ্যাপয়েন্টমেন্ট নির্ধারিত নেই।",
+
+    "viewDetailsLabel": "বিস্তারিত দেখুন",
+    "hourlyRateLabel": "{rate} ৳/ঘণ্টা",
+    "distanceLabel": "{distance}কিমি",
+
+    "caregiverDetailsTitle": "সেবা প্রদানকারীর বিবরণ",
+    "caregiverInfoSectionTitle": "সেবা প্রদানকারীর তথ্য",
+    "specialtiesTitle": "বিশেষত্ব",
+    "bookNowLabel": "বুক করুন",
+    "paymentLabel": "পেমেন্ট",
+    "requestSentTitle": "অনুরোধ পাঠানো হয়েছে",
+    "bookingRequestSentMessage": "{name} এর জন্য আপনার বুকিং অনুরোধ পাঠানো হয়েছে।\n\nঅনুমোদনের জন্য অপেক্ষা করা হচ্ছে।",
+    "doneLabel": "সম্পন্ন",
+    "expLabel": "অভিজ্ঞতা",
+    "rateLabel": "হার",
+    "distLabel": "দূরত্ব",
+    "bookForWhichElderTitle": "কোন বয়স্ক ব্যক্তির জন্য বুক করবেন?",
+
+    "searchCaregiversHint": "নাম বা দক্ষতা দিয়ে খুঁজুন...",
+    "filterAll": "সব",
+    "filterPhysiotherapy": "ফিজিওথেরাপি",
+    "filterSeniorCare": "বয়স্ক সেবা",
+    "filterHomeNursing": "হোম নার্সিং",
+
+    "genderMale": "পুরুষ",
+    "genderFemale": "মহিলা",
+    "availabilityFullTime": "পূর্ণকালীন",
+    "availabilityPartTime": "খণ্ডকালীন",
+    "availabilityOnCall": "অন-কল",
+    "availabilityWeekendsOnly": "শুধুমাত্র ছুটির দিন",
+
+    "documentNationalId": "জাতীয় পরিচয়পত্র / পাসপোর্ট",
+    "documentCertificate": "সেবা প্রদানকারী সার্টিফিকেট / লাইসেন্স",
+    "documentPoliceClearance": "পুলিশ ক্লিয়ারেন্স সার্টিফিকেট",
+    "verifiedStatusLabel": "যাচাইকৃত",
+
     "cancelLabel": "বাতিল",
 
     "saveLabel": "সংরক্ষণ",
@@ -362,7 +484,7 @@
 
     "experienceLabel": "অভিজ্ঞতা",
 
-    "yearsLabel": "বছর",
+    "yearsLabel": "{count} বছর",
 
     "locationLabel": "অবস্থান",
 
@@ -379,6 +501,8 @@
     "appLanguageValue": "অ্যাপের ভাষা: {language}",
 
     "logoutLabel": "লগ আউট",
+    "logoutDialogTitle": "লগ আউট",
+    "logoutDialogContent": "আপনি কি নিশ্চিত যে আপনি লগ আউট করতে চান?",
 
     "selectLanguageTitle": "ভাষা নির্বাচন করুন",
 

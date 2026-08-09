@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import '../../../theme/app_colors.dart';
-import '../models/medicine.dart';
-import 'medicine_image_picker.dart';
+import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/medicine/widgets/medicine_image_picker.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 /// Medicine info section of the add/edit medicine form: photo, name,
 /// dosage, and form.
@@ -36,9 +36,9 @@ class MedicineInfo extends StatelessWidget {
           children: [
             const Icon(Icons.info_outline, color: AppColors.primaryLight),
             const SizedBox(width: 8),
-            const Text(
-              'Medicine Info',
-              style: TextStyle(
+            Text(
+              context.l10n.medicineInfoTitle,
+              style: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkTeal,
@@ -58,7 +58,7 @@ class MedicineInfo extends StatelessWidget {
           controller: nameController,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
-            labelText: 'Medicine name',
+            labelText: context.l10n.medicineNameLabel,
             labelStyle: const TextStyle(fontSize: 20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -66,7 +66,8 @@ class MedicineInfo extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1.6),
+              borderSide:
+                  BorderSide(color: colorScheme.outlineVariant, width: 1.6),
             ),
           ),
         ),
@@ -77,7 +78,7 @@ class MedicineInfo extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
-            labelText: 'Dosage (e.g. 1)',
+            labelText: context.l10n.dosageHintLabel,
             labelStyle: const TextStyle(fontSize: 20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -85,16 +86,21 @@ class MedicineInfo extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1.6),
+              borderSide:
+                  BorderSide(color: colorScheme.outlineVariant, width: 1.6),
             ),
           ),
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<MedicineForm>(
           initialValue: form,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: colorScheme.onSurface),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
           decoration: InputDecoration(
-            labelText: 'Form',
+            labelText: context.l10n.formLabel,
             labelStyle: const TextStyle(fontSize: 20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -102,16 +108,22 @@ class MedicineInfo extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1.6),
+              borderSide: BorderSide(
+                color: colorScheme.outlineVariant,
+                width: 1.6,
+              ),
             ),
           ),
           items: MedicineForm.values
               .map(
-                (option) => DropdownMenuItem(
+                (option) => DropdownMenuItem<MedicineForm>(
                   value: option,
                   child: Text(
-                    option.label,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    option.label(context),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               )

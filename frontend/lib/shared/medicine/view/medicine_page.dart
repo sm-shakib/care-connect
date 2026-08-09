@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../cubit/medicine_cubit.dart';
 import 'medicine_view.dart';
@@ -18,7 +19,10 @@ class MedicinePage extends StatelessWidget {
     return BlocProvider(
       create: (_) => MedicineCubit()..loadMedicines(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Medications'), centerTitle: true),
+        appBar: AppBar(
+          title: Text(context.l10n.medicationsTitle),
+          centerTitle: true,
+        ),
         body: MedicineView(isElderly: isElderly),
       ),
     );

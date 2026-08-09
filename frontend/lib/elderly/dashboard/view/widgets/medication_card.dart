@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../cubit/dashboard_models.dart';
@@ -38,8 +39,11 @@ class MedicationCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                'No medications scheduled today.',
-                style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+                context.l10n.noMedicationsScheduled,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             )
           else
@@ -51,7 +55,10 @@ class MedicationCard extends StatelessWidget {
                     : () => onMarkTaken!(medications[i]),
               ),
               if (i != medications.length - 1)
-                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                Divider(
+                  height: 1,
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ),
             ],
         ],
       ),
@@ -80,7 +87,7 @@ class _MedicationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  medication.name,
+                  medication.getName(context),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -109,15 +116,17 @@ class _MedicationTile extends StatelessWidget {
               onPressed: onMarkTaken,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryLight,
-                side: const BorderSide(color: AppColors.primaryLight, width: 1.4),
+                side:
+                    const BorderSide(color: AppColors.primaryLight, width: 1.4),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Mark taken',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              child: Text(
+                context.l10n.markTakenLabel,
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
         ],

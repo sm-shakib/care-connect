@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../cubit/medicine_cubit.dart';
@@ -48,8 +49,9 @@ class MedicineView extends StatelessWidget {
         if (state.status == MedicineStatus.failure) {
           return Center(
             child: Text(
-              state.errorMessage ?? 'Something went wrong.',
+              state.errorMessage ?? context.l10n.medicineLoadError,
               textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18),
             ),
           );
         }
@@ -82,9 +84,12 @@ class MedicineView extends StatelessWidget {
                           ),
                         ),
                         icon: const Icon(Icons.add),
-                        label: const Text(
-                          'Add Medicine',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                        label: Text(
+                          context.l10n.addMedicineLabel,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
@@ -130,9 +135,9 @@ class _EmptyMedicineState extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'No medicines added yet',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.noMedicinesAdded,
+                    style: const TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.w700,
                       color: AppColors.darkTeal,
@@ -140,7 +145,7 @@ class _EmptyMedicineState extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Add your medicines to keep track of dosage, schedule, and refills.',
+                    context.l10n.addMedicineSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 20,
@@ -162,9 +167,12 @@ class _EmptyMedicineState extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.add),
-                      label: const Text(
-                        'Add Medicine',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                      label: Text(
+                        context.l10n.addMedicineLabel,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

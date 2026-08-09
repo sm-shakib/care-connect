@@ -113,6 +113,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     Medication(
       id: 'M-1',
       name: 'Metformin',
+      nameBn: 'মেটফরমিন',
       dosage: '500mg, 1 tablet',
       time: '8:00 AM',
       isTaken: true,
@@ -120,12 +121,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     Medication(
       id: 'M-2',
       name: 'Lisinopril',
+      nameBn: 'লিসিনোপ্রিল',
       dosage: '10mg, 1 tablet',
       time: '1:00 PM',
     ),
     Medication(
       id: 'M-3',
       name: 'Atorvastatin',
+      nameBn: 'অ্যাটোরভাস্ট্যাটিন',
       dosage: '20mg, 1 tablet',
       time: '9:00 PM',
     ),

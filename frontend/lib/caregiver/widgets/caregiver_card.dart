@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../models/caregiver.dart';
 
@@ -49,31 +50,6 @@ class CaregiverCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // CircleAvatar(
-              //   radius: 34,
-              //   backgroundColor: AppColors.paleMint,
-              //   child: ClipOval(
-              //     child: caregiver.imageUrl.isNotEmpty
-              //         ? Image.network(
-              //       caregiver.imageUrl,
-              //       fit: BoxFit.cover,
-              //       width: 68,
-              //       height: 68,
-              //       errorBuilder: (context, error, stackTrace) => Icon(
-              //         caregiver.gender == 'Male'
-              //             ? Icons.man
-              //             : Icons.woman,
-              //         color: AppColors.primaryLight,
-              //         size: 38,
-              //       ),
-              //     )
-              //         : Icon(
-              //       caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-              //       color: AppColors.primaryLight,
-              //       size: 38,
-              //     ),
-              //   ),
-              // ),
               CircleAvatar(
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
@@ -89,7 +65,7 @@ class CaregiverCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      caregiver.name,
+                      caregiver.getName(context),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -100,7 +76,8 @@ class CaregiverCard extends StatelessWidget {
                     ),
                     if (caregiver.specialties.isNotEmpty)
                       Text(
-                        caregiver.specialties.first,
+                        caregiver.getSpecialtyLabel(
+                            context, caregiver.specialties.first),
                         style: const TextStyle(
                           color: AppColors.onSurfaceVariantLight,
                           fontSize: 14,
@@ -109,46 +86,6 @@ class CaregiverCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-
-                    // const SizedBox(height: 4),
-                    // Text(
-                    //   caregiver.profession,
-                    //   style: const TextStyle(
-                    //     color: AppColors.onSurfaceVariantLight,
-                    //     fontSize: 15,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 8),
-                    // if (caregiver.isVerified)
-                    //   Container(
-                    //     padding: const EdgeInsets.symmetric(
-                    //       horizontal: 10,
-                    //       vertical: 4,
-                    //     ),
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.green.shade50,
-                    //       borderRadius: BorderRadius.circular(30),
-                    //     ),
-                    //     child: const Row(
-                    //       mainAxisSize: MainAxisSize.min,
-                    //       children: [
-                    //         Icon(
-                    //           Icons.verified,
-                    //           size: 14,
-                    //           color: Colors.green,
-                    //         ),
-                    //         SizedBox(width: 4),
-                    //         Text(
-                    //           "NID Verified",
-                    //           style: TextStyle(
-                    //             color: Colors.green,
-                    //             fontWeight: FontWeight.w600,
-                    //             fontSize: 12,
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
                   ],
                 ),
               ),
@@ -156,7 +93,7 @@ class CaregiverCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${caregiver.hourlyRate} ৳/hr",
+                    context.l10n.hourlyRateLabel(caregiver.hourlyRate),
                     style: const TextStyle(
                       color: AppColors.darkTeal,
                       fontSize: 18,
@@ -173,7 +110,7 @@ class CaregiverCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        "${caregiver.distance}km",
+                        context.l10n.distanceLabel(caregiver.distance),
                         style: const TextStyle(
                           color: AppColors.onSurfaceVariantLight,
                           fontSize: 14,
@@ -187,33 +124,6 @@ class CaregiverCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-
-          /// Specialties
-          // Wrap(
-          //   spacing: 8,
-          //   runSpacing: 8,
-          //   children: caregiver.specialties
-          //       .take(2)
-          //       .map(
-          //         (item) => Container(
-          //       padding: const EdgeInsets.symmetric(
-          //         horizontal: 12,
-          //         vertical: 7,
-          //       ),
-          //       decoration: BoxDecoration(
-          //         color: AppColors.surfaceContainerLight,
-          //         borderRadius: BorderRadius.circular(10),
-          //       ),
-          //       child: Text(
-          //         item,
-          //         style: const TextStyle(
-          //           fontSize: 13,
-          //         ),
-          //       ),
-          //     ),
-          //   )
-          //       .toList(),
-          // ),
 
           /// Button
           SizedBox(
@@ -229,9 +139,9 @@ class CaregiverCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                "View Details",
-                style: TextStyle(
+              child: Text(
+                context.l10n.viewDetailsLabel,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),

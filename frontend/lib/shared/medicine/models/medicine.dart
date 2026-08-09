@@ -1,21 +1,23 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 /// The physical form a medicine is taken in.
 enum MedicineForm { tablet, capsule, syrup, injection, other }
 
 extension MedicineFormLabel on MedicineForm {
-  String get label {
+  String label(BuildContext context) {
     switch (this) {
       case MedicineForm.tablet:
-        return 'Tablet';
+        return context.l10n.medicineFormTablet;
       case MedicineForm.capsule:
-        return 'Capsule';
+        return context.l10n.medicineFormCapsule;
       case MedicineForm.syrup:
-        return 'Syrup';
+        return context.l10n.medicineFormSyrup;
       case MedicineForm.injection:
-        return 'Injection';
+        return context.l10n.medicineFormInjection;
       case MedicineForm.other:
-        return 'Other';
+        return context.l10n.medicineFormOther;
     }
   }
 }
@@ -26,6 +28,7 @@ class Medicine extends Equatable {
   const Medicine({
     required this.id,
     required this.name,
+    this.nameBn,
     required this.dosage,
     required this.form,
     required this.timesPerDay,
@@ -39,7 +42,22 @@ class Medicine extends Equatable {
   });
 
   final String id;
+
+  /// Default (English) name.
   final String name;
+
+  /// Optional Bangla name.
+  final String? nameBn;
+
+  /// Returns the localized name based on the current app locale.
+  String getName(BuildContext context) {
+    if (Localizations.localeOf(context).languageCode == 'bn' &&
+        nameBn != null &&
+        nameBn!.isNotEmpty) {
+      return nameBn!;
+    }
+    return name;
+  }
 
   /// How many units should be consumed per intake, e.g. "1 tablet".
   final String dosage;
@@ -67,6 +85,7 @@ class Medicine extends Equatable {
 
   Medicine copyWith({
     String? name,
+    String? nameBn,
     String? dosage,
     MedicineForm? form,
     String? imagePath,
@@ -81,6 +100,7 @@ class Medicine extends Equatable {
     return Medicine(
       id: id,
       name: name ?? this.name,
+      nameBn: nameBn ?? this.nameBn,
       dosage: dosage ?? this.dosage,
       form: form ?? this.form,
       imagePath: imagePath ?? this.imagePath,
@@ -97,17 +117,18 @@ class Medicine extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    dosage,
-    form,
-    imagePath,
-    timesPerDay,
-    scheduleTimes,
-    startDate,
-    refillReminderEnabled,
-    availableUnits,
-    notifyThreshold,
-    isTakenToday,
-  ];
+        id,
+        name,
+        nameBn,
+        dosage,
+        form,
+        imagePath,
+        timesPerDay,
+        scheduleTimes,
+        startDate,
+        refillReminderEnabled,
+        availableUnits,
+        notifyThreshold,
+        isTakenToday,
+      ];
 }

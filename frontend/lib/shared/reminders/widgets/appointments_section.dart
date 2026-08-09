@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../theme/app_colors.dart';
@@ -15,13 +16,13 @@ class AppointmentsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.calendar_month, color: AppColors.primaryLight, size: 26),
-            SizedBox(width: 10),
+            const Icon(Icons.calendar_month, color: AppColors.primaryLight, size: 26),
+            const SizedBox(width: 10),
             Text(
-              'Upcoming Appointments',
-              style: TextStyle(
+              context.l10n.upcomingAppointmentsTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -37,11 +38,11 @@ class AppointmentsSection extends StatelessWidget {
               color: AppColors.surfaceContainerLight,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.outlineLight),
-                SizedBox(width: 12),
-                Text('No upcoming appointments.'),
+                const Icon(Icons.info_outline, color: AppColors.outlineLight),
+                const SizedBox(width: 12),
+                Text(context.l10n.noUpcomingAppointments),
               ],
             ),
           )
@@ -93,7 +94,10 @@ class _AppointmentTile extends StatelessWidget {
                 const Icon(Icons.calendar_month, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  '${appointment.date} at ${appointment.time}',
+                  context.l10n.appointmentDateAtTime(
+                    appointment.date,
+                    appointment.time,
+                  ),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,

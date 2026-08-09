@@ -200,7 +200,7 @@ class _BasicInfoStep extends StatelessWidget {
           label: l10n.genderLabel,
           value: state.gender,
           items: Gender.values,
-          itemLabel: (gender) => gender.label,
+          itemLabel: (gender) => gender.label(context),
           errorText: state.genderError,
           onChanged: cubit.genderChanged,
         ),

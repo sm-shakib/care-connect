@@ -9,6 +9,7 @@ import '../../caregiver_donation/caregiver_donation_tab.dart';
 import '../../caregiver_notifications/caregiver_notifications.dart';
 import '../../caregiver_profile/caregiver_profile.dart';
 import '../../caregiver_request/caregiver_request.dart';
+import '../../../login/login.dart';
 import '../cubit/caregiver_dashboard_cubit.dart';
 import '../widgets/caregiver_bottom_navbar.dart';
 import 'caregiver_dashboard_view.dart';
@@ -62,7 +63,16 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
               // showTopBar: false — this shell's own AppBar below already
               // shows "Profile" as the title, so the page's built-in
               // back-arrow + "Profile" bar is hidden to avoid duplication.
-              body = const CaregiverProfilePage(showTopBar: false);
+              body = CaregiverProfilePage(
+                showTopBar: false,
+                onLogOut: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
+                },
+              );
           }
 
           return Scaffold(
