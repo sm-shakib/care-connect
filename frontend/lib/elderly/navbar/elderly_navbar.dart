@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/elderly/navbar/navbar_button.dart';
 import 'package:frontend/elderly/navbar/navbar_item.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 
 class ElderlyBottomNavBar extends StatelessWidget {
@@ -14,17 +15,18 @@ class ElderlyBottomNavBar extends StatelessWidget {
 	final int selectedIndex;
 	final ValueChanged<int> onChanged;
 
-	static const List<NavbarItem> _items = [
-		NavbarItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
-		NavbarItem(icon: Icons.people_outline, activeIcon: Icons.people, label: 'Caregivers'),
-		NavbarItem(icon: Icons.medication_outlined, activeIcon: Icons.medication, label: 'Medicine'),
-		NavbarItem(icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble, label: 'Chat'),
-		NavbarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
+	static List<NavbarItem> _items(BuildContext context) => [
+		NavbarItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: context.l10n.homeLabel),
+		NavbarItem(icon: Icons.people_outline, activeIcon: Icons.people, label: context.l10n.dashboardNavCaregivers),
+		NavbarItem(icon: Icons.medication_outlined, activeIcon: Icons.medication, label: context.l10n.dashboardNavMedicine),
+		NavbarItem(icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble, label: context.l10n.dashboardNavChat),
+		NavbarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: context.l10n.profileLabel),
 	];
 
 	@override
 	Widget build(BuildContext context) {
 		final colorScheme = Theme.of(context).colorScheme;
+		final items = _items(context);
 
 		return Container(
 			decoration: BoxDecoration(
@@ -39,9 +41,9 @@ class ElderlyBottomNavBar extends StatelessWidget {
 					child: SizedBox(
 						height: 72,
 						child: Row(
-							children: List.generate(_items.length, (index) {
+							children: List.generate(items.length, (index) {
 								final isSelected = index == selectedIndex;
-								final item = _items[index];
+								final item = items[index];
 								return Expanded(
 									child: NavbarButton(
 										icon: isSelected ? item.activeIcon : item.icon,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../../theme/app_colors.dart';
 
@@ -14,11 +15,11 @@ class GreetingsSection extends StatelessWidget {
   final String userName;
   final VoidCallback? onSosTap;
 
-  String get _greeting {
+  String _greeting(BuildContext context) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return context.l10n.greetingMorning;
+    if (hour < 17) return context.l10n.greetingAfternoon;
+    return context.l10n.greetingEvening;
   }
 
   @override
@@ -33,7 +34,7 @@ class GreetingsSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$_greeting, $userName',
+                '${_greeting(context)}, $userName',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -42,7 +43,7 @@ class GreetingsSection extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                "Here's your care summary for today.",
+                context.l10n.greetingSummary,
                 style: TextStyle(
                   fontSize: 15,
                   color: colorScheme.onSurfaceVariant,
@@ -72,12 +73,12 @@ class _SosButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Container(
-          width: 64,
-          height: 64,
+          width: 80,
+          height: 68,
           alignment: Alignment.center,
-          child: const Text(
-            'SOS',
-            style: TextStyle(
+          child: Text(
+            context.l10n.sosLabel,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w900,
               fontSize: 20,

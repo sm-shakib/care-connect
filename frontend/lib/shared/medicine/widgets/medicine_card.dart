@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/medicine.dart';
@@ -76,7 +77,7 @@ class MedicineCard extends StatelessWidget {
                         _TimeBadge(time: medicine.nextReminder),
                         const SizedBox(height: 10),
                         Text(
-                          medicine.name,
+                          medicine.getName(context),
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.w600,
@@ -87,7 +88,7 @@ class MedicineCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${medicine.dosage} ${medicine.form.label}',
+                          '${medicine.dosage} ${medicine.form.label(context)}',
                           style: TextStyle(
                             fontSize: 20,
                             color: colorScheme.onSurfaceVariant,
@@ -112,9 +113,9 @@ class MedicineCard extends StatelessWidget {
                       ? OutlinedButton.icon(
                           onPressed: null,
                           icon: const Icon(Icons.check_circle),
-                          label: const Text(
-                            'Taken',
-                            style: TextStyle(
+                          label: Text(
+                            context.l10n.takenStatusLabel,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -136,9 +137,9 @@ class MedicineCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                          child: const Text(
-                            'Take Medicine',
-                            style: TextStyle(
+                          child: Text(
+                            context.l10n.takeMedicineLabel,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -201,7 +202,9 @@ class _TakenStatus extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          isTaken ? 'Taken' : 'Not taken yet',
+          isTaken
+              ? context.l10n.takenStatusLabel
+              : context.l10n.notTakenYetStatusLabel,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,

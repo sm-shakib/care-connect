@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../models/medicine.dart';
 import 'add_medicine_view.dart';
@@ -16,7 +17,11 @@ class AddMedicinePage extends StatelessWidget {
       backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFBFEFC),
-        title: Text(existing == null ? 'Add Medicine' : 'Edit Medicine'),
+        title: Text(
+          existing == null
+              ? context.l10n.addMedicineLabel
+              : context.l10n.editMedicineLabel,
+        ),
         centerTitle: true,
       ),
       body: AddMedicineView(

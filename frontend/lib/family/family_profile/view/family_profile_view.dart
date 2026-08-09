@@ -222,7 +222,7 @@ class _ReadOnlyInfoRows extends StatelessWidget {
         _InfoRow(
           icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
           label: 'Gender',
-          value: state.gender?.label ?? '—',
+          value: state.gender?.label(context) ?? '—',
         ),
         _InfoRow(
           icon: Icons.cake_outlined,
@@ -337,7 +337,7 @@ class _EditableInfoFields extends StatelessWidget {
         _ReadOnlyEditField(
           label: 'Gender',
           icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
-          value: state.gender?.label ?? '—',
+          value: state.gender?.label(context) ?? '—',
         ),
         const SizedBox(height: 16),
         AuthDateField(

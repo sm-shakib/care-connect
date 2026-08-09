@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../../medicine/models/medicine.dart';
@@ -51,13 +52,18 @@ class EditRemindersView extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Edit Reminders',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+            Text(
+              context.l10n.editRemindersTitle,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkTeal,
+              ),
             ),
             Text(
-              'for $elderName',
-              style: const TextStyle(fontSize: 12, color: AppColors.outlineLight),
+              context.l10n.editRemindersForLabel(elderName),
+              style:
+                  const TextStyle(fontSize: 12, color: AppColors.outlineLight),
             ),
           ],
         ),
@@ -69,33 +75,34 @@ class EditRemindersView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RemindersSectionHeader(
-                title: 'Medications',
+                title: context.l10n.medicationsTitle,
                 icon: Icons.medication,
                 onAdd: () => _openMedicineForm(context),
               ),
               const SizedBox(height: 12),
               if (controller.medicines.isEmpty)
-                const _EmptySectionHint(text: 'No medications yet.')
+                _EmptySectionHint(text: context.l10n.noMedicationsYet)
               else
                 for (final medicine in controller.medicines) ...[
                   ReminderEditTile(
-                    title: medicine.name,
+                    title: medicine.getName(context),
                     subtitle: '${medicine.dosage} • ${medicine.nextReminder}',
-                    onEdit: () => _openMedicineForm(context, existing: medicine),
+                    onEdit: () =>
+                        _openMedicineForm(context, existing: medicine),
                     onDelete: () => controller.onDeleteMedicine(medicine.id),
                   ),
                   const SizedBox(height: 10),
                 ],
               const SizedBox(height: 24),
-
               RemindersSectionHeader(
-                title: 'Other Reminders',
+                title: context.l10n.otherRemindersTitle,
                 icon: Icons.event_note,
-                onAdd: () => showCareReminderFormSheet(context, onSave: controller.onAddReminder),
+                onAdd: () => showCareReminderFormSheet(context,
+                    onSave: controller.onAddReminder),
               ),
               const SizedBox(height: 12),
               if (controller.reminders.isEmpty)
-                const _EmptySectionHint(text: 'No other reminders yet.')
+                _EmptySectionHint(text: context.l10n.noOtherRemindersYet)
               else
                 for (final reminder in controller.reminders) ...[
                   ReminderEditTile(
@@ -112,15 +119,15 @@ class EditRemindersView extends StatelessWidget {
                   const SizedBox(height: 10),
                 ],
               const SizedBox(height: 24),
-
               RemindersSectionHeader(
-                title: 'Appointments',
+                title: context.l10n.upcomingAppointmentsTitle,
                 icon: Icons.calendar_month,
-                onAdd: () => showAppointmentFormSheet(context, onSave: controller.onAddAppointment),
+                onAdd: () => showAppointmentFormSheet(context,
+                    onSave: controller.onAddAppointment),
               ),
               const SizedBox(height: 12),
               if (controller.appointments.isEmpty)
-                const _EmptySectionHint(text: 'No appointments scheduled.')
+                _EmptySectionHint(text: context.l10n.noAppointmentsScheduled)
               else
                 for (final appointment in controller.appointments) ...[
                   ReminderEditTile(

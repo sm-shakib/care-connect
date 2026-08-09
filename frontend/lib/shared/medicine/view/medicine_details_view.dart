@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:intl/intl.dart';
 
 import '../../../theme/app_colors.dart';
@@ -41,7 +42,7 @@ class MedicineDetailsView extends StatelessWidget {
         const SizedBox(height: 18),
         Center(
           child: Text(
-            medicine.name,
+            medicine.getName(context),
             style: const TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w700,
@@ -51,7 +52,7 @@ class MedicineDetailsView extends StatelessWidget {
         ),
         Center(
           child: Text(
-            '${medicine.dosage} • ${medicine.form.label}',
+            '${medicine.dosage} • ${medicine.form.label(context)}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -70,9 +71,9 @@ class MedicineDetailsView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'NEXT REMINDER',
-                style: TextStyle(
+              Text(
+                context.l10n.nextReminderTitle,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.6,
@@ -94,19 +95,23 @@ class MedicineDetailsView extends StatelessWidget {
         const SizedBox(height: 18),
         _SectionCard(
           icon: Icons.medication_outlined,
-          title: 'Dosage',
-          child: Text('${medicine.dosage} (${medicine.form.label})'),
+          title: context.l10n.dosageTitle,
+          child: Text('${medicine.dosage} (${medicine.form.label(context)})'),
         ),
         const SizedBox(height: 14),
         _SectionCard(
           icon: Icons.calendar_month_outlined,
-          title: 'Schedule',
+          title: context.l10n.scheduleTitle,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${medicine.timesPerDay}x per day'),
+              Text(context.l10n.timesPerDayLabel(medicine.timesPerDay)),
               const SizedBox(height: 4),
-              Text('Since ${DateFormat('MMM d, yyyy').format(medicine.startDate)}'),
+              Text(
+                context.l10n.sinceLabel(
+                  DateFormat('MMM d, yyyy').format(medicine.startDate),
+                ),
+              ),
               const SizedBox(height: 4),
               Text(medicine.scheduleTimes.join(', ')),
             ],
@@ -115,19 +120,19 @@ class MedicineDetailsView extends StatelessWidget {
         const SizedBox(height: 14),
         _SectionCard(
           icon: Icons.notifications_active_outlined,
-          title: 'Refill Reminder',
+          title: context.l10n.refillReminderTitle,
           child: medicine.refillReminderEnabled
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${medicine.availableUnits} units left'),
+                    Text(context.l10n.unitsLeftLabel(medicine.availableUnits)),
                     const SizedBox(height: 4),
-                    Text('Notify at ${medicine.notifyThreshold} units'),
+                    Text(context.l10n.notifyAtLabel(medicine.notifyThreshold)),
                     if (medicine.isRefillLow) ...[
                       const SizedBox(height: 8),
-                      const Text(
-                        'Running low — consider ordering a refill.',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.refillLowWarning,
+                        style: const TextStyle(
                           color: AppColors.warningRed,
                           fontWeight: FontWeight.w600,
                         ),
@@ -135,7 +140,7 @@ class MedicineDetailsView extends StatelessWidget {
                     ],
                   ],
                 )
-              : const Text('Disabled'),
+              : Text(context.l10n.disabledLabel),
         ),
         const SizedBox(height: 28),
         SizedBox(
@@ -150,9 +155,9 @@ class MedicineDetailsView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
-              'Edit Medicine',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            child: Text(
+              context.l10n.editMedicineLabel,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -180,9 +185,12 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant, width: 1.6),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1.8,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

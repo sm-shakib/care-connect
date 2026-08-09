@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
 import 'package:frontend/caregiver/data/caregiver_dummy_data.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
-
-import '../../../../theme/app_colors.dart';
-import '../../cubit/dashboard_models.dart';
-import 'dashboard_card_header.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 /// Card showing the elderly user's assigned caregiver with a quick action
 /// to message them. Tapping the card opens the caregiver's full details,
@@ -55,8 +56,11 @@ class CaregiverCard extends StatelessWidget {
             children: [
               if (caregiver == null)
                 Text(
-                  'No caregiver assigned yet.',
-                  style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+                  context.l10n.dashboardNoCaregiver,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 )
               else
                 _CaregiverDetails(caregiver: caregiver!),
@@ -75,12 +79,14 @@ class CaregiverCard extends StatelessWidget {
       orElse: () => caregiverList.first,
     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => CaregiverDetailsPage(
-          caregiver: fullCaregiver,
-          isAssigned: true,
+    unawaited(
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => CaregiverDetailsPage(
+            caregiver: fullCaregiver,
+            isAssigned: true,
+          ),
         ),
       ),
     );
@@ -126,13 +132,6 @@ class _CaregiverDetails extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  // Text(
-                  //   caregiver.profession,
-                  //   style: TextStyle(
-                  //     fontSize: 15,
-                  //     color: colorScheme.onSurfaceVariant,
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -149,7 +148,7 @@ class _CaregiverDetails extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Next visit: ${caregiver.nextVisitLabel}',
+                context.l10n.dashboardNextVisit(caregiver.nextVisitLabel),
                 style: TextStyle(
                   fontSize: 14,
                   color: colorScheme.onSurfaceVariant,
@@ -169,9 +168,9 @@ class _CaregiverDetails extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
             icon: const Icon(Icons.chat_bubble_outline, size: 20),
-            label: const Text(
-              'Message',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            label: Text(
+              context.l10n.messageLabel,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -199,13 +198,15 @@ class _CaregiverDetails extends StatelessWidget {
     );
     if (!context.mounted) return;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => ConversationPage(
-          repository: repository,
-          conversationId: conversation.id,
-          currentUser: ChatDirectory.adib,
+    unawaited(
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => ConversationPage(
+            repository: repository,
+            conversationId: conversation.id,
+            currentUser: ChatDirectory.adib,
+          ),
         ),
       ),
     );

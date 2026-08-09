@@ -1,27 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
 import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_cubit.dart';
 import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_body.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_cubit.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_state.dart';
+import 'package:frontend/elderly/dashboard/view/edit_reminders_page.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/caregiver_card.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/chat_card.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/dashboard_card_header.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/greetings_section.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/medication_card.dart';
+import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
+import 'package:frontend/elderly/navbar/elderly_navbar.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
 import 'package:frontend/elderly/view/elderly_notifications_page.dart';
-import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
 import 'package:frontend/elderly/view/sos_alert_page.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
-
-import 'cubit/dashboard_cubit.dart';
-import 'cubit/dashboard_state.dart';
-import 'view/edit_reminders_page.dart';
-import 'view/widgets/caregiver_card.dart';
-import 'view/widgets/chat_card.dart';
-import 'view/widgets/dashboard_card_header.dart';
-import 'view/widgets/greetings_section.dart';
-import 'view/widgets/medication_card.dart';
-import '../navbar/elderly_navbar.dart';
+import 'package:intl/intl.dart';
 
 
 class ElderlyDashboardPage extends StatelessWidget {
@@ -51,17 +54,17 @@ class _ElderlyDashboardView extends StatefulWidget {
 class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   int _selectedIndex = 0;
 
-  static const List<String> _titles = [
-    'CareConnect',
-    'Caregivers',
-    'Medicine',
-    'Chat',
-    'My Profile',
-  ];
+  static List<String> _titles(BuildContext context) => [
+        context.l10n.careConnectTitle,
+        context.l10n.dashboardNavCaregivers,
+        context.l10n.dashboardNavMedicine,
+        context.l10n.dashboardNavChat,
+        context.l10n.dashboardNavProfile,
+      ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final titles = _titles(context);
 
     return Scaffold(
       // backgroundColor: theme.colorScheme.surface,
@@ -72,11 +75,11 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
         // backgroundColor: theme.colorScheme.surface,
         backgroundColor: const Color(0xFFFBFEFC),
         automaticallyImplyLeading: false,
-        shape: Border(
+        shape: const Border(
           bottom: BorderSide(color: AppColors.outlineVariantLight),
         ),
         title: Text(
-          _titles[_selectedIndex],
+          titles[_selectedIndex],
           style: const TextStyle(
             color: AppColors.darkTeal,
             fontWeight: FontWeight.bold,
@@ -184,7 +187,7 @@ class _DashboardHomeBody extends StatelessWidget {
         if (state.status == DashboardStatus.failure) {
           return Center(
             child: Text(
-              state.errorMessage ?? 'Something went wrong.',
+              state.errorMessage ?? context.l10n.genericFailureMessage,
               textAlign: TextAlign.center,
             ),
           );
@@ -214,8 +217,8 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 24),
               DashboardCardHeader(
                 icon: Icons.medication_outlined,
-                title: "Today's Medication",
-                trailingLabel: 'View all',
+                title: context.l10n.dashboardMedicationTitle,
+                trailingLabel: context.l10n.dashboardMedicationViewAll,
                 onTrailingTap: onOpenMedicine,
               ),
               const SizedBox(height: 12),
@@ -232,16 +235,16 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 24),
               const _EditRemindersButton(),
               const SizedBox(height: 24),
-              const DashboardCardHeader(
+              DashboardCardHeader(
                 icon: Icons.favorite_outline,
-                title: 'Your Caregiver',
+                title: context.l10n.dashboardCaregiverTitle,
               ),
               const SizedBox(height: 12),
               CaregiverCard(caregiver: state.caregiver),
               const SizedBox(height: 24),
-              const DashboardCardHeader(
+              DashboardCardHeader(
                 icon: Icons.chat_bubble_outline,
-                title: 'Chat',
+                title: context.l10n.dashboardChatTitle,
               ),
               const SizedBox(height: 12),
               ChatCard(chat: state.chatPreview, onTap: onOpenChat),
@@ -323,15 +326,17 @@ class _EditRemindersButton extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.edit_document),
-        label: const Text(
-          'Edit Reminders',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        label: Text(
+          context.l10n.dashboardEditRemindersLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.darkTeal,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
     );
@@ -359,15 +364,17 @@ class _PendingRequestBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = count == 1
-        ? 'You have a new family binding request!'
-        : 'You have $count new family binding requests!';
+        ? context.l10n.dashboardPendingRequestSingle
+        : context.l10n.dashboardPendingRequestMultiple(count);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.paleMint,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
+        border: Border.all(
+          color: AppColors.primaryLight.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
@@ -386,19 +393,21 @@ class _PendingRequestBanner extends StatelessWidget {
           TextButton(
             onPressed: () {
               final cubit = context.read<DashboardCubit>();
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => BlocProvider.value(
-                    value: cubit,
-                    child: const BindingRequestsPage(),
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => BlocProvider.value(
+                      value: cubit,
+                      child: const BindingRequestsPage(),
+                    ),
                   ),
                 ),
               );
             },
-            child: const Text(
-              'VIEW',
-              style: TextStyle(
+            child: Text(
+              context.l10n.dashboardViewLabel,
+              style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppColors.darkTeal,
                 decoration: TextDecoration.underline,

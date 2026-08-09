@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:intl/intl.dart';
 
 import '../../../theme/app_colors.dart';
@@ -55,9 +56,9 @@ class DosageSchedule extends StatelessWidget {
           children: [
             const Icon(Icons.calendar_month_outlined, color: AppColors.primaryLight),
             const SizedBox(width: 8),
-            const Text(
-              'Schedule',
-              style: TextStyle(
+            Text(
+              context.l10n.scheduleTitle,
+              style: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkTeal,
@@ -67,7 +68,7 @@ class DosageSchedule extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'Times per day',
+          context.l10n.timesPerDayTitle,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -97,7 +98,7 @@ class DosageSchedule extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Start date',
+          context.l10n.startDateTitle,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class DosageSchedule extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Times',
+          context.l10n.timesTitle,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -164,7 +165,7 @@ class DosageSchedule extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Dose ${i + 1}: ${scheduleTimes[i]?.format(context) ?? 'Set time'}',
+                        '${context.l10n.doseIndexLabel(i + 1)}: ${scheduleTimes[i]?.format(context) ?? context.l10n.setTimeLabel}',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,

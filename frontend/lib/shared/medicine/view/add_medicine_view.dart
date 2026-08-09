@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/medicine.dart';
@@ -103,8 +104,8 @@ class _AddMedicineViewState extends State<AddMedicineView> {
   void _save() {
     if (!_canSave) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in the medicine name, dosage, and all schedule times.'),
+        SnackBar(
+          content: Text(context.l10n.fillMedicineDetailsError),
         ),
       );
       return;
@@ -178,7 +179,9 @@ class _AddMedicineViewState extends State<AddMedicineView> {
               ),
             ),
             child: Text(
-              widget.existing == null ? 'Save Medicine' : 'Save Changes',
+              widget.existing == null
+                  ? context.l10n.saveMedicineLabel
+                  : context.l10n.saveChangesLabel,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
           ),

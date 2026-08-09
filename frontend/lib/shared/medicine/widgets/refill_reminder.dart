@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 
@@ -31,10 +32,10 @@ class RefillReminder extends StatelessWidget {
           children: [
             const Icon(Icons.notifications_active_outlined, color: AppColors.primaryLight),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Refill Reminder',
-                style: TextStyle(
+                context.l10n.refillReminderTitle,
+                style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.w700,
                   color: AppColors.darkTeal,
@@ -51,13 +52,13 @@ class RefillReminder extends StatelessWidget {
         if (enabled) ...[
           const SizedBox(height: 16),
           _NumberField(
-            label: 'Available units',
+            label: context.l10n.availableUnitsLabel,
             value: availableUnits,
             onChanged: onAvailableUnitsChanged,
           ),
           const SizedBox(height: 14),
           _NumberField(
-            label: 'Notify threshold',
+            label: context.l10n.notifyThresholdLabel,
             value: notifyThreshold,
             onChanged: onNotifyThresholdChanged,
           ),

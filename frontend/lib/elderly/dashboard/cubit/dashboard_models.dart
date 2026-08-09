@@ -1,10 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 
 /// A single medication reminder shown on the elderly dashboard.
 class Medication extends Equatable {
   const Medication({
     required this.id,
     required this.name,
+    this.nameBn,
     required this.dosage,
     required this.time,
     this.isTaken = false,
@@ -12,16 +14,28 @@ class Medication extends Equatable {
 
   final String id;
   final String name;
+  final String? nameBn;
   final String dosage;
 
   /// Pre-formatted time label, e.g. "8:00 AM".
   final String time;
   final bool isTaken;
 
+  /// Returns the localized name based on the current app locale.
+  String getName(BuildContext context) {
+    if (Localizations.localeOf(context).languageCode == 'bn' &&
+        nameBn != null &&
+        nameBn!.isNotEmpty) {
+      return nameBn!;
+    }
+    return name;
+  }
+
   Medication copyWith({bool? isTaken}) {
     return Medication(
       id: id,
       name: name,
+      nameBn: nameBn,
       dosage: dosage,
       time: time,
       isTaken: isTaken ?? this.isTaken,
@@ -29,7 +43,7 @@ class Medication extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, dosage, time, isTaken];
+  List<Object?> get props => [id, name, nameBn, dosage, time, isTaken];
 }
 
 /// Summary of the elderly user's assigned caregiver, shown on the

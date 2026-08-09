@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/core/donation/view/donation_flow_page.dart';
 import 'package:frontend/core/donation/view/donation_history_page.dart';
 import 'package:frontend/core/enums/gender.dart';
@@ -7,11 +10,11 @@ import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
+import 'package:frontend/elderly/elderly_profile/cubit/elderly_profile_cubit.dart';
 import 'package:frontend/elderly/view/assistance_form_page.dart';
+import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
-
-import '../cubit/elderly_profile_cubit.dart';
 
 class ElderlyProfileView extends StatelessWidget {
   const ElderlyProfileView({super.key, this.onLogOut, this.showTopBar = true});
@@ -59,10 +62,11 @@ class ElderlyProfileView extends StatelessWidget {
                         const SizedBox(height: 24),
                         Center(
                           child: Text(
-                            'Version 1.0.0',
+                            context.l10n.appVersionLabel('1.0.0'),
                             style: TextStyle(
                               fontSize: 14,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                              color: colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -82,14 +86,14 @@ class ElderlyProfileView extends StatelessWidget {
 class _ProfileTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Text(
-            'Profile',
-            style: TextStyle(
+            context.l10n.profileTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.darkTeal,
@@ -128,7 +132,11 @@ class _PersonalInfoCard extends StatelessWidget {
                       ? MemoryImage(state.profileImageBytes!)
                       : null,
                   child: state.profileImageBytes == null
-                      ? const Icon(Icons.person, size: 50, color: AppColors.darkTeal)
+                      ? const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: AppColors.darkTeal,
+                        )
                       : null,
                 ),
         ),
@@ -177,7 +185,7 @@ class _PersonalInfoCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: PrimaryPillButton(
-                        label: 'Cancel',
+                        label: context.l10n.cancelLabel,
                         isOutlined: true,
                         icon: null,
                         onPressed: cubit.cancelEditing,
@@ -187,7 +195,7 @@ class _PersonalInfoCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: PrimaryPillButton(
-                        label: 'Save',
+                        label: context.l10n.saveLabel,
                         icon: Icons.check,
                         isLoading: state.isSaving,
                         onPressed: cubit.saveChanges,
@@ -220,32 +228,34 @@ class _ReadOnlyInfoRows extends StatelessWidget {
       children: [
         _InfoRow(
           icon: Icons.person_outline,
-          label: 'Full Name',
+          label: context.l10n.fullNameLabel,
           value: state.name,
         ),
         _InfoRow(
           icon: Icons.phone_outlined,
-          label: 'Phone Number',
+          label: context.l10n.phoneNumberLabel,
           value: state.phone,
         ),
         _InfoRow(
           icon: Icons.location_on_outlined,
-          label: 'Address',
+          label: context.l10n.addressLabel,
           value: state.address,
         ),
         _InfoRow(
-          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
-          label: 'Gender',
-          value: state.gender?.label ?? '—',
+          icon: state.gender == Gender.male
+              ? Icons.man_outlined
+              : Icons.woman_outlined,
+          label: context.l10n.genderLabel,
+          value: state.gender?.label(context) ?? '—',
         ),
         _InfoRow(
           icon: Icons.cake_outlined,
-          label: 'Date of Birth',
+          label: context.l10n.dateOfBirthLabel,
           value: dobLabel,
         ),
         _InfoRow(
           icon: Icons.favorite_border,
-          label: 'Health Condition',
+          label: context.l10n.healthConditionLabel,
           value: state.healthCondition.isNotEmpty ? state.healthCondition : '—',
           isLast: true,
         ),
@@ -277,8 +287,10 @@ class _InfoRow extends StatelessWidget {
         border: isLast
             ? null
             : Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-        ),
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ),
+              ),
       ),
       child: Row(
         children: [
@@ -327,8 +339,8 @@ class _EditableInfoFields extends StatelessWidget {
       children: [
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-name'),
-          label: 'Full Name',
-          hintText: 'e.g. John Doe',
+          label: context.l10n.fullNameLabel,
+          hintText: context.l10n.fullNameLabel, // or a specific hint if needed
           prefixIcon: Icons.person_outline,
           initialValue: state.name,
           onChanged: cubit.nameChanged,
@@ -338,8 +350,8 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-phone'),
-          label: 'Phone Number',
-          hintText: 'e.g. +8801XXXXXXXXX',
+          label: context.l10n.phoneNumberLabel,
+          hintText: context.l10n.phoneNumberHint,
           prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
           initialValue: state.phone,
@@ -350,8 +362,8 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-address'),
-          label: 'Address',
-          hintText: 'e.g. Dhaka',
+          label: context.l10n.addressLabel,
+          hintText: context.l10n.addressHint,
           prefixIcon: Icons.location_on_outlined,
           initialValue: state.address,
           onChanged: cubit.addressChanged,
@@ -360,14 +372,16 @@ class _EditableInfoFields extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _ReadOnlyEditField(
-          label: 'Gender',
-          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
-          value: state.gender?.label ?? '—',
+          label: context.l10n.genderLabel,
+          icon: state.gender == Gender.male
+              ? Icons.man_outlined
+              : Icons.woman_outlined,
+          value: state.gender?.label(context) ?? '—',
         ),
         const SizedBox(height: 16),
         AuthDateField(
           key: ValueKey('$sessionKeyPrefix-dob'),
-          label: 'Date of Birth',
+          label: context.l10n.dateOfBirthLabel,
           value: state.dateOfBirth,
           onChanged: cubit.dateOfBirthChanged,
           labelFontSize: 16,
@@ -376,8 +390,8 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-health'),
-          label: 'Health Condition',
-          hintText: 'e.g. High Blood Pressure',
+          label: context.l10n.healthConditionLabel,
+          hintText: context.l10n.healthConditionHint,
           prefixIcon: Icons.favorite_border,
           initialValue: state.healthCondition,
           onChanged: cubit.healthConditionChanged,
@@ -452,15 +466,15 @@ class _DonationSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.paleMint,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.primaryLight.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
           const Icon(Icons.volunteer_activism, size: 48, color: AppColors.primaryLight),
           const SizedBox(height: 12),
-          const Text(
-            'Central Donation Fund',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+          Text(
+            context.l10n.centralDonationFundTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -468,9 +482,13 @@ class _DonationSection extends StatelessWidget {
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(builder: (_) => const DonationFlowPage()),
+                unawaited(
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const DonationFlowPage(),
+                    ),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -478,7 +496,7 @@ class _DonationSection extends StatelessWidget {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Donate Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              child: Text(context.l10n.donateNowLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             ),
           ),
         ],
@@ -498,19 +516,19 @@ class _AssistanceSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
           const Icon(Icons.volunteer_activism_outlined, size: 48, color: Colors.blue),
           const SizedBox(height: 12),
-          const Text(
-            'Assistance',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+          Text(
+            context.l10n.assistanceTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           const SizedBox(height: 8),
           Text(
-            'If you cannot afford a caregiver, you can apply for assistance from the Central Fund.',
+            context.l10n.assistanceSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
           ),
@@ -520,9 +538,13 @@ class _AssistanceSection extends StatelessWidget {
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(builder: (_) => const AssistanceFormPage()),
+                unawaited(
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const AssistanceFormPage(),
+                    ),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -530,7 +552,7 @@ class _AssistanceSection extends StatelessWidget {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Apply for Assistance', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              child: Text(context.l10n.applyForAssistanceLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             ),
           ),
         ],
@@ -550,6 +572,62 @@ class _ActionsSection extends StatelessWidget {
   final ElderlyProfileCubit cubit;
   final VoidCallback? onLogOut;
 
+  void _showLanguagePicker(BuildContext context) {
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: const Color(0xFFFBFEFC),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) {
+          final currentLocale = Localizations.localeOf(context);
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.l10n.selectLanguageTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkTeal,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                    title: Text(context.l10n.englishLanguageName),
+                    trailing: currentLocale.languageCode == 'en'
+                        ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                        : null,
+                    onTap: () {
+                      context.read<LocaleCubit>().setLocale(const Locale('en'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                    title: Text(context.l10n.banglaLanguageName),
+                    trailing: currentLocale.languageCode == 'bn'
+                        ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                        : null,
+                    onTap: () {
+                      context.read<LocaleCubit>().setLocale(const Locale('bn'));
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -559,29 +637,45 @@ class _ActionsSection extends StatelessWidget {
         if (!state.isEditing) ...[
           _ActionRow(
             icon: Icons.history,
-            label: 'Donation History',
+            label: context.l10n.donationHistoryLabel,
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(builder: (_) => const DonationHistoryPage()),
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const DonationHistoryPage(),
+                  ),
+                ),
               );
             },
           ),
           const SizedBox(height: 10),
           _ActionRow(
             icon: Icons.edit_outlined,
-            label: 'Edit Profile',
+            label: context.l10n.editProfileLabel,
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: cubit.startEditing,
+          ),
+          const SizedBox(height: 10),
+          _ActionRow(
+            icon: Icons.language_outlined,
+            label: context.l10n.appLanguageValue(
+              Localizations.localeOf(context).languageCode == 'en'
+                  ? context.l10n.englishLanguageName
+                  : context.l10n.banglaLanguageName,
+            ),
+            color: colorScheme.onSurface,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: () => _showLanguagePicker(context),
           ),
         ],
         const SizedBox(height: 10),
         _ActionRow(
           icon: Icons.logout,
-          label: 'Log Out',
+          label: context.l10n.logoutLabel,
           color: colorScheme.error,
           backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.2),
           onTap: () {
@@ -593,27 +687,47 @@ class _ActionsSection extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to log out?', style: TextStyle(fontSize: 18)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(fontSize: 16)),
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            context.l10n.logoutDialogTitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (onLogOut != null) {
-                onLogOut!.call();
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warningRed),
-            child: const Text('Logout', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          content: Text(
+            context.l10n.logoutDialogContent,
+            style: const TextStyle(fontSize: 18),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                context.l10n.cancelLabel,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (onLogOut != null) {
+                  onLogOut!.call();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.warningRed,
+              ),
+              child: Text(
+                context.l10n.logoutLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

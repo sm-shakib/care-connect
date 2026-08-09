@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/app/cubit/locale_cubit.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/medicine/widgets/medicine_card.dart';
 import 'package:intl/intl.dart';
-
-import '../models/medicine.dart';
-import 'medicine_card.dart';
 
 /// Today's date/day header followed by a list of medicine cards.
 class MedicineList extends StatelessWidget {
@@ -23,12 +24,13 @@ class MedicineList extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final today = DateTime.now();
+    final locale = context.read<LocaleCubit>().state.languageCode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          DateFormat('EEEE, MMMM d').format(today),
+          DateFormat('EEEE, MMMM d', locale).format(today),
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w600,
@@ -42,9 +44,12 @@ class MedicineList extends StatelessWidget {
             child: MedicineCard(
               medicine: medicine,
               isElderly: isElderly,
-              onTap: onTapMedicine == null ? null : () => onTapMedicine!(medicine),
-              onTakeMedicine:
-                  onTakeMedicine == null ? null : () => onTakeMedicine!(medicine),
+              onTap: onTapMedicine == null
+                  ? null
+                  : () => onTapMedicine!(medicine),
+              onTakeMedicine: onTakeMedicine == null
+                  ? null
+                  : () => onTakeMedicine!(medicine),
             ),
           ),
         ),

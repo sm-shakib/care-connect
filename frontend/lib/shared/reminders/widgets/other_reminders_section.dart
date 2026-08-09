@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/care_reminder.dart';
@@ -17,13 +18,13 @@ class OtherRemindersSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.event_note, color: AppColors.primaryLight, size: 26),
-            SizedBox(width: 10),
+            const Icon(Icons.event_note, color: AppColors.primaryLight, size: 26),
+            const SizedBox(width: 10),
             Text(
-              'Other Reminders',
-              style: TextStyle(
+              context.l10n.otherRemindersTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -39,11 +40,11 @@ class OtherRemindersSection extends StatelessWidget {
               color: AppColors.surfaceContainerLight,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.outlineLight),
-                SizedBox(width: 12),
-                Text('No other reminders set.'),
+                const Icon(Icons.info_outline, color: AppColors.outlineLight),
+                const SizedBox(width: 12),
+                Text(context.l10n.noOtherRemindersSet),
               ],
             ),
           )
@@ -63,7 +64,10 @@ class OtherRemindersSection extends StatelessWidget {
                 for (var i = 0; i < reminders.length; i++) ...[
                   _ReminderTile(reminder: reminders[i]),
                   if (i != reminders.length - 1)
-                    Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                    Divider(
+                      height: 1,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
                 ],
               ],
             ),

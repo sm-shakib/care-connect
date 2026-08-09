@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -213,7 +215,9 @@ class _StatsRow extends StatelessWidget {
           child: _StatBox(
             colorScheme: colorScheme,
             label: context.l10n.experienceLabel,
-            value: '${state.experienceYears} ${context.l10n.yearsLabel}',
+            value: context.l10n.yearsLabel(
+              int.tryParse(state.experienceYears) ?? 0,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -287,7 +291,9 @@ class _ReadOnlyInfoRows extends StatelessWidget {
         _InfoRow(
           icon: Icons.work_history_outlined,
           label: context.l10n.experienceLabel,
-          value: '${state.experienceYears} ${context.l10n.yearsLabel}',
+          value: context.l10n.yearsLabel(
+            int.tryParse(state.experienceYears) ?? 0,
+          ),
         ),
         _InfoRow(
           icon: Icons.phone_outlined,
@@ -301,9 +307,11 @@ class _ReadOnlyInfoRows extends StatelessWidget {
         ),
         // _InfoRow(icon: Icons.wc_outlined, label: 'Gender', value: state.gender?.label ?? '—'),
         _InfoRow(
-          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
+          icon: state.gender == Gender.male
+              ? Icons.man_outlined
+              : Icons.woman_outlined,
           label: context.l10n.genderLabel,
-          value: state.gender?.label ?? '—',
+          value: state.gender?.label(context) ?? '—',
         ),
         _InfoRow(icon: Icons.cake_outlined, label: context.l10n.dateOfBirthLabel, value: dobLabel),
         _InfoRow(
@@ -314,14 +322,14 @@ class _ReadOnlyInfoRows extends StatelessWidget {
         _InfoRow(
           icon: Icons.event_available_outlined,
           label: context.l10n.availabilityLabel,
-          value: state.availabilityType?.label ?? '—',
+          value: state.availabilityType?.label(context) ?? '—',
         ),
         _InfoRow(
           icon: Icons.payments_outlined,
-          // label: 'Daily Rate',
           label: context.l10n.dailyRateLabel,
-          // value: '৳${state.dailyRate}',
-          value: '৳${state.dailyRate}/hr',
+          value: context.l10n.hourlyRateLabel(
+            int.tryParse(state.dailyRate) ?? 0,
+          ),
           isLast: true,
         ),
       ],
@@ -403,8 +411,8 @@ class _EditableInfoFields extends StatelessWidget {
       children: [
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-experience'),
-          label: 'Experience (Years)',
-          hintText: 'e.g. 5',
+          label: context.l10n.experienceYearsLabel,
+          hintText: context.l10n.experienceYearsHint,
           prefixIcon: Icons.work_history_outlined,
           keyboardType: TextInputType.number,
           initialValue: state.experienceYears,
@@ -413,8 +421,8 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-phone'),
-          label: 'Phone Number',
-          hintText: 'e.g. +8801XXXXXXXXX',
+          label: context.l10n.phoneNumberLabel,
+          hintText: context.l10n.phoneNumberHint,
           prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
           initialValue: state.phone,
@@ -423,43 +431,32 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-address'),
-          label: 'Address',
-          hintText: 'e.g. Seattle, WA',
+          label: context.l10n.addressLabel,
+          hintText: context.l10n.addressHint,
           prefixIcon: Icons.location_on_outlined,
           initialValue: state.address,
           onChanged: cubit.addressChanged,
         ),
         const SizedBox(height: 16),
-        // AuthDropdownField<Gender>(
-        //   key: ValueKey('$sessionKeyPrefix-gender'),
-        //   label: 'Gender',
-        //   value: state.gender,
-        //   items: Gender.values,
-        //   itemLabel: (gender) => gender.label,
-        //   onChanged: cubit.genderChanged,
-        // ),
-        // _ReadOnlyEditField(
-        //   label: 'Gender',
-        //   icon: Icons.wc_outlined,
-        //   value: state.gender?.label ?? '—',
-        // ),
         _ReadOnlyEditField(
-          label: 'Gender',
-          icon: state.gender == Gender.male ? Icons.man_outlined : Icons.woman_outlined,
-          value: state.gender?.label ?? '—',
+          label: context.l10n.genderLabel,
+          icon: state.gender == Gender.male
+              ? Icons.man_outlined
+              : Icons.woman_outlined,
+          value: state.gender?.label(context) ?? '—',
         ),
         const SizedBox(height: 16),
         AuthDateField(
           key: ValueKey('$sessionKeyPrefix-dob'),
-          label: 'Date of Birth',
+          label: context.l10n.dateOfBirthLabel,
           value: state.dateOfBirth,
           onChanged: cubit.dateOfBirthChanged,
         ),
         const SizedBox(height: 16),
         AuthTextField(
           key: ValueKey('$sessionKeyPrefix-specializations'),
-          label: 'Specializations',
-          hintText: 'e.g. Elderly mobility support, dementia care...',
+          label: context.l10n.specializationsLabel,
+          hintText: context.l10n.specializationsHint,
           prefixIcon: Icons.medical_services_outlined,
           maxLines: 3,
           initialValue: state.specializations,
@@ -468,26 +465,19 @@ class _EditableInfoFields extends StatelessWidget {
         const SizedBox(height: 16),
         AuthDropdownField<AvailabilityType>(
           key: ValueKey('$sessionKeyPrefix-availability'),
-          label: 'Availability',
+          label: context.l10n.availabilityLabel,
           value: state.availabilityType,
           items: AvailabilityType.values,
-          itemLabel: (type) => type.label,
+          itemLabel: (type) => type.label(context),
           onChanged: cubit.availabilityTypeChanged,
         ),
         const SizedBox(height: 16),
-        // AuthTextField(
-        //   key: ValueKey('$sessionKeyPrefix-rate'),
-        //   label: 'Daily Rate (৳)',
-        //   hintText: 'e.g. 1500',
-        //   prefixIcon: Icons.payments_outlined,
-        //   keyboardType: TextInputType.number,
-        //   initialValue: state.dailyRate,
-        //   onChanged: cubit.dailyRateChanged,
-        // ),
         _ReadOnlyEditField(
-          label: 'Hourly Rate',
+          label: context.l10n.dailyRateLabel,
           icon: Icons.payments_outlined,
-          value: '৳${state.dailyRate}/hr',
+          value: context.l10n.hourlyRateLabel(
+            int.tryParse(state.dailyRate) ?? 0,
+          ),
         ),
       ],
     );
@@ -885,16 +875,59 @@ class _ActionsSection extends StatelessWidget {
           label: context.l10n.logoutLabel,
           color: colorScheme.error,
           backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.2),
-          onTap: () {
-            cubit.logOut();
-            if (onLogOut != null) {
-              onLogOut!.call();
-            } else {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
-          },
+          onTap: () => _showLogoutDialog(context),
         ),
       ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    final cubit = context.read<CaregiverProfileCubit>();
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            context.l10n.logoutDialogTitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            context.l10n.logoutDialogContent,
+            style: const TextStyle(fontSize: 18),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                context.l10n.cancelLabel,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                cubit.logOut();
+                if (onLogOut != null) {
+                  onLogOut!.call();
+                } else {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.warningRed,
+              ),
+              child: Text(
+                context.l10n.logoutLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

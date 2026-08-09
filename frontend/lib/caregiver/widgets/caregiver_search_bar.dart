@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 class CaregiverSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
@@ -17,7 +18,7 @@ class CaregiverSearchBar extends StatelessWidget {
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: "Search by name or specialty...",
+          hintText: context.l10n.searchCaregiversHint,
           prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           filled: true,
           fillColor: const Color(0xFFF1F5F9),

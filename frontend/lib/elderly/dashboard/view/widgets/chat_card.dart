@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../cubit/dashboard_models.dart';
@@ -49,8 +50,11 @@ class ChatCard extends StatelessWidget {
             children: [
               if (chat == null)
                 Text(
-                  'No messages yet.',
-                  style: TextStyle(fontSize: 15, color: colorScheme.onSurfaceVariant),
+                  context.l10n.dashboardNoMessages,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 )
               else
                 _ChatPreviewRow(chat: chat!),
