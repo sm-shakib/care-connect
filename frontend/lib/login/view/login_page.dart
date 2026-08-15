@@ -65,20 +65,31 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   _LoginRole? _selectedRole;
 
-  // TODO: this is a temporary frontend-only stand-in for role resolution.
-
-  _LoginRole? _roleForEmail(String emailOrPhone) {
-    switch (emailOrPhone.trim().toLowerCase()) {
-      case 'elder@gmail.com':
-        return _LoginRole.elder;
-      case 'care@gmail.com':
-        return _LoginRole.caregiver;
-      case 'family@gmail.com':
-        return _LoginRole.family;
-      case 'admin@gmail.com':
-        return _LoginRole.admin;
-      default:
-        return null;
+  void _navigateBasedOnRole(BuildContext context, String? role) {
+    if (role == 'elder') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const ElderlyDashboardPage()),
+        (route) => false,
+      );
+    } else if (role == 'family') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const FamilyDashboardPage()),
+        (route) => false,
+      );
+    } else if (role == 'caregiver') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const CaregiverDashboardPage()),
+        (route) => false,
+      );
+    } else if (role == 'admin') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const AdminShellPage()),
+        (route) => false,
+      );
     }
   }
 
@@ -89,8 +100,21 @@ class _LoginViewState extends State<_LoginView> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: BlocListener<LoginCubit, LoginState>(
+          listener: (context, state) {
+            if (state.isSuccess) {
+              _navigateBasedOnRole(context, state.role);
+            } else if (state.isFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage ?? 'Login failed'),
+                  backgroundColor: colorScheme.error,
+                ),
+              );
+            }
+          },
+          child: Column(
+            children: [
             _buildAppBar(context),
             Expanded(
               child: SingleChildScrollView(
@@ -227,6 +251,7 @@ class _LoginViewState extends State<_LoginView> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -262,59 +287,7 @@ class _LoginViewState extends State<_LoginView> {
       height: 56,
       child: ElevatedButton(
         onPressed: enabled
-            ? () async {
-          await context.read<LoginCubit>().submit();
-          if (!context.mounted) return;
-
-          widget.onLoginSuccess?.call(context.read<LoginCubit>().state);
-
-          // if (_selectedRole == _LoginRole.elder) {
-          //   await Navigator.of(context).pushAndRemoveUntil(
-          //     MaterialPageRoute<void>(
-          //       builder: (context) => const ElderlyDashboardPage(),
-          //     ),
-          //     (route) => false,
-          //   );
-          //   return;
-          // }
-          //
-          // final routeName = _dashboardRouteForRole(_selectedRole!);
-          // Navigator.of(context).pushNamedAndRemoveUntil(
-          //   routeName,
-          //       (route) => false,
-          // );
-          final resolvedRole = _roleForEmail(state.emailOrPhone);
-
-          if (resolvedRole == _LoginRole.elder) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const ElderlyDashboardPage(),
-              ),
-            );
-          } else if (resolvedRole == _LoginRole.family) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const FamilyDashboardPage(),
-              ),
-            );
-          } else if (resolvedRole == _LoginRole.caregiver) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const CaregiverDashboardPage(), //CaregiverPendingPage(),
-              ),
-            );
-          } else if (resolvedRole == _LoginRole.admin) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const AdminShellPage(),
-              ),
-            );
-          }
-        }
+            ? () => context.read<LoginCubit>().submit()
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.darkTeal,

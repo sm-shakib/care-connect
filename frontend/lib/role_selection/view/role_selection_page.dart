@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
+import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
+import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/elderly_signup/view/elderly_signup_page.dart';
 import 'package:frontend/family_signup/view/family_signup_page.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
@@ -178,11 +180,31 @@ class _RoleSelectionView extends StatelessWidget {
                     break;
 
                   case UserRole.elderlyPerson:
-                    page = const ElderlySignupPage();
+                    page = ElderlySignupPage(
+                      onSignupSuccess: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const ElderlyDashboardPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    );
                     break;
 
                   case UserRole.caregiver:
-                    page = const CaregiverSignupPage();
+                    page = CaregiverSignupPage(
+                      onSignupSuccess: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const CaregiverDashboardPage(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    );
                     break;
 
                   case null:

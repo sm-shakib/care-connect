@@ -1,15 +1,20 @@
+import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/utils/validators.dart';
 
 part 'family_signup_state.dart';
 
 class FamilySignupCubit extends Cubit<FamilySignupState> {
   FamilySignupCubit() : super(const FamilySignupState());
+
+  final _authRepository = AuthRepository();
 
   void nameChanged(String value) => emit(state.copyWith(name: value));
   void genderChanged(Gender? value) => emit(state.copyWith(gender: value));
@@ -42,17 +47,38 @@ class FamilySignupCubit extends Cubit<FamilySignupState> {
 
     emit(state.copyWith(status: FamilySignupStatus.submitting));
     try {
-      // TODO: replace with a real API call, e.g.
-      // await authRepository.registerFamilyMember(
-      //   name: state.name,
-      //   phone: state.phone,
-      //   email: state.email,
-      //   address: state.address,
-      //   password: state.password,
-      //   profileImage: state.profileImageBytes,
-      // );
-      await Future.delayed(const Duration(milliseconds: 900));
+      String? profileImageUrl;
+
+      // 1. Upload profile image to Cloudinary
+      if (state.profileImageBytes != null) {
+        profileImageUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_picture.jpg',
+        );
+      }
+
+      // 2. Prepare registration data
+      final signupData = {
+        'user': {
+          'email': state.email,
+          'password': state.password,
+          'role': 'family',
+          'is_active': true,
+        },
+        'profile': {
+          'name': state.name,
+          'gender': state.gender?.name ?? 'Other',
+          'date_of_birth': state.dateOfBirth?.toIso8601String().split('T')[0],
+          'phone': state.phone,
+          'address': state.address,
+          'profile_image_url': profileImageUrl,
+        },
+      };
+
+      await _authRepository.signupFamily(signupData);
       emit(state.copyWith(status: FamilySignupStatus.success));
+    } on DioException catch (_) {
+      emit(state.copyWith(status: FamilySignupStatus.failure));
     } catch (_) {
       emit(state.copyWith(status: FamilySignupStatus.failure));
     }

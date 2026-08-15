@@ -86,6 +86,9 @@ unlinked_spec.ds
 # Coverage
 coverage/
 
+# Secrets
+.env
+
 # Submodules
 packages/**/pubspec.lock
 

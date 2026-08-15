@@ -1,0 +1,67 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/core/constants/api_constants.dart';
+import 'package:frontend/core/network/api_client.dart';
+
+class AuthRepository {
+  final ApiClient _apiClient = ApiClient();
+  final _storage = const FlutterSecureStorage();
+
+  // Elder Signup
+  Future<void> signupElder(Map<String, dynamic> signupData) async {
+    await _apiClient.post(ApiConstants.elderSignup, data: signupData);
+  }
+
+  // Caregiver Signup
+  Future<void> signupCaregiver(Map<String, dynamic> signupData) async {
+    await _apiClient.post(ApiConstants.caregiverSignup, data: signupData);
+  }
+
+  // Family Signup
+  Future<void> signupFamily(Map<String, dynamic> signupData) async {
+    await _apiClient.post(ApiConstants.familySignup, data: signupData);
+  }
+
+  /// Uploads any file (image, PDF, DOC) via the backend to Cloudinary.
+  Future<String?> uploadFile(List<int> bytes, String filename) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: filename),
+      });
+
+      final response = await _apiClient.post(
+        '/upload',
+        data: formData,
+      );
+
+      return response.data['url'] as String;
+    } catch (e) {
+      print('Upload Error: $e');
+      return null;
+    }
+  }
+
+  // Login
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    // Backend login uses form data (OAuth2 standard)
+    final formData = FormData.fromMap({
+      'username': email,
+      'password': password,
+    });
+
+    final response = await _apiClient.post(
+      ApiConstants.login,
+      data: formData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+
+    // Cast the dynamic response data to a Map
+    final data = response.data as Map<String, dynamic>;
+
+    // Save token for future use
+    final token = data['access_token'] as String;
+    await _storage.write(key: 'access_token', value: token);
+
+    return data; // Now correctly returns Map<String, dynamic>
+  }
+}

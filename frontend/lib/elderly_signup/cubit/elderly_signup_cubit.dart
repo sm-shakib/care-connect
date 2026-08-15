@@ -1,15 +1,19 @@
 import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/utils/validators.dart';
 
 part 'elderly_signup_state.dart';
 
 class ElderlySignupCubit extends Cubit<ElderlySignupState> {
   ElderlySignupCubit() : super(const ElderlySignupState());
+
+  final _authRepository = AuthRepository();
 
   void nameChanged(String value) => emit(state.copyWith(name: value));
   void genderChanged(Gender? value) => emit(state.copyWith(gender: value));
@@ -68,19 +72,39 @@ class ElderlySignupCubit extends Cubit<ElderlySignupState> {
   Future<void> submit() async {
     emit(state.copyWith(status: ElderlySignupStatus.submitting));
     try {
-      // TODO: replace with a real API call, e.g.
-      // await authRepository.registerElderly(
-      //   name: state.name,
-      //   phone: state.phone,
-      //   email: state.email,
-      //   address: state.address,
-      //   password: state.password,
-      //   profileImage: state.profileImageBytes,
-      //   healthCondition: state.healthCondition,
-      // );
-      await Future.delayed(const Duration(milliseconds: 900));
+      String? profileImageUrl;
+
+      // 1. Upload image to Cloudinary if available
+      if (state.profileImageBytes != null) {
+        profileImageUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_picture.jpg',
+        );
+      }
+
+      // 2. Prepare registration data
+      final signupData = {
+        'user': {
+          'email': state.email,
+          'password': state.password,
+          'role': 'elder',
+          'is_active': true,
+        },
+        'profile': {
+          'name': state.name,
+          'gender': state.gender?.name ?? 'Other',
+          'date_of_birth': state.dateOfBirth?.toIso8601String().split('T')[0],
+          'phone': state.phone,
+          'address': state.address,
+          'health_condition': state.healthCondition,
+          'profile_image_url': profileImageUrl,
+        },
+      };
+
+      await _authRepository.signupElder(signupData);
       emit(state.copyWith(status: ElderlySignupStatus.success));
-    } catch (_) {
+    } catch (e) {
+      print("SIGNUP ERROR DETAILS: $e");
       emit(state.copyWith(status: ElderlySignupStatus.failure));
     }
   }
