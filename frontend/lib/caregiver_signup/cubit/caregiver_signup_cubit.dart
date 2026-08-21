@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/utils/validators.dart';
 import 'package:frontend/l10n/l10n.dart';
 
@@ -14,6 +16,8 @@ part 'caregiver_signup_state.dart';
 
 class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
   CaregiverSignupCubit() : super(const CaregiverSignupState());
+
+  final _authRepository = AuthRepository();
 
   // ---- Step 1 ----
   void nameChanged(String value) => emit(state.copyWith(name: value));
@@ -96,28 +100,62 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
   Future<void> submit() async {
     emit(state.copyWith(status: CaregiverSignupStatus.submitting));
     try {
-      // TODO: replace with real API calls, e.g.
-      // final userId = await authRepository.registerCaregiver(
-      //   name: state.name,
-      //   phone: state.phone,
-      //   email: state.email,
-      //   address: state.address,
-      //   password: state.password,
-      //   profileImage: state.profileImageBytes,
-      //   specializations: state.specializations,
-      //   availabilityType: state.availabilityType!.label,
-      //   dailyRate: double.parse(state.dailyRate),
-      // );
-      // for (final entry in state.uploadedDocuments.entries) {
-      //   await documentRepository.uploadCaregiverDocument(
-      //     caregiverId: userId,
-      //     documentType: entry.key.label,
-      //     file: entry.value,
-      //   );
-      // }
-      await Future<void>.delayed(const Duration(milliseconds: 1000));
+      String? profileImageUrl;
+
+      // 1. Upload profile image to Cloudinary
+      if (state.profileImageBytes != null) {
+        profileImageUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_picture.jpg',
+        );
+      }
+
+      // 2. Upload documents to Cloudinary
+      final documents = <Map<String, String>>[];
+      for (final entry in state.uploadedDocuments.entries) {
+        if (entry.value.bytes != null) {
+          final docUrl = await _authRepository.uploadFile(
+            entry.value.bytes!,
+            entry.value.name, // Use actual filename from PlatformFile
+          );
+          if (docUrl != null) {
+            documents.add({
+              'document_type': entry.key.name,
+              'document_url': docUrl,
+            });
+          }
+        }
+      }
+
+      // 3. Prepare registration data
+      final signupData = {
+        'user': {
+          'email': state.email,
+          'password': state.password,
+          'role': 'caregiver',
+          'is_active': true,
+        },
+        'profile': {
+          'name': state.name,
+          'gender': state.gender?.name ?? 'Other',
+          'date_of_birth': state.dateOfBirth?.toIso8601String().split('T')[0],
+          'phone': state.phone,
+          'address': state.address,
+          'profile_image_url': profileImageUrl,
+          'specializations': state.specializations,
+          'availability_type': state.availabilityType?.name ?? 'fullTime',
+          'daily_rate': double.tryParse(state.dailyRate) ?? 0.0,
+          'experience_years': int.tryParse(state.experienceYears) ?? 0,
+        },
+        'documents': documents,
+      };
+
+      await _authRepository.signupCaregiver(signupData);
       emit(state.copyWith(status: CaregiverSignupStatus.success));
-    } on Exception catch (_) {
+    } on DioException catch (e) {
+      // You could add an error message field to state similar to ElderSignup
+      emit(state.copyWith(status: CaregiverSignupStatus.failure));
+    } catch (e) {
       emit(state.copyWith(status: CaregiverSignupStatus.failure));
     }
   }

@@ -1,31 +1,44 @@
 part of 'login_cubit.dart';
 
+enum LoginStatus { initial, submitting, success, failure }
+
 class LoginState extends Equatable {
   final String emailOrPhone;
   final String password;
   final bool isPasswordObscured;
-  final bool isSubmitting;
+  final LoginStatus status;
+  final String? role;
+  final String? errorMessage;
 
   const LoginState({
     this.emailOrPhone = '',
     this.password = '',
     this.isPasswordObscured = true,
-    this.isSubmitting = false,
+    this.status = LoginStatus.initial,
+    this.role,
+    this.errorMessage,
   });
 
   bool get isValid => emailOrPhone.trim().isNotEmpty && password.trim().isNotEmpty;
+  bool get isSubmitting => status == LoginStatus.submitting;
+  bool get isSuccess => status == LoginStatus.success;
+  bool get isFailure => status == LoginStatus.failure;
 
   LoginState copyWith({
     String? emailOrPhone,
     String? password,
     bool? isPasswordObscured,
-    bool? isSubmitting,
+    LoginStatus? status,
+    String? role,
+    String? errorMessage,
   }) {
     return LoginState(
       emailOrPhone: emailOrPhone ?? this.emailOrPhone,
       password: password ?? this.password,
       isPasswordObscured: isPasswordObscured ?? this.isPasswordObscured,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
+      status: status ?? this.status,
+      role: role ?? this.role,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -34,6 +47,8 @@ class LoginState extends Equatable {
     emailOrPhone,
     password,
     isPasswordObscured,
-    isSubmitting,
+    status,
+    role,
+    errorMessage,
   ];
 }
