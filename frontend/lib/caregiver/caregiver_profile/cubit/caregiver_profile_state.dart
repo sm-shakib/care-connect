@@ -12,7 +12,7 @@ class CaregiverProfileState extends Equatable {
     this.dateOfBirth,
     this.specializations = '',
     this.availabilityType,
-    this.dailyRate = '',
+    this.hourlyRate = '',
     this.experienceYears = '',
     this.profileImageBytes,
     // Verified documents (view-only here).
@@ -37,7 +37,7 @@ class CaregiverProfileState extends Equatable {
   final DateTime? dateOfBirth;
   final String specializations;
   final AvailabilityType? availabilityType;
-  final String dailyRate;
+  final String hourlyRate;
   final String experienceYears;
   final Uint8List? profileImageBytes;
 
@@ -63,7 +63,7 @@ class CaregiverProfileState extends Equatable {
     DateTime? dateOfBirth,
     String? specializations,
     AvailabilityType? availabilityType,
-    String? dailyRate,
+    String? hourlyRate,
     String? experienceYears,
     Uint8List? profileImageBytes,
     Map<CaregiverDocumentType, String>? documents,
@@ -84,7 +84,7 @@ class CaregiverProfileState extends Equatable {
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       specializations: specializations ?? this.specializations,
       availabilityType: availabilityType ?? this.availabilityType,
-      dailyRate: dailyRate ?? this.dailyRate,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
       experienceYears: experienceYears ?? this.experienceYears,
       profileImageBytes: profileImageBytes ?? this.profileImageBytes,
       documents: documents ?? this.documents,
@@ -108,7 +108,7 @@ class CaregiverProfileState extends Equatable {
     dateOfBirth,
     specializations,
     availabilityType,
-    dailyRate,
+    hourlyRate,
     experienceYears,
     profileImageBytes,
     documents,

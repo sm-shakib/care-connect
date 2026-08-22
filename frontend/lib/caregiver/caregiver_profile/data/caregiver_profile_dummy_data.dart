@@ -12,7 +12,7 @@ class CaregiverProfileDummyData {
   static const String specializations =
       'Elderly mobility support';
   static const AvailabilityType availabilityType = AvailabilityType.fullTime;
-  static const String dailyRate = '1000';
+  static const String hourlyRate = '200';
   static const String experienceYears = '2';
 
   static const Map<CaregiverDocumentType, String> documents = {

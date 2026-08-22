@@ -69,8 +69,8 @@ String? validateAddress(String? value) {
   return validateRequired(value, fieldName: 'Address');
 }
 
-String? validateDailyRate(String? value) {
-  final requiredError = validateRequired(value, fieldName: 'Daily rate');
+String? validateHourlyRate(String? value) {
+  final requiredError = validateRequired(value, fieldName: 'Hourly rate');
   if (requiredError != null) return requiredError;
   final parsed = double.tryParse(value!.trim());
   if (parsed == null || parsed <= 0) {

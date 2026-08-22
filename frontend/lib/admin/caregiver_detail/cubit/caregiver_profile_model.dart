@@ -149,7 +149,7 @@ class CaregiverProfile extends Equatable {
     required this.gender,
     required this.experienceYears,
     required this.availability,
-    required this.dailyRate,
+    required this.hourlyRate,
     required this.phone,
     required this.email,
     required this.address,
@@ -175,7 +175,7 @@ class CaregiverProfile extends Equatable {
   final String gender;
   final int experienceYears;
   final String availability;
-  final double dailyRate;
+  final double hourlyRate;
   final String phone;
   final String email;
   final String address;
@@ -207,7 +207,7 @@ class CaregiverProfile extends Equatable {
       gender: gender,
       experienceYears: experienceYears,
       availability: availability,
-      dailyRate: dailyRate,
+      hourlyRate: hourlyRate,
       phone: phone,
       email: email,
       address: address,
@@ -236,7 +236,7 @@ class CaregiverProfile extends Equatable {
     gender,
     experienceYears,
     availability,
-    dailyRate,
+    hourlyRate,
     phone,
     email,
     address,

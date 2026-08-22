@@ -14,11 +14,90 @@ class ApiClient {
 
   late final Dio _dio;
 
-  Future<Response> post(String path, {dynamic data, Options? options}) async {
+  Future<Response<T>> get<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     try {
-      return await _dio.post(path, data: data, options: options);
-    } on DioException catch (e) {
-      // You can add better error handling here later
+      return await _dio.get<T>(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> post<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.post<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.patch<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> put<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> delete<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      return await _dio.delete<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }

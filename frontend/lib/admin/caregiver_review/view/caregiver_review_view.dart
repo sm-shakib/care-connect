@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../theme/app_colors.dart';
 import '../cubit/caregiver_review_cubit.dart';
 import '../cubit/caregiver_review_state.dart';
-import 'widgets/bio_section.dart';
 import 'widgets/contact_info_card.dart';
 import 'widgets/document_preview_page.dart';
 import 'widgets/personal_details_grid.dart';
@@ -89,8 +88,6 @@ class CaregiverReviewView extends StatelessWidget {
                       SpecializationsSection(
                         specializations: application.specializations,
                       ),
-                      const SizedBox(height: 20),
-                      BioSection(bio: application.bio),
                       const SizedBox(height: 12),
                       VerificationChecklistCard(
                         checklist: application.checklist,

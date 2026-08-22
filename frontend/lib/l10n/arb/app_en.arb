@@ -260,7 +260,7 @@
         "description": "Label for the hourly rate field"
     },
 
-    "dailyRateHint": "e.g. 1500",
+    "dailyRateHint": "e.g. 200",
     "@dailyRateHint": {
         "description": "Hint text for the hourly rate field"
     },

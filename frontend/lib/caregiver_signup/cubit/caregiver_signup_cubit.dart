@@ -50,8 +50,8 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
       emit(state.copyWith(availabilityType: value));
   void experienceYearsChanged(String value) =>
       emit(state.copyWith(experienceYears: value));
-  void dailyRateChanged(String value) =>
-      emit(state.copyWith(dailyRate: value));
+  void hourlyRateChanged(String value) =>
+      emit(state.copyWith(hourlyRate: value));
 
   // ---- Step 3 ----
   void documentPicked(CaregiverDocumentType type, PlatformFile file) {
@@ -144,7 +144,7 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
           'profile_image_url': profileImageUrl,
           'specializations': state.specializations,
           'availability_type': state.availabilityType?.name ?? 'fullTime',
-          'daily_rate': double.tryParse(state.dailyRate) ?? 0.0,
+          'hourly_rate': double.tryParse(state.hourlyRate) ?? 0.0,
           'experience_years': int.tryParse(state.experienceYears) ?? 0,
         },
         'documents': documents,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
 import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
+import 'package:frontend/caregiver_signup/view/caregiver_signup_page.dart';
 import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/elderly_signup/view/elderly_signup_page.dart';
 import 'package:frontend/family_signup/view/family_signup_page.dart';
@@ -199,7 +200,7 @@ class _RoleSelectionView extends StatelessWidget {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (_) => const CaregiverDashboardPage(),
+                            builder: (_) => const CaregiverPendingPage(),
                           ),
                           (route) => false,
                         );

@@ -31,7 +31,8 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       final result = await _authRepository.login(state.emailOrPhone, state.password);
       final role = result['role'] as String?;
-      emit(state.copyWith(status: LoginStatus.success, role: role));
+      final status = result['status'] as String?;
+      emit(state.copyWith(status: LoginStatus.success, role: role, accountStatus: status));
     } on DioException catch (e) {
       String? message;
       if (e.response?.data != null && e.response?.data is Map) {
