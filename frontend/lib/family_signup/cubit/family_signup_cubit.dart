@@ -76,6 +76,10 @@ class FamilySignupCubit extends Cubit<FamilySignupState> {
       };
 
       await _authRepository.signupFamily(signupData);
+
+      // Auto-login after successful signup to set tokens and profile ID
+      await _authRepository.login(state.email, state.password);
+
       emit(state.copyWith(status: FamilySignupStatus.success));
     } on DioException catch (_) {
       emit(state.copyWith(status: FamilySignupStatus.failure));
