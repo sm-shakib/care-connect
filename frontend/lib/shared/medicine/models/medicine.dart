@@ -34,6 +34,7 @@ class Medicine extends Equatable {
     required this.timesPerDay,
     required this.scheduleTimes,
     required this.startDate,
+    required this.endDate,
     this.imagePath,
     this.refillReminderEnabled = false,
     this.availableUnits = 0,
@@ -70,6 +71,9 @@ class Medicine extends Equatable {
   final List<String> scheduleTimes;
   final DateTime startDate;
 
+  /// When the dosage schedule stops.
+  final DateTime endDate;
+
   final bool refillReminderEnabled;
   final int availableUnits;
   final int notifyThreshold;
@@ -92,6 +96,7 @@ class Medicine extends Equatable {
     int? timesPerDay,
     List<String>? scheduleTimes,
     DateTime? startDate,
+    DateTime? endDate,
     bool? refillReminderEnabled,
     int? availableUnits,
     int? notifyThreshold,
@@ -107,6 +112,7 @@ class Medicine extends Equatable {
       timesPerDay: timesPerDay ?? this.timesPerDay,
       scheduleTimes: scheduleTimes ?? this.scheduleTimes,
       startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       refillReminderEnabled:
           refillReminderEnabled ?? this.refillReminderEnabled,
       availableUnits: availableUnits ?? this.availableUnits,
@@ -126,6 +132,7 @@ class Medicine extends Equatable {
         timesPerDay,
         scheduleTimes,
         startDate,
+        endDate,
         refillReminderEnabled,
         availableUnits,
         notifyThreshold,

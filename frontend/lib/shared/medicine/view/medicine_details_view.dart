@@ -113,6 +113,12 @@ class MedicineDetailsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
+              Text(
+                context.l10n.untilLabel(
+                  DateFormat('MMM d, yyyy').format(medicine.endDate),
+                ),
+              ),
+              const SizedBox(height: 4),
               Text(medicine.scheduleTimes.join(', ')),
             ],
           ),

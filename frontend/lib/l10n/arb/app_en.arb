@@ -1361,6 +1361,26 @@
         "description": "Title for the medicine start date section"
     },
 
+    "endDateTitle": "End date",
+    "@endDateTitle": {
+        "description": "Title for the medicine end date section"
+    },
+
+    "setEndDateLabel": "Set end date",
+    "@setEndDateLabel": {
+        "description": "Placeholder shown until an end date has been set for a medicine"
+    },
+
+    "untilLabel": "Until {date}",
+    "@untilLabel": {
+        "description": "Shows the end date a medicine's schedule runs until",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+
     "timesTitle": "Times",
     "@timesTitle": {
         "description": "Title for the dose timing section"
