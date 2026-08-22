@@ -7,6 +7,7 @@ from app.models.binding import FamilyElderLink, BindingStatus
 from app.models.elder import Elder
 from app.models.user import User
 from app.models.family import Family
+from app.models.notification import Notification
 from app.schemas.binding import BindingCreate, BindingOut, BindingUpdate, FamilyMemberOut
 from app.api.deps import get_current_user
 
@@ -19,10 +20,7 @@ def create_binding_request(
     current_user: User = Depends(get_current_user)
 ):
     if current_user.role != "family":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Only family members can send binding requests"
-        )
+        raise HTTPException(status_code=403, detail="Only family members can send binding requests")
     
     family = db.query(Family).filter(Family.user_id == current_user.id).first()
     if not family:
@@ -42,10 +40,7 @@ def create_binding_request(
     ).first()
 
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Binding request already exists or is active"
-        )
+        raise HTTPException(status_code=400, detail="Binding request already exists or is active")
 
     new_link = FamilyElderLink(
         family_id=family.id,
@@ -59,26 +54,6 @@ def create_binding_request(
     db.refresh(new_link)
     return new_link
 
-@router.get("/pending/me", response_model=List[BindingOut])
-def get_my_pending_requests(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != "elder":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Only elders can view their pending requests"
-        )
-    
-    elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
-    if not elder:
-        raise HTTPException(status_code=404, detail="Elder profile not found")
-
-    return db.query(FamilyElderLink).filter(
-        FamilyElderLink.elder_id == elder.id,
-        FamilyElderLink.status == BindingStatus.pending
-    ).all()
-
 @router.put("/{binding_id}/respond", response_model=BindingOut)
 def respond_to_binding(
     binding_id: int,
@@ -90,34 +65,48 @@ def respond_to_binding(
     if not binding:
         raise HTTPException(status_code=404, detail="Binding request not found")
     
-    # Verify the current user is the elder this request was sent to
     elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
     if not elder or binding.elder_id != elder.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Not authorized to respond to this request"
-        )
+        raise HTTPException(status_code=403, detail="Not authorized")
 
     binding.status = update.status
+    
+    # NEW: If accepted, create a notification for the Family member
+    if update.status == BindingStatus.accepted:
+        family = db.query(Family).filter(Family.id == binding.family_id).first()
+        if family:
+            notification = Notification(
+                user_id=family.user_id,
+                title="New Request Accepted",
+                body=f"{elder.name} has accepted your binding request as their {binding.relationship}.",
+                type="binding_accepted"
+            )
+            db.add(notification)
+            
     db.commit()
     db.refresh(binding)
     return binding
+
+@router.get("/pending/me", response_model=List[BindingOut])
+def get_my_pending_requests(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "elder":
+        raise HTTPException(status_code=403, detail="Only elders can view requests")
+    
+    elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+    return db.query(FamilyElderLink).filter(
+        FamilyElderLink.elder_id == elder.id,
+        FamilyElderLink.status == BindingStatus.pending
+    ).all()
 
 @router.get("/family/members", response_model=List[FamilyMemberOut])
 def get_my_family_members(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != "family":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Only family members can view their links"
-        )
-    
     family = db.query(Family).filter(Family.user_id == current_user.id).first()
-    if not family:
-        raise HTTPException(status_code=404, detail="Family profile not found")
-
     return db.query(FamilyElderLink).filter(
         FamilyElderLink.family_id == family.id,
         FamilyElderLink.status == BindingStatus.accepted

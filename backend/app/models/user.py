@@ -15,3 +15,4 @@ class User(Base):
     elder_profile = relationship("Elder", back_populates="user", uselist=False)
     caregiver_profile = relationship("Caregiver", back_populates="user", uselist=False)
     family_profile = relationship("Family", back_populates="user", uselist=False)
+    notifications = relationship("Notification", back_populates="user")

@@ -13,35 +13,39 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
     if db.query(User).filter(User.email == request.user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    new_user = User(
-        email=request.user.email,
-        hashed_password=get_password_hash(request.user.password),
-        role="caregiver"
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    new_caregiver = Caregiver(
-        user_id=new_user.id,
-        **request.profile.model_dump()
-    )
-    db.add(new_caregiver)
-    db.commit()
-    db.refresh(new_caregiver)
-
-    # Add documents
-    for doc in request.documents:
-        new_doc = CaregiverDocument(
-            caregiver_id=new_caregiver.id,
-            **doc.model_dump()
+    try:
+        new_user = User(
+            email=request.user.email,
+            hashed_password=get_password_hash(request.user.password),
+            role="caregiver"
         )
-        db.add(new_doc)
-    
-    db.commit()
-    db.refresh(new_caregiver)
+        db.add(new_user)
+        db.flush()
 
-    return {
-        "user": new_user,
-        "profile": new_caregiver
-    }
+        new_caregiver = Caregiver(
+            user_id=new_user.id,
+            **request.profile.model_dump()
+        )
+        db.add(new_caregiver)
+        db.flush()
+
+        # Add documents
+        for doc in request.documents:
+            new_doc = CaregiverDocument(
+                caregiver_id=new_caregiver.id,
+                **doc.model_dump()
+            )
+            db.add(new_doc)
+        
+        db.commit()
+        db.refresh(new_user)
+        db.refresh(new_caregiver)
+
+        return {
+            "user": new_user,
+            "profile": new_caregiver,
+            "message": "Caregiver account created successfully"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")
