@@ -31,9 +31,17 @@ class MedicineView extends StatelessWidget {
 
   Future<void> _openDetails(BuildContext context, Medicine medicine) async {
     final cubit = context.read<MedicineCubit>();
+    // MedicineDetailsPage reads MedicineCubit itself (to mark doses taken
+    // live), but Navigator.push mounts the new route outside this widget's
+    // provider subtree, so it must be forwarded explicitly.
     final updated = await Navigator.push<Medicine>(
       context,
-      MaterialPageRoute(builder: (_) => MedicineDetailsPage(medicine: medicine)),
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: cubit,
+          child: MedicineDetailsPage(medicine: medicine),
+        ),
+      ),
     );
     if (updated != null) cubit.updateMedicine(updated);
   }
@@ -67,8 +75,12 @@ class MedicineView extends StatelessWidget {
                       medicines: state.medicines,
                       isElderly: isElderly,
                       onTapMedicine: (medicine) => _openDetails(context, medicine),
-                      onTakeMedicine: (medicine) =>
-                          context.read<MedicineCubit>().markTaken(medicine.id),
+                      onTakeMedicine: (medicine) {
+                        final time = medicine.nextPendingTime;
+                        if (time != null) {
+                          context.read<MedicineCubit>().markTaken(medicine.id, time);
+                        }
+                      },
                     ),
                     const SizedBox(height: 18),
                     SizedBox(

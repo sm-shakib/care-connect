@@ -46,4 +46,20 @@ class ApiClient {
       rethrow;
     }
   }
+
+  Future<Response> patch(String path, {dynamic data, Options? options}) async {
+    try {
+      return await _dio.patch(path, data: data, options: options);
+    } on DioException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> delete(String path, {dynamic data, Options? options}) async {
+    try {
+      return await _dio.delete(path, data: data, options: options);
+    } on DioException catch (e) {
+      rethrow;
+    }
+  }
 }

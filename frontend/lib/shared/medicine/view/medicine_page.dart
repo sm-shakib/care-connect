@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/l10n/l10n.dart';
 
 import '../cubit/medicine_cubit.dart';
+import '../data/medicine_repository.dart';
 import 'medicine_view.dart';
 
 /// Standalone entry point for the medicine list, with its own
@@ -17,7 +19,7 @@ class MedicinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => MedicineCubit()..loadMedicines(),
+      create: (_) => MedicineCubit(MedicineRepository(ApiClient()))..loadMedicines(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(context.l10n.medicationsTitle),
