@@ -102,6 +102,10 @@ class ElderlySignupCubit extends Cubit<ElderlySignupState> {
       };
 
       await _authRepository.signupElder(signupData);
+
+      // Auto-login after successful signup to set tokens and profile ID
+      await _authRepository.login(state.email, state.password);
+
       emit(state.copyWith(status: ElderlySignupStatus.success));
     } catch (e) {
       print("SIGNUP ERROR DETAILS: $e");

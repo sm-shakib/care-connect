@@ -14,15 +14,22 @@ class DosageSchedule extends StatelessWidget {
     required this.onTimesPerDayChanged,
     required this.onTimeChanged,
     required this.onStartDateChanged,
+    required this.onEndDateChanged,
+    this.endDate,
     super.key,
   });
 
   final int timesPerDay;
   final List<TimeOfDay?> scheduleTimes;
   final DateTime startDate;
+
+  /// When the dosage schedule stops. Required to save the medicine; `null`
+  /// only until the user has picked one.
+  final DateTime? endDate;
   final ValueChanged<int> onTimesPerDayChanged;
   final void Function(int index, TimeOfDay time) onTimeChanged;
   final ValueChanged<DateTime> onStartDateChanged;
+  final ValueChanged<DateTime> onEndDateChanged;
 
   static const _quickOptions = [1, 2, 3];
 
@@ -34,6 +41,16 @@ class DosageSchedule extends StatelessWidget {
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
     if (picked != null) onStartDateChanged(picked);
+  }
+
+  Future<void> _pickEndDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? startDate,
+      firstDate: startDate,
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+    );
+    if (picked != null) onEndDateChanged(picked);
   }
 
   Future<void> _pickTime(BuildContext context, int index) async {
@@ -122,6 +139,40 @@ class DosageSchedule extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   DateFormat('MMM d, yyyy').format(startDate),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          context.l10n.endDateTitle,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _pickEndDate(context),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colorScheme.outlineVariant, width: 1.6),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.event_busy, color: colorScheme.onSurfaceVariant, size: 22),
+                const SizedBox(width: 10),
+                Text(
+                  endDate != null
+                      ? DateFormat('MMM d, yyyy').format(endDate!)
+                      : context.l10n.setEndDateLabel,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
               ],

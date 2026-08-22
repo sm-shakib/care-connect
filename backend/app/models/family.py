@@ -18,3 +18,4 @@ class Family(Base):
 
     # Relationships
     user = relationship("User", back_populates="family_profile")
+    elder_links = relationship("FamilyElderLink", back_populates="family")

@@ -11,7 +11,6 @@ class DashboardState extends Equatable {
   const DashboardState({
     this.status = DashboardStatus.initial,
     this.userName = '',
-    this.medications = const <Medication>[],
     this.otherReminders = const <CareReminder>[],
     this.appointments = const <Appointment>[],
     this.bindingRequests = const <BindingRequest>[],
@@ -22,7 +21,6 @@ class DashboardState extends Equatable {
 
   final DashboardStatus status;
   final String userName;
-  final List<Medication> medications;
   final List<CareReminder> otherReminders;
   final List<Appointment> appointments;
   final List<BindingRequest> bindingRequests;
@@ -36,7 +34,6 @@ class DashboardState extends Equatable {
   DashboardState copyWith({
     DashboardStatus? status,
     String? userName,
-    List<Medication>? medications,
     List<CareReminder>? otherReminders,
     List<Appointment>? appointments,
     List<BindingRequest>? bindingRequests,
@@ -47,7 +44,6 @@ class DashboardState extends Equatable {
     return DashboardState(
       status: status ?? this.status,
       userName: userName ?? this.userName,
-      medications: medications ?? this.medications,
       otherReminders: otherReminders ?? this.otherReminders,
       appointments: appointments ?? this.appointments,
       bindingRequests: bindingRequests ?? this.bindingRequests,
@@ -61,7 +57,6 @@ class DashboardState extends Equatable {
   List<Object?> get props => [
         status,
         userName,
-        medications,
         otherReminders,
         appointments,
         bindingRequests,

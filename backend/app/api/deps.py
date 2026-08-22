@@ -1,4 +1,4 @@
-from typing import Generator, Optional
+from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -6,14 +6,16 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.core.config import settings
-from app.core import security
 from app.models.user import User
 from app.schemas.token import TokenPayload
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+reusable_oauth2 = OAuth2PasswordBearer(
+    tokenUrl="/login"
+)
 
 def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+    db: Session = Depends(get_db),
+    token: str = Depends(reusable_oauth2)
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -28,12 +30,12 @@ def get_current_user(
         if user_id is None:
             raise credentials_exception
         token_data = TokenPayload(sub=int(user_id))
-    except (JWTError, ValueError):
+    except (JWTError, ValueError, Exception):
         raise credentials_exception
 
     user = db.query(User).filter(User.id == token_data.sub).first()
     if user is None:
-        raise credentials_exception
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 def get_current_active_user(

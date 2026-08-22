@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/api_constants.dart';
+import 'package:frontend/core/network/interceptors/auth_interceptor.dart';
 
 class ApiClient {
   ApiClient() {
@@ -10,15 +11,25 @@ class ApiClient {
         receiveTimeout: const Duration(seconds: 15),
       ),
     );
+
+    // Interceptors from develop branch
+    _dio.interceptors.add(AuthInterceptor());
+    _dio.interceptors.add(LogInterceptor(
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ));
   }
 
   late final Dio _dio;
 
   Future<Response<T>> get<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+      String path, {
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
       return await _dio.get<T>(
         path,
@@ -31,11 +42,11 @@ class ApiClient {
   }
 
   Future<Response<T>> post<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
       return await _dio.post<T>(
         path,
@@ -49,11 +60,11 @@ class ApiClient {
   }
 
   Future<Response<T>> patch<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
       return await _dio.patch<T>(
         path,
@@ -67,11 +78,11 @@ class ApiClient {
   }
 
   Future<Response<T>> put<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
       return await _dio.put<T>(
         path,
@@ -85,11 +96,11 @@ class ApiClient {
   }
 
   Future<Response<T>> delete<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
       return await _dio.delete<T>(
         path,

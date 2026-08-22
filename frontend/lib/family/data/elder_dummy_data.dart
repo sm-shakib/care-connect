@@ -39,6 +39,7 @@ final elderList = [
         timesPerDay: 1,
         scheduleTimes: ['08:00 AM'],
         startDate: _fourteenDaysAgo,
+        endDate: DateTime.now().add(const Duration(days: 16)),
         isTakenToday: true,
       ),
       Medicine(
@@ -49,6 +50,7 @@ final elderList = [
         timesPerDay: 1,
         scheduleTimes: ['09:00 PM'],
         startDate: _fourteenDaysAgo,
+        endDate: DateTime.now().add(const Duration(days: 16)),
       ),
     ],
     medicalRecords: [

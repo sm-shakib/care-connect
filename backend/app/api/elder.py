@@ -14,27 +14,34 @@ def signup_elder(request: ElderSignupRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == request.user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # 2. Create User (Account)
-    new_user = User(
-        email=request.user.email,
-        hashed_password=get_password_hash(request.user.password),
-        role=request.user.role,
-        is_active=request.user.is_active
-    )
-    db.add(new_user)
-    db.flush()
+    try:
+        # 2. Create User (Account) with dynamic role and is_active
+        new_user = User(
+            email=request.user.email,
+            hashed_password=get_password_hash(request.user.password),
+            role=request.user.role,       # Dynamically assigned from frontend
+            is_active=request.user.is_active
+        )
+        db.add(new_user)
+        db.flush()  # Flush to get new_user.id without committing yet
 
-    # 3. Create Elder (Profile)
-    new_elder = Elder(
-        user_id=new_user.id,
-        **request.profile.model_dump()
-    )
-    db.add(new_elder)
-    db.commit()
-    db.refresh(new_user)
-    db.refresh(new_elder)
+        # 3. Create Elder (Profile)
+        new_elder = Elder(
+            user_id=new_user.id,
+            **request.profile.model_dump()
+        )
+        db.add(new_elder)
 
-    return {
-        "user": new_user,
-        "profile": new_elder
-    }
+        # Commit both at once
+        db.commit()
+        db.refresh(new_user)
+        db.refresh(new_elder)
+
+        return {
+            "user": new_user,
+            "profile": new_elder,
+            "message": "Elderly account created successfully"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")

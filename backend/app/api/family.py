@@ -13,24 +13,30 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == request.user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    new_user = User(
-        email=request.user.email,
-        hashed_password=get_password_hash(request.user.password),
-        role="family"
-    )
-    db.add(new_user)
-    db.flush()
+    try:
+        new_user = User(
+            email=request.user.email,
+            hashed_password=get_password_hash(request.user.password),
+            role="family"
+        )
+        db.add(new_user)
+        db.flush()
 
-    new_family = Family(
-        user_id=new_user.id,
-        **request.profile.model_dump()
-    )
-    db.add(new_family)
-    db.commit()
-    db.refresh(new_user)
-    db.refresh(new_family)
+        new_family = Family(
+            user_id=new_user.id,
+            **request.profile.model_dump()
+        )
+        db.add(new_family)
 
-    return {
-        "user": new_user,
-        "profile": new_family
-    }
+        db.commit()
+        db.refresh(new_user)
+        db.refresh(new_family)
+
+        return {
+            "user": new_user,
+            "profile": new_family,
+            "message": "Family member account created successfully"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")

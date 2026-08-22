@@ -151,6 +151,10 @@ class CaregiverSignupCubit extends Cubit<CaregiverSignupState> {
       };
 
       await _authRepository.signupCaregiver(signupData);
+
+      // Auto-login after successful signup to set tokens and profile ID
+      await _authRepository.login(state.email, state.password);
+
       emit(state.copyWith(status: CaregiverSignupStatus.success));
     } on DioException catch (e) {
       // You could add an error message field to state similar to ElderSignup

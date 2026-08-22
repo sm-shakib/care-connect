@@ -22,3 +22,5 @@ class Elder(Base):
 
     # Relationship back to User
     user = relationship("User", back_populates="elder_profile")
+    family_links = relationship("FamilyElderLink", back_populates="elder")
+    medicines = relationship("Medicine", back_populates="elder")
