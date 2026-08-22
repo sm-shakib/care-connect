@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:frontend/family/data/elder_dummy_data.dart';
+import 'package:frontend/family/data/repositories/binding_repository.dart';
+import 'package:frontend/family/models/health_vitals.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
@@ -8,18 +9,51 @@ import '../models/elder.dart';
 import 'family_dashboard_state.dart';
 
 class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
-  FamilyDashboardCubit() : super(const FamilyDashboardState()) {
+  final BindingRepository _bindingRepository;
+
+  FamilyDashboardCubit(this._bindingRepository) : super(const FamilyDashboardState()) {
     loadElders();
   }
 
-  /// Load all elders
-  void loadElders() {
-    emit(
-      state.copyWith(
-        elders: elderList,
-        filteredElders: elderList,
-      ),
-    );
+  /// Load real elders from backend
+  Future<void> loadElders() async {
+    try {
+      final membersData = await _bindingRepository.getFamilyMembers();
+      
+      final elders = membersData.map((data) {
+        final elderData = data['elder'];
+        final relationship = data['relationship'];
+        
+        return Elder(
+          id: elderData['id'].toString(),
+          name: elderData['name'],
+          age: 70, // TODO: Calculate from date_of_birth
+          relationship: relationship,
+          gender: elderData['gender'] ?? 'Unknown',
+          hasCaregiver: false,
+          healthStatus: elderData['health_condition'] ?? 'Stable',
+          imageUrl: elderData['profile_image_url'] ?? '',
+          vitals: const HealthVitals(
+            heartRate: 75,
+            heartRateStatus: 'Normal',
+            systolic: 120,
+            diastolic: 80,
+            bpStatus: 'Normal',
+          ),
+          lastLocationUpdate: 'Just now',
+          locationImage: 'assets/images/map.png',
+        );
+      }).toList();
+
+      emit(
+        state.copyWith(
+          elders: elders,
+          filteredElders: elders,
+        ),
+      );
+    } catch (e) {
+      // Handle error
+    }
   }
 
   /// Filter elders by name or relationship
@@ -97,9 +131,8 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     );
   }
 
-  /// Medication Management
   void addMedication(String elderId, Medicine medication) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       return elder.copyWith(medications: [...elder.medications, medication]);
     }).toList();
@@ -107,7 +140,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void updateMedication(String elderId, Medicine medication) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedMedications = elder.medications.map((m) {
         return m.id == medication.id ? medication : m;
@@ -118,7 +151,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteMedication(String elderId, String medicationId) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedMedications =
           elder.medications.where((m) => m.id != medicationId).toList();
@@ -129,7 +162,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
 
   /// Other Reminders Management
   void addReminder(String elderId, CareReminder reminder) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       return elder.copyWith(otherReminders: [...elder.otherReminders, reminder]);
     }).toList();
@@ -137,7 +170,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void updateReminder(String elderId, CareReminder reminder) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedReminders = elder.otherReminders.map((r) {
         return r.id == reminder.id ? reminder : r;
@@ -148,7 +181,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteReminder(String elderId, String reminderId) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedReminders =
           elder.otherReminders.where((r) => r.id != reminderId).toList();
@@ -159,7 +192,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
 
   /// Appointment Management
   void addAppointment(String elderId, Appointment appointment) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       return elder.copyWith(appointments: [...elder.appointments, appointment]);
     }).toList();
@@ -167,7 +200,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void updateAppointment(String elderId, Appointment appointment) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedAppointments = elder.appointments.map((a) {
         return a.id == appointment.id ? appointment : a;
@@ -178,7 +211,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteAppointment(String elderId, String appointmentId) {
-    final updatedElders = state.elders.map((elder) {
+    final List<Elder> updatedElders = state.elders.map((elder) {
       if (elder.id != elderId) return elder;
       final updatedAppointments =
           elder.appointments.where((a) => a.id != appointmentId).toList();

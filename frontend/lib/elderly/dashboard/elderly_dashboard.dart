@@ -27,16 +27,25 @@ import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
 
+import 'package:frontend/core/repositories/auth_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/family/data/repositories/binding_repository.dart';
+
 class ElderlyDashboardPage extends StatelessWidget {
   const ElderlyDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final apiClient = ApiClient();
+    final bindingRepository = BindingRepository(apiClient);
+    final authRepository = AuthRepository();
+
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DashboardCubit()..loadDashboard()),
-        // Shared with the "Medicine" tab so both it and the "Edit Reminders"
-        // screen operate on the same list of medicines.
+        BlocProvider(
+          create: (_) => DashboardCubit(bindingRepository)
+            ..loadDashboardWithAuth(authRepository),
+        ),
         BlocProvider(create: (_) => MedicineCubit()..loadMedicines()),
       ],
       child: const _ElderlyDashboardView(),
@@ -194,7 +203,10 @@ class _DashboardHomeBody extends StatelessWidget {
         }
 
         return RefreshIndicator(
-          onRefresh: context.read<DashboardCubit>().loadDashboard,
+          onRefresh: () async {
+            final authRepo = AuthRepository();
+            await context.read<DashboardCubit>().loadDashboardWithAuth(authRepo);
+          },
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [

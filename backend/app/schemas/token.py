@@ -5,6 +5,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     role: str
+    user_id: int
+    profile_id: Optional[int] = None
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None

@@ -5,16 +5,18 @@ from app.models.user import User
 from app.models.elder import Elder
 from app.models.caregiver import Caregiver, CaregiverDocument
 from app.models.family import Family
-from app.api import elder, auth, caregiver, family, utils
+from app.models.binding import FamilyElderLink
+from app.api import elder, auth, caregiver, family, utils, binding
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Care Connect API")
 
+# Browser-friendly CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex="http://localhost:.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,6 +27,7 @@ app.include_router(auth.router, tags=["Authentication"])
 app.include_router(elder.router, tags=["Elderly"])
 app.include_router(caregiver.router, tags=["Caregiver"])
 app.include_router(family.router, tags=["Family"])
+app.include_router(binding.router)
 app.include_router(utils.router, tags=["Utilities"])
 
 @app.get("/")
