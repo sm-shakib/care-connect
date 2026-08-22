@@ -19,16 +19,16 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
         role="caregiver"
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()  # Gets the new_user.id without committing the transaction
 
     new_caregiver = Caregiver(
         user_id=new_user.id,
-        **request.profile.model_dump()
+        **request.profile.model_dump(),
+        status="pending"
     )
+
     db.add(new_caregiver)
-    db.commit()
-    db.refresh(new_caregiver)
+    db.flush()
 
     # Add documents
     for doc in request.documents:
@@ -38,7 +38,8 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
         )
         db.add(new_doc)
     
-    db.commit()
+    db.commit() # Atomic commit for user, profile, and documents
+    db.refresh(new_user)
     db.refresh(new_caregiver)
 
     return {

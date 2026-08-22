@@ -29,10 +29,15 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
     # 4. Create Access Token
     access_token_expires = timedelta(minutes=security.settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
+    status_val = None
+    if user.role == "caregiver" and user.caregiver_profile:
+        status_val = user.caregiver_profile.status
+
     return {
         "access_token": security.create_access_token(
             user.id, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
-        "role": user.role
+        "role": user.role,
+        "status": status_val
     }

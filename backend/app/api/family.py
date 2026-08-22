@@ -19,8 +19,7 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
         role="family"
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()
 
     new_family = Family(
         user_id=new_user.id,
@@ -28,6 +27,7 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
     )
     db.add(new_family)
     db.commit()
+    db.refresh(new_user)
     db.refresh(new_family)
 
     return {
