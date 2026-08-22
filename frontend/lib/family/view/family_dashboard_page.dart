@@ -13,6 +13,9 @@ import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/family/data/repositories/binding_repository.dart';
+
 class FamilyDashboardPage extends StatefulWidget {
   const FamilyDashboardPage({super.key});
 
@@ -23,37 +26,13 @@ class FamilyDashboardPage extends StatefulWidget {
 class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
   int _selectedIndex = 0;
 
-  void _handleLogout() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute<void>(builder: (_) => const LoginPage()),
-                    (route) => false,
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warningRed),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final apiClient = ApiClient();
+    final bindingRepository = BindingRepository(apiClient);
+
     return BlocProvider(
-      create: (_) => FamilyDashboardCubit()..loadElders(),
+      create: (_) => FamilyDashboardCubit(bindingRepository)..loadElders(),
       child: BlocConsumer<FamilyDashboardCubit, FamilyDashboardState>(
         listenWhen: (previous, current) =>
         previous.bookingForElder == null && current.bookingForElder != null,

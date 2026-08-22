@@ -3,6 +3,10 @@ import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/theme/app_colors.dart';
 
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/family/data/repositories/binding_repository.dart';
+import 'package:frontend/theme/app_colors.dart';
+
 class AddElderPage extends StatefulWidget {
   const AddElderPage({super.key});
 
@@ -13,6 +17,7 @@ class AddElderPage extends StatefulWidget {
 class _AddElderPageState extends State<AddElderPage> {
   String? _relationship;
   final _emailController = TextEditingController();
+  bool _isLoading = false;
 
   final List<String> _relationships = [
     'Father',
@@ -22,6 +27,41 @@ class _AddElderPageState extends State<AddElderPage> {
     'Spouse',
     'Other'
   ];
+
+  Future<void> _sendRequest() async {
+    if (_emailController.text.isEmpty || _relationship == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final repository = BindingRepository(ApiClient());
+      await repository.createBindingRequest(
+        elderEmail: _emailController.text.trim(),
+        relationship: _relationship!,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Request sent to ${_emailController.text}'),
+            backgroundColor: AppColors.darkTeal,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send request: ${e.toString()}'),
+            backgroundColor: AppColors.warningRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -93,20 +133,7 @@ class _AddElderPageState extends State<AddElderPage> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
-                  // Simulate sending request
-                  if (_emailController.text.isNotEmpty && _relationship != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Request sent to ${_emailController.text}. They will be added once they accept.',
-                        ),
-                        backgroundColor: AppColors.darkTeal,
-                      ),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
+                onPressed: _isLoading ? null : _sendRequest,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkTeal,
                   foregroundColor: Colors.white,
@@ -114,10 +141,12 @@ class _AddElderPageState extends State<AddElderPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'Send Binding Request',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Send Binding Request',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
               ),
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/api_constants.dart';
+import 'package:frontend/core/network/interceptors/auth_interceptor.dart';
 
 class ApiClient {
   ApiClient() {
@@ -10,6 +11,14 @@ class ApiClient {
         receiveTimeout: const Duration(seconds: 15),
       ),
     );
+    _dio.interceptors.add(AuthInterceptor());
+    _dio.interceptors.add(LogInterceptor(
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ));
   }
 
   late final Dio _dio;
@@ -18,7 +27,22 @@ class ApiClient {
     try {
       return await _dio.post(path, data: data, options: options);
     } on DioException catch (e) {
-      // You can add better error handling here later
+      rethrow;
+    }
+  }
+
+  Future<Response> get(String path, {Map<String, dynamic>? queryParameters, Options? options}) async {
+    try {
+      return await _dio.get(path, queryParameters: queryParameters, options: options);
+    } on DioException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> put(String path, {dynamic data, Options? options}) async {
+    try {
+      return await _dio.put(path, data: data, options: options);
+    } on DioException catch (e) {
       rethrow;
     }
   }

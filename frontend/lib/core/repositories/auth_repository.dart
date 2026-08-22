@@ -61,7 +61,14 @@ class AuthRepository {
     // Save token for future use
     final token = data['access_token'] as String;
     await _storage.write(key: 'access_token', value: token);
+    await _storage.write(key: 'user_role', value: data['role'] as String);
+    await _storage.write(key: 'profile_id', value: data['profile_id'].toString());
 
-    return data; // Now correctly returns Map<String, dynamic>
+    return data;
+  }
+
+  Future<int?> getProfileId() async {
+    final idStr = await _storage.read(key: 'profile_id');
+    return idStr != null ? int.tryParse(idStr) : null;
   }
 }

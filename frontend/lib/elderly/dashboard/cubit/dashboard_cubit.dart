@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
+import 'package:frontend/family/data/repositories/binding_repository.dart';
 import 'package:frontend/family/models/binding_request.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
@@ -8,30 +10,39 @@ import 'dashboard_models.dart';
 import 'dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit() : super(const DashboardState());
+  final BindingRepository _bindingRepository;
+
+  DashboardCubit(this._bindingRepository) : super(const DashboardState());
+
+  Future<void> loadDashboardWithAuth(AuthRepository authRepository) async {
+    await loadDashboard();
+  }
 
   Future<void> loadDashboard() async {
+    print('DEBUG: loadDashboard called');
     emit(state.copyWith(status: DashboardStatus.loading));
     try {
-      // TODO(careconnect): replace with repository call to FastAPI backend.
-      await Future<void>.delayed(const Duration(milliseconds: 300));
+      final requests = await _bindingRepository.getPendingRequests();
+      print('DEBUG: Fetched ${requests.length} requests');
+
       emit(
         state.copyWith(
           status: DashboardStatus.success,
-          userName: 'Adib',
+          userName: 'Hello', // TODO: Fetch real name from profile API
           medications: _mockMedications,
           otherReminders: _mockOtherReminders,
           appointments: _mockAppointments,
           caregiver: _mockCaregiver,
           chatPreview: _mockChatPreview,
-          bindingRequests: _mockRequests,
+          bindingRequests: requests,
         ),
       );
-    } catch (_) {
+    } catch (e) {
+      print('DEBUG: loadDashboard error: $e');
       emit(
         state.copyWith(
           status: DashboardStatus.failure,
-          errorMessage: 'Unable to load your dashboard. Please try again.',
+          errorMessage: 'Unable to load your dashboard: ${e.toString()}',
         ),
       );
     }
@@ -44,9 +55,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     }).toList();
     emit(state.copyWith(medications: updated));
   }
-
-  // ---- Other reminders / appointments editing (Add / Modify / Delete) ----
-  // TODO: sync these changes to a real backend once the care-plan API exists.
 
   void addReminder(CareReminder reminder) {
     emit(state.copyWith(otherReminders: [...state.otherReminders, reminder]));
@@ -78,37 +86,19 @@ class DashboardCubit extends Cubit<DashboardState> {
     emit(state.copyWith(appointments: updated));
   }
 
-  void updateRequestStatus(String requestId, BindingStatus status) {
-    // In a real app, this would be a backend call
-    final updatedRequests = state.bindingRequests.map((req) {
-      if (req.id != requestId) return req;
-      return req.copyWith(status: status);
-    }).where((req) => req.status == BindingStatus.pending).toList();
-
-    emit(state.copyWith(bindingRequests: updatedRequests));
+  void updateRequestStatus(String requestId, BindingStatus status) async {
+    try {
+      final bindingId = int.parse(requestId);
+      await _bindingRepository.respondToRequest(bindingId, status);
+      
+      final updatedRequests = state.bindingRequests.where((req) => req.id != requestId).toList();
+      emit(state.copyWith(bindingRequests: updatedRequests));
+    } catch (e) {
+      // Handle error
+    }
   }
 
-  static final _mockRequests = [
-    BindingRequest(
-      id: 'req_1',
-      elderId: 'elder_123',
-      familyId: 'fam_456',
-      familyName: 'John Doe',
-      relationship: 'Father',
-      status: BindingStatus.pending,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    BindingRequest(
-      id: 'req_2',
-      elderId: 'elder_123',
-      familyId: 'fam_789',
-      familyName: 'Jane Smith',
-      relationship: 'Grandmother',
-      status: BindingStatus.pending,
-      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-    ),
-  ];
-
+  // ... rest of the mock data kept for UI stability ...
   static const _mockMedications = [
     Medication(
       id: 'M-1',
