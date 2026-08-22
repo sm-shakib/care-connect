@@ -27,6 +27,7 @@ class _AddMedicineViewState extends State<AddMedicineView> {
   late int _timesPerDay;
   late List<TimeOfDay?> _scheduleTimes;
   late DateTime _startDate;
+  DateTime? _endDate;
   late bool _refillReminderEnabled;
   late int _availableUnits;
   late int _notifyThreshold;
@@ -50,6 +51,7 @@ class _AddMedicineViewState extends State<AddMedicineView> {
       ];
     }
     _startDate = existing?.startDate ?? DateTime.now();
+    _endDate = existing?.endDate;
     _refillReminderEnabled = existing?.refillReminderEnabled ?? false;
     _availableUnits = existing?.availableUnits ?? 0;
     _notifyThreshold = existing?.notifyThreshold ?? 0;
@@ -99,7 +101,8 @@ class _AddMedicineViewState extends State<AddMedicineView> {
   bool get _canSave =>
       _nameController.text.trim().isNotEmpty &&
       _dosageController.text.trim().isNotEmpty &&
-      !_scheduleTimes.contains(null);
+      !_scheduleTimes.contains(null) &&
+      _endDate != null;
 
   void _save() {
     if (!_canSave) {
@@ -123,6 +126,7 @@ class _AddMedicineViewState extends State<AddMedicineView> {
           .map((time) => time.format(context))
           .toList(),
       startDate: _startDate,
+      endDate: _endDate!,
       refillReminderEnabled: _refillReminderEnabled,
       availableUnits: _availableUnits,
       notifyThreshold: _notifyThreshold,
@@ -149,9 +153,16 @@ class _AddMedicineViewState extends State<AddMedicineView> {
           timesPerDay: _timesPerDay,
           scheduleTimes: _scheduleTimes,
           startDate: _startDate,
+          endDate: _endDate,
           onTimesPerDayChanged: _onTimesPerDayChanged,
           onTimeChanged: _onTimeChanged,
-          onStartDateChanged: (date) => setState(() => _startDate = date),
+          onStartDateChanged: (date) => setState(() {
+            _startDate = date;
+            if (_endDate != null && _endDate!.isBefore(_startDate)) {
+              _endDate = null;
+            }
+          }),
+          onEndDateChanged: (date) => setState(() => _endDate = date),
         ),
         const SizedBox(height: 24),
         RefillReminder(

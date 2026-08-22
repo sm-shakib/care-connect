@@ -34,11 +34,13 @@ class Medicine extends Equatable {
     required this.timesPerDay,
     required this.scheduleTimes,
     required this.startDate,
+    required this.endDate,
     this.imagePath,
     this.refillReminderEnabled = false,
     this.availableUnits = 0,
     this.notifyThreshold = 0,
     this.isTakenToday = false,
+    this.takenDoseTimes = const [],
   });
 
   final String id;
@@ -70,11 +72,19 @@ class Medicine extends Equatable {
   final List<String> scheduleTimes;
   final DateTime startDate;
 
+  /// When the dosage schedule stops.
+  final DateTime endDate;
+
   final bool refillReminderEnabled;
   final int availableUnits;
   final int notifyThreshold;
 
   final bool isTakenToday;
+
+  /// Which of today's [scheduleTimes] have already been taken. Empty
+  /// whenever none have — including automatically at the start of a new
+  /// day, since the backend resets this itself.
+  final List<String> takenDoseTimes;
 
   /// The next upcoming schedule time today, or the first one if none left.
   String get nextReminder =>
@@ -82,6 +92,22 @@ class Medicine extends Equatable {
 
   bool get isRefillLow =>
       refillReminderEnabled && availableUnits <= notifyThreshold;
+
+  /// Whether the dose scheduled for [time] has been taken today.
+  bool isDoseTaken(String time) => takenDoseTimes.contains(time);
+
+  /// The earliest scheduled time not yet taken today, or `null` once every
+  /// dose has been.
+  String? get nextPendingTime {
+    for (final time in scheduleTimes) {
+      if (!isDoseTaken(time)) return time;
+    }
+    return null;
+  }
+
+  /// Whether every dose scheduled for today has been taken.
+  bool get isFullyTakenToday =>
+      scheduleTimes.isNotEmpty && nextPendingTime == null;
 
   Medicine copyWith({
     String? name,
@@ -92,10 +118,12 @@ class Medicine extends Equatable {
     int? timesPerDay,
     List<String>? scheduleTimes,
     DateTime? startDate,
+    DateTime? endDate,
     bool? refillReminderEnabled,
     int? availableUnits,
     int? notifyThreshold,
     bool? isTakenToday,
+    List<String>? takenDoseTimes,
   }) {
     return Medicine(
       id: id,
@@ -107,11 +135,13 @@ class Medicine extends Equatable {
       timesPerDay: timesPerDay ?? this.timesPerDay,
       scheduleTimes: scheduleTimes ?? this.scheduleTimes,
       startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       refillReminderEnabled:
           refillReminderEnabled ?? this.refillReminderEnabled,
       availableUnits: availableUnits ?? this.availableUnits,
       notifyThreshold: notifyThreshold ?? this.notifyThreshold,
       isTakenToday: isTakenToday ?? this.isTakenToday,
+      takenDoseTimes: takenDoseTimes ?? this.takenDoseTimes,
     );
   }
 
@@ -126,9 +156,11 @@ class Medicine extends Equatable {
         timesPerDay,
         scheduleTimes,
         startDate,
+        endDate,
         refillReminderEnabled,
         availableUnits,
         notifyThreshold,
         isTakenToday,
+        takenDoseTimes,
       ];
 }

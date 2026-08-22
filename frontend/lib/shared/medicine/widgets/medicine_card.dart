@@ -98,7 +98,7 @@ class MedicineCard extends StatelessWidget {
                         ),
                         if (showTakenStatus) ...[
                           const SizedBox(height: 8),
-                          _TakenStatus(isTaken: medicine.isTakenToday),
+                          _TakenStatus(medicine: medicine),
                         ],
                       ],
                     ),
@@ -109,7 +109,7 @@ class MedicineCard extends StatelessWidget {
                 const SizedBox(height: 18),
                 SizedBox(
                   width: double.infinity,
-                  child: medicine.isTakenToday
+                  child: medicine.isFullyTakenToday
                       ? OutlinedButton.icon(
                           onPressed: null,
                           icon: const Icon(Icons.check_circle),
@@ -138,7 +138,11 @@ class MedicineCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            context.l10n.takeMedicineLabel,
+                            // A medicine with multiple doses a day always
+                            // targets its next untaken one — taking them
+                            // out of order is only possible from Details.
+                            context.l10n
+                                .takeMedicineAtLabel(medicine.nextPendingTime!),
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -181,16 +185,19 @@ class _MedicineThumbnail extends StatelessWidget {
   }
 }
 
-/// Read-only "Taken" / "Not taken yet" indicator: a check mark plus text.
+/// Read-only indicator of how many of today's doses have been taken.
 class _TakenStatus extends StatelessWidget {
-  const _TakenStatus({required this.isTaken});
+  const _TakenStatus({required this.medicine});
 
-  final bool isTaken;
+  final Medicine medicine;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isTaken = medicine.isFullyTakenToday;
     final color = isTaken ? Colors.green.shade700 : colorScheme.outline;
+    final taken = medicine.takenDoseTimes.length;
+    final total = medicine.scheduleTimes.length;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -202,9 +209,9 @@ class _TakenStatus extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          isTaken
-              ? context.l10n.takenStatusLabel
-              : context.l10n.notTakenYetStatusLabel,
+          taken == 0
+              ? context.l10n.notTakenYetStatusLabel
+              : context.l10n.dosesTakenLabel(taken, total),
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,

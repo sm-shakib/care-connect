@@ -29,7 +29,6 @@ class DashboardCubit extends Cubit<DashboardState> {
         state.copyWith(
           status: DashboardStatus.success,
           userName: 'Hello', // TODO: Fetch real name from profile API
-          medications: _mockMedications,
           otherReminders: _mockOtherReminders,
           appointments: _mockAppointments,
           caregiver: _mockCaregiver,
@@ -46,14 +45,6 @@ class DashboardCubit extends Cubit<DashboardState> {
         ),
       );
     }
-  }
-
-  void markMedicationTaken(String medicationId) {
-    final updated = state.medications.map((medication) {
-      if (medication.id != medicationId) return medication;
-      return medication.copyWith(isTaken: true);
-    }).toList();
-    emit(state.copyWith(medications: updated));
   }
 
   void addReminder(CareReminder reminder) {
@@ -99,31 +90,6 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   // ... rest of the mock data kept for UI stability ...
-  static const _mockMedications = [
-    Medication(
-      id: 'M-1',
-      name: 'Metformin',
-      nameBn: 'মেটফরমিন',
-      dosage: '500mg, 1 tablet',
-      time: '8:00 AM',
-      isTaken: true,
-    ),
-    Medication(
-      id: 'M-2',
-      name: 'Lisinopril',
-      nameBn: 'লিসিনোপ্রিল',
-      dosage: '10mg, 1 tablet',
-      time: '1:00 PM',
-    ),
-    Medication(
-      id: 'M-3',
-      name: 'Atorvastatin',
-      nameBn: 'অ্যাটোরভাস্ট্যাটিন',
-      dosage: '20mg, 1 tablet',
-      time: '9:00 PM',
-    ),
-  ];
-
   static const _mockOtherReminders = [
     CareReminder(
       id: 'rem_1',
