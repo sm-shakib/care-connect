@@ -19,13 +19,21 @@ class Caregiver(Base):
     # Professional Info
     specializations = Column(Text)
     availability_type = Column(String)  # fullTime, partTime, onCall, weekendsOnly
-    daily_rate = Column(Float)
+    hourly_rate = Column(Float, nullable=False)
     experience_years = Column(Integer)
-    is_verified = Column(Boolean, default=False)
+
+    # Verification & Social
+    status = Column(String, default="pending")  # pending, verified, rejected
+    rating = Column(Float, default=0.0)
+    review_count = Column(Integer, default=0)
 
     # Relationships
     user = relationship("User", back_populates="caregiver_profile")
     documents = relationship("CaregiverDocument", back_populates="caregiver")
+
+    @property
+    def email(self):
+        return self.user.email if self.user else None
 
 class CaregiverDocument(Base):
     __tablename__ = "caregiver_documents"
@@ -34,5 +42,6 @@ class CaregiverDocument(Base):
     caregiver_id = Column(Integer, ForeignKey("caregivers.id"), nullable=False)
     document_type = Column(String, nullable=False)  # nationalId, certificate, policeClearance
     document_url = Column(String, nullable=False)
+    is_verified = Column(Boolean, default=False)
 
     caregiver = relationship("Caregiver", back_populates="documents")

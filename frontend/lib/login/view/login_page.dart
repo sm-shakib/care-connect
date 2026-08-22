@@ -65,7 +65,7 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   _LoginRole? _selectedRole;
 
-  void _navigateBasedOnRole(BuildContext context, String? role) {
+  void _navigateBasedOnRole(BuildContext context, String? role, String? status) {
     if (role == 'elder') {
       Navigator.pushAndRemoveUntil(
         context,
@@ -79,11 +79,21 @@ class _LoginViewState extends State<_LoginView> {
         (route) => false,
       );
     } else if (role == 'caregiver') {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<void>(builder: (_) => const CaregiverDashboardPage()),
-        (route) => false,
-      );
+      if (status == 'verified') {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute<void>(
+              builder: (_) => const CaregiverDashboardPage()),
+          (route) => false,
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute<void>(
+              builder: (_) => const CaregiverPendingPage()),
+          (route) => false,
+        );
+      }
     } else if (role == 'admin') {
       Navigator.pushAndRemoveUntil(
         context,
@@ -103,7 +113,7 @@ class _LoginViewState extends State<_LoginView> {
         child: BlocListener<LoginCubit, LoginState>(
           listener: (context, state) {
             if (state.isSuccess) {
-              _navigateBasedOnRole(context, state.role);
+              _navigateBasedOnRole(context, state.role, state.accountStatus);
             } else if (state.isFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

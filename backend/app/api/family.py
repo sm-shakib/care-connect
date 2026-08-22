@@ -27,7 +27,7 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
             **request.profile.model_dump()
         )
         db.add(new_family)
-        
+
         db.commit()
         db.refresh(new_user)
         db.refresh(new_family)

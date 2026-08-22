@@ -22,7 +22,7 @@ class CaregiverProfileCubit extends Cubit<CaregiverProfileState> {
       dateOfBirth: CaregiverProfileDummyData.dateOfBirth,
       specializations: CaregiverProfileDummyData.specializations,
       availabilityType: CaregiverProfileDummyData.availabilityType,
-      dailyRate: CaregiverProfileDummyData.dailyRate,
+      hourlyRate: CaregiverProfileDummyData.hourlyRate,
       experienceYears: CaregiverProfileDummyData.experienceYears,
       documents: CaregiverProfileDummyData.documents,
       totalEarningsThisMonth: CaregiverProfileDummyData.totalEarningsThisMonth,
@@ -63,7 +63,7 @@ class CaregiverProfileCubit extends Cubit<CaregiverProfileState> {
       emit(state.copyWith(specializations: value));
   void availabilityTypeChanged(AvailabilityType? value) =>
       emit(state.copyWith(availabilityType: value));
-  void dailyRateChanged(String value) => emit(state.copyWith(dailyRate: value));
+  void hourlyRateChanged(String value) => emit(state.copyWith(hourlyRate: value));
   void experienceYearsChanged(String value) =>
       emit(state.copyWith(experienceYears: value));
   void profileImagePicked(Uint8List bytes) =>

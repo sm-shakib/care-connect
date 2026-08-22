@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'caregiver_detail_state.dart';
-import 'caregiver_profile_model.dart';
+import 'package:frontend/admin/caregiver_detail/cubit/caregiver_detail_state.dart';
+import 'package:frontend/admin/caregiver_detail/cubit/caregiver_profile_model.dart';
 
 /// Manages a single caregiver's profile: loading it, the two admin
 /// actions (suspend/reactivate, remove), and retrying a failed payout.
@@ -29,7 +29,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
           profile: profile,
         ),
       );
-    } catch (_) {
+    } on Exception catch (_) {
       emit(
         state.copyWith(
           loadStatus: CaregiverDetailLoadStatus.failure,
@@ -40,9 +40,8 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
   }
 
   /// Toggles between active/suspended.
-  ///
-  /// TODO(careconnect): call `PATCH /admin/users/{id}/status` instead
-  /// of just updating local state.
+  // TODO(careconnect): call `PATCH /admin/users/{id}/status` instead
+  // of just updating local state.
   Future<void> toggleAccountStatus() async {
     final profile = state.profile;
     if (profile == null) return;
@@ -57,17 +56,17 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
     );
   }
 
-  /// TODO(careconnect): call `DELETE /admin/users/{id}` instead of just
-  /// flagging local state. The view confirms this destructive action
-  /// with the admin before calling it.
+  // TODO(careconnect): call `DELETE /admin/users/{id}` instead of just
+  // flagging local state. The view confirms this destructive action
+  // with the admin before calling it.
   Future<void> removeUser() async {
     emit(state.copyWith(action: CaregiverDetailAction.removed));
   }
 
   /// Retries a failed payout — flips it to `processing` locally.
-  ///
-  /// TODO(careconnect): call `POST /admin/payouts/{id}/retry` instead
-  /// of just updating local state.
+  //
+  // TODO(careconnect): call `POST /admin/payouts/{id}/retry` instead
+  // of just updating local state.
   Future<void> retryPayout(String payoutId) async {
     final profile = state.profile;
     if (profile == null) return;
@@ -89,13 +88,13 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
     emit(state.copyWith(action: CaregiverDetailAction.none));
   }
 
-  static final Map<String, CaregiverProfile> _mockProfiles = {
+  static const Map<String, CaregiverProfile> _mockProfiles = {
     // Matches user_management's mock caregiver (id '2', Fatema Begum).
     '2': CaregiverProfile(
       id: '2',
       name: 'Fatema Begum',
       avatarUrl:
-      'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
+          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
       status: AccountStatus.active,
       title: 'Caregiver',
       isVerified: true,
@@ -104,18 +103,14 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       gender: 'Female',
       experienceYears: 8,
       availability: 'Full-time',
-      dailyRate: 350,
+      hourlyRate: 350,
       phone: '+880 1812-987654',
       email: 'fatema.begum@careconnect.com',
       address: 'House 22, Road 8, Banani, Dhaka',
-      specializations: const [
-        //SpecializationTag(label: 'Geriatrics', isPrimary: true),
+      specializations: [
         SpecializationTag(label: 'Dementia Care', isPrimary: true),
-        //SpecializationTag(label: 'Wound Care'),
       ],
-      // Placeholder labels — swap for the real CaregiverDocumentType
-      // enum values once shared.
-      verificationChecklist: const [
+      verificationChecklist: [
         VerificationChecklistItem(label: 'National ID', isVerified: true),
         VerificationChecklistItem(
           label: 'Professional Certificate',
@@ -126,7 +121,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
           isVerified: true,
         ),
       ],
-      documents: const [
+      documents: [
         CaregiverDocument(
           title: 'National ID',
           subtitle: 'National ID Card',
@@ -142,7 +137,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
           iconName: 'description',
         ),
       ],
-      recentBookings: const [
+      recentBookings: [
         CaregiverBookingSummary(
           id: 'BK-3082',
           elderlyUserName: 'Abdul Karim',
@@ -160,7 +155,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
       pendingAmount: 4500,
       thisMonthAmount: 2100,
       nextPayoutDateLabel: 'Oct 30',
-      recentPayouts: const [
+      recentPayouts: [
         Payout(
           id: 'payout-1',
           periodLabel: 'BK-3082 - Elderly Companion Care',
