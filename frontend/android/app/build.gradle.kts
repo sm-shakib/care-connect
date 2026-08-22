@@ -21,6 +21,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Required by flutter_local_notifications (medicine alarms).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -95,6 +97,8 @@ flutter {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
+    // Required by flutter_local_notifications (medicine alarms).
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     // See the root build.gradle.kts for the androidx.concurrent:concurrent-futures
     // workaround needed by camera_android_camerax — applied there to every
     // subproject since the failing compile task runs inside that plugin

@@ -6,6 +6,7 @@ import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page
 import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_cubit.dart';
 import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_body.dart';
 import 'package:frontend/elderly/dashboard/cubit/dashboard_cubit.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
 import 'package:frontend/elderly/dashboard/cubit/dashboard_state.dart';
 import 'package:frontend/elderly/dashboard/view/edit_reminders_page.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/caregiver_card.dart';
@@ -21,6 +22,9 @@ import 'package:frontend/elderly/view/sos_alert_page.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
+import 'package:frontend/shared/medicine/cubit/medicine_state.dart';
+import 'package:frontend/shared/medicine/data/medicine_repository.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -39,6 +43,7 @@ class ElderlyDashboardPage extends StatelessWidget {
     final apiClient = ApiClient();
     final bindingRepository = BindingRepository(apiClient);
     final authRepository = AuthRepository();
+    final medicineRepository = MedicineRepository(apiClient);
 
     return MultiBlocProvider(
       providers: [
@@ -46,7 +51,9 @@ class ElderlyDashboardPage extends StatelessWidget {
           create: (_) => DashboardCubit(bindingRepository)
             ..loadDashboardWithAuth(authRepository),
         ),
-        BlocProvider(create: (_) => MedicineCubit()..loadMedicines()),
+        BlocProvider(
+          create: (_) => MedicineCubit(medicineRepository)..loadMedicines(),
+        ),
       ],
       child: const _ElderlyDashboardView(),
     );
@@ -234,11 +241,15 @@ class _DashboardHomeBody extends StatelessWidget {
                 onTrailingTap: onOpenMedicine,
               ),
               const SizedBox(height: 12),
-              MedicationCard(
-                medications: state.medications,
-                onMarkTaken: (medication) => context
-                    .read<DashboardCubit>()
-                    .markMedicationTaken(medication.id),
+              BlocBuilder<MedicineCubit, MedicineState>(
+                builder: (context, medicineState) {
+                  return MedicationCard(
+                    medications: _nextMedicationDoses(medicineState.medicines),
+                    onMarkTaken: (medication) => context
+                        .read<MedicineCubit>()
+                        .markTaken(medication.id, medication.time),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               OtherRemindersSection(reminders: state.otherReminders),
@@ -268,6 +279,51 @@ class _DashboardHomeBody extends StatelessWidget {
   }
 }
 
+/// Picks the next [count] not-yet-taken doses across every medicine, in
+/// chronological order for *today only* — the same medicine can appear
+/// more than once if several of its doses are still due (e.g. its 8 AM and
+/// 2 PM doses both remain). Doses already taken today are left out, and
+/// nothing ever spills over into tomorrow's schedule.
+List<Medication> _nextMedicationDoses(List<Medicine> medicines, {int count = 3}) {
+  final doses = [
+    for (final medicine in medicines)
+      for (final time in medicine.scheduleTimes)
+        if (!medicine.isDoseTaken(time)) (medicine: medicine, time: time),
+  ];
+
+  doses.sort(
+    (a, b) => (_minutesSinceMidnight(a.time) ?? 24 * 60)
+        .compareTo(_minutesSinceMidnight(b.time) ?? 24 * 60),
+  );
+
+  return doses
+      .take(count)
+      .map(
+        (dose) => Medication(
+          id: dose.medicine.id,
+          name: dose.medicine.name,
+          nameBn: dose.medicine.nameBn,
+          dosage: dose.medicine.dosage,
+          time: dose.time,
+          isTaken: false,
+        ),
+      )
+      .toList();
+}
+
+/// Minutes since midnight for a pre-formatted time label like "8:00 AM", or
+/// `null` if it doesn't match that shape.
+int? _minutesSinceMidnight(String label) {
+  final match =
+      RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(label.trim());
+  if (match == null) return null;
+  var hour = int.parse(match.group(1)!);
+  final minute = int.parse(match.group(2)!);
+  final meridiem = match.group(3)!.toUpperCase();
+  if (meridiem == 'PM' && hour != 12) hour += 12;
+  if (meridiem == 'AM' && hour == 12) hour = 0;
+  return hour * 60 + minute;
+}
 
 class _CaregiversTabBody extends StatelessWidget {
   const _CaregiversTabBody();

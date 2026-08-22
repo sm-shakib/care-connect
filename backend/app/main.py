@@ -6,7 +6,8 @@ from app.models.elder import Elder
 from app.models.caregiver import Caregiver, CaregiverDocument
 from app.models.family import Family
 from app.models.binding import FamilyElderLink
-from app.api import elder, auth, caregiver, family, utils, binding
+from app.models.medicine import Medicine
+from app.api import elder, auth, caregiver, family, utils, binding, medicine
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -28,6 +29,7 @@ app.include_router(elder.router, tags=["Elderly"])
 app.include_router(caregiver.router, tags=["Caregiver"])
 app.include_router(family.router, tags=["Family"])
 app.include_router(binding.router)
+app.include_router(medicine.router)
 app.include_router(utils.router, tags=["Utilities"])
 
 @app.get("/")

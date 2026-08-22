@@ -1202,6 +1202,45 @@
         "description": "Status label indicating medicine hasn't been taken yet"
     },
 
+    "alarmTimeToTakeLabel": "Time to take",
+    "@alarmTimeToTakeLabel": {
+        "description": "Eyebrow label on the medicine alarm screen, above the medicine name"
+    },
+
+    "snoozeMinutesLabel": "Snooze {minutes} min",
+    "@snoozeMinutesLabel": {
+        "description": "Button label to postpone a medicine alarm by a number of minutes",
+        "placeholders": {
+            "minutes": {
+                "type": "int"
+            }
+        }
+    },
+
+    "takeMedicineAtLabel": "Take at {time}",
+    "@takeMedicineAtLabel": {
+        "description": "Button label for taking a medicine's next pending dose, naming its scheduled time",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "8:00 AM"
+            }
+        }
+    },
+
+    "dosesTakenLabel": "{taken} of {total} doses taken today",
+    "@dosesTakenLabel": {
+        "description": "Status label showing how many of today's doses have been taken",
+        "placeholders": {
+            "taken": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+
     "medicineDetailsTitle": "Medicine Details",
     "@medicineDetailsTitle": {
         "description": "Title for the medicine details page"
@@ -1225,6 +1264,21 @@
     "refillReminderTitle": "Refill Reminder",
     "@refillReminderTitle": {
         "description": "Title for the refill reminder section"
+    },
+
+    "todaysStatusTitle": "Today's Status",
+    "@todaysStatusTitle": {
+        "description": "Title for the section listing today's dose-by-dose status"
+    },
+
+    "missedStatusLabel": "Missed",
+    "@missedStatusLabel": {
+        "description": "Status badge for a dose whose time has passed without being taken"
+    },
+
+    "remainingStatusLabel": "Remaining",
+    "@remainingStatusLabel": {
+        "description": "Status badge for a dose still upcoming today"
     },
 
     "timesPerDayLabel": "{count}x per day",
