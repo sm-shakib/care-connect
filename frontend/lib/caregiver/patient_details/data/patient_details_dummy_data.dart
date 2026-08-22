@@ -50,6 +50,7 @@ class PatientDetailsDummyData {
         timesPerDay: 1,
         scheduleTimes: const ['8:00 AM'],
         startDate: now.subtract(const Duration(days: 30)),
+        endDate: now.add(const Duration(days: 30)),
         isTakenToday: true,
       ),
       Medicine(
@@ -60,6 +61,7 @@ class PatientDetailsDummyData {
         timesPerDay: 1,
         scheduleTimes: const ['1:00 PM'],
         startDate: now.subtract(const Duration(days: 30)),
+        endDate: now.add(const Duration(days: 30)),
       ),
       Medicine(
         id: 'm3',
@@ -69,6 +71,7 @@ class PatientDetailsDummyData {
         timesPerDay: 1,
         scheduleTimes: const ['8:00 PM'],
         startDate: now.subtract(const Duration(days: 30)),
+        endDate: now.add(const Duration(days: 30)),
       ),
     ];
   }

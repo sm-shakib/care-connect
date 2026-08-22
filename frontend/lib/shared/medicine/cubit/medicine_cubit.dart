@@ -65,6 +65,7 @@ class MedicineCubit extends Cubit<MedicineState> {
       timesPerDay: 1,
       scheduleTimes: const ['8:00 AM'],
       startDate: DateTime.now().subtract(const Duration(days: 14)),
+      endDate: DateTime.now().add(const Duration(days: 16)),
       refillReminderEnabled: true,
       availableUnits: 12,
       notifyThreshold: 5,
@@ -80,6 +81,7 @@ class MedicineCubit extends Cubit<MedicineState> {
       timesPerDay: 1,
       scheduleTimes: const ['1:00 PM'],
       startDate: DateTime.now().subtract(const Duration(days: 30)),
+      endDate: DateTime.now().add(const Duration(days: 30)),
       refillReminderEnabled: true,
       availableUnits: 3,
       notifyThreshold: 5,
@@ -94,6 +96,7 @@ class MedicineCubit extends Cubit<MedicineState> {
       timesPerDay: 1,
       scheduleTimes: const ['9:00 PM'],
       startDate: DateTime.now().subtract(const Duration(days: 60)),
+      endDate: DateTime.now().add(const Duration(days: 60)),
     ),
   ];
 }
