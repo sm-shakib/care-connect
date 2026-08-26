@@ -11,7 +11,7 @@ class FamilyNotificationsPage extends StatefulWidget {
 }
 
 class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
-  List<dynamic> _notifications = [];
+  List<Map<String, dynamic>> _notifications = const <Map<String, dynamic>>[];
   bool _isLoading = true;
 
   @override
@@ -22,14 +22,17 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
 
   Future<void> _fetchNotifications() async {
     try {
-      final response = await ApiClient().get('/notifications/');
+      final response = await ApiClient().get<List<dynamic>>('/notifications/');
+      final data = response.data ?? const <dynamic>[];
       if (mounted) {
         setState(() {
-          _notifications = response.data;
+          _notifications = data
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList();
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception {
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -65,18 +68,27 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
                         child: ListTile(
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.paleMint,
-                            child: Icon(Icons.notifications_active, color: AppColors.darkTeal),
+                            child: Icon(
+                              Icons.notifications_active,
+                              color: AppColors.darkTeal,
+                            ),
                           ),
-                          title: Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                          title: Text(
+                            (item['title'] ?? '').toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 4),
-                              Text(item['body']),
+                              Text((item['body'] ?? '').toString()),
                               const SizedBox(height: 4),
                               Text(
-                                _formatTime(item['created_at']),
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                _formatTime((item['created_at'] ?? '').toString()),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ],
                           ),

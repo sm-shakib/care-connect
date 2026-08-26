@@ -19,20 +19,23 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   Future<void> loadElders() async {
     try {
       final membersData = await _bindingRepository.getFamilyMembers();
-      
+
       final elders = membersData.map((data) {
-        final elderData = data['elder'];
-        final relationship = data['relationship'];
-        
+        final Map<String, dynamic> member = Map<String, dynamic>.from(data);
+        final Map<String, dynamic> elderData = Map<String, dynamic>.from(
+          (member['elder'] as Map?) ?? const <String, dynamic>{},
+        );
+        final String relationship = (member['relationship'] ?? '').toString();
+
         return Elder(
-          id: elderData['id'].toString(),
-          name: elderData['name'],
-          age: 70, // TODO: Calculate from date_of_birth
+          id: (elderData['id'] ?? '').toString(),
+          name: (elderData['name'] ?? 'Unknown').toString(),
+          age: 70,
           relationship: relationship,
-          gender: elderData['gender'] ?? 'Unknown',
+          gender: (elderData['gender'] ?? 'Unknown').toString(),
           hasCaregiver: false,
-          healthStatus: elderData['health_condition'] ?? 'Stable',
-          imageUrl: elderData['profile_image_url'] ?? '',
+          healthStatus: (elderData['health_condition'] ?? 'Stable').toString(),
+          imageUrl: (elderData['profile_image_url'] ?? '').toString(),
           vitals: const HealthVitals(
             heartRate: 75,
             heartRateStatus: 'Normal',
@@ -51,7 +54,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           filteredElders: elders,
         ),
       );
-    } catch (e) {
+    } catch (_) {
       // Handle error
     }
   }

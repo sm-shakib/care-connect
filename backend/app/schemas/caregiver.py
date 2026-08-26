@@ -43,8 +43,6 @@ class CaregiverOut(CaregiverBase):
     user_id: int
     email: str
     status: VerificationStatus
-    rating: float
-    review_count: int
     documents: List[CaregiverDocumentOut] = []
 
     class Config:

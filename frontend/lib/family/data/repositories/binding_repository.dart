@@ -26,20 +26,20 @@ class BindingRepository {
 
   Future<List<BindingRequest>> getPendingRequests() async {
     try {
-      print('DEBUG: Requesting /bindings/pending/me');
-      final response = await _apiClient.get('/bindings/pending/me');
-      print('DEBUG: Response status: ${response.statusCode}');
-      
+      final response = await _apiClient.get<List<dynamic>>('/bindings/pending/me');
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        print('DEBUG: Received data: $data');
+        final data = response.data ?? const <dynamic>[];
         return data
-            .map((json) => BindingRequestDto.fromJson(json).toEntity())
+            .map(
+              (json) => BindingRequestDto.fromJson(
+                Map<String, dynamic>.from(json as Map),
+              ).toEntity(),
+            )
             .toList();
       }
-      return [];
+      return const <BindingRequest>[];
     } catch (e) {
-      print('DEBUG: getPendingRequests error: $e');
       rethrow;
     }
   }
@@ -57,11 +57,14 @@ class BindingRepository {
 
   Future<List<Map<String, dynamic>>> getFamilyMembers() async {
     try {
-      final response = await _apiClient.get('/bindings/family/members');
+      final response = await _apiClient.get<List<dynamic>>('/bindings/family/members');
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(response.data);
+        final data = response.data ?? const <dynamic>[];
+        return data
+            .map((item) => Map<String, dynamic>.from(item as Map))
+            .toList();
       }
-      return [];
+      return const <Map<String, dynamic>>[];
     } catch (e) {
       rethrow;
     }

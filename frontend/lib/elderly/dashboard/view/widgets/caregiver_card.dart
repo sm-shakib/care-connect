@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
-import 'package:frontend/caregiver/data/caregiver_dummy_data.dart';
+import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
@@ -72,11 +72,23 @@ class CaregiverCard extends StatelessWidget {
   }
 
   void _openCaregiverDetails(BuildContext context) {
-    // Look up the full caregiver profile to show on the details page, the
-    // same way the family user's assigned-caregiver card does.
-    final fullCaregiver = caregiverList.firstWhere(
-      (c) => c.name == caregiver!.name,
-      orElse: () => caregiverList.first,
+    final fallbackCaregiver = Caregiver(
+      id: caregiver!.name.replaceAll(RegExp(r'\s+'), '_'),
+      name: caregiver!.name,
+      profession: 'Caregiver',
+      imageUrl: '',
+      rating: 0.0,
+      experience: 0,
+      distance: 0.0,
+      hourlyRate: 0,
+      isVerified: true,
+      specialties: const [],
+      specializations: '',
+      about: '',
+      gender: 'Female',
+      phone: '',
+      email: '',
+      address: '',
     );
 
     unawaited(
@@ -84,7 +96,7 @@ class CaregiverCard extends StatelessWidget {
         context,
         MaterialPageRoute<void>(
           builder: (_) => CaregiverDetailsPage(
-            caregiver: fullCaregiver,
+            caregiver: fallbackCaregiver,
             isAssigned: true,
           ),
         ),
@@ -185,8 +197,6 @@ class _CaregiverDetails extends StatelessWidget {
   }
 
   Future<void> _openConversation(BuildContext context) async {
-    // Open (or start) a direct conversation with this caregiver, the same
-    // way the family user's "Chat" action does from monitoring.
     final repository = MockChatRepository.instance;
     final contact = ChatDirectory.resolveOrCreateContact(
       caregiver.name,
