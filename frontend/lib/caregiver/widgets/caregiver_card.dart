@@ -101,6 +101,7 @@ class CaregiverCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
+                  /*
                   Row(
                     children: [
                       const Icon(
@@ -118,6 +119,7 @@ class CaregiverCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  */
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'dart:async';
+// import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +16,7 @@ import 'package:frontend/family/widgets/file_complaint_sheet.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const List<CaregiverDocumentType> _kRequiredDocuments = [
   CaregiverDocumentType.nationalId,
@@ -47,6 +49,19 @@ class CaregiverDetailsPage extends StatelessWidget {
     final dobLabel = caregiver.dateOfBirth != null
         ? DateFormat('d MMM yyyy').format(caregiver.dateOfBirth!)
         : '—';
+
+    // Calculate distance if booking context exists
+    /*
+    double? calculatedDistance;
+    if (bookingForElder != null) {
+      calculatedDistance = _calculateDistance(
+        bookingForElder!.latitude,
+        bookingForElder!.longitude,
+        caregiver.latitude,
+        caregiver.longitude,
+      );
+    }
+    */
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
@@ -115,9 +130,9 @@ class CaregiverDetailsPage extends StatelessWidget {
                   Colors.green,
                 ),
                 _buildStatItem(
-                  Icons.location_on_outlined,
-                  context.l10n.distLabel,
-                  context.l10n.distanceLabel(caregiver.distance),
+                  Icons.event_available_outlined,
+                  context.l10n.availabilityLabel,
+                  caregiver.getAvailabilityType(context),
                   Colors.orange,
                 ),
               ],
@@ -164,16 +179,6 @@ class CaregiverDetailsPage extends StatelessWidget {
                     icon: Icons.cake_outlined,
                     label: context.l10n.dateOfBirthLabel,
                     value: dobLabel,
-                  ),
-                  _InfoRow(
-                    icon: Icons.medical_services_outlined,
-                    label: context.l10n.specializationsLabel,
-                    value: caregiver.getSpecializations(context),
-                  ),
-                  _InfoRow(
-                    icon: Icons.event_available_outlined,
-                    label: context.l10n.availabilityLabel,
-                    value: caregiver.getAvailabilityType(context),
                     isLast: true,
                   ),
                 ],
@@ -183,7 +188,7 @@ class CaregiverDetailsPage extends StatelessWidget {
             const SizedBox(height: 25),
 
             /// Specializations Section
-            _SectionTitle(title: context.l10n.specialtiesTitle),
+            _SectionTitle(title: context.l10n.specializationsLabel),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -228,9 +233,18 @@ class CaregiverDetailsPage extends StatelessWidget {
                       type: _kRequiredDocuments[i],
                       fileName: caregiver.documents[_kRequiredDocuments[i]] ??
                           'document.pdf',
-                      onView: caregiver.isVerified ? () {
-                        // TODO(careconnect): Show document preview
-                      } : null,
+                      onView: caregiver.isVerified
+                          ? () async {
+                              final url =
+                                  caregiver.documents[_kRequiredDocuments[i]];
+                              if (url != null && url.isNotEmpty) {
+                                final uri = Uri.parse(url);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                }
+                              }
+                            }
+                          : null,
                     ),
                     if (i != _kRequiredDocuments.length - 1)
                       Divider(
@@ -556,6 +570,29 @@ class CaregiverDetailsPage extends StatelessWidget {
       ),
     );
   }
+
+  /*
+  /// Calculates the distance between two coordinates in kilometers using
+  /// the Haversine formula.
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371; // km
+    final double dLat = _toRadians(lat2 - lat1);
+    final double dLon = _toRadians(lon2 - lon1);
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRadians(lat1)) *
+            math.cos(_toRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    final double distance = earthRadius * c;
+    return double.parse(distance.toStringAsFixed(2));
+  }
+
+  double _toRadians(double degree) {
+    return degree * math.pi / 180;
+  }
+  */
 }
 
 class _BookingScheduleCard extends StatelessWidget {
