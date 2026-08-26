@@ -23,14 +23,14 @@ class BindingRequestDto {
 
   factory BindingRequestDto.fromJson(Map<String, dynamic> json) {
     return BindingRequestDto(
-      id: json['id'],
-      familyId: json['family_id'],
-      elderId: json['elder_id'],
-      relationship: json['relationship'],
-      status: json['status'],
-      createdAt: json['created_at'],
-      familyName: json['family_name'],
-      elderName: json['elder_name'],
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      familyId: (json['family_id'] as num?)?.toInt() ?? 0,
+      elderId: (json['elder_id'] as num?)?.toInt() ?? 0,
+      relationship: (json['relationship'] ?? '').toString(),
+      status: (json['status'] ?? 'pending').toString(),
+      createdAt: (json['created_at'] ?? DateTime.now().toIso8601String()).toString(),
+      familyName: (json['family_name'] ?? json['familyName'])?.toString(),
+      elderName: (json['elder_name'] ?? json['elderName'])?.toString(),
     );
   }
 

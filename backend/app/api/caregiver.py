@@ -1,9 +1,10 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.caregiver import Caregiver, CaregiverDocument
-from app.schemas.caregiver import CaregiverSignupRequest, CaregiverSignupResponse
+from app.schemas.caregiver import CaregiverSignupRequest, CaregiverSignupResponse, CaregiverOut
 from app.core.security import get_password_hash
 
 router = APIRouter()
@@ -51,3 +52,13 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")
+
+
+@router.get("/caregivers", response_model=List[CaregiverOut])
+def list_verified_caregivers(db: Session = Depends(get_db)):
+    """
+    Public endpoint to list caregivers with status == 'verified'.
+    Returns only caregivers that are verified and uses the CaregiverOut schema (without rating/review_count).
+    """
+    caregivers = db.query(Caregiver).options().join(Caregiver.user).filter(Caregiver.status == "verified").all()
+    return caregivers
