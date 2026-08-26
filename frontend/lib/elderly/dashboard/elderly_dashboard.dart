@@ -331,10 +331,17 @@ class _CaregiversTabBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The elder books for themselves, so no "which elder?" step is needed.
-    final selfName = context.read<DashboardCubit>().state.userName;
+    final dashboardState = context.read<DashboardCubit>().state;
+    final selfName = dashboardState.userName;
 
     return BlocProvider(
-      create: (_) => CaregiverListCubit()..loadCaregivers(),
+      create: (_) => CaregiverListCubit()
+        ..loadCaregivers(
+          /*
+          userLat: dashboardState.latitude,
+          userLng: dashboardState.longitude,
+          */
+        ),
       child: CaregiverListBody(
         onCaregiverTap: (caregiver) {
           Navigator.push(

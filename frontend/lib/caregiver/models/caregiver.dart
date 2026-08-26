@@ -29,6 +29,8 @@ class Caregiver {
     this.addressBn,
     this.dateOfBirth,
     this.documents = const {},
+    // this.latitude = 23.8103, // Default to Dhaka
+    // this.longitude = 90.4125,
   });
 
   final String id;
@@ -59,6 +61,69 @@ class Caregiver {
   final String? addressBn;
   final DateTime? dateOfBirth;
   final Map<CaregiverDocumentType, String> documents;
+
+  // final double latitude;
+  // final double longitude;
+
+  Caregiver copyWith({
+    String? id,
+    String? name,
+    String? nameBn,
+    String? profession,
+    String? professionBn,
+    String? imageUrl,
+    double? rating,
+    int? experience,
+    double? distance,
+    int? hourlyRate,
+    bool? isVerified,
+    List<String>? specialties,
+    String? specializations,
+    String? specializationsBn,
+    String? about,
+    String? aboutBn,
+    String? gender,
+    String? availabilityType,
+    String? availabilityTypeBn,
+    String? phone,
+    String? email,
+    String? address,
+    String? addressBn,
+    DateTime? dateOfBirth,
+    Map<CaregiverDocumentType, String>? documents,
+    // double? latitude,
+    // double? longitude,
+  }) {
+    return Caregiver(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameBn: nameBn ?? this.nameBn,
+      profession: profession ?? this.profession,
+      professionBn: professionBn ?? this.professionBn,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rating: rating ?? this.rating,
+      experience: experience ?? this.experience,
+      distance: distance ?? this.distance,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
+      isVerified: isVerified ?? this.isVerified,
+      specialties: specialties ?? this.specialties,
+      specializations: specializations ?? this.specializations,
+      specializationsBn: specializationsBn ?? this.specializationsBn,
+      about: about ?? this.about,
+      aboutBn: aboutBn ?? this.aboutBn,
+      gender: gender ?? this.gender,
+      availabilityType: availabilityType ?? this.availabilityType,
+      availabilityTypeBn: availabilityTypeBn ?? this.availabilityTypeBn,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      address: address ?? this.address,
+      addressBn: addressBn ?? this.addressBn,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      documents: documents ?? this.documents,
+      // latitude: latitude ?? this.latitude,
+      // longitude: longitude ?? this.longitude,
+    );
+  }
 
 
   /// Returns the localized name based on the current app locale.
