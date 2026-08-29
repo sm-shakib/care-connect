@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 from app.schemas.user import UserCreate, UserOut
 
@@ -8,15 +8,33 @@ class FamilyBase(BaseModel):
     gender: str
     date_of_birth: date
     phone: str
+    email: Optional[str] = None
     address: str
     profile_image_url: Optional[str] = None
 
 class FamilyCreate(FamilyBase):
     pass
 
+class FamilyUpdate(BaseModel):
+    name: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    profile_image_url: Optional[str] = None
+
+class ElderLinkOut(BaseModel):
+    id: int
+    elder_id: int
+    name: str
+    relationship: str
+    avatarUrl: Optional[str] = None
+
 class FamilyOut(FamilyBase):
     id: int
     user_id: int
+    is_active: bool = True
+    elder_links: List[ElderLinkOut] = []
 
     class Config:
         from_attributes = True

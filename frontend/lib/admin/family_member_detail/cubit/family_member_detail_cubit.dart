@@ -1,35 +1,42 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/repositories/admin_repository.dart';
 
-import 'family_member_detail_state.dart';
-import 'family_member_profile_model.dart';
+import 'package:frontend/admin/family_member_detail/cubit/family_member_detail_state.dart';
+import 'package:frontend/admin/family_member_detail/cubit/family_member_profile_model.dart';
 
-/// Manages a single family member's profile: loading it, and the two
-/// admin actions (suspend/reactivate, remove).
-///
-/// NOTE: [loadProfile] looks [userId] up in a mock map below. Wire it
-/// up to your FastAPI endpoints (e.g. `GET /admin/family/{id}`,
-/// `PATCH /admin/users/{id}/status`, `DELETE /admin/users/{id}`) when
-/// ready.
+/// Manages a single family member's profile: loading it, toggling status,
+/// and removal.
 class FamilyMemberDetailCubit extends Cubit<FamilyMemberDetailState> {
-  FamilyMemberDetailCubit({required this.userId})
-      : super(const FamilyMemberDetailState());
+  FamilyMemberDetailCubit({
+    required this.userId,
+    AdminRepository? adminRepository,
+  })  : _adminRepository = adminRepository ?? AdminRepository(),
+        super(const FamilyMemberDetailState());
 
   final String userId;
+  final AdminRepository _adminRepository;
 
   Future<void> loadProfile() async {
     emit(state.copyWith(loadStatus: FamilyMemberDetailLoadStatus.loading));
     try {
-      // TODO(careconnect): replace with repository call to FastAPI
-      // backend, fetching by `userId`.
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-      final profile = _mockProfiles[userId] ?? _mockProfiles.values.first;
+      final familyResponse = await _adminRepository.getFamilyDetail(
+        int.parse(userId),
+      );
+      
+      final profile = FamilyMemberProfile.fromJson(
+        familyResponse,
+        accountStatus: familyResponse['is_active'] == false 
+            ? AccountStatus.suspended 
+            : AccountStatus.active, 
+      );
+
       emit(
         state.copyWith(
           loadStatus: FamilyMemberDetailLoadStatus.success,
           profile: profile,
         ),
       );
-    } catch (_) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           loadStatus: FamilyMemberDetailLoadStatus.failure,
@@ -40,68 +47,45 @@ class FamilyMemberDetailCubit extends Cubit<FamilyMemberDetailState> {
   }
 
   /// Toggles between active/suspended.
-  ///
-  /// TODO(careconnect): call `PATCH /admin/users/{id}/status` instead
-  /// of just updating local state.
   Future<void> toggleAccountStatus() async {
     final profile = state.profile;
     if (profile == null) return;
-    final newStatus = profile.status == AccountStatus.active
-        ? AccountStatus.suspended
-        : AccountStatus.active;
-    emit(
-      state.copyWith(
-        profile: profile.copyWith(status: newStatus),
-        action: FamilyMemberDetailAction.statusChanged,
-      ),
-    );
+    
+    final newIsActive = profile.status == AccountStatus.suspended;
+    try {
+      await _adminRepository.updateUserStatus(int.parse(userId), newIsActive);
+      
+      final newStatus = newIsActive ? AccountStatus.active : AccountStatus.suspended;
+      emit(
+        state.copyWith(
+          profile: profile.copyWith(status: newStatus),
+          action: FamilyMemberDetailAction.statusChanged,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Failed to update account status.',
+        ),
+      );
+    }
   }
 
-  /// TODO(careconnect): call `DELETE /admin/users/{id}` instead of just
-  /// flagging local state. The view is responsible for confirming this
-  /// destructive action with the admin before calling it, and for
-  /// navigating back afterward.
+  /// Deletes the user.
   Future<void> removeUser() async {
-    emit(state.copyWith(action: FamilyMemberDetailAction.removed));
+    try {
+      await _adminRepository.deleteUser(int.parse(userId));
+      emit(state.copyWith(action: FamilyMemberDetailAction.removed));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Failed to remove user.',
+        ),
+      );
+    }
   }
 
-  /// Clears the one-shot [FamilyMemberDetailState.action] after the
-  /// view has reacted to it, so it doesn't refire.
   void consumeAction() {
     emit(state.copyWith(action: FamilyMemberDetailAction.none));
   }
-
-  static const Map<String, FamilyMemberProfile> _mockProfiles = {
-    // Matches user_management's mock family member (id '3', Rafiqul
-    // Islam), reciprocally linked to elderly_detail's Abdul Karim
-    // (id '1') — he's Rafiqul's father there, and Rafiqul is listed as
-    // Abdul Karim's son/primary contact on that side.
-    '3': FamilyMemberProfile(
-      id: '3',
-      name: 'Rafiqul Islam',
-      avatarUrl:
-      'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-      status: AccountStatus.active,
-      gender: 'Male',
-      age: 45,
-      phone: '+880 1912-112233',
-      email: 'rafiqul.islam@email.com',
-      address: 'House 7, Sector 11, Uttara, Dhaka',
-      linkedElderlyUsers: [
-        LinkedElderlyUser(
-          id: '1',
-          name: 'Abdul Karim',
-          avatarUrl:
-          'https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg',
-          relationship: 'Father',
-          isPrimaryContact: false,
-        ),
-      ],
-      alertPreferences: [
-        AlertPreference(label: 'Medicine Alerts', isEnabled: true),
-        AlertPreference(label: 'SOS Alerts', isEnabled: true),
-        AlertPreference(label: 'Booking Updates', isEnabled: true),
-      ],
-    ),
-  };
 }

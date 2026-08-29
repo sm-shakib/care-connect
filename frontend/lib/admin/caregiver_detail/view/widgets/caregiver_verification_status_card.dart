@@ -4,8 +4,7 @@ import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
 
 /// "Verification Status" card: a completion badge plus a checklist of
-/// verified items (each with a filled green/primary check bullet).
-/// Styled to match [VerificationChecklistCard] in the review module.
+/// verified items.
 class CaregiverVerificationStatusCard extends StatelessWidget {
   const CaregiverVerificationStatusCard({
     required this.isVerified,
@@ -21,18 +20,12 @@ class CaregiverVerificationStatusCard extends StatelessWidget {
     final completedCount = checklist.where((item) => item.isVerified).length;
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.surfaceContainerLowLight,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.outlineVariantLight),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,23 +36,21 @@ class CaregiverVerificationStatusCard extends StatelessWidget {
               Text(
                 'Verification Status',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurfaceLight,
                 ),
               ),
-              const SizedBox(width: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight.withValues(alpha: 0.1),
+                  color: AppColors.primaryContainerLight.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   '$completedCount/${checklist.length} Complete',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryLight,
                   ),
@@ -68,14 +59,10 @@ class CaregiverVerificationStatusCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Column(
-            children: [
-              for (final item in checklist) ...[
-                _ChecklistRow(item: item),
-                if (item != checklist.last) const SizedBox(height: 12),
-              ],
-            ],
-          ),
+          ...checklist.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ChecklistRow(item: item),
+          )),
         ],
       ),
     );
@@ -112,7 +99,10 @@ class _ChecklistRow extends StatelessWidget {
         Expanded(
           child: Text(
             item.label,
-            style: TextStyle(fontSize: 16, color: AppColors.onSurfaceLight),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.onSurfaceLight,
+            ),
           ),
         ),
       ],

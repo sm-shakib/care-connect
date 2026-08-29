@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/enums/gender.dart';
-import '../data/elderly_profile_dummy_data.dart';
+import 'package:frontend/elderly/elderly_profile/data/elderly_profile_dummy_data.dart';
 
 part 'elderly_profile_state.dart';
 
@@ -26,16 +26,26 @@ class ElderlyProfileCubit extends Cubit<ElderlyProfileState> {
 
   void startEditing() {
     _lastSaved = state;
-    emit(state.copyWith(isEditing: true, editSessionId: state.editSessionId + 1));
+    emit(
+      state.copyWith(
+        isEditing: true,
+        editSessionId: state.editSessionId + 1,
+      ),
+    );
   }
 
   void cancelEditing() {
-    emit(_lastSaved.copyWith(isEditing: false, editSessionId: state.editSessionId + 1));
+    emit(
+      _lastSaved.copyWith(
+        isEditing: false,
+        editSessionId: state.editSessionId + 1,
+      ),
+    );
   }
 
   Future<void> saveChanges() async {
     emit(state.copyWith(isSaving: true));
-    // TODO: send the updated fields to a real profile-update API.
+    // TODO(careconnect): send the updated fields to a real profile-update API.
     await Future.delayed(const Duration(milliseconds: 600));
     _lastSaved = state.copyWith(isEditing: false, isSaving: false);
     emit(_lastSaved);
@@ -45,9 +55,12 @@ class ElderlyProfileCubit extends Cubit<ElderlyProfileState> {
   void phoneChanged(String value) => emit(state.copyWith(phone: value));
   void addressChanged(String value) => emit(state.copyWith(address: value));
   void genderChanged(Gender? value) => emit(state.copyWith(gender: value));
-  void dateOfBirthChanged(DateTime value) => emit(state.copyWith(dateOfBirth: value));
-  void healthConditionChanged(String value) => emit(state.copyWith(healthCondition: value));
-  void profileImagePicked(Uint8List bytes) => emit(state.copyWith(profileImageBytes: bytes));
+  void dateOfBirthChanged(DateTime value) =>
+      emit(state.copyWith(dateOfBirth: value));
+  void healthConditionChanged(String value) =>
+      emit(state.copyWith(healthCondition: value));
+  void profileImagePicked(Uint8List bytes) =>
+      emit(state.copyWith(profileImageBytes: bytes));
 
   void logOut() {
     // Handled in view

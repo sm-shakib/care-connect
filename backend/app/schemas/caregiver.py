@@ -38,11 +38,26 @@ class CaregiverBase(BaseModel):
 class CaregiverCreate(CaregiverBase):
     pass
 
+class CaregiverUpdate(BaseModel):
+    name: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    profile_image_url: Optional[str] = None
+    specializations: Optional[str] = None
+    availability_type: Optional[str] = None
+    hourly_rate: Optional[float] = None
+    experience_years: Optional[int] = None
+
 class CaregiverOut(CaregiverBase):
     id: int
     user_id: int
     email: str
+    is_active: bool = True
     status: VerificationStatus
+    rating: float
+    review_count: int
     documents: List[CaregiverDocumentOut] = []
 
     class Config:

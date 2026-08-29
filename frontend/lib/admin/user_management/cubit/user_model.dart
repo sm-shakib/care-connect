@@ -41,14 +41,43 @@ class UserAccount extends Equatable {
   final DateTime joinedDate;
   final UserStatus status;
 
+  factory UserAccount.fromJson(Map<String, dynamic> json) {
+    return UserAccount(
+      id: json['id']?.toString() ?? '',
+      name: (json['name'] as String?) ?? (json['email'] as String?) ?? 'Unknown',
+      avatarUrl: (json['profile_image_url'] as String?) ?? '',
+      role: _parseRole(json['role'] as String?),
+      phone: (json['phone'] as String?) ?? '',
+      joinedDate: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      status: json['is_active'] == true ? UserStatus.active : UserStatus.suspended,
+    );
+  }
+
+  static UserRole _parseRole(String? role) {
+    switch (role?.toLowerCase()) {
+      case 'elder':
+        return UserRole.elderly;
+      case 'caregiver':
+        return UserRole.caregiver;
+      case 'family':
+        return UserRole.family;
+      case 'admin':
+        return UserRole.admin;
+      default:
+        return UserRole.elderly;
+    }
+  }
+
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    avatarUrl,
-    role,
-    phone,
-    joinedDate,
-    status,
-  ];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        avatarUrl,
+        role,
+        phone,
+        joinedDate,
+        status,
+      ];
 }
