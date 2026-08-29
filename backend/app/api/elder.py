@@ -54,6 +54,9 @@ def get_elder_profile(
     elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
     if not elder:
         raise HTTPException(status_code=404, detail="Elder profile not found")
+    
+    # Attach email from the user object to the response
+    elder.email = current_user.email
     return elder
 
 @router.put("/me", response_model=ElderOut)
@@ -73,6 +76,7 @@ def update_elder_profile(
     
     db.commit()
     db.refresh(elder)
+    elder.email = current_user.email
     return elder
 
 @router.get("/appointments", response_model=List[AppointmentOut])
