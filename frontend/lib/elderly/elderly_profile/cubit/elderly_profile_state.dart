@@ -1,5 +1,7 @@
 part of 'elderly_profile_cubit.dart';
 
+enum ElderlyProfileStatus { initial, loading, success, failure }
+
 class ElderlyProfileState extends Equatable {
   const ElderlyProfileState({
     this.name = '',
@@ -10,9 +12,12 @@ class ElderlyProfileState extends Equatable {
     this.dateOfBirth,
     this.healthCondition = '',
     this.profileImageBytes,
+    this.profileImageUrl = '',
     this.isEditing = false,
     this.isSaving = false,
     this.editSessionId = 0,
+    this.status = ElderlyProfileStatus.initial,
+    this.errorMessage,
   });
 
   final String name;
@@ -23,10 +28,13 @@ class ElderlyProfileState extends Equatable {
   final DateTime? dateOfBirth;
   final String healthCondition;
   final Uint8List? profileImageBytes;
+  final String profileImageUrl;
 
   final bool isEditing;
   final bool isSaving;
   final int editSessionId;
+  final ElderlyProfileStatus status;
+  final String? errorMessage;
 
   ElderlyProfileState copyWith({
     String? name,
@@ -37,9 +45,12 @@ class ElderlyProfileState extends Equatable {
     DateTime? dateOfBirth,
     String? healthCondition,
     Uint8List? profileImageBytes,
+    String? profileImageUrl,
     bool? isEditing,
     bool? isSaving,
     int? editSessionId,
+    ElderlyProfileStatus? status,
+    String? errorMessage,
   }) {
     return ElderlyProfileState(
       name: name ?? this.name,
@@ -50,9 +61,12 @@ class ElderlyProfileState extends Equatable {
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       healthCondition: healthCondition ?? this.healthCondition,
       profileImageBytes: profileImageBytes ?? this.profileImageBytes,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       isEditing: isEditing ?? this.isEditing,
       isSaving: isSaving ?? this.isSaving,
       editSessionId: editSessionId ?? this.editSessionId,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -66,8 +80,11 @@ class ElderlyProfileState extends Equatable {
         dateOfBirth,
         healthCondition,
         profileImageBytes,
+        profileImageUrl,
         isEditing,
         isSaving,
         editSessionId,
+        status,
+        errorMessage,
       ];
 }

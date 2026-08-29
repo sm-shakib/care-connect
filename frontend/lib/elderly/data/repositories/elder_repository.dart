@@ -31,6 +31,15 @@ class ElderRepository {
     await _apiClient.put('/elders/me', data: data);
   }
 
+  Future<Map<String, dynamic>> getMyProfile() async {
+    final response = await _apiClient.get('/elders/me');
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<void> updateProfile(Map<String, dynamic> data) async {
+    await _apiClient.put('/elders/me', data: data);
+  }
+
   // --- Appointments ---
   Future<List<Map<String, dynamic>>> getAppointments() async {
     final response = await _apiClient.get('/elders/appointments');
