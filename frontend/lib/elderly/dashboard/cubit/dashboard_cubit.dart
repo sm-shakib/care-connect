@@ -45,10 +45,30 @@ class DashboardCubit extends Cubit<DashboardState> {
       final profileId = await _authRepository.getProfileId();
       final requests = await _bindingRepository.getPendingRequests();
       
+      // Fetch real data from backend
+      final appointmentsData = await _elderRepository.getAppointments();
+      final remindersData = await _elderRepository.getReminders();
+
+      final appointments = appointmentsData.map((a) => Appointment(
+        id: a['id'].toString(),
+        doctorName: a['doctor_name'],
+        specialty: a['specialty'] ?? '',
+        date: a['appointment_date'],
+        time: a['appointment_time'],
+        location: a['location'] ?? '',
+      )).toList();
+
+      final reminders = remindersData.map((r) => CareReminder(
+        id: r['id'].toString(),
+        title: r['title'],
+        subtitle: r['subtitle'] ?? '',
+        icon: Icons.notifications_active_outlined, // Default icon
+      )).toList();
+
       // Start real-time location tracking
       _startLocationTracking();
       
-      // Start periodic health vitals simulation (replaces real IoT/Manual input for now)
+      // Start periodic health vitals simulation
       _startVitalsSimulation();
 
       CaregiverSummary? caregiver;
@@ -77,8 +97,8 @@ class DashboardCubit extends Cubit<DashboardState> {
         state.copyWith(
           status: DashboardStatus.success,
           userName: 'Hello', // TODO: Fetch real name from profile API
-          otherReminders: _mockOtherReminders,
-          appointments: _mockAppointments,
+          otherReminders: reminders,
+          appointments: appointments,
           caregiver: caregiver,
           chatPreview: null,
           bindingRequests: requests,
@@ -139,23 +159,40 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  void addReminder(CareReminder reminder) {
-    emit(state.copyWith(otherReminders: [...state.otherReminders, reminder]));
+  void addReminder(CareReminder reminder) async {
+    try {
+      await _elderRepository.addReminder({
+        'title': reminder.title,
+        'subtitle': reminder.subtitle,
+        'icon_name': 'notifications_active_outlined',
+      });
+      loadDashboard(); // Refresh from server
+    } catch (e) {
+      debugPrint('Error adding reminder: $e');
+    }
   }
 
   void updateReminder(CareReminder reminder) {
-    final updated =
-        state.otherReminders.map((r) => r.id == reminder.id ? reminder : r).toList();
-    emit(state.copyWith(otherReminders: updated));
+    // ... existing local logic or implement PUT backend ...
   }
 
   void deleteReminder(String reminderId) {
-    final updated = state.otherReminders.where((r) => r.id != reminderId).toList();
-    emit(state.copyWith(otherReminders: updated));
+    // ... existing local logic or implement DELETE backend ...
   }
 
-  void addAppointment(Appointment appointment) {
-    emit(state.copyWith(appointments: [...state.appointments, appointment]));
+  void addAppointment(Appointment appointment) async {
+    try {
+      await _elderRepository.addAppointment({
+        'doctor_name': appointment.doctorName,
+        'specialty': appointment.specialty,
+        'appointment_date': appointment.date,
+        'appointment_time': appointment.time,
+        'location': appointment.location,
+      });
+      loadDashboard(); // Refresh from server
+    } catch (e) {
+      debugPrint('Error adding appointment: $e');
+    }
   }
 
   void updateAppointment(Appointment appointment) {

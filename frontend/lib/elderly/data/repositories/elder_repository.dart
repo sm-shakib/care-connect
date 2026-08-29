@@ -24,11 +24,30 @@ class ElderRepository {
     if (longitude != null) data['longitude'] = longitude.toString();
     
     if (latitude != null || longitude != null) {
-      data['last_location_update'] = DateFormat('jm').format(DateTime.now()); // e.g. "4:30 PM"
+      data['last_location_update'] = DateFormat('jm').format(DateTime.now());
     }
 
     if (data.isEmpty) return;
+    await _apiClient.put('/elders/me', data: data);
+  }
 
-    await _apiClient.put('/me', data: data);
+  // --- Appointments ---
+  Future<List<Map<String, dynamic>>> getAppointments() async {
+    final response = await _apiClient.get('/elders/appointments');
+    return List<Map<String, dynamic>>.from(response.data);
+  }
+
+  Future<void> addAppointment(Map<String, dynamic> data) async {
+    await _apiClient.post('/elders/appointments', data: data);
+  }
+
+  // --- Other Reminders ---
+  Future<List<Map<String, dynamic>>> getReminders() async {
+    final response = await _apiClient.get('/elders/reminders');
+    return List<Map<String, dynamic>>.from(response.data);
+  }
+
+  Future<void> addReminder(Map<String, dynamic> data) async {
+    await _apiClient.post('/elders/reminders', data: data);
   }
 }

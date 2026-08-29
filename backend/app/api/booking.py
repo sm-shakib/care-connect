@@ -50,10 +50,10 @@ def create_booking(booking_in: BookingCreate, db: Session = Depends(get_db)):
     # 4. Final amount calculation
     total_amount = round(duration_hours * caregiver.hourly_rate * total_work_days, 2)
 
-    new_booking = Booking(
-        **booking_in.model_dump(),
-        total_amount=total_amount
-    )
+    booking_data = booking_in.model_dump()
+    booking_data["total_amount"] = total_amount
+
+    new_booking = Booking(**booking_data)
     db.add(new_booking)
     db.commit()
     db.refresh(new_booking)
