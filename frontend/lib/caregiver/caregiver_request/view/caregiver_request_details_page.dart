@@ -67,7 +67,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    context.l10n.requestedByLabel(request.requesterName ?? 'User'),
+                    context.l10n.requestedByLabel(request.displayRequesterName),
                     style: const TextStyle(
                       fontSize: 15,
                       color: AppColors.onSurfaceVariantLight,
@@ -85,7 +85,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
             _InfoBox(
               icon: Icons.location_on_outlined,
               label: context.l10n.addressLabel,
-              value: request.location ?? '',
+              value: request.elderAddress,
             ),
 
             const SizedBox(height: 24),
@@ -97,16 +97,13 @@ class BookingRequestDetailsPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                // color: AppColors.paleMint.withValues(alpha: 0.2),
-                // borderRadius: BorderRadius.circular(18),
-                // border: Border.all(color: AppColors.paleMint),
                 color: AppColors.surfaceContainerLowestLight,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: AppColors.outlineVariantLight.withValues(alpha: 0.5)),
               ),
               child: Text(
-                (request.bookingReason ?? '').isNotEmpty
-                    ? request.bookingReason!
+                request.reason.isNotEmpty
+                    ? request.reason
                     : context.l10n.noReasonProvided,
                 style: const TextStyle(
                   fontSize: 15,
@@ -133,17 +130,17 @@ class BookingRequestDetailsPage extends StatelessWidget {
                   _InfoRow(
                     icon: Icons.calendar_today_outlined,
                     label: context.l10n.servicePeriodLabel,
-                    value: request.periodLabel ?? '',
+                    value: request.periodLabel,
                   ),
                   _InfoRow(
                     icon: Icons.repeat_outlined,
                     label: context.l10n.workingDaysLabel,
-                    value: request.workingDaysLabel ?? '',
+                    value: request.workingDaysLabel,
                   ),
                   _InfoRow(
                     icon: Icons.access_time_outlined,
                     label: context.l10n.dailyTimingLabel,
-                    value: request.timingLabel ?? '',
+                    value: request.timingLabel,
                     isLast: true,
                   ),
                 ],
@@ -153,7 +150,7 @@ class BookingRequestDetailsPage extends StatelessWidget {
             const SizedBox(height: 40),
 
             /// Action Buttons
-            if (request.status == BookingRequestStatus.pending)
+            if (request.status == BookingStatus.pending)
               Row(
                 children: [
                   Expanded(
@@ -209,19 +206,19 @@ class BookingRequestDetailsPage extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: request.status == BookingRequestStatus.accepted
+                    color: request.status == BookingStatus.accepted
                         ? Colors.green.withValues(alpha: 0.1)
                         : Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    request.status == BookingRequestStatus.accepted
+                    request.status == BookingStatus.accepted
                         ? context.l10n.acceptedStatusLabel
                         : context.l10n.rejectedStatusLabel,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: request.status == BookingRequestStatus.accepted ? Colors.green : Colors.red,
+                      color: request.status == BookingStatus.accepted ? Colors.green : Colors.red,
                     ),
                   ),
                 ),

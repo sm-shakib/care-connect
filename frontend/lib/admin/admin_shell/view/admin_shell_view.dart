@@ -47,7 +47,7 @@ class AdminShellView extends StatelessWidget {
           appBar: _buildAppBar(context, selected),
           floatingActionButton: _buildFAB(context, selected),
           body: IndexedStack(
-            // If the selected tab isn't in our list (e.g. Dashboard), 
+            // If the selected tab isn't in our list (e.g. Dashboard),
             // default to Users (index 1).
             index: index < 0 ? 1 : index,
             children: const [

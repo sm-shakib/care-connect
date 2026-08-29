@@ -11,6 +11,8 @@ class ApiClient {
         receiveTimeout: const Duration(seconds: 15),
       ),
     );
+
+    // Interceptors from develop branch
     _dio.interceptors.add(AuthInterceptor());
     _dio.interceptors.add(LogInterceptor(
       requestHeader: true,
@@ -23,42 +25,90 @@ class ApiClient {
 
   late final Dio _dio;
 
-  Future<Response> post(String path, {dynamic data, Options? options}) async {
+  Future<Response<T>> get<T>(
+      String path, {
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
-      return await _dio.post(path, data: data, options: options);
-    } on DioException catch (e) {
+      return await _dio.get<T>(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }
 
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters, Options? options}) async {
+  Future<Response<T>> post<T>(
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
-      return await _dio.get(path, queryParameters: queryParameters, options: options);
-    } on DioException catch (e) {
+      return await _dio.post<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }
 
-  Future<Response> put(String path, {dynamic data, Options? options}) async {
+  Future<Response<T>> patch<T>(
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
-      return await _dio.put(path, data: data, options: options);
-    } on DioException catch (e) {
+      return await _dio.patch<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }
 
-  Future<Response> patch(String path, {dynamic data, Options? options}) async {
+  Future<Response<T>> put<T>(
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
-      return await _dio.patch(path, data: data, options: options);
-    } on DioException catch (e) {
+      return await _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }
 
-  Future<Response> delete(String path, {dynamic data, Options? options}) async {
+  Future<Response<T>> delete<T>(
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
     try {
-      return await _dio.delete(path, data: data, options: options);
-    } on DioException catch (e) {
+      return await _dio.delete<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException {
       rethrow;
     }
   }

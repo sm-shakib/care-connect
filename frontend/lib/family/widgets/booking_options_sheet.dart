@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 
 class BookingOptionsSheet extends StatefulWidget {
   const BookingOptionsSheet({
@@ -13,7 +14,14 @@ class BookingOptionsSheet extends StatefulWidget {
 
   final String caregiverName;
   final String elderName;
-  final void Function(String reason) onConfirm;
+  final void Function(
+    DateTime startDate,
+    DateTime endDate,
+    List<String> daysOfWeek,
+    TimeOfDay startTime,
+    TimeOfDay endTime,
+    String reason,
+  ) onConfirm;
 
   @override
   State<BookingOptionsSheet> createState() => _BookingOptionsSheetState();
@@ -58,11 +66,12 @@ class _BookingOptionsSheetState extends State<BookingOptionsSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
@@ -230,9 +239,24 @@ class _BookingOptionsSheetState extends State<BookingOptionsSheet> {
 
           PrimaryPillButton(
             label: 'Confirm Booking Request',
-            onPressed: _isFormValid ? () => widget.onConfirm(_reasonController.text.trim()) : null,
+            onPressed: _isFormValid
+                ? () {
+                    final days = _selectedDays
+                        .map((day) => _dayNames[day - 1])
+                        .toList();
+                    widget.onConfirm(
+                      _startDate!,
+                      _endDate!,
+                      days,
+                      _startTime!,
+                      _endTime!,
+                      _reasonController.text.trim(),
+                    );
+                  }
+                : null,
           ),
         ],
+      ),
       ),
     );
   }

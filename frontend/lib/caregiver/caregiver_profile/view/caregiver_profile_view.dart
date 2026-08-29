@@ -328,7 +328,7 @@ class _ReadOnlyInfoRows extends StatelessWidget {
           icon: Icons.payments_outlined,
           label: context.l10n.dailyRateLabel,
           value: context.l10n.hourlyRateLabel(
-            int.tryParse(state.dailyRate) ?? 0,
+            int.tryParse(state.hourlyRate) ?? 0,
           ),
           isLast: true,
         ),
@@ -476,7 +476,7 @@ class _EditableInfoFields extends StatelessWidget {
           label: context.l10n.dailyRateLabel,
           icon: Icons.payments_outlined,
           value: context.l10n.hourlyRateLabel(
-            int.tryParse(state.dailyRate) ?? 0,
+            int.tryParse(state.hourlyRate) ?? 0,
           ),
         ),
       ],

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../theme/app_colors.dart';
 import '../cubit/caregiver_review_cubit.dart';
 import '../cubit/caregiver_review_state.dart';
-import 'widgets/bio_section.dart';
 import 'widgets/contact_info_card.dart';
 import 'widgets/document_preview_page.dart';
 import 'widgets/personal_details_grid.dart';
@@ -15,9 +14,6 @@ import 'widgets/uploaded_documents_section.dart';
 import 'widgets/verification_checklist_card.dart';
 
 /// Presentational scaffold for the Caregiver Application Review screen.
-/// Content is centered with a max width on larger screens, and the
-/// bottom action bar is pinned via `bottomSheet` (not scrolled with the
-/// rest of the content) to match the sticky footer in the design.
 class CaregiverReviewView extends StatelessWidget {
   const CaregiverReviewView({super.key});
 
@@ -25,13 +21,13 @@ class CaregiverReviewView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<CaregiverReviewCubit, CaregiverReviewState>(
       listenWhen: (previous, current) =>
-      previous.decision != current.decision &&
+          previous.decision != current.decision &&
           current.decision != CaregiverReviewDecision.none,
       listener: (context, state) {
         final message = switch (state.decision) {
           CaregiverReviewDecision.approved => 'Application approved.',
           CaregiverReviewDecision.docsRequested =>
-          'Document request sent to caregiver.',
+            'Document request sent to caregiver.',
           CaregiverReviewDecision.rejected => 'Application rejected.',
           CaregiverReviewDecision.none => '',
         };
@@ -66,6 +62,8 @@ class CaregiverReviewView extends StatelessWidget {
             final application = state.application;
             if (application == null) return const SizedBox.shrink();
 
+            final cubit = context.read<CaregiverReviewCubit>();
+
             return SafeArea(
               child: Center(
                 child: ConstrainedBox(
@@ -89,12 +87,12 @@ class CaregiverReviewView extends StatelessWidget {
                       SpecializationsSection(
                         specializations: application.specializations,
                       ),
-                      const SizedBox(height: 20),
-                      BioSection(bio: application.bio),
                       const SizedBox(height: 12),
                       VerificationChecklistCard(
                         checklist: application.checklist,
                         completedCount: application.completedChecklistCount,
+                        onToggle: (item) =>
+                            cubit.toggleDocumentVerification(item.id),
                       ),
                       const SizedBox(height: 20),
                       UploadedDocumentsSection(
@@ -110,6 +108,8 @@ class CaregiverReviewView extends StatelessWidget {
                             DocumentPreviewPage.route(document),
                           );
                         },
+                        onToggle: (document) =>
+                            cubit.toggleDocumentVerification(document.id),
                       ),
                     ],
                   ),
@@ -120,7 +120,7 @@ class CaregiverReviewView extends StatelessWidget {
         ),
         bottomSheet: BlocBuilder<CaregiverReviewCubit, CaregiverReviewState>(
           buildWhen: (previous, current) =>
-          previous.adminNotes != current.adminNotes ||
+              previous.adminNotes != current.adminNotes ||
               previous.submitStatus != current.submitStatus,
           builder: (context, state) {
             final cubit = context.read<CaregiverReviewCubit>();

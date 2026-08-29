@@ -1,7 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date
+from enum import Enum
 from app.schemas.user import UserCreate, UserOut
+
+class VerificationStatus(str, Enum):
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
 
 class CaregiverDocumentBase(BaseModel):
     document_type: str
@@ -12,6 +18,7 @@ class CaregiverDocumentCreate(CaregiverDocumentBase):
 
 class CaregiverDocumentOut(CaregiverDocumentBase):
     id: int
+    is_verified: bool
 
     class Config:
         from_attributes = True
@@ -25,16 +32,32 @@ class CaregiverBase(BaseModel):
     profile_image_url: Optional[str] = None
     specializations: str
     availability_type: str
-    daily_rate: float
+    hourly_rate: float
     experience_years: int
 
 class CaregiverCreate(CaregiverBase):
     pass
 
+class CaregiverUpdate(BaseModel):
+    name: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    profile_image_url: Optional[str] = None
+    specializations: Optional[str] = None
+    availability_type: Optional[str] = None
+    hourly_rate: Optional[float] = None
+    experience_years: Optional[int] = None
+
 class CaregiverOut(CaregiverBase):
     id: int
     user_id: int
-    is_verified: bool
+    email: str
+    is_active: bool = True
+    status: VerificationStatus
+    rating: float
+    review_count: int
     documents: List[CaregiverDocumentOut] = []
 
     class Config:

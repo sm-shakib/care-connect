@@ -29,7 +29,58 @@ class Caregiver {
     this.addressBn,
     this.dateOfBirth,
     this.documents = const {},
+    // this.latitude = 23.8103, // Default to Dhaka
+    // this.longitude = 90.4125,
   });
+
+  factory Caregiver.fromJson(Map<String, dynamic> json) {
+    final String specializations = (json['specializations'] ?? '') as String;
+    final List<String> specialties = specializations.isEmpty
+        ? const <String>[]
+        : specializations
+            .split(',')
+            .map((value) => value.trim())
+            .where((value) => value.isNotEmpty)
+            .toList();
+
+    final Map<CaregiverDocumentType, String> documents = {};
+    if (json['documents'] != null) {
+      final docsList = json['documents'] as List<dynamic>;
+      for (final doc in docsList) {
+        final docMap = doc as Map<String, dynamic>;
+        final typeStr = docMap['document_type'] as String;
+        final url = docMap['document_url'] as String;
+
+        final type = CaregiverDocumentType.values.firstWhere(
+          (e) => e.name == typeStr,
+          orElse: () => CaregiverDocumentType.nationalId,
+        );
+        documents[type] = url;
+      }
+    }
+
+    return Caregiver(
+      id: ((json['id'] ?? json['user_id']) ?? '').toString(),
+      name: (json['name'] ?? '') as String,
+      profession: 'Caregiver',
+      imageUrl: (json['profile_image_url'] ?? '') as String,
+      rating: ((json['rating'] ?? 0) as num).toDouble(),
+      experience: ((json['experience_years'] ?? 0) as num).toInt(),
+      distance: 0.0,
+      hourlyRate: ((json['hourly_rate'] ?? 0) as num).toInt(),
+      isVerified: (json['status'] ?? '') == 'verified',
+      specialties: specialties,
+      specializations: specializations,
+      about: '',
+      phone: (json['phone'] ?? '') as String,
+      email: (json['email'] ?? '') as String,
+      address: (json['address'] ?? '') as String,
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.tryParse(json['date_of_birth'] as String)
+          : null,
+      documents: documents,
+    );
+  }
 
   final String id;
   final String name;
@@ -59,6 +110,69 @@ class Caregiver {
   final String? addressBn;
   final DateTime? dateOfBirth;
   final Map<CaregiverDocumentType, String> documents;
+
+  // final double latitude;
+  // final double longitude;
+
+  Caregiver copyWith({
+    String? id,
+    String? name,
+    String? nameBn,
+    String? profession,
+    String? professionBn,
+    String? imageUrl,
+    double? rating,
+    int? experience,
+    double? distance,
+    int? hourlyRate,
+    bool? isVerified,
+    List<String>? specialties,
+    String? specializations,
+    String? specializationsBn,
+    String? about,
+    String? aboutBn,
+    String? gender,
+    String? availabilityType,
+    String? availabilityTypeBn,
+    String? phone,
+    String? email,
+    String? address,
+    String? addressBn,
+    DateTime? dateOfBirth,
+    Map<CaregiverDocumentType, String>? documents,
+    // double? latitude,
+    // double? longitude,
+  }) {
+    return Caregiver(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameBn: nameBn ?? this.nameBn,
+      profession: profession ?? this.profession,
+      professionBn: professionBn ?? this.professionBn,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rating: rating ?? this.rating,
+      experience: experience ?? this.experience,
+      distance: distance ?? this.distance,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
+      isVerified: isVerified ?? this.isVerified,
+      specialties: specialties ?? this.specialties,
+      specializations: specializations ?? this.specializations,
+      specializationsBn: specializationsBn ?? this.specializationsBn,
+      about: about ?? this.about,
+      aboutBn: aboutBn ?? this.aboutBn,
+      gender: gender ?? this.gender,
+      availabilityType: availabilityType ?? this.availabilityType,
+      availabilityTypeBn: availabilityTypeBn ?? this.availabilityTypeBn,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      address: address ?? this.address,
+      addressBn: addressBn ?? this.addressBn,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      documents: documents ?? this.documents,
+      // latitude: latitude ?? this.latitude,
+      // longitude: longitude ?? this.longitude,
+    );
+  }
 
 
   /// Returns the localized name based on the current app locale.

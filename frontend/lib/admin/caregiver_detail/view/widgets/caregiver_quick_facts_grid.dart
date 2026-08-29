@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
 
-/// Single-card list of quick facts (Gender, Experience, Rate, Availability,
+/// Grid of key caregiver profile attributes (Experience, Hourly Rate,
 /// Phone, Email, Address), styled to match [ElderlyQuickFactsGrid].
 class CaregiverQuickFactsGrid extends StatelessWidget {
   const CaregiverQuickFactsGrid({
@@ -36,7 +36,8 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
 
   Future<void> _launchMap(String address) async {
     final query = Uri.encodeComponent(address);
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+    final uri =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -89,8 +90,8 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.payments,
-            label: 'Rate',
-            value: '৳${profile.dailyRate.toStringAsFixed(0)}/hr',
+            label: 'Hourly Rate',
+            value: '৳${profile.hourlyRate.toStringAsFixed(0)}/hr',
           ),
           const SizedBox(height: 16),
           _FactRow(
@@ -103,19 +104,23 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
             icon: Icons.call,
             label: 'Phone',
             value: profile.phone,
-            onTap: () => _launchDialer(profile.phone),
+            onTap: profile.phone.isNotEmpty
+                ? () => _launchDialer(profile.phone)
+                : null,
           ),
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.mail,
             label: 'Email',
             value: profile.email,
-            onTap: () => _launchEmail(profile.email),
+            onTap: profile.email.isNotEmpty
+                ? () => _launchEmail(profile.email)
+                : null,
           ),
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.location_on,
-            label: 'Home Address',
+            label: 'Address',
             value: profile.address,
             action: InkWell(
               onTap: onViewOnMap ?? () => _launchMap(profile.address),

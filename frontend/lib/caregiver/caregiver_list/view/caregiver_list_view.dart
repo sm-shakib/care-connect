@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
+import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_cubit.dart';
 import 'package:frontend/caregiver/caregiver_list/view/caregiver_list_body.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/cubit/family_dashboard_state.dart';
@@ -16,6 +17,19 @@ class CaregiverListView extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
+      /*
+      child: BlocListener<FamilyDashboardCubit, FamilyDashboardState>(
+        listenWhen: (prev, curr) => prev.bookingForElder != curr.bookingForElder,
+        listener: (context, familyState) {
+          final elder = familyState.bookingForElder;
+          if (elder != null) {
+            context
+                .read<CaregiverListCubit>()
+                .updateReferenceLocation(elder.latitude, elder.longitude);
+          }
+        },
+        child: BlocBuilder<FamilyDashboardCubit, FamilyDashboardState>(
+      */
       child: BlocBuilder<FamilyDashboardCubit, FamilyDashboardState>(
         builder: (context, familyState) {
           final bookingElder = familyState.bookingForElder;

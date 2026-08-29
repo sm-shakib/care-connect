@@ -34,3 +34,11 @@ class FamilyElderLink(Base):
     @property
     def family_name(self):
         return self.family.name if self.family else None
+
+    @property
+    def name(self):
+        return self.family_name
+
+    @property
+    def avatarUrl(self):
+        return self.family.profile_image_url if self.family else None

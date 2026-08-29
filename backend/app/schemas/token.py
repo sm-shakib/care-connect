@@ -7,6 +7,7 @@ class Token(BaseModel):
     role: str
     user_id: int
     profile_id: Optional[int] = None
+    status: Optional[str] = None
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None

@@ -6,10 +6,12 @@ class CaregiverDashboardState extends Equatable {
   const CaregiverDashboardState({
     this.allPatients = const [],
     this.searchQuery = '',
+    this.isLoading = false,
   });
 
   final List<Patient> allPatients;
   final String searchQuery;
+  final bool isLoading;
 
   List<Patient> get activePatients => allPatients
       .where((patient) => patient.status == PatientCareStatus.active)
@@ -34,13 +36,15 @@ class CaregiverDashboardState extends Equatable {
   CaregiverDashboardState copyWith({
     List<Patient>? allPatients,
     String? searchQuery,
+    bool? isLoading,
   }) {
     return CaregiverDashboardState(
       allPatients: allPatients ?? this.allPatients,
       searchQuery: searchQuery ?? this.searchQuery,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 
   @override
-  List<Object?> get props => [allPatients, searchQuery];
+  List<Object?> get props => [allPatients, searchQuery, isLoading];
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:frontend/login/login.dart';
+import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:frontend/welcome_screen/welcome_screen.dart';
 
 class CaregiverPendingView extends StatelessWidget {
   const CaregiverPendingView({super.key});
@@ -151,13 +154,39 @@ class CaregiverPendingView extends StatelessWidget {
               const SizedBox(height: 28),
 
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => WelcomeScreenPage(
+                        onGetStarted: () async {
+                          await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (context) => const RoleSelectionPage(),
+                            ),
+                          );
+                        },
+                        onLogin: () async {
+                          await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
+                        },
+                        onLanguageToggle: () {},
+                      ),
+                    ),
+                    (route) => false,
+                  );
+                },
                 icon: const Icon(
-                  Icons.support_agent,
+                  Icons.home_outlined,
                   color: AppColors.darkTeal,
                 ),
                 label: const Text(
-                  'Contact Support',
+                  'Go to Welcome Page',
                   style: TextStyle(
                     color: AppColors.darkTeal,
                     fontWeight: FontWeight.w600,

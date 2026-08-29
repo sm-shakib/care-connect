@@ -1,10 +1,14 @@
 import 'dart:async';
+// import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver/caregiver_profile/widgets/verified_document_tile.dart';
+import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/caregiver_signup/caregiver_signup.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/data/booking_dummy_data.dart';
 import 'package:frontend/family/models/booking_schedule.dart';
@@ -15,6 +19,7 @@ import 'package:frontend/family/widgets/file_complaint_sheet.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const List<CaregiverDocumentType> _kRequiredDocuments = [
   CaregiverDocumentType.nationalId,
@@ -28,12 +33,14 @@ class CaregiverDetailsPage extends StatelessWidget {
     this.bookingForElder,
     this.isAssigned = false,
     this.selfBookingElderName,
+    this.booking,
     super.key,
   });
 
   final Caregiver caregiver;
   final Elder? bookingForElder;
   final bool isAssigned;
+  final BookingRequest? booking;
 
   /// When set, "Book Now" books the caregiver for the current elder (the
   /// app user themselves) using this name, skipping the family-only "which
@@ -47,6 +54,19 @@ class CaregiverDetailsPage extends StatelessWidget {
     final dobLabel = caregiver.dateOfBirth != null
         ? DateFormat('d MMM yyyy').format(caregiver.dateOfBirth!)
         : '—';
+
+    // Calculate distance if booking context exists
+    /*
+    double? calculatedDistance;
+    if (bookingForElder != null) {
+      calculatedDistance = _calculateDistance(
+        bookingForElder!.latitude,
+        bookingForElder!.longitude,
+        caregiver.latitude,
+        caregiver.longitude,
+      );
+    }
+    */
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
@@ -78,11 +98,16 @@ class CaregiverDetailsPage extends StatelessWidget {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: AppColors.paleMint,
-                    child: Icon(
-                      caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-                      size: 55,
-                      color: AppColors.primaryLight,
-                    ),
+                    backgroundImage: caregiver.imageUrl.isNotEmpty
+                        ? NetworkImage(caregiver.imageUrl)
+                        : null,
+                    child: caregiver.imageUrl.isEmpty
+                        ? Icon(
+                            caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                            size: 55,
+                            color: AppColors.primaryLight,
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   Text(
@@ -115,9 +140,9 @@ class CaregiverDetailsPage extends StatelessWidget {
                   Colors.green,
                 ),
                 _buildStatItem(
-                  Icons.location_on_outlined,
-                  context.l10n.distLabel,
-                  context.l10n.distanceLabel(caregiver.distance),
+                  Icons.event_available_outlined,
+                  context.l10n.availabilityLabel,
+                  caregiver.getAvailabilityType(context),
                   Colors.orange,
                 ),
               ],
@@ -164,16 +189,6 @@ class CaregiverDetailsPage extends StatelessWidget {
                     icon: Icons.cake_outlined,
                     label: context.l10n.dateOfBirthLabel,
                     value: dobLabel,
-                  ),
-                  _InfoRow(
-                    icon: Icons.medical_services_outlined,
-                    label: context.l10n.specializationsLabel,
-                    value: caregiver.getSpecializations(context),
-                  ),
-                  _InfoRow(
-                    icon: Icons.event_available_outlined,
-                    label: context.l10n.availabilityLabel,
-                    value: caregiver.getAvailabilityType(context),
                     isLast: true,
                   ),
                 ],
@@ -183,7 +198,7 @@ class CaregiverDetailsPage extends StatelessWidget {
             const SizedBox(height: 25),
 
             /// Specializations Section
-            _SectionTitle(title: context.l10n.specialtiesTitle),
+            _SectionTitle(title: context.l10n.specializationsLabel),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -228,9 +243,18 @@ class CaregiverDetailsPage extends StatelessWidget {
                       type: _kRequiredDocuments[i],
                       fileName: caregiver.documents[_kRequiredDocuments[i]] ??
                           'document.pdf',
-                      onView: caregiver.isVerified ? () {
-                        // TODO(careconnect): Show document preview
-                      } : null,
+                      onView: caregiver.isVerified
+                          ? () async {
+                              final url =
+                                  caregiver.documents[_kRequiredDocuments[i]];
+                              if (url != null && url.isNotEmpty) {
+                                final uri = Uri.parse(url);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                }
+                              }
+                            }
+                          : null,
                     ),
                     if (i != _kRequiredDocuments.length - 1)
                       Divider(
@@ -248,9 +272,12 @@ class CaregiverDetailsPage extends StatelessWidget {
               _SectionTitle(title: context.l10n.scheduleTitle),
               const SizedBox(height: 12),
               _BookingScheduleCard(
-                schedule: BookingDummyData.getScheduleForCaregiver(
-                  caregiver.id,
-                ),
+                schedule: booking != null
+                    ? null
+                    : BookingDummyData.getScheduleForCaregiver(
+                        caregiver.id,
+                      ),
+                realBooking: booking,
               ),
             ],
 
@@ -397,14 +424,23 @@ class CaregiverDetailsPage extends StatelessWidget {
     );
   }
 
-  void _handleBooking(BuildContext context) {
+  void _handleBooking(BuildContext context) async {
     if (selfBookingElderName != null) {
       // Elder booking for themselves: no elder to choose, book directly.
-      _showBookingOptionsSheet(context, elderName: selfBookingElderName!);
+      final authRepo = AuthRepository();
+      final profileId = await authRepo.getProfileId();
+      if (profileId != null && context.mounted) {
+        _showBookingOptionsSheet(
+          context,
+          elderName: selfBookingElderName!,
+          elderId: profileId,
+        );
+      }
     } else if (bookingForElder != null) {
       _showBookingOptionsSheet(
         context,
         elderName: bookingForElder!.name,
+        elderId: int.tryParse(bookingForElder!.id) ?? 0,
         elder: bookingForElder,
       );
     } else {
@@ -448,6 +484,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                       _showBookingOptionsSheet(
                         pageContext,
                         elderName: elder.name,
+                        elderId: int.tryParse(elder.id) ?? 0,
                         elder: elder,
                       );
                     },
@@ -467,6 +504,7 @@ class CaregiverDetailsPage extends StatelessWidget {
   void _showBookingOptionsSheet(
     BuildContext context, {
     required String elderName,
+    required int elderId,
     Elder? elder,
   }) {
     unawaited(
@@ -477,9 +515,53 @@ class CaregiverDetailsPage extends StatelessWidget {
         builder: (sheetContext) => BookingOptionsSheet(
           caregiverName: caregiver.name,
           elderName: elderName,
-          onConfirm: (reason) {
-            Navigator.pop(sheetContext); // Close options sheet
-            _showSuccessDialog(context, elder);
+          onConfirm: (
+            startDate,
+            endDate,
+            daysOfWeek,
+            startTime,
+            endTime,
+            reason,
+          ) async {
+            // Show loading
+            showDialog<void>(
+              context: sheetContext,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: CircularProgressIndicator()),
+            );
+
+            try {
+              final repo = BookingRepository();
+              final request = BookingRequest(
+                id: 0, // Assigned by server
+                elderId: elderId,
+                caregiverId: int.tryParse(caregiver.id) ?? 0,
+                startDate: startDate,
+                endDate: endDate,
+                daysOfWeek: daysOfWeek,
+                startTime: startTime,
+                endTime: endTime,
+                status: BookingStatus.pending,
+                paymentStatus: PaymentStatus.pending,
+                requestedAt: DateTime.now(),
+                reason: reason,
+              );
+
+              await repo.createBooking(request);
+
+              if (context.mounted) {
+                Navigator.pop(sheetContext); // Close loading
+                Navigator.pop(sheetContext); // Close options sheet
+                _showSuccessDialog(context, elder);
+              }
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.pop(sheetContext); // Close loading
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to send request: $e')),
+                );
+              }
+            }
           },
         ),
       ),
@@ -556,16 +638,45 @@ class CaregiverDetailsPage extends StatelessWidget {
       ),
     );
   }
+
+  /*
+  /// Calculates the distance between two coordinates in kilometers using
+  /// the Haversine formula.
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371; // km
+    final double dLat = _toRadians(lat2 - lat1);
+    final double dLon = _toRadians(lon2 - lon1);
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRadians(lat1)) *
+            math.cos(_toRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    final double distance = earthRadius * c;
+    return double.parse(distance.toStringAsFixed(2));
+  }
+
+  double _toRadians(double degree) {
+    return degree * math.pi / 180;
+  }
+  */
 }
 
 class _BookingScheduleCard extends StatelessWidget {
-  const _BookingScheduleCard({required this.schedule});
+  const _BookingScheduleCard({this.schedule, this.realBooking});
 
-  final BookingSchedule schedule;
+  final BookingSchedule? schedule;
+  final BookingRequest? realBooking;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    final period = realBooking?.periodLabel ?? schedule?.periodLabel ?? '';
+    final workingDays =
+        realBooking?.workingDaysLabel ?? schedule?.workingDaysLabel ?? '';
+    final timing = realBooking?.timingLabel ?? schedule?.timingLabel ?? '';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -581,17 +692,17 @@ class _BookingScheduleCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.calendar_today_outlined,
             label: context.l10n.servicePeriodLabel,
-            value: schedule.periodLabel,
+            value: period,
           ),
           _InfoRow(
             icon: Icons.repeat_outlined,
             label: context.l10n.workingDaysLabel,
-            value: schedule.workingDaysLabel,
+            value: workingDays,
           ),
           _InfoRow(
             icon: Icons.access_time_outlined,
             label: context.l10n.dailyTimingLabel,
-            value: schedule.timingLabel,
+            value: timing,
             isLast: true,
           ),
         ],

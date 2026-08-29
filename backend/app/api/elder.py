@@ -31,7 +31,7 @@ def signup_elder(request: ElderSignupRequest, db: Session = Depends(get_db)):
             **request.profile.model_dump()
         )
         db.add(new_elder)
-        
+
         # Commit both at once
         db.commit()
         db.refresh(new_user)

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../theme/app_colors.dart';
-import '../../booking_detail/view/booking_detail_page.dart';
+import 'package:frontend/theme/app_colors.dart';
+import 'package:frontend/admin/booking_detail/view/booking_detail_page.dart';
 import '../cubit/caregiver_detail_cubit.dart';
 import '../cubit/caregiver_detail_state.dart';
 import 'widgets/caregiver_actions_bar.dart';
@@ -73,7 +73,9 @@ class CaregiverDetailView extends StatelessWidget {
                   padding: const EdgeInsets.all(24),
                   child: Text(
                     state.errorMessage ?? 'Something went wrong.',
-                    style: TextStyle(color: AppColors.onSurfaceVariantLight),
+                    style: const TextStyle(
+                      color: AppColors.onSurfaceVariantLight,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -102,16 +104,16 @@ class CaregiverDetailView extends StatelessWidget {
                       CaregiverProfileHeader(profile: profile),
                       const SizedBox(height: 24),
                       CaregiverQuickFactsGrid(profile: profile),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       CaregiverSpecializationsSection(
                         specializations: profile.specializations,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       CaregiverVerificationStatusCard(
                         isVerified: profile.isVerified,
                         checklist: profile.verificationChecklist,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       CaregiverEarningsSection(
                         profile: profile,
                         onViewStatements: () {
@@ -127,9 +129,9 @@ class CaregiverDetailView extends StatelessWidget {
                         },
                         onRetryPayout: (payout) => cubit.retryPayout(payout.id),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       CaregiverDocumentsSection(documents: profile.documents),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       CaregiverRecentBookingsSection(
                         bookings: profile.recentBookings,
                         onViewAll: () {
@@ -175,7 +177,7 @@ class CaregiverDetailView extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surfaceContainerLowestLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        title: Text(
+        title: const Text(
           'Remove this user?',
           style: TextStyle(
             fontSize: 24,
@@ -183,9 +185,9 @@ class CaregiverDetailView extends StatelessWidget {
             color: AppColors.onSurfaceLight,
           ),
         ),
-        content: Text(
-          'This permanently deletes the caregiver\'s account and cannot '
-          'be undone.',
+        content: const Text(
+          "This permanently deletes the caregiver's account and cannot "
+          "be undone.",
           style: TextStyle(
             fontSize: 16,
             color: AppColors.onSurfaceVariantLight,
@@ -287,10 +289,10 @@ class CaregiverDetailView extends StatelessWidget {
                     ),
                     PopupMenuItem(
                       value: _MenuAction.remove,
-                      child: Row(
+                      child: const Row(
                         children: [
                           Icon(Icons.delete, color: AppColors.errorLight),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Text(
                             'Remove User',
                             style: TextStyle(color: AppColors.errorLight),

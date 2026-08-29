@@ -1,22 +1,88 @@
-import 'package:bloc/bloc.dart';
+import 'dart:async';
+// import 'dart:math' as math;
 
-import '../../data/caregiver_dummy_data.dart';
-import '../../models/caregiver.dart';
-import 'caregiver_list_state.dart';
+import 'package:bloc/bloc.dart';
+import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_state.dart';
+import 'package:frontend/caregiver/models/caregiver.dart';
+import 'package:frontend/caregiver_signup/caregiver_signup.dart';
+import 'package:frontend/core/constants/api_constants.dart';
+import 'package:frontend/core/network/api_client.dart';
 
 class CaregiverListCubit extends Cubit<CaregiverListState> {
   CaregiverListCubit() : super(const CaregiverListState()) {
-    loadCaregivers();
+    unawaited(loadCaregivers());
   }
 
-  void loadCaregivers() {
+  Future<void> loadCaregivers(/* {double? userLat, double? userLng} */) async {
+    try {
+      final response =
+          await ApiClient().get<List<dynamic>>(ApiConstants.caregivers);
+      final data = response.data ?? const <dynamic>[];
+      final caregivers = List<Map<String, dynamic>>.from(
+        (data as List<dynamic>)
+            .map((item) => Map<String, dynamic>.from(item as Map)),
+      ).map(Caregiver.fromJson).toList();
+
+      emit(
+        state.copyWith(
+          caregivers: caregivers,
+          filteredCaregivers: caregivers,
+        ),
+      );
+    } on Exception {
+      emit(
+        state.copyWith(
+          caregivers: const <Caregiver>[],
+          filteredCaregivers: const <Caregiver>[],
+        ),
+      );
+    }
+  }
+
+  /*
+  void updateReferenceLocation(double userLat, double userLng) {
+    final updatedCaregivers = state.caregivers.map((c) {
+      final dist = _calculateDistance(userLat, userLng, c.latitude, c.longitude);
+      return c.copyWith(distance: dist);
+    }).toList();
+
+    final updatedFiltered = state.filteredCaregivers.map((c) {
+      final dist = _calculateDistance(userLat, userLng, c.latitude, c.longitude);
+      return c.copyWith(distance: dist);
+    }).toList();
+
     emit(
       state.copyWith(
-        caregivers: caregiverList,
-        filteredCaregivers: caregiverList,
+        caregivers: updatedCaregivers,
+        filteredCaregivers: updatedFiltered,
       ),
     );
   }
+
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
+    const double earthRadius = 6371; // km
+    final double dLat = _toRadians(lat2 - lat1);
+    final double dLon = _toRadians(lon2 - lon1);
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRadians(lat1)) *
+            math.cos(_toRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    final double distance = earthRadius * c;
+    return double.parse(distance.toStringAsFixed(2));
+  }
+
+  double _toRadians(double degree) {
+    return degree * math.pi / 180;
+  }
+  */
 
   void searchCaregiver(String query) {
     final lowerQuery = query.toLowerCase();
@@ -25,8 +91,7 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
       return caregiver.name.toLowerCase().contains(lowerQuery) ||
           caregiver.profession.toLowerCase().contains(lowerQuery) ||
           caregiver.specialties.any(
-                (specialty) =>
-                specialty.toLowerCase().contains(lowerQuery),
+            (specialty) => specialty.toLowerCase().contains(lowerQuery),
           );
     }).toList();
 

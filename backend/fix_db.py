@@ -35,6 +35,26 @@ def fix_database():
             print("Column 'relationship' already exists.")
             
         conn.commit()
+
+        # 4. Handle users table missing created_at
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'users';")
+        user_columns = [row[0] for row in cur.fetchall()]
+        if 'created_at' not in user_columns:
+            print("Adding missing column 'created_at' to users table...")
+            cur.execute("ALTER TABLE users ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();")
+        else:
+            print("Column 'created_at' already exists in users table.")
+
+        # 5. Handle bookings table missing total_amount
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'bookings';")
+        booking_columns = [row[0] for row in cur.fetchall()]
+        if 'total_amount' not in booking_columns:
+            print("Adding missing column 'total_amount' to bookings table...")
+            cur.execute("ALTER TABLE bookings ADD COLUMN total_amount FLOAT DEFAULT 0.0;")
+        else:
+            print("Column 'total_amount' already exists in bookings table.")
+
+        conn.commit()
         print("Database updated successfully!")
         
     except Exception as e:

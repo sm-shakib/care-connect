@@ -8,6 +8,7 @@ class LoginState extends Equatable {
   final bool isPasswordObscured;
   final LoginStatus status;
   final String? role;
+  final String? accountStatus;
   final String? errorMessage;
 
   const LoginState({
@@ -16,6 +17,7 @@ class LoginState extends Equatable {
     this.isPasswordObscured = true,
     this.status = LoginStatus.initial,
     this.role,
+    this.accountStatus,
     this.errorMessage,
   });
 
@@ -30,6 +32,7 @@ class LoginState extends Equatable {
     bool? isPasswordObscured,
     LoginStatus? status,
     String? role,
+    String? accountStatus,
     String? errorMessage,
   }) {
     return LoginState(
@@ -38,6 +41,7 @@ class LoginState extends Equatable {
       isPasswordObscured: isPasswordObscured ?? this.isPasswordObscured,
       status: status ?? this.status,
       role: role ?? this.role,
+      accountStatus: accountStatus ?? this.accountStatus,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -49,6 +53,7 @@ class LoginState extends Equatable {
     isPasswordObscured,
     status,
     role,
+    accountStatus,
     errorMessage,
   ];
 }

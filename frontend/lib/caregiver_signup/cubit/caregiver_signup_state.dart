@@ -57,7 +57,7 @@ class CaregiverSignupState extends Equatable {
     // Step 2 — Professional Info (Caregiver_Profiles)
     this.specializations = '',
     this.availabilityType,
-    this.dailyRate = '',
+    this.hourlyRate = '',
     this.experienceYears = '',
     // Step 3 — Documents (Caregiver_Documents)
     this.uploadedDocuments = const {},
@@ -83,7 +83,7 @@ class CaregiverSignupState extends Equatable {
 
   final String specializations;
   final AvailabilityType? availabilityType;
-  final String dailyRate;
+  final String hourlyRate;
   final String experienceYears;
 
   final Map<CaregiverDocumentType, PlatformFile> uploadedDocuments;
@@ -134,8 +134,8 @@ class CaregiverSignupState extends Equatable {
       submitAttempted && availabilityType == null
           ? 'Please select your availability.'
           : null;
-  String? get dailyRateError =>
-      submitAttempted ? validateDailyRate(dailyRate) : null;
+  String? get hourlyRateError =>
+      submitAttempted ? validateHourlyRate(hourlyRate) : null;
   String? get experienceYearsError =>
       submitAttempted ? validateExperienceYears(experienceYears) : null;
 
@@ -143,7 +143,7 @@ class CaregiverSignupState extends Equatable {
       validateRequired(specializations, fieldName: 'Specializations') ==
           null &&
           availabilityType != null &&
-          validateDailyRate(dailyRate) == null &&
+          validateHourlyRate(hourlyRate) == null &&
           validateExperienceYears(experienceYears) == null;
 
   // ---- Step 3 errors ----
@@ -165,7 +165,7 @@ class CaregiverSignupState extends Equatable {
     Uint8List? profileImageBytes,
     String? specializations,
     AvailabilityType? availabilityType,
-    String? dailyRate,
+    String? hourlyRate,
     String? experienceYears,
     Map<CaregiverDocumentType, PlatformFile>? uploadedDocuments,
     CaregiverSignupStatus? status,
@@ -187,7 +187,7 @@ class CaregiverSignupState extends Equatable {
       profileImageBytes: profileImageBytes ?? this.profileImageBytes,
       specializations: specializations ?? this.specializations,
       availabilityType: availabilityType ?? this.availabilityType,
-      dailyRate: dailyRate ?? this.dailyRate,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
       experienceYears: experienceYears ?? this.experienceYears,
       uploadedDocuments: uploadedDocuments ?? this.uploadedDocuments,
       status: status ?? this.status,
@@ -211,7 +211,7 @@ class CaregiverSignupState extends Equatable {
     profileImageBytes,
     specializations,
     availabilityType,
-    dailyRate,
+    hourlyRate,
     experienceYears,
     uploadedDocuments,
     status,
