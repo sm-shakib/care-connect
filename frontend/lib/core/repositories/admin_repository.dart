@@ -29,10 +29,19 @@ class AdminRepository {
     return List<Map<String, dynamic>>.from(response.data!);
   }
 
-  Future<Map<String, dynamic>> getCaregiverApplication(int id) async {
+  Future<Map<String, dynamic>> getCaregiverApplication(int caregiverId) async {
     final options = await _getAuthOptions();
     final response = await _apiClient.get<Map<String, dynamic>>(
-      ApiConstants.adminCaregiverDetail(id),
+      ApiConstants.adminCaregiverReviewDetail(caregiverId),
+      options: options,
+    );
+    return response.data!;
+  }
+
+  Future<Map<String, dynamic>> getCaregiverProfile(int userId) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      ApiConstants.adminCaregiverUserDetail(userId),
       options: options,
     );
     return response.data!;

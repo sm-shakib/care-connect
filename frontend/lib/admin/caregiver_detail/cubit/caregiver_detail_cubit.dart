@@ -1,8 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/repositories/admin_repository.dart';
-
 import 'package:frontend/admin/caregiver_detail/cubit/caregiver_detail_state.dart';
 import 'package:frontend/admin/caregiver_detail/cubit/caregiver_profile_model.dart';
+import 'package:frontend/core/repositories/admin_repository.dart';
 
 /// Manages a single caregiver's profile: loading it, toggling status,
 /// handling payouts, etc.
@@ -19,15 +18,15 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
   Future<void> loadProfile() async {
     emit(state.copyWith(loadStatus: CaregiverDetailLoadStatus.loading));
     try {
-      final caregiverResponse = await _adminRepository.getCaregiverApplication(
+      final caregiverResponse = await _adminRepository.getCaregiverProfile(
         int.parse(userId),
       );
-      
+
       final profile = CaregiverProfile.fromJson(
         caregiverResponse,
-        accountStatus: caregiverResponse['is_active'] == false 
-            ? AccountStatus.suspended 
-            : AccountStatus.active, 
+        accountStatus: caregiverResponse['is_active'] == false
+            ? AccountStatus.suspended
+            : AccountStatus.active,
       );
 
       emit(
@@ -36,7 +35,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
           profile: profile,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       emit(
         state.copyWith(
           loadStatus: CaregiverDetailLoadStatus.failure,
@@ -50,19 +49,20 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
   Future<void> toggleAccountStatus() async {
     final profile = state.profile;
     if (profile == null) return;
-    
+
     final newIsActive = profile.status == AccountStatus.suspended;
     try {
       await _adminRepository.updateUserStatus(int.parse(userId), newIsActive);
-      
-      final newStatus = newIsActive ? AccountStatus.active : AccountStatus.suspended;
+
+      final newStatus =
+          newIsActive ? AccountStatus.active : AccountStatus.suspended;
       emit(
         state.copyWith(
           profile: profile.copyWith(status: newStatus),
           action: CaregiverDetailAction.statusChanged,
         ),
       );
-    } catch (e) {
+    } on Exception catch (_) {
       emit(
         state.copyWith(
           errorMessage: 'Failed to update account status.',
@@ -112,7 +112,7 @@ class CaregiverDetailCubit extends Cubit<CaregiverDetailState> {
     try {
       await _adminRepository.deleteUser(int.parse(userId));
       emit(state.copyWith(action: CaregiverDetailAction.removed));
-    } catch (e) {
+    } on Exception catch (_) {
       emit(
         state.copyWith(
           errorMessage: 'Failed to remove user.',

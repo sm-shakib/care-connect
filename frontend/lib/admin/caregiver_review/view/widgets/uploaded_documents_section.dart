@@ -11,6 +11,7 @@ class UploadedDocumentsSection extends StatelessWidget {
     this.onViewAll,
     this.onPreview,
     this.onExpand,
+    this.onToggle,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class UploadedDocumentsSection extends StatelessWidget {
   final VoidCallback? onViewAll;
   final ValueChanged<UploadedDocument>? onPreview;
   final ValueChanged<UploadedDocument>? onExpand;
+  final ValueChanged<UploadedDocument>? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,7 @@ class UploadedDocumentsSection extends StatelessWidget {
                 document: doc,
                 onPreview: () => onPreview?.call(doc),
                 onExpand: () => onExpand?.call(doc),
+                onToggle: () => onToggle?.call(doc),
               );
             },
           ),
@@ -83,11 +86,13 @@ class _DocumentCard extends StatelessWidget {
     required this.document,
     this.onPreview,
     this.onExpand,
+    this.onToggle,
   });
 
   final UploadedDocument document;
   final VoidCallback? onPreview;
   final VoidCallback? onExpand;
+  final VoidCallback? onToggle;
 
   IconData get _icon {
     switch (document.iconName) {
@@ -137,7 +142,26 @@ class _DocumentCard extends StatelessWidget {
                   document.previewUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
-                  const SizedBox.shrink(),
+                      const SizedBox.shrink(),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton.filled(
+                    onPressed: onToggle,
+                    style: IconButton.styleFrom(
+                      backgroundColor: document.isVerified
+                          ? AppColors.primaryLight
+                          : Colors.white,
+                      foregroundColor: document.isVerified
+                          ? Colors.white
+                          : AppColors.onSurfaceVariantLight,
+                    ),
+                    icon: Icon(
+                      document.isVerified ? Icons.check_circle : Icons.close,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),

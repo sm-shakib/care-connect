@@ -13,7 +13,8 @@ class ApiConstants {
 
   // Admin
   static const String adminVerificationList = '/admin/caregivers/verification';
-  static String adminCaregiverDetail(int id) => '/admin/caregivers/user/$id';
+  static String adminCaregiverReviewDetail(int id) => '/admin/caregivers/$id';
+  static String adminCaregiverUserDetail(int id) => '/admin/caregivers/user/$id';
   static String adminVerifyCaregiver(int id) => '/admin/caregivers/$id/verify';
   static String adminVerifyDocument(int id) => '/admin/caregivers/documents/$id/verify';
   static const String adminUserList = '/admin/users';
