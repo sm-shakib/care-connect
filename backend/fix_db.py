@@ -45,6 +45,15 @@ def fix_database():
         else:
             print("Column 'created_at' already exists in users table.")
 
+        # 5. Handle bookings table missing total_amount
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'bookings';")
+        booking_columns = [row[0] for row in cur.fetchall()]
+        if 'total_amount' not in booking_columns:
+            print("Adding missing column 'total_amount' to bookings table...")
+            cur.execute("ALTER TABLE bookings ADD COLUMN total_amount FLOAT DEFAULT 0.0;")
+        else:
+            print("Column 'total_amount' already exists in bookings table.")
+
         conn.commit()
         print("Database updated successfully!")
         

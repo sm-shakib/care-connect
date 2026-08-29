@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
 from app.api import deps
 from app.models.caregiver import Caregiver, CaregiverDocument
+from app.models.booking import Booking
 from app.schemas.caregiver import CaregiverOut, CaregiverDocumentOut, VerificationStatus
 from app.models.user import User
 from app.models.elder import Elder
@@ -12,6 +13,7 @@ from app.models.binding import FamilyElderLink
 from app.schemas.user import UserOut, UserAdminOut
 from app.schemas.elder import ElderOut
 from app.schemas.family import FamilyOut
+from app.schemas.booking import BookingOut
 
 from app.core.email import send_email
 
@@ -304,3 +306,40 @@ def get_caregiver_detail_by_user(
         "is_active": caregiver.user.is_active if caregiver.user else True,
         "documents": docs
     }
+
+# --- Booking Management ---
+
+@router.get("/bookings", response_model=List[BookingOut])
+def list_bookings(
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    List all bookings, optionally filtered by status.
+    """
+    query = db.query(Booking).options(
+        joinedload(Booking.elder),
+        joinedload(Booking.caregiver).joinedload(Caregiver.user)
+    )
+    if status:
+        query = query.filter(Booking.status == status)
+    return query.all()
+
+@router.get("/bookings/{booking_id}", response_model=BookingOut)
+def get_booking_detail(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    Get detailed view of a booking.
+    """
+    booking = db.query(Booking).options(
+        joinedload(Booking.elder),
+        joinedload(Booking.caregiver).joinedload(Caregiver.user)
+    ).filter(Booking.id == booking_id).first()
+
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return booking

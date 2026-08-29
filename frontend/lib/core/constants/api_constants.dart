@@ -22,6 +22,8 @@ class ApiConstants {
   static String adminUserDelete(int id) => '/admin/users/$id';
   static String adminElderDetail(int id) => '/admin/elders/user/$id';
   static String adminFamilyDetail(int id) => '/admin/families/user/$id';
+  static const String adminBookingList = '/admin/bookings';
+  static String adminBookingDetail(int id) => '/admin/bookings/$id';
 
   // Bookings
   static const String bookings = '/bookings/';

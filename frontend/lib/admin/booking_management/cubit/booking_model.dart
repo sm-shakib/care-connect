@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 /// The elderly user or caregiver shown on a booking card.
 class BookingPerson extends Equatable {
@@ -16,8 +17,7 @@ class BookingPerson extends Equatable {
   List<Object?> get props => [name, role, avatarUrl];
 }
 
-/// The coarse status bucket a booking belongs to — matches the filter
-/// chips (minus "All").
+/// The coarse status bucket a booking belongs to.
 enum BookingStatus { upcoming, ongoing, completed }
 
 extension BookingStatusX on BookingStatus {
@@ -33,10 +33,7 @@ extension BookingStatusX on BookingStatus {
   }
 }
 
-/// Every specific badge chip a booking card can show. Each carries its
-/// own icon + color combo (matching the original design exactly, where
-/// e.g. "Confirmed" and "Paid" have distinct colors from "Checked-in"),
-/// so this is intentionally more granular than [BookingStatus].
+/// Every specific badge chip a booking card can show.
 enum BookingBadgeType {
   confirmed,
   paid,
@@ -60,27 +57,85 @@ class Booking extends Equatable {
     required this.badges,
   });
 
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    final elder = json['elder'] as Map<String, dynamic>?;
+    final caregiver = json['caregiver'] as Map<String, dynamic>?;
+    final caregiverUser =
+        caregiver != null ? caregiver['user'] as Map<String, dynamic>? : null;
+
+    final startDate = DateTime.parse(json['service_start_date'] as String);
+    final endDate = DateTime.parse(json['service_end_date'] as String);
+    final statusStr = json['status'] as String? ?? 'pending';
+    final paymentStatus = json['payment_status'] as String? ?? 'pending';
+
+    // Formatting date label
+    final dateFmt = DateFormat('MMM d');
+    final yearFmt = DateFormat('yyyy');
+    final String dateLabel;
+    if (startDate.year == endDate.year) {
+      dateLabel =
+          '${dateFmt.format(startDate)} - ${dateFmt.format(endDate)}, ${yearFmt.format(startDate)}';
+    } else {
+      dateLabel =
+          '${dateFmt.format(startDate)}, ${yearFmt.format(startDate)} - ${dateFmt.format(endDate)}, ${yearFmt.format(endDate)}';
+    }
+
+    // Determining status and badges
+    final List<BookingBadgeType> badges = [];
+    final BookingStatus status;
+
+    if (statusStr == 'accepted') {
+      status = BookingStatus.ongoing;
+      badges.add(BookingBadgeType.confirmed);
+    } else if (statusStr == 'completed') {
+      status = BookingStatus.completed;
+      badges.add(BookingBadgeType.confirmed);
+    } else {
+      status = BookingStatus.upcoming;
+      badges.add(BookingBadgeType.pending);
+    }
+
+    if (paymentStatus == 'paid') {
+      badges.add(BookingBadgeType.paid);
+    } else {
+      badges.add(BookingBadgeType.unpaid);
+    }
+
+    return Booking(
+      id: 'BK-${json['id']}',
+      user: BookingPerson(
+        name: elder != null ? elder['name'] as String? ?? 'Unknown' : 'Unknown',
+        role: 'Elder',
+        avatarUrl: elder != null ? elder['profile_image_url'] as String? ?? '' : '',
+      ),
+      caregiver: BookingPerson(
+        name: caregiver != null ? caregiver['name'] as String? ?? 'Unknown' : 'Unknown',
+        role: 'Caregiver',
+        avatarUrl: caregiver != null ? caregiver['profile_image_url'] as String? ?? '' : '',
+      ),
+      totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
+      dateLabel: dateLabel,
+      status: status,
+      badges: badges,
+    );
+  }
+
   final String id;
   final BookingPerson user;
   final BookingPerson caregiver;
   final double totalAmount;
-
-  /// Pre-formatted date/time text (e.g. "Oct 25 - Oct 27, 2023" or
-  /// "Nov 02, 2023 | 08:00 - 14:00") — kept as a display string since
-  /// the two card formats in the original design don't share a single
-  /// date-range shape.
   final String dateLabel;
   final BookingStatus status;
   final List<BookingBadgeType> badges;
 
   @override
   List<Object?> get props => [
-    id,
-    user,
-    caregiver,
-    totalAmount,
-    dateLabel,
-    status,
-    badges,
-  ];
+        id,
+        user,
+        caregiver,
+        totalAmount,
+        dateLabel,
+        status,
+        badges,
+      ];
 }

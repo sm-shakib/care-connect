@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey, Text, DateTime, Float
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 from datetime import datetime, timezone
@@ -17,6 +17,7 @@ class Booking(Base):
     daily_timing_end = Column(Time, nullable=False)
     
     booking_reason = Column(Text)
+    total_amount = Column(Float, default=0.0)
     status = Column(String, default="pending")  # pending, accepted, rejected, cancelled
     payment_status = Column(String, default="pending")  # pending, paid
     requested_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
