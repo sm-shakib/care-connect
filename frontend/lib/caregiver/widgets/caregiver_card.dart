@@ -53,11 +53,16 @@ class CaregiverCard extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
-                child: Icon(
-                  caregiver.gender == 'Male' ? Icons.man : Icons.woman,
-                  size: 34,
-                  color: AppColors.primaryLight,
-                ),
+                backgroundImage: caregiver.imageUrl.isNotEmpty
+                    ? NetworkImage(caregiver.imageUrl)
+                    : null,
+                child: caregiver.imageUrl.isEmpty
+                    ? Icon(
+                        caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                        size: 34,
+                        color: AppColors.primaryLight,
+                      )
+                    : null,
               ),
               const SizedBox(width: 14),
               Expanded(

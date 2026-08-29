@@ -21,67 +21,7 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
       final caregivers = List<Map<String, dynamic>>.from(
         (data as List<dynamic>)
             .map((item) => Map<String, dynamic>.from(item as Map)),
-      ).map((map) {
-        final String name = (map['name'] ?? '') as String;
-        final String specializations = (map['specializations'] ?? '') as String;
-        final List<String> specialties = specializations.isEmpty
-            ? const <String>[]
-            : specializations
-                .split(',')
-                .map((value) => value.trim())
-                .where((value) => value.isNotEmpty)
-                .toList();
-
-        final Map<CaregiverDocumentType, String> documents = {};
-        if (map['documents'] != null) {
-          final docsList = map['documents'] as List<dynamic>;
-          for (final doc in docsList) {
-            final docMap = doc as Map<String, dynamic>;
-            final typeStr = docMap['document_type'] as String;
-            final url = docMap['document_url'] as String;
-
-            final type = CaregiverDocumentType.values.firstWhere(
-              (e) => e.name == typeStr,
-              orElse: () => CaregiverDocumentType.nationalId, // Fallback
-            );
-            documents[type] = url;
-          }
-        }
-
-        final String id = ((map['id'] ?? map['user_id']) ?? '').toString();
-        // Generate stable mock coordinates based on ID
-        // final double lat = 23.8103 + (id.hashCode % 100) * 0.001;
-        // final double lng = 90.4125 + (id.hashCode % 50) * 0.001;
-
-        // double distance = 0;
-        // if (userLat != null && userLng != null) {
-        //   distance = _calculateDistance(userLat, userLng, lat, lng);
-        // }
-
-        return Caregiver(
-          id: id,
-          name: name,
-          profession: 'Caregiver',
-          imageUrl: (map['profile_image_url'] ?? '') as String,
-          rating: 0,
-          experience: ((map['experience_years'] ?? 0) as num).toInt(),
-          distance: 0, // distance,
-          hourlyRate: ((map['hourly_rate'] ?? 0) as num).toInt(),
-          isVerified: (map['status'] ?? '') == 'verified',
-          specialties: specialties,
-          specializations: specializations,
-          about: '',
-          phone: (map['phone'] ?? '') as String,
-          email: (map['email'] ?? '') as String,
-          address: (map['address'] ?? '') as String,
-          dateOfBirth: map['date_of_birth'] != null
-              ? DateTime.tryParse(map['date_of_birth'] as String)
-              : null,
-          documents: documents,
-          // latitude: lat,
-          // longitude: lng,
-        );
-      }).toList();
+      ).map(Caregiver.fromJson).toList();
 
       emit(
         state.copyWith(

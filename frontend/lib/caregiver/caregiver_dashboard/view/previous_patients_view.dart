@@ -23,6 +23,10 @@ class PreviousPatientsView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<CaregiverDashboardCubit, CaregiverDashboardState>(
           builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
             final previousPatients = state.filteredPreviousPatients;
 
             return Column(
