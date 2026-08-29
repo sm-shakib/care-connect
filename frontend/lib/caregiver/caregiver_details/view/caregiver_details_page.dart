@@ -616,14 +616,9 @@ class CaregiverDetailsPage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        if (elder != null) {
-                          // Actually add the caregiver to the elder's list in
-                          // the state.
-                          pageContext
-                              .read<FamilyDashboardCubit>()
-                              .addCaregiverToElder(elder.id, caregiver.name);
-                        }
-
+                        // We no longer add the caregiver to the state immediately.
+                        // They will appear in the "Active" list only after 
+                        // they accept the request on their end.
                         Navigator.pop(dialogContext); // Close dialog
                         Navigator.pop(pageContext); // Close details page
                       },

@@ -6,11 +6,11 @@ class FamilyProfileRepository {
   FamilyProfileRepository(this._apiClient);
 
   Future<Map<String, dynamic>> getMyProfile() async {
-    final response = await _apiClient.get('/family/me');
+    final response = await _apiClient.get('/families/me');
     return response.data as Map<String, dynamic>;
   }
 
   Future<void> updateProfile(Map<String, dynamic> data) async {
-    await _apiClient.put('/family/me', data: data);
+    await _apiClient.put('/families/me', data: data);
   }
 }

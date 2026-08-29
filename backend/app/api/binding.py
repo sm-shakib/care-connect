@@ -8,6 +8,7 @@ from app.models.elder import Elder
 from app.models.user import User
 from app.models.family import Family
 from app.models.notification import Notification
+from app.models.booking import Booking
 from app.schemas.binding import BindingCreate, BindingOut, BindingUpdate, FamilyMemberOut
 from app.api.deps import get_current_user
 
@@ -118,12 +119,21 @@ def get_my_family_members(
     results = []
     for link in links:
         elder = link.elder
+        
+        # Fetch accepted caregivers for this elder
+        bookings = db.query(Booking).filter(
+            Booking.elder_id == elder.id,
+            Booking.status == "accepted"
+        ).all()
+        caregiver_names = [b.caregiver.name for b in bookings if b.caregiver]
+
         results.append({
             "relationship": link.relationship,
             "elder": elder,
             "medications": elder.medicines if elder else [],
             "appointments": elder.appointments if elder else [],
-            "reminders": elder.reminders if elder else []
+            "reminders": elder.reminders if elder else [],
+            "caregiver_names": caregiver_names
         })
     
     return results

@@ -42,6 +42,7 @@ class FamilyMemberOut(BaseModel):
     medications: List[MedicineOut] = []
     appointments: List[AppointmentOut] = []
     reminders: List[CareReminderOut] = []
+    caregiver_names: List[str] = []
 
     class Config:
         from_attributes = True

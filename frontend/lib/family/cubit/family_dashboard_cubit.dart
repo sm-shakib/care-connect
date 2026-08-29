@@ -58,6 +58,8 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           );
         }).toList();
 
+        final List<String> caregiverNames = List<String>.from(data['caregiver_names'] as List? ?? []);
+
         final hr = elderData['heart_rate'] as int? ?? 75;
         final systolic = elderData['systolic_bp'] as int? ?? 120;
         final diastolic = elderData['diastolic_bp'] as int? ?? 80;
@@ -68,9 +70,10 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           age: dob != null ? _calculateAge(dob) : 70,
           relationship: relationship,
           gender: elderData['gender'] ?? 'Unknown',
-          hasCaregiver: false,
+          hasCaregiver: caregiverNames.isNotEmpty,
           healthStatus: elderData['health_condition'] ?? 'Stable',
           imageUrl: elderData['profile_image_url'] ?? '',
+          caregivers: caregiverNames,
           vitals: HealthVitals(
             heartRate: hr,
             heartRateStatus: _getHeartRateStatus(hr),

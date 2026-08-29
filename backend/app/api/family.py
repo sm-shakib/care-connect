@@ -7,7 +7,7 @@ from app.schemas.family import FamilySignupRequest, FamilySignupResponse, Family
 from app.core.security import get_password_hash
 from app.api.deps import get_current_user
 
-router = APIRouter()
+router = APIRouter(prefix="/families", tags=["Family"])
 
 @router.post("/signup/family", response_model=FamilySignupResponse)
 def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
@@ -42,7 +42,7 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Signup failed: {str(e)}")
 
-@router.get("/family/me", response_model=FamilyOut)
+@router.get("/me", response_model=FamilyOut)
 def get_family_profile(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -60,7 +60,7 @@ def get_family_profile(
     family.email = current_user.email
     return family
 
-@router.put("/family/me", response_model=FamilyOut)
+@router.put("/me", response_model=FamilyOut)
 def update_family_profile(
     payload: FamilyUpdate,
     db: Session = Depends(get_db),
