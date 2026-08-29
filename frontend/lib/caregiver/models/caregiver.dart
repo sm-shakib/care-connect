@@ -33,6 +33,55 @@ class Caregiver {
     // this.longitude = 90.4125,
   });
 
+  factory Caregiver.fromJson(Map<String, dynamic> json) {
+    final String specializations = (json['specializations'] ?? '') as String;
+    final List<String> specialties = specializations.isEmpty
+        ? const <String>[]
+        : specializations
+            .split(',')
+            .map((value) => value.trim())
+            .where((value) => value.isNotEmpty)
+            .toList();
+
+    final Map<CaregiverDocumentType, String> documents = {};
+    if (json['documents'] != null) {
+      final docsList = json['documents'] as List<dynamic>;
+      for (final doc in docsList) {
+        final docMap = doc as Map<String, dynamic>;
+        final typeStr = docMap['document_type'] as String;
+        final url = docMap['document_url'] as String;
+
+        final type = CaregiverDocumentType.values.firstWhere(
+          (e) => e.name == typeStr,
+          orElse: () => CaregiverDocumentType.nationalId,
+        );
+        documents[type] = url;
+      }
+    }
+
+    return Caregiver(
+      id: ((json['id'] ?? json['user_id']) ?? '').toString(),
+      name: (json['name'] ?? '') as String,
+      profession: 'Caregiver',
+      imageUrl: (json['profile_image_url'] ?? '') as String,
+      rating: ((json['rating'] ?? 0) as num).toDouble(),
+      experience: ((json['experience_years'] ?? 0) as num).toInt(),
+      distance: 0.0,
+      hourlyRate: ((json['hourly_rate'] ?? 0) as num).toInt(),
+      isVerified: (json['status'] ?? '') == 'verified',
+      specialties: specialties,
+      specializations: specializations,
+      about: '',
+      phone: (json['phone'] ?? '') as String,
+      email: (json['email'] ?? '') as String,
+      address: (json['address'] ?? '') as String,
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.tryParse(json['date_of_birth'] as String)
+          : null,
+      documents: documents,
+    );
+  }
+
   final String id;
   final String name;
   final String? nameBn;

@@ -16,4 +16,9 @@ class ApiConstants {
   static String adminCaregiverDetail(int id) => '/admin/caregivers/$id';
   static String adminVerifyCaregiver(int id) => '/admin/caregivers/$id/verify';
   static String adminVerifyDocument(int id) => '/admin/caregivers/documents/$id/verify';
+
+  // Bookings
+  static const String bookings = '/bookings/';
+  static String caregiverBookings(int caregiverId) => '/bookings/caregiver/$caregiverId';
+  static String bookingDetail(int id) => '/bookings/$id';
 }

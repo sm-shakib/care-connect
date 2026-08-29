@@ -11,10 +11,10 @@ class CaregiverRequestState extends Equatable {
   final bool isLoading;
 
   List<BookingRequest> get pendingRequests =>
-      requests.where((r) => r.status == BookingRequestStatus.pending).toList();
+      requests.where((r) => r.status == BookingStatus.pending).toList();
 
   List<BookingRequest> get pastRequests =>
-      requests.where((r) => r.status != BookingRequestStatus.pending).toList();
+      requests.where((r) => r.status != BookingStatus.pending).toList();
 
   CaregiverRequestState copyWith({
     List<BookingRequest>? requests,

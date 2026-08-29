@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
+import '../../../caregiver/models/booking_request.dart';
+import '../../../caregiver/models/caregiver.dart';
 
 /// A single medication reminder shown on the elderly dashboard.
 class Medication extends Equatable {
@@ -55,6 +57,8 @@ class CaregiverSummary extends Equatable {
     required this.profession,
     required this.nextVisitLabel,
     required this.phone,
+    this.entity,
+    this.booking,
   });
 
   final String id;
@@ -64,9 +68,12 @@ class CaregiverSummary extends Equatable {
   /// Pre-formatted label, e.g. "Today, 3:00 PM".
   final String nextVisitLabel;
   final String phone;
+  final Caregiver? entity;
+  final BookingRequest? booking;
 
   @override
-  List<Object?> get props => [id, name, profession, nextVisitLabel, phone];
+  List<Object?> get props =>
+      [id, name, profession, nextVisitLabel, phone, entity, booking];
 }
 
 /// Preview of the most recent chat message shown on the dashboard.
