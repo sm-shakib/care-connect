@@ -1,5 +1,7 @@
 part of 'family_profile_cubit.dart';
 
+enum FamilyProfileStatus { initial, loading, success, failure }
+
 class FamilyProfileState extends Equatable {
   const FamilyProfileState({
     this.name = '',
@@ -9,9 +11,12 @@ class FamilyProfileState extends Equatable {
     this.gender,
     this.dateOfBirth,
     this.profileImageBytes,
+    this.profileImageUrl = '',
     this.isEditing = false,
     this.isSaving = false,
     this.editSessionId = 0,
+    this.status = FamilyProfileStatus.initial,
+    this.errorMessage,
   });
 
   final String name;
@@ -21,10 +26,13 @@ class FamilyProfileState extends Equatable {
   final Gender? gender;
   final DateTime? dateOfBirth;
   final Uint8List? profileImageBytes;
+  final String profileImageUrl;
 
   final bool isEditing;
   final bool isSaving;
   final int editSessionId;
+  final FamilyProfileStatus status;
+  final String? errorMessage;
 
   FamilyProfileState copyWith({
     String? name,
@@ -34,9 +42,12 @@ class FamilyProfileState extends Equatable {
     Gender? gender,
     DateTime? dateOfBirth,
     Uint8List? profileImageBytes,
+    String? profileImageUrl,
     bool? isEditing,
     bool? isSaving,
     int? editSessionId,
+    FamilyProfileStatus? status,
+    String? errorMessage,
   }) {
     return FamilyProfileState(
       name: name ?? this.name,
@@ -46,9 +57,12 @@ class FamilyProfileState extends Equatable {
       gender: gender ?? this.gender,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       profileImageBytes: profileImageBytes ?? this.profileImageBytes,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       isEditing: isEditing ?? this.isEditing,
       isSaving: isSaving ?? this.isSaving,
       editSessionId: editSessionId ?? this.editSessionId,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -61,8 +75,11 @@ class FamilyProfileState extends Equatable {
     gender,
     dateOfBirth,
     profileImageBytes,
+    profileImageUrl,
     isEditing,
     isSaving,
     editSessionId,
+    status,
+    errorMessage,
   ];
 }

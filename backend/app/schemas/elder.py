@@ -11,6 +11,12 @@ class ElderBase(BaseModel):
     email: Optional[str] = None
     address: str
     health_condition: str
+    heart_rate: Optional[int] = 75
+    systolic_bp: Optional[int] = 120
+    diastolic_bp: Optional[int] = 80
+    latitude: Optional[str] = None
+    longitude: Optional[str] = None
+    last_location_update: Optional[str] = "Just now"
     profile_image_url: Optional[str] = None
 
 class ElderCreate(ElderBase):
@@ -23,6 +29,12 @@ class ElderUpdate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     health_condition: Optional[str] = None
+    heart_rate: Optional[int] = None
+    systolic_bp: Optional[int] = None
+    diastolic_bp: Optional[int] = None
+    latitude: Optional[str] = None
+    longitude: Optional[str] = None
+    last_location_update: Optional[str] = None
     profile_image_url: Optional[str] = None
 
 class FamilyLinkOut(BaseModel):

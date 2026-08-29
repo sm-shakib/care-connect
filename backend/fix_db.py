@@ -54,6 +54,24 @@ def fix_database():
         else:
             print("Column 'total_amount' already exists in bookings table.")
 
+        # 6. Handle elders table missing health/location columns
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'elders';")
+        elder_columns = [row[0] for row in cur.fetchall()]
+        missing_elder_cols = {
+            'heart_rate': "INTEGER DEFAULT 75",
+            'systolic_bp': "INTEGER DEFAULT 120",
+            'diastolic_bp': "INTEGER DEFAULT 80",
+            'latitude': "VARCHAR",
+            'longitude': "VARCHAR",
+            'last_location_update': "VARCHAR"
+        }
+        for col, definition in missing_elder_cols.items():
+            if col not in elder_columns:
+                print(f"Adding missing column '{col}' to elders table...")
+                cur.execute(f"ALTER TABLE elders ADD COLUMN {col} {definition};")
+            else:
+                print(f"Column '{col}' already exists in elders table.")
+
         conn.commit()
         print("Database updated successfully!")
         

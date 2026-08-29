@@ -9,6 +9,7 @@ from app.models.binding import FamilyElderLink
 from app.models.notification import Notification
 from app.models.medicine import Medicine
 from app.models.booking import Booking
+from app.models.reminder import Appointment, CareReminder
 from app.api import (
     elder, auth, caregiver, family, utils, admin,
     binding, notification, medicine, users, booking

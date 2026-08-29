@@ -26,6 +26,28 @@ class FamilyProfileView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<FamilyProfileCubit, FamilyProfileState>(
           builder: (context, state) {
+            if (state.status == FamilyProfileStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.status == FamilyProfileStatus.failure) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text('Failed to load profile: ${state.errorMessage}'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => context.read<FamilyProfileCubit>().loadProfile(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final cubit = context.read<FamilyProfileCubit>();
 
             return Column(
@@ -114,8 +136,10 @@ class _PersonalInfoCard extends StatelessWidget {
                   backgroundColor: AppColors.paleMint,
                   backgroundImage: state.profileImageBytes != null
                       ? MemoryImage(state.profileImageBytes!)
-                      : null,
-                  child: state.profileImageBytes == null
+                      : (state.profileImageUrl.isNotEmpty
+                          ? NetworkImage(state.profileImageUrl)
+                          : null) as ImageProvider?,
+                  child: (state.profileImageBytes == null && state.profileImageUrl.isEmpty)
                       ? const Icon(Icons.person, size: 44, color: AppColors.darkTeal)
                       : null,
                 ),

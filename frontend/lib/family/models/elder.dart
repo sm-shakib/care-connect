@@ -23,8 +23,8 @@ class Elder {
     this.medicalRecords = const [],
     this.appointments = const [],
     this.otherReminders = const [],
-    // this.latitude = 23.8103, // Default to Dhaka
-    // this.longitude = 90.4125,
+    this.latitude,
+    this.longitude,
   });
 
   final String id;
@@ -46,8 +46,8 @@ class Elder {
   final String lastLocationUpdate;
   final String locationImage;
 
-  // final double latitude;
-  // final double longitude;
+  final String? latitude;
+  final String? longitude;
 
   Elder copyWith({
     String? id,
@@ -66,8 +66,8 @@ class Elder {
     HealthVitals? vitals,
     String? lastLocationUpdate,
     String? locationImage,
-    // double? latitude,
-    // double? longitude,
+    String? latitude,
+    String? longitude,
   }) {
     return Elder(
       id: id ?? this.id,
@@ -86,8 +86,8 @@ class Elder {
       vitals: vitals ?? this.vitals,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
       locationImage: locationImage ?? this.locationImage,
-      // latitude: latitude ?? this.latitude,
-      // longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }

@@ -19,8 +19,18 @@ class Elder(Base):
 
     # Health Info
     health_condition = Column(Text)
+    heart_rate = Column(Integer, default=75)
+    systolic_bp = Column(Integer, default=120)
+    diastolic_bp = Column(Integer, default=80)
+    
+    # Location Info
+    latitude = Column(String, nullable=True)
+    longitude = Column(String, nullable=True)
+    last_location_update = Column(String, nullable=True)
 
     # Relationship back to User
     user = relationship("User", back_populates="elder_profile")
     family_links = relationship("FamilyElderLink", back_populates="elder")
     medicines = relationship("Medicine", back_populates="elder")
+    appointments = relationship("Appointment", back_populates="elder")
+    reminders = relationship("CareReminder", back_populates="elder")
