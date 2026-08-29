@@ -9,7 +9,10 @@ from app.models.binding import FamilyElderLink
 from app.models.notification import Notification
 from app.models.medicine import Medicine
 from app.models.booking import Booking
-from app.api import elder, auth, caregiver, family, utils, admin, binding, notification, medicine, booking
+from app.api import (
+    elder, auth, caregiver, family, utils, admin,
+    binding, notification, medicine, users, booking
+)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -29,6 +32,7 @@ app.include_router(auth.router, tags=["Authentication"])
 app.include_router(elder.router, tags=["Elderly"])
 app.include_router(caregiver.router, tags=["Caregiver"])
 app.include_router(family.router, tags=["Family"])
+app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(binding.router)
 app.include_router(notification.router)

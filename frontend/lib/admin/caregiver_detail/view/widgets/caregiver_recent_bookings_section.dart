@@ -54,7 +54,7 @@ class CaregiverRecentBookingsSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.outlineVariantLight),
             ),
-            child: Text(
+            child: const Text(
               'No bookings yet.',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
@@ -62,7 +62,7 @@ class CaregiverRecentBookingsSection extends StatelessWidget {
         else
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowestLight,
+              color: AppColors.surfaceContainerLowLight,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.outlineVariantLight),
             ),

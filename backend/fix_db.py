@@ -35,6 +35,17 @@ def fix_database():
             print("Column 'relationship' already exists.")
             
         conn.commit()
+
+        # 4. Handle users table missing created_at
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'users';")
+        user_columns = [row[0] for row in cur.fetchall()]
+        if 'created_at' not in user_columns:
+            print("Adding missing column 'created_at' to users table...")
+            cur.execute("ALTER TABLE users ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();")
+        else:
+            print("Column 'created_at' already exists in users table.")
+
+        conn.commit()
         print("Database updated successfully!")
         
     except Exception as e:

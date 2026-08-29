@@ -24,12 +24,16 @@ class LinkedElderlyUser extends Equatable {
   final bool isPrimaryContact;
 
   @override
-  List<Object?> get props =>
-      [id, name, avatarUrl, relationship, isPrimaryContact];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        avatarUrl,
+        relationship,
+        isPrimaryContact,
+      ];
 }
 
 /// A single notification-category row in the "Alert Preferences" card.
-/// Display-only on this admin screen — not editable here.
 class AlertPreference extends Equatable {
   const AlertPreference({required this.label, required this.isEnabled});
 
@@ -37,11 +41,10 @@ class AlertPreference extends Equatable {
   final bool isEnabled;
 
   @override
-  List<Object?> get props => [label, isEnabled];
+  List<Object?> get props => <Object?>[label, isEnabled];
 }
 
-/// Full profile record for a single family member, shown on the admin
-/// Family Member Profile detail screen.
+/// Full profile record for a single family member.
 class FamilyMemberProfile extends Equatable {
   const FamilyMemberProfile({
     required this.id,
@@ -56,6 +59,32 @@ class FamilyMemberProfile extends Equatable {
     required this.linkedElderlyUsers,
     required this.alertPreferences,
   });
+
+  factory FamilyMemberProfile.fromJson(
+    Map<String, dynamic> json, {
+    AccountStatus? accountStatus,
+  }) {
+    final dobStr = json['date_of_birth'] as String?;
+    var ageValue = 0;
+    if (dobStr != null) {
+      final dob = DateTime.parse(dobStr);
+      ageValue = DateTime.now().year - dob.year;
+    }
+
+    return FamilyMemberProfile(
+      id: json['id']?.toString() ?? '',
+      name: (json['name'] as String?) ?? (json['email'] as String?) ?? '',
+      avatarUrl: (json['profile_image_url'] as String?) ?? '',
+      status: accountStatus ?? AccountStatus.active,
+      gender: (json['gender'] as String?) ?? '',
+      age: ageValue,
+      phone: (json['phone'] as String?) ?? '',
+      email: (json['email'] as String?) ?? '',
+      address: (json['address'] as String?) ?? '',
+      linkedElderlyUsers: const [],
+      alertPreferences: const [],
+    );
+  }
 
   final String id;
   final String name;
@@ -86,17 +115,17 @@ class FamilyMemberProfile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    avatarUrl,
-    status,
-    gender,
-    age,
-    phone,
-    email,
-    address,
-    linkedElderlyUsers,
-    alertPreferences,
-  ];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        avatarUrl,
+        status,
+        gender,
+        age,
+        phone,
+        email,
+        address,
+        linkedElderlyUsers,
+        alertPreferences,
+      ];
 }

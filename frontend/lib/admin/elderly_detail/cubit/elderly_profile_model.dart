@@ -20,8 +20,13 @@ class LinkedFamilyMember extends Equatable {
   final bool isPrimaryContact;
 
   @override
-  List<Object?> get props =>
-      [id, name, avatarUrl, relationship, isPrimaryContact];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        avatarUrl,
+        relationship,
+        isPrimaryContact,
+      ];
 }
 
 /// Outcome of a past SOS event, shown in the "Recent SOS Events" list.
@@ -53,11 +58,10 @@ class SosEventSummary extends Equatable {
   final SosEventStatus status;
 
   @override
-  List<Object?> get props => [dateLabel, timeLabel, status];
+  List<Object?> get props => <Object?>[dateLabel, timeLabel, status];
 }
 
-/// Full profile record for a single elderly user, shown on the admin
-/// Elderly Profile detail screen.
+/// Full profile record for a single elderly user.
 class ElderlyProfile extends Equatable {
   const ElderlyProfile({
     required this.id,
@@ -73,6 +77,33 @@ class ElderlyProfile extends Equatable {
     required this.linkedFamilyMembers,
     required this.recentSosEvents,
   });
+
+  factory ElderlyProfile.fromJson(
+    Map<String, dynamic> json, {
+    AccountStatus? accountStatus,
+  }) {
+    final dobStr = json['date_of_birth'] as String?;
+    var ageValue = 0;
+    if (dobStr != null) {
+      final dob = DateTime.parse(dobStr);
+      ageValue = DateTime.now().year - dob.year;
+    }
+
+    return ElderlyProfile(
+      id: json['id']?.toString() ?? '',
+      name: (json['name'] as String?) ?? (json['email'] as String?) ?? '',
+      avatarUrl: (json['profile_image_url'] as String?) ?? '',
+      status: accountStatus ?? AccountStatus.active,
+      gender: (json['gender'] as String?) ?? '',
+      age: ageValue,
+      phone: (json['phone'] as String?) ?? '',
+      email: (json['email'] as String?) ?? '',
+      address: (json['address'] as String?) ?? '',
+      healthCondition: (json['health_condition'] as String?) ?? '',
+      linkedFamilyMembers: const [],
+      recentSosEvents: const [],
+    );
+  }
 
   final String id;
   final String name;
@@ -105,18 +136,18 @@ class ElderlyProfile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    avatarUrl,
-    status,
-    gender,
-    age,
-    phone,
-    email,
-    address,
-    healthCondition,
-    linkedFamilyMembers,
-    recentSosEvents,
-  ];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        avatarUrl,
+        status,
+        gender,
+        age,
+        phone,
+        email,
+        address,
+        healthCondition,
+        linkedFamilyMembers,
+        recentSosEvents,
+      ];
 }

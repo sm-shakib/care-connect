@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../cubit/caregiver_profile_model.dart';
@@ -6,25 +7,53 @@ import '../../cubit/caregiver_profile_model.dart';
 /// Grid of key caregiver profile attributes (Experience, Hourly Rate,
 /// Phone, Email, Address), styled to match [ElderlyQuickFactsGrid].
 class CaregiverQuickFactsGrid extends StatelessWidget {
-  const CaregiverQuickFactsGrid({required this.profile, super.key});
+  const CaregiverQuickFactsGrid({
+    required this.profile,
+    this.onViewOnMap,
+    super.key,
+  });
 
   final CaregiverProfile profile;
+  final VoidCallback? onViewOnMap;
+
+  Future<void> _launchDialer(String phoneNumber) async {
+    final uri = Uri.parse('tel:$phoneNumber');
+    try {
+      await launchUrl(uri);
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _launchEmail(String email) async {
+    final uri = Uri.parse('mailto:$email');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Fallback
+    }
+  }
+
+  Future<void> _launchMap(String address) async {
+    final query = Uri.encodeComponent(address);
+    final uri =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // Fallback
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.surfaceContainerLowLight,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.outlineVariantLight),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,9 +73,11 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           _FactRow(
-            icon: Icons.person,
+            icon: profile.gender.toLowerCase() == 'female'
+                ? Icons.female
+                : Icons.male,
             label: 'Gender',
             value: profile.gender,
           ),
@@ -59,7 +90,7 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.payments,
-            label: 'Rate',
+            label: 'Hourly Rate',
             value: '৳${profile.hourlyRate.toStringAsFixed(0)}/hr',
           ),
           const SizedBox(height: 16),
@@ -68,28 +99,54 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
             label: 'Availability',
             value: profile.availability,
           ),
-          const SizedBox(height: 24),
-          const Divider(height: 1, thickness: 1),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           _FactRow(
-            icon: Icons.phone,
+            icon: Icons.call,
             label: 'Phone',
             value: profile.phone,
-            action: profile.phone.isNotEmpty ? _FactAction.call : null,
+            onTap: profile.phone.isNotEmpty
+                ? () => _launchDialer(profile.phone)
+                : null,
           ),
           const SizedBox(height: 16),
           _FactRow(
-            icon: Icons.email,
+            icon: Icons.mail,
             label: 'Email',
             value: profile.email,
-            action: profile.email.isNotEmpty ? _FactAction.email : null,
+            onTap: profile.email.isNotEmpty
+                ? () => _launchEmail(profile.email)
+                : null,
           ),
           const SizedBox(height: 16),
           _FactRow(
             icon: Icons.location_on,
             label: 'Address',
             value: profile.address,
-            maxLines: 2,
+            action: InkWell(
+              onTap: onViewOnMap ?? () => _launchMap(profile.address),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'View on Map',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryLight,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.open_in_new,
+                      size: 14,
+                      color: AppColors.primaryLight,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -97,68 +154,67 @@ class CaregiverQuickFactsGrid extends StatelessWidget {
   }
 }
 
-enum _FactAction { call, email }
-
 class _FactRow extends StatelessWidget {
   const _FactRow({
     required this.icon,
     required this.label,
     required this.value,
     this.action,
-    this.maxLines = 1,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final String value;
-  final _FactAction? action;
-  final int maxLines;
+  final Widget? action;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: AppColors.outlineLight),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurfaceVariantLight,
-                letterSpacing: 0.5,
-              ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.primaryContainerLight.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 2),
-            Row(
+            child: Icon(icon, color: AppColors.primaryLight),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  value,
+                  label,
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onSurfaceLight,
+                    fontSize: 14,
+                    color: AppColors.onSurfaceVariantLight,
                   ),
-                  maxLines: maxLines,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                if (action != null) ...[
-                  const SizedBox(width: 8),
-                  Icon(
-                    action == _FactAction.call ? Icons.call : Icons.alternate_email,
-                    size: 14,
-                    color: AppColors.primaryLight,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.onSurfaceLight,
+                    ),
                   ),
-                ],
+                ),
+                if (action != null) action!,
               ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

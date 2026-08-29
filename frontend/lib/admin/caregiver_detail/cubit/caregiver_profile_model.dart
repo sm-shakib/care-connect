@@ -12,12 +12,6 @@ class SpecializationTag extends Equatable {
 }
 
 /// A single row in the "Verification Status" checklist.
-///
-/// NOTE: labels here (ID Proof, Nursing License, Background Check) are
-/// placeholders. Replace with the real values from your project's
-/// `CaregiverDocumentType` enum once you share it — this checklist and
-/// `caregiver_review`'s equivalent should reference the same document
-/// types instead of two independently-guessed lists.
 class VerificationChecklistItem extends Equatable {
   const VerificationChecklistItem({
     required this.label,
@@ -85,11 +79,7 @@ extension PayoutStatusX on PayoutStatus {
   }
 }
 
-/// A single payout record — backs the Earnings section. Corresponds to
-/// a `Payouts` table (caregiver_id, amount, period_start/end, method,
-/// status, scheduled_date, completed_at) that isn't in the original ER
-/// diagram yet; without it, "Total Earned"/"Pending"/"Next Payout"
-/// have nothing real to compute from.
+/// A single payout record.
 class Payout extends Equatable {
   const Payout({
     required this.id,
@@ -101,18 +91,10 @@ class Payout extends Equatable {
   });
 
   final String id;
-
-  /// e.g. "Oct 1 - Oct 15".
   final String periodLabel;
   final double amount;
-
-  /// e.g. "Bkash", "Bank Transfer".
   final String method;
   final PayoutStatus status;
-
-  /// Scheduled date if pending, completed date if completed — kept as
-  /// a single pre-formatted label since which one applies depends on
-  /// status.
   final String dateLabel;
 
   Payout copyWith({PayoutStatus? status}) {
@@ -134,8 +116,7 @@ class Payout extends Equatable {
 /// Whether this caregiver's account is active or suspended.
 enum AccountStatus { active, suspended }
 
-/// Full profile record for a single caregiver, shown on the admin
-/// Caregiver Profile detail screen.
+/// Full profile record for a single caregiver.
 class CaregiverProfile extends Equatable {
   const CaregiverProfile({
     required this.id,
@@ -164,6 +145,61 @@ class CaregiverProfile extends Equatable {
     required this.recentPayouts,
   });
 
+  factory CaregiverProfile.fromJson(
+    Map<String, dynamic> json, {
+    AccountStatus? accountStatus,
+  }) {
+    final docs = (json['documents'] as List? ?? []).map((dynamic d) {
+      final map = d as Map<String, dynamic>;
+      return CaregiverDocument(
+        title: map['document_type'] as String? ?? '',
+        subtitle: map['is_verified'] == true ? 'Verified' : 'Pending Review',
+        previewUrl: map['document_url'] as String? ?? '',
+        iconName: 'description',
+      );
+    }).toList();
+
+    final specs = (json['specializations'] as String? ?? '')
+        .split(',')
+        .where((String s) => s.isNotEmpty)
+        .map((String s) => SpecializationTag(label: s.trim()))
+        .toList();
+
+    return CaregiverProfile(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] as String? ?? '',
+      avatarUrl: json['profile_image_url'] as String? ?? '',
+      status: accountStatus ?? AccountStatus.active,
+      title: 'Professional Caregiver',
+      isVerified: json['status'] == 'verified',
+      rating: (json['rating'] as num? ?? 0).toDouble(),
+      reviewCount: json['review_count'] as int? ?? 0,
+      gender: json['gender'] as String? ?? '',
+      experienceYears: json['experience_years'] as int? ?? 0,
+      availability: json['availability_type'] as String? ?? '',
+      hourlyRate: (json['hourly_rate'] as num? ?? 0).toDouble(),
+      phone: json['phone'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      specializations: specs,
+      verificationChecklist: docs
+          .map(
+            (CaregiverDocument d) => VerificationChecklistItem(
+              label: d.title,
+              isVerified: d.subtitle == 'Verified',
+            ),
+          )
+          .toList(),
+      documents: docs,
+      recentBookings: const [],
+      totalEarned: 0,
+      pendingAmount: 0,
+      thisMonthAmount: 0,
+      nextPayoutDateLabel: null,
+      recentPayouts: const [],
+    );
+  }
+
   final String id;
   final String name;
   final String avatarUrl;
@@ -184,7 +220,6 @@ class CaregiverProfile extends Equatable {
   final List<CaregiverDocument> documents;
   final List<CaregiverBookingSummary> recentBookings;
 
-  // Earnings — computed (in a real backend) from a Payouts table.
   final double totalEarned;
   final double pendingAmount;
   final double thisMonthAmount;
@@ -225,29 +260,29 @@ class CaregiverProfile extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    avatarUrl,
-    status,
-    title,
-    isVerified,
-    rating,
-    reviewCount,
-    gender,
-    experienceYears,
-    availability,
-    hourlyRate,
-    phone,
-    email,
-    address,
-    specializations,
-    verificationChecklist,
-    documents,
-    recentBookings,
-    totalEarned,
-    pendingAmount,
-    thisMonthAmount,
-    nextPayoutDateLabel,
-    recentPayouts,
-  ];
+        id,
+        name,
+        avatarUrl,
+        status,
+        title,
+        isVerified,
+        rating,
+        reviewCount,
+        gender,
+        experienceYears,
+        availability,
+        hourlyRate,
+        phone,
+        email,
+        address,
+        specializations,
+        verificationChecklist,
+        documents,
+        recentBookings,
+        totalEarned,
+        pendingAmount,
+        thisMonthAmount,
+        nextPayoutDateLabel,
+        recentPayouts,
+      ];
 }
