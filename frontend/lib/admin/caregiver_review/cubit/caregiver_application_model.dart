@@ -41,29 +41,52 @@ class CaregiverApplication extends Equatable {
   int get completedChecklistCount =>
       checklist.where((item) => item.isVerified).length;
 
+  CaregiverApplication copyWith({
+    List<ChecklistItem>? checklist,
+    List<UploadedDocument>? documents,
+  }) {
+    return CaregiverApplication(
+      id: id,
+      name: name,
+      title: title,
+      avatarUrl: avatarUrl,
+      phone: phone,
+      email: email,
+      address: address,
+      gender: gender,
+      age: age,
+      experienceYears: experienceYears,
+      hourlyRate: hourlyRate,
+      languages: languages,
+      specializations: specializations,
+      bio: bio,
+      checklist: checklist ?? this.checklist,
+      documents: documents ?? this.documents,
+    );
+  }
+
   @override
   List<Object?> get props => [
-    id,
-    name,
-    title,
-    avatarUrl,
-    phone,
-    email,
-    address,
-    gender,
-    age,
-    experienceYears,
-    hourlyRate,
-    languages,
-    specializations,
-    bio,
-    checklist,
-    documents,
-  ];
+        id,
+        name,
+        title,
+        avatarUrl,
+        phone,
+        email,
+        address,
+        gender,
+        age,
+        experienceYears,
+        hourlyRate,
+        languages,
+        specializations,
+        bio,
+        checklist,
+        documents,
+      ];
 }
 
-/// A specialization chip (e.g. "Dementia Care"). [isPrimary] marks the
-/// highlighted/filled chip in the design (first one, tertiary-colored).
+/// A specialization chip (e.g. "Dementia Care").
 class SpecializationTag extends Equatable {
   const SpecializationTag({
     required this.label,
@@ -82,31 +105,56 @@ class SpecializationTag extends Equatable {
 /// A single row in the "Verification Status" checklist card.
 class ChecklistItem extends Equatable {
   const ChecklistItem({
+    required this.id,
     required this.label,
     required this.isVerified,
   });
 
+  final String id;
   final String label;
   final bool isVerified;
 
+  ChecklistItem copyWith({bool? isVerified}) {
+    return ChecklistItem(
+      id: id,
+      label: label,
+      isVerified: isVerified ?? this.isVerified,
+    );
+  }
+
   @override
-  List<Object?> get props => [label, isVerified];
+  List<Object?> get props => [id, label, isVerified];
 }
 
-/// A single uploaded document card (National ID, Certificate, etc).
+/// A single uploaded document card.
 class UploadedDocument extends Equatable {
   const UploadedDocument({
+    required this.id,
     required this.title,
     required this.subtitle,
     required this.previewUrl,
     required this.iconName,
+    required this.isVerified,
   });
 
+  final String id;
   final String title;
   final String subtitle;
   final String previewUrl;
   final String iconName;
+  final bool isVerified;
+
+  UploadedDocument copyWith({bool? isVerified}) {
+    return UploadedDocument(
+      id: id,
+      title: title,
+      subtitle: subtitle,
+      previewUrl: previewUrl,
+      iconName: iconName,
+      isVerified: isVerified ?? this.isVerified,
+    );
+  }
 
   @override
-  List<Object?> get props => [title, subtitle, previewUrl, iconName];
+  List<Object?> get props => [id, title, subtitle, previewUrl, iconName, isVerified];
 }
