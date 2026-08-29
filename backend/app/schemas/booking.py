@@ -11,6 +11,7 @@ class BookingBase(BaseModel):
     daily_timing_start: time
     daily_timing_end: time
     booking_reason: Optional[str] = None
+    total_amount: float = 0.0
 
 class BookingCreate(BookingBase):
     elder_id: int

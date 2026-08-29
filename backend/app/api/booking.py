@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List
+from datetime import timedelta
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.caregiver import Caregiver
@@ -12,7 +13,47 @@ router = APIRouter()
 
 @router.post("/", response_model=BookingOut)
 def create_booking(booking_in: BookingCreate, db: Session = Depends(get_db)):
-    new_booking = Booking(**booking_in.model_dump())
+    # 1. Fetch caregiver to get their fixed hourly rate
+    caregiver = db.query(Caregiver).filter(Caregiver.id == booking_in.caregiver_id).first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver not found")
+
+    # 2. Calculate daily duration in hours
+    start_total_minutes = booking_in.daily_timing_start.hour * 60 + booking_in.daily_timing_start.minute
+    end_total_minutes = booking_in.daily_timing_end.hour * 60 + booking_in.daily_timing_end.minute
+
+    if end_total_minutes <= start_total_minutes:
+        # Handle overnight bookings if necessary, for now assuming same day
+        duration_hours = (end_total_minutes + 24*60 - start_total_minutes) / 60
+    else:
+        duration_hours = (end_total_minutes - start_total_minutes) / 60
+
+    # 3. Count the actual number of days the caregiver will work
+    # based on service dates and selected days_of_week
+    work_days_list = [d.strip().lower() for d in booking_in.days_of_week.split(",")]
+
+    # Mapping for weekday names
+    day_map = {
+        "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
+        "friday": 4, "saturday": 5, "sunday": 6,
+        "mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6
+    }
+    work_day_ints = [day_map[d] for d in work_days_list if d in day_map]
+
+    total_work_days = 0
+    current_date = booking_in.service_start_date
+    while current_date <= booking_in.service_end_date:
+        if current_date.weekday() in work_day_ints:
+            total_work_days += 1
+        current_date += timedelta(days=1)
+
+    # 4. Final amount calculation
+    total_amount = round(duration_hours * caregiver.hourly_rate * total_work_days, 2)
+
+    new_booking = Booking(
+        **booking_in.model_dump(),
+        total_amount=total_amount
+    )
     db.add(new_booking)
     db.commit()
     db.refresh(new_booking)

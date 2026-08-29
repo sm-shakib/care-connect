@@ -124,4 +124,23 @@ class AdminRepository {
     );
     return response.data!;
   }
+
+  Future<List<Map<String, dynamic>>> getBookings({String? status}) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<List<dynamic>>(
+      ApiConstants.adminBookingList,
+      queryParameters: status != null ? {'status': status} : null,
+      options: options,
+    );
+    return List<Map<String, dynamic>>.from(response.data!);
+  }
+
+  Future<Map<String, dynamic>> getAdminBookingDetail(int id) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      ApiConstants.adminBookingDetail(id),
+      options: options,
+    );
+    return response.data!;
+  }
 }
