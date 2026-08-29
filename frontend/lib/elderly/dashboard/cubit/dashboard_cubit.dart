@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
+import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/family/models/binding_request.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
@@ -11,6 +13,8 @@ import 'dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final BindingRepository _bindingRepository;
+  final _bookingRepository = BookingRepository();
+  final _authRepository = AuthRepository();
 
   DashboardCubit(this._bindingRepository) : super(const DashboardState());
 
@@ -22,8 +26,30 @@ class DashboardCubit extends Cubit<DashboardState> {
     print('DEBUG: loadDashboard called');
     emit(state.copyWith(status: DashboardStatus.loading));
     try {
+      final profileId = await _authRepository.getProfileId();
       final requests = await _bindingRepository.getPendingRequests();
-      print('DEBUG: Fetched ${requests.length} requests');
+      
+      CaregiverSummary? caregiver;
+      if (profileId != null) {
+        final bookings = await _bookingRepository.getElderBookings(profileId);
+
+        final realAccepted = bookings
+            .where((b) => b.status == BookingStatus.accepted)
+            .toList();
+
+        if (realAccepted.isNotEmpty) {
+          final b = realAccepted.first;
+          caregiver = CaregiverSummary(
+            id: b.caregiverId.toString(),
+            name: b.caregiverName,
+            profession: b.caregiverProfession,
+            nextVisitLabel: 'Today, ${b.timingLabel.split('—')[0].trim()}',
+            phone: b.caregiverPhone,
+            entity: b.caregiverEntity,
+            booking: b,
+          );
+        }
+      }
 
       emit(
         state.copyWith(
@@ -31,8 +57,8 @@ class DashboardCubit extends Cubit<DashboardState> {
           userName: 'Hello', // TODO: Fetch real name from profile API
           otherReminders: _mockOtherReminders,
           appointments: _mockAppointments,
-          caregiver: _mockCaregiver,
-          chatPreview: _mockChatPreview,
+          caregiver: caregiver,
+          chatPreview: null,
           bindingRequests: requests,
         ),
       );
@@ -89,7 +115,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  // ... rest of the mock data kept for UI stability ...
+  // Temporary mock data for reminders/appointments until those APIs are ready
   static const _mockOtherReminders = [
     CareReminder(
       id: 'rem_1',
@@ -115,19 +141,4 @@ class DashboardCubit extends Cubit<DashboardState> {
       location: 'City Hospital, Dhaka',
     ),
   ];
-
-  static const _mockCaregiver = CaregiverSummary(
-    id: 'C-1',
-    name: 'Nusrat Jahan',
-    profession: 'Registered Nurse',
-    nextVisitLabel: 'Today, 3:00 PM',
-    phone: '+1 555-0134',
-  );
-
-  static const _mockChatPreview = ChatPreview(
-    senderName: 'Lamine Yamal',
-    lastMessage: "Don't forget your afternoon walk today!",
-    timeLabel: '10 min ago',
-    unreadCount: 2,
-  );
 }

@@ -1,34 +1,59 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/booking_request.dart';
-import '../data/caregiver_request_dummy_data.dart';
+import '../../data/repositories/booking_repository.dart';
+import '../../../core/repositories/auth_repository.dart';
 import 'caregiver_request_state.dart';
 
 class CaregiverRequestCubit extends Cubit<CaregiverRequestState> {
   CaregiverRequestCubit() : super(const CaregiverRequestState()) {
-    _loadRequests();
+    loadRequests();
   }
 
-  void _loadRequests() {
-    emit(state.copyWith(requests: CaregiverRequestDummyData.requests));
-  }
+  final _bookingRepository = BookingRepository();
+  final _authRepository = AuthRepository();
 
-  void acceptRequest(String id) {
-    final updatedRequests = state.requests.map((r) {
-      if (r.id == id) {
-        return r.copyWith(status: BookingRequestStatus.accepted);
+  Future<void> loadRequests() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final caregiverId = await _authRepository.getProfileId();
+      if (caregiverId != null) {
+        final requests = await _bookingRepository.getCaregiverBookings(caregiverId);
+        emit(state.copyWith(requests: requests, isLoading: false));
+      } else {
+        emit(state.copyWith(isLoading: false));
       }
-      return r;
-    }).toList();
-    emit(state.copyWith(requests: updatedRequests));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 
-  void rejectRequest(String id) {
-    final updatedRequests = state.requests.map((r) {
-      if (r.id == id) {
-        return r.copyWith(status: BookingRequestStatus.rejected);
-      }
-      return r;
-    }).toList();
-    emit(state.copyWith(requests: updatedRequests));
+  Future<void> acceptRequest(int id) async {
+    try {
+      await _bookingRepository.updateBookingStatus(id, BookingStatus.accepted);
+      final updatedRequests = state.requests.map((r) {
+        if (r.id == id) {
+          return r.copyWith(status: BookingStatus.accepted);
+        }
+        return r;
+      }).toList();
+      emit(state.copyWith(requests: updatedRequests));
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> rejectRequest(int id) async {
+    try {
+      await _bookingRepository.updateBookingStatus(id, BookingStatus.rejected);
+      final updatedRequests = state.requests.map((r) {
+        if (r.id == id) {
+          return r.copyWith(status: BookingStatus.rejected);
+        }
+        return r;
+      }).toList();
+      emit(state.copyWith(requests: updatedRequests));
+    } catch (e) {
+      // Handle error
+    }
   }
 }

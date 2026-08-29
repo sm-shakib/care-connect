@@ -50,7 +50,7 @@ class PreviousBookingRequestsPage extends StatelessWidget {
             itemCount: pastRequests.length,
             itemBuilder: (context, index) {
               final request = pastRequests[index];
-              final isAccepted = request.status == BookingRequestStatus.accepted;
+              final isAccepted = request.status == BookingStatus.accepted;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -79,7 +79,11 @@ class PreviousBookingRequestsPage extends StatelessWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.l10n.requestedByLabel(request.requesterName ?? 'User')),
+                      Text(
+                        context.l10n.requestedByLabel(
+                          request.displayRequesterName,
+                        ),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         request.periodLabel ?? '',

@@ -72,6 +72,22 @@ class CaregiverCard extends StatelessWidget {
   }
 
   void _openCaregiverDetails(BuildContext context) {
+    if (caregiver?.entity != null) {
+      unawaited(
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CaregiverDetailsPage(
+              caregiver: caregiver!.entity!,
+              isAssigned: true,
+              booking: caregiver!.booking,
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     final fallbackCaregiver = Caregiver(
       id: caregiver!.name.replaceAll(RegExp(r'\s+'), '_'),
       name: caregiver!.name,
@@ -122,14 +138,19 @@ class _CaregiverDetails extends StatelessWidget {
             CircleAvatar(
               radius: 30,
               backgroundColor: AppColors.primaryContainerLight,
-              child: Text(
-                _initialsOf(caregiver.name),
-                style: const TextStyle(
-                  color: AppColors.onPrimaryContainerLight,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                ),
-              ),
+              backgroundImage: (caregiver.entity?.imageUrl.isNotEmpty ?? false)
+                  ? NetworkImage(caregiver.entity!.imageUrl)
+                  : null,
+              child: (caregiver.entity?.imageUrl.isEmpty ?? true)
+                  ? Text(
+                      _initialsOf(caregiver.name),
+                      style: const TextStyle(
+                        color: AppColors.onPrimaryContainerLight,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    )
+                  : null,
             ),
             const SizedBox(width: 14),
             Expanded(
