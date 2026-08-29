@@ -4,6 +4,8 @@ from typing import List
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.caregiver import Caregiver
+from app.models.elder import Elder
+from app.models.binding import FamilyElderLink
 from app.schemas.booking import BookingCreate, BookingOut, BookingUpdate
 
 router = APIRouter()
@@ -16,18 +18,22 @@ def create_booking(booking_in: BookingCreate, db: Session = Depends(get_db)):
     db.refresh(new_booking)
     # Reload with relationships for the response
     return db.query(Booking).options(
-        joinedload(Booking.elder),
+        joinedload(Booking.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family),
         joinedload(Booking.caregiver).joinedload(Caregiver.user)
     ).filter(Booking.id == new_booking.id).first()
 
 @router.get("/caregiver/{caregiver_id}", response_model=List[BookingOut])
 def get_caregiver_bookings(caregiver_id: int, db: Session = Depends(get_db)):
-    bookings = db.query(Booking).options(joinedload(Booking.elder)).filter(Booking.caregiver_id == caregiver_id).all()
+    bookings = db.query(Booking).options(
+        joinedload(Booking.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family),
+        joinedload(Booking.caregiver).joinedload(Caregiver.user)
+    ).filter(Booking.caregiver_id == caregiver_id).all()
     return bookings
 
 @router.get("/elder/{elder_id}", response_model=List[BookingOut])
 def get_elder_bookings(elder_id: int, db: Session = Depends(get_db)):
     bookings = db.query(Booking).options(
+        joinedload(Booking.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family),
         joinedload(Booking.caregiver).joinedload(Caregiver.user)
     ).filter(Booking.elder_id == elder_id).all()
     return bookings
