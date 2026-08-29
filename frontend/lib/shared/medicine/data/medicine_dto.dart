@@ -93,6 +93,7 @@ class MedicineDto {
       availableUnits: availableUnits,
       notifyThreshold: notifyThreshold,
       takenDoseTimes: takenDoseTimes,
+      isTakenToday: takenDoseTimes.isNotEmpty,
     );
   }
 

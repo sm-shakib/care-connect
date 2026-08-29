@@ -34,7 +34,6 @@ class FamilyOut(FamilyBase):
     id: int
     user_id: int
     is_active: bool = True
-    elder_links: List[ElderLinkOut] = []
 
     class Config:
         from_attributes = True

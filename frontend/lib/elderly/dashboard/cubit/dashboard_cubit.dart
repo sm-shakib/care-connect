@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
+import 'package:frontend/core/services/location_service.dart';
+import 'package:frontend/elderly/data/repositories/elder_repository.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
 import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
 import 'package:frontend/caregiver/models/booking_request.dart';
@@ -15,8 +20,19 @@ class DashboardCubit extends Cubit<DashboardState> {
   final BindingRepository _bindingRepository;
   final _bookingRepository = BookingRepository();
   final _authRepository = AuthRepository();
+  final _elderRepository = ElderRepository(ApiClient());
+  final _locationService = LocationService();
+  StreamSubscription? _locationSubscription;
+  Timer? _vitalsTimer;
 
   DashboardCubit(this._bindingRepository) : super(const DashboardState());
+
+  @override
+  Future<void> close() {
+    _locationSubscription?.cancel();
+    _vitalsTimer?.cancel();
+    return super.close();
+  }
 
   Future<void> loadDashboardWithAuth(AuthRepository authRepository) async {
     await loadDashboard();
@@ -29,6 +45,12 @@ class DashboardCubit extends Cubit<DashboardState> {
       final profileId = await _authRepository.getProfileId();
       final requests = await _bindingRepository.getPendingRequests();
       
+      // Start real-time location tracking
+      _startLocationTracking();
+      
+      // Start periodic health vitals simulation (replaces real IoT/Manual input for now)
+      _startVitalsSimulation();
+
       CaregiverSummary? caregiver;
       if (profileId != null) {
         final bookings = await _bookingRepository.getElderBookings(profileId);
@@ -70,6 +92,50 @@ class DashboardCubit extends Cubit<DashboardState> {
           errorMessage: 'Unable to load your dashboard: ${e.toString()}',
         ),
       );
+    }
+  }
+
+  void _startVitalsSimulation() {
+    _vitalsTimer?.cancel();
+    _vitalsTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      final random = DateTime.now().second;
+      _elderRepository.updateVitalsAndLocation(
+        heartRate: 70 + (random % 20), // 70-90
+        systolicBp: 115 + (random % 10), // 115-125
+        diastolicBp: 75 + (random % 10), // 75-85
+      );
+      debugPrint('DEBUG: Vitals updated in backend');
+    });
+  }
+
+  void _startLocationTracking() async {
+    // Cancel existing subscription if any
+    await _locationSubscription?.cancel();
+
+    // Request permissions and get initial location
+    final initialPos = await _locationService.getCurrentLocation();
+    if (initialPos != null) {
+      _updateBackendLocation(initialPos);
+    }
+
+    // Subscribe to continuous updates
+    _locationSubscription = _locationService.getLocationStream().listen(
+      (position) {
+        _updateBackendLocation(position);
+      },
+      onError: (e) => debugPrint('Location tracking error: $e'),
+    );
+  }
+
+  Future<void> _updateBackendLocation(dynamic position) async {
+    try {
+      await _elderRepository.updateVitalsAndLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+      debugPrint('DEBUG: Backend updated with location: ${position.latitude}, ${position.longitude}');
+    } catch (e) {
+      debugPrint('DEBUG: Failed to update backend location: $e');
     }
   }
 

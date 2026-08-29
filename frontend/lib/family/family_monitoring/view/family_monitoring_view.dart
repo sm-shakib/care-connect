@@ -130,6 +130,8 @@ class FamilyMonitoringView extends StatelessWidget {
           LiveLocationCard(
             locationImage: 'assets/images/map.png',
             updatedTime: elder.lastLocationUpdate,
+            latitude: elder.latitude,
+            longitude: elder.longitude,
           ),
 
           const SizedBox(height: 24),

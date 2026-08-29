@@ -107,7 +107,23 @@ def get_my_family_members(
     current_user: User = Depends(get_current_user)
 ):
     family = db.query(Family).filter(Family.user_id == current_user.id).first()
-    return db.query(FamilyElderLink).filter(
+    if not family:
+        raise HTTPException(status_code=404, detail="Family profile not found")
+    
+    links = db.query(FamilyElderLink).filter(
         FamilyElderLink.family_id == family.id,
         FamilyElderLink.status == BindingStatus.accepted
     ).all()
+
+    results = []
+    for link in links:
+        elder = link.elder
+        results.append({
+            "relationship": link.relationship,
+            "elder": elder,
+            "medications": elder.medicines if elder else [],
+            "appointments": elder.appointments if elder else [],
+            "reminders": elder.reminders if elder else []
+        })
+    
+    return results

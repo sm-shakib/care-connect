@@ -1,9 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
 from app.schemas.elder import ElderOut
+from app.schemas.medicine import MedicineOut
+from app.schemas.reminder import AppointmentOut, CareReminderOut
 
 class BindingStatus(str, Enum):
     pending = "pending"
@@ -37,6 +39,9 @@ class BindingOut(BaseModel):
 class FamilyMemberOut(BaseModel):
     relationship: str
     elder: ElderOut
+    medications: List[MedicineOut] = []
+    appointments: List[AppointmentOut] = []
+    reminders: List[CareReminderOut] = []
 
     class Config:
         from_attributes = True
