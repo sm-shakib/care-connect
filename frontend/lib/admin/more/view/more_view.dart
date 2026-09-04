@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/widgets/success_dialog.dart';
 import '../../../login/view/login_page.dart';
 import '../../../theme/app_colors.dart';
 import '../../admin_navigation.dart';
@@ -46,10 +47,15 @@ class MoreView extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              Navigator.pop(context); // Close confirmation
+
+              // Navigate to login page and tell it to show the success dialog
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+                MaterialPageRoute<void>(
+                  builder: (_) => LoginPage(showLogoutSuccess: true),
+                ),
                 (route) => false,
               );
             },

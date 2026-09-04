@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,28 +15,62 @@ import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:frontend/core/widgets/success_dialog.dart';
 
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({
     super.key,
     this.onSignUp,
     this.onForgotPassword,
     this.onLoginSuccess,
+    this.showLogoutSuccess = false,
   });
 
   final VoidCallback? onSignUp;
   final VoidCallback? onForgotPassword;
   final ValueChanged<LoginState>? onLoginSuccess;
+  final bool showLogoutSuccess;
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showLogoutSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showLogoutSuccessDialog();
+      });
+    }
+  }
+
+  void _showLogoutSuccessDialog() {
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return SuccessDialog(
+            title: 'Logged Out',
+            message: 'You have been logged out successfully.',
+            onDone: () => Navigator.pop(dialogContext),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => LoginCubit(),
       child: _LoginView(
-        onSignUp: onSignUp,
-        onForgotPassword: onForgotPassword,
-        onLoginSuccess: onLoginSuccess,
+        onSignUp: widget.onSignUp,
+        onForgotPassword: widget.onForgotPassword,
+        onLoginSuccess: widget.onLoginSuccess,
       ),
     );
   }
@@ -103,6 +139,23 @@ class _LoginViewState extends State<_LoginView> {
     }
   }
 
+  void _showLoginSuccessDialog(BuildContext pageContext, LoginState state) {
+    unawaited(
+      showDialog<void>(
+        context: pageContext,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return _LoginSuccessDialog(
+            onDone: () {
+              Navigator.pop(dialogContext);
+              _navigateBasedOnRole(pageContext, state.role, state.accountStatus);
+            },
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -113,7 +166,11 @@ class _LoginViewState extends State<_LoginView> {
         child: BlocListener<LoginCubit, LoginState>(
           listener: (context, state) {
             if (state.isSuccess) {
-              _navigateBasedOnRole(context, state.role, state.accountStatus);
+              if (state.role == 'family') {
+                _showLoginSuccessDialog(context, state);
+              } else {
+                _navigateBasedOnRole(context, state.role, state.accountStatus);
+              }
             } else if (state.isFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -150,17 +207,6 @@ class _LoginViewState extends State<_LoginView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // const _FieldLabel('Select Role'),
-                    // const SizedBox(height: 10),
-                    // _RoleSelectorRow(
-                    //   selectedRole: _selectedRole,
-                    //   onRoleSelected: (role) {
-                    //     setState(() {
-                    //       _selectedRole = role;
-                    //     });
-                    //   },
-                    // ),
 
                     const SizedBox(height: 28),
                     BlocBuilder<LoginCubit, LoginState>(
@@ -335,19 +381,6 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  // String _dashboardRouteForRole(_LoginRole role) {
-  //   switch (role) {
-  //     case _LoginRole.elder:
-  //       return '/elder-dashboard';
-  //     case _LoginRole.caregiver:
-  //       return '/caregiver-dashboard';
-  //     case _LoginRole.family:
-  //       return '/family-dashboard';
-  //     case _LoginRole.admin:
-  //       return '/admin-dashboard';
-  //   }
-  // }
-
   Widget _buildSignUpRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -384,6 +417,21 @@ class _LoginViewState extends State<_LoginView> {
   }
 }
 
+class _LoginSuccessDialog extends StatelessWidget {
+  const _LoginSuccessDialog({required this.onDone});
+
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    return SuccessDialog(
+      title: 'Welcome Back!',
+      message: 'Logged in successfully. Redirecting to your dashboard...',
+      onDone: onDone,
+    );
+  }
+}
+
 class _RoleSelectorRow extends StatelessWidget {
   const _RoleSelectorRow({
     required this.selectedRole,
@@ -404,7 +452,6 @@ class _RoleSelectorRow extends StatelessWidget {
             child: _RoleBox(
               label: 'Elder',
               icon: Icons.elderly,
-              //color: const Color(0xFF4CAF50),
               isSelected: selectedRole == _LoginRole.elder,
               onTap: () => onRoleSelected(_LoginRole.elder),
             ),
@@ -415,7 +462,6 @@ class _RoleSelectorRow extends StatelessWidget {
             child: _RoleBox(
               label: 'Caregiver',
               icon: Icons.medical_services_outlined,
-              //color: const Color(0xFF2196F3),
               isSelected: selectedRole == _LoginRole.caregiver,
               onTap: () => onRoleSelected(_LoginRole.caregiver),
             ),
@@ -426,7 +472,6 @@ class _RoleSelectorRow extends StatelessWidget {
             child: _RoleBox(
               label: 'Family',
               icon: Icons.family_restroom,
-              //color: const Color(0xFFFF9800),
               isSelected: selectedRole == _LoginRole.family,
               onTap: () => onRoleSelected(_LoginRole.family),
             ),
@@ -437,7 +482,6 @@ class _RoleSelectorRow extends StatelessWidget {
             child: _RoleBox(
               label: 'Admin',
               icon: Icons.admin_panel_settings_outlined,
-              //color: const Color(0xFF9C27B0),
               isSelected: selectedRole == _LoginRole.admin,
               onTap: () => onRoleSelected(_LoginRole.admin),
             ),
@@ -451,14 +495,12 @@ class _RoleSelectorRow extends StatelessWidget {
 class _RoleBox extends StatelessWidget {
   const _RoleBox({
     required this.label,
-    //required this.color,
     required this.icon,
     required this.isSelected,
     required this.onTap,
   });
 
   final String label;
-  //final Color color;
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;

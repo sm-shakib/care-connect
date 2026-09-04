@@ -54,21 +54,19 @@ class ElderCard extends StatelessWidget {
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
                 child: ClipOval(
-                  child:
-                  //     elder.imageUrl.isNotEmpty
-                  //     ? Image.network(
-                  //         elder.imageUrl,
-                  //         fit: BoxFit.cover,
-                  //         width: 60,
-                  //         height: 60,
-                  //         errorBuilder: (context, error, stackTrace) => Icon(
-                  //           elder.gender == 'Male' ? Icons.man : Icons.woman,
-                  //           size: 34,
-                  //           color: AppColors.primaryLight,
-                  //         ),
-                  //       )
-                  //     :
-                        Icon(
+                  child: elder.imageUrl.isNotEmpty
+                      ? Image.network(
+                          elder.imageUrl,
+                          fit: BoxFit.cover,
+                          width: 60,
+                          height: 60,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            elder.gender == 'Male' ? Icons.man : Icons.woman,
+                            size: 34,
+                            color: AppColors.darkTeal,
+                          ),
+                        )
+                      : Icon(
                           elder.gender == 'Male' ? Icons.man : Icons.woman,
                           size: 34,
                           color: AppColors.darkTeal,
