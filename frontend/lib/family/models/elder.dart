@@ -19,6 +19,7 @@ class Elder {
     required this.locationImage,
     this.imageUrl = '',
     this.caregivers = const [],
+    this.caregiverIdMap = const {},
     this.medications = const [],
     this.medicalRecords = const [],
     this.appointments = const [],
@@ -36,6 +37,7 @@ class Elder {
   final String healthStatus;
   final String imageUrl;
   final List<String> caregivers;
+  final Map<String, String> caregiverIdMap; // Name -> ID mapping
   final List<Medicine> medications;
   final List<MedicalRecord> medicalRecords;
   final List<Appointment> appointments;
@@ -59,6 +61,7 @@ class Elder {
     String? healthStatus,
     String? imageUrl,
     List<String>? caregivers,
+    Map<String, String>? caregiverIdMap,
     List<Medicine>? medications,
     List<MedicalRecord>? medicalRecords,
     List<Appointment>? appointments,
@@ -79,6 +82,7 @@ class Elder {
       healthStatus: healthStatus ?? this.healthStatus,
       imageUrl: imageUrl ?? this.imageUrl,
       caregivers: caregivers ?? this.caregivers,
+      caregiverIdMap: caregiverIdMap ?? this.caregiverIdMap,
       medications: medications ?? this.medications,
       medicalRecords: medicalRecords ?? this.medicalRecords,
       appointments: appointments ?? this.appointments,

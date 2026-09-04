@@ -59,6 +59,12 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
         }).toList();
 
         final List<String> caregiverNames = List<String>.from(data['caregiver_names'] as List? ?? []);
+        final Map<String, String> caregiverIdMap = {};
+        final caregiverDetails = data['caregiver_details'] as List? ?? [];
+        for (final detail in caregiverDetails) {
+          final d = detail as Map<String, dynamic>;
+          caregiverIdMap[d['name'] as String] = (d['id'] as int).toString();
+        }
 
         final hr = elderData['heart_rate'] as int? ?? 75;
         final systolic = elderData['systolic_bp'] as int? ?? 120;
@@ -74,6 +80,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           healthStatus: elderData['health_condition'] ?? 'Stable',
           imageUrl: elderData['profile_image_url'] ?? '',
           caregivers: caregiverNames,
+          caregiverIdMap: caregiverIdMap,
           vitals: HealthVitals(
             heartRate: hr,
             heartRateStatus: _getHeartRateStatus(hr),

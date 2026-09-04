@@ -159,10 +159,12 @@ class ComplaintDetailView extends StatelessWidget {
 
   void _openPersonDetail(BuildContext context, Person person) {
     switch (person.role.toLowerCase()) {
+      case 'elder':
       case 'elderly':
         Navigator.of(context).push(
           ElderlyDetailPage.route(userId: person.id),
         );
+      case 'family':
       case 'family member':
         Navigator.of(context).push(
           FamilyMemberDetailPage.route(userId: person.id),

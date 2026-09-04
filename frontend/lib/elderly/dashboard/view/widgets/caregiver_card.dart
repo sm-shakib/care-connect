@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
+import 'package:frontend/caregiver/data/repositories/caregiver_repository.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -71,7 +72,7 @@ class CaregiverCard extends StatelessWidget {
     );
   }
 
-  void _openCaregiverDetails(BuildContext context) {
+  Future<void> _openCaregiverDetails(BuildContext context) async {
     if (caregiver?.entity != null) {
       unawaited(
         Navigator.push(
@@ -88,36 +89,38 @@ class CaregiverCard extends StatelessWidget {
       return;
     }
 
-    final fallbackCaregiver = Caregiver(
-      id: caregiver!.name.replaceAll(RegExp(r'\s+'), '_'),
-      name: caregiver!.name,
-      profession: 'Caregiver',
-      imageUrl: '',
-      rating: 0.0,
-      experience: 0,
-      distance: 0.0,
-      hourlyRate: 0,
-      isVerified: true,
-      specialties: const [],
-      specializations: '',
-      about: '',
-      gender: 'Female',
-      phone: '',
-      email: '',
-      address: '',
+    // Show loading
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    unawaited(
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => CaregiverDetailsPage(
-            caregiver: fallbackCaregiver,
-            isAssigned: true,
+    try {
+      final repo = CaregiverRepository();
+      final fullCaregiver = await repo.getCaregiverById(int.parse(caregiver!.id));
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CaregiverDetailsPage(
+              caregiver: fullCaregiver,
+              isAssigned: true,
+              booking: caregiver!.booking,
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to load caregiver profile: $e')),
+        );
+      }
+    }
   }
 }
 

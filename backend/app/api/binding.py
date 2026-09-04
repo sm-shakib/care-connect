@@ -126,6 +126,7 @@ def get_my_family_members(
             Booking.status == "accepted"
         ).all()
         caregiver_names = [b.caregiver.name for b in bookings if b.caregiver]
+        caregiver_details = [{"id": b.caregiver.id, "name": b.caregiver.name} for b in bookings if b.caregiver]
 
         results.append({
             "relationship": link.relationship,
@@ -133,7 +134,8 @@ def get_my_family_members(
             "medications": elder.medicines if elder else [],
             "appointments": elder.appointments if elder else [],
             "reminders": elder.reminders if elder else [],
-            "caregiver_names": caregiver_names
+            "caregiver_names": caregiver_names,
+            "caregiver_details": caregiver_details
         })
     
     return results

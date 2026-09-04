@@ -5,6 +5,7 @@ from app.db.session import get_db
 from app.api import deps
 from app.models.caregiver import Caregiver, CaregiverDocument
 from app.models.booking import Booking
+from app.models.complaint import Complaint
 from app.schemas.caregiver import CaregiverOut, CaregiverDocumentOut, VerificationStatus
 from app.models.user import User
 from app.models.elder import Elder
@@ -14,6 +15,7 @@ from app.schemas.user import UserOut, UserAdminOut
 from app.schemas.elder import ElderOut
 from app.schemas.family import FamilyOut
 from app.schemas.booking import BookingOut
+from app.schemas.complaint import ComplaintOut, ComplaintUpdate
 
 from app.core.email import send_email
 
@@ -343,3 +345,107 @@ def get_booking_detail(
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     return booking
+
+# --- Complaint Management ---
+
+@router.get("/complaints", response_model=List[ComplaintOut])
+def list_complaints(
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    List all complaints, optionally filtered by status.
+    """
+    query = db.query(Complaint).options(
+        joinedload(Complaint.reporter).joinedload(User.elder_profile),
+        joinedload(Complaint.reporter).joinedload(User.family_profile),
+        joinedload(Complaint.caregiver)
+    )
+    if status:
+        query = query.filter(Complaint.status == status)
+
+    complaints = query.all()
+
+    results = []
+    for c in complaints:
+        reporter_name = c.reporter.email
+        if c.reporter.role == "elder" and c.reporter.elder_profile:
+            reporter_name = c.reporter.elder_profile.name
+        elif c.reporter.role == "family" and c.reporter.family_profile:
+            reporter_name = c.reporter.family_profile.name
+
+        results.append({
+            "id": c.id,
+            "reporter_id": c.reporter_id,
+            "caregiver_id": c.caregiver.user_id, # Return user_id for profile lookup
+            "category": c.category,
+            "description": c.description,
+            "status": c.status,
+            "admin_notes": c.admin_notes,
+            "created_at": c.created_at,
+            "reporter_name": reporter_name,
+            "reporter_role": c.reporter.role,
+            "caregiver_name": c.caregiver.name
+        })
+    return results
+
+@router.get("/complaints/{complaint_id}", response_model=ComplaintOut)
+def get_complaint_detail(
+    complaint_id: int,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    Get detailed view of a complaint.
+    """
+    c = db.query(Complaint).options(
+        joinedload(Complaint.reporter).joinedload(User.elder_profile),
+        joinedload(Complaint.reporter).joinedload(User.family_profile),
+        joinedload(Complaint.caregiver)
+    ).filter(Complaint.id == complaint_id).first()
+
+    if not c:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    reporter_name = c.reporter.email
+    if c.reporter.role == "elder" and c.reporter.elder_profile:
+        reporter_name = c.reporter.elder_profile.name
+    elif c.reporter.role == "family" and c.reporter.family_profile:
+        reporter_name = c.reporter.family_profile.name
+
+    return {
+        "id": c.id,
+        "reporter_id": c.reporter_id,
+        "caregiver_id": c.caregiver.user_id, # Return user_id for profile lookup
+        "category": c.category,
+        "description": c.description,
+        "status": c.status,
+        "admin_notes": c.admin_notes,
+        "created_at": c.created_at,
+        "reporter_name": reporter_name,
+        "reporter_role": c.reporter.role,
+        "caregiver_name": c.caregiver.name
+    }
+
+@router.patch("/complaints/{complaint_id}", response_model=ComplaintOut)
+def update_complaint(
+    complaint_id: int,
+    complaint_in: ComplaintUpdate,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    Update complaint status or add admin notes.
+    """
+    complaint = db.query(Complaint).filter(Complaint.id == complaint_id).first()
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    update_data = complaint_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(complaint, field, value)
+
+    db.commit()
+    db.refresh(complaint)
+    return complaint

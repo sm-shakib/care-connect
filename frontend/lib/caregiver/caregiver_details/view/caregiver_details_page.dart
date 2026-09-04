@@ -385,7 +385,10 @@ class CaregiverDetailsPage extends StatelessWidget {
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (context) => FileComplaintSheet(caregiverName: caregiver.name),
+        builder: (context) => FileComplaintSheet(
+          caregiverName: caregiver.name,
+          caregiverId: int.tryParse(caregiver.id) ?? 0,
+        ),
       ),
     );
   }

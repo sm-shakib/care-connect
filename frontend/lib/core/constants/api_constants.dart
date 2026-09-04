@@ -1,7 +1,7 @@
 class ApiConstants {
   // Use 10.0.2.2 for Android Emulator.
   // Use your computer's IP (e.g., 192.168.x.x) if testing on a real phone.
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   static const String elderSignup = '/elders/signup/elder';
   static const String caregiverSignup = '/signup/caregiver';
@@ -10,6 +10,7 @@ class ApiConstants {
 
   // Public caregivers list
   static const String caregivers = '/caregivers';
+  static String caregiverDetailPublic(int id) => '/caregivers/$id';
 
   // Admin
   static const String adminVerificationList = '/admin/caregivers/verification';
@@ -24,9 +25,15 @@ class ApiConstants {
   static String adminFamilyDetail(int id) => '/admin/families/user/$id';
   static const String adminBookingList = '/admin/bookings';
   static String adminBookingDetail(int id) => '/admin/bookings/$id';
+  static const String adminComplaintList = '/admin/complaints';
+  static String adminComplaintDetail(int id) => '/admin/complaints/$id';
+  static String adminComplaintUpdate(int id) => '/admin/complaints/$id';
 
   // Bookings
   static const String bookings = '/bookings/';
   static String caregiverBookings(int caregiverId) => '/bookings/caregiver/$caregiverId';
   static String bookingDetail(int id) => '/bookings/$id';
+
+  // Complaints
+  static const String complaints = '/complaints/';
 }
