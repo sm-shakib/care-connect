@@ -40,6 +40,22 @@ class ElderRepository {
     await _apiClient.put('/elders/me', data: data);
   }
 
+  Future<void> updateElderVitals({
+    required String elderId,
+    required int heartRate,
+    required int systolic,
+    required int diastolic,
+  }) async {
+    await _apiClient.patch(
+      '/elders/$elderId/vitals',
+      data: {
+        'heart_rate': heartRate,
+        'systolic_bp': systolic,
+        'diastolic_bp': diastolic,
+      },
+    );
+  }
+
   // --- Appointments ---
   Future<List<Map<String, dynamic>>> getAppointments() async {
     final response = await _apiClient.get('/elders/appointments');

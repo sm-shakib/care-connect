@@ -46,6 +46,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       final requests = await _bindingRepository.getPendingRequests();
       
       // Fetch real data from backend
+      final profile = await _elderRepository.getMyProfile();
       final appointmentsData = await _elderRepository.getAppointments();
       final remindersData = await _elderRepository.getReminders();
 
@@ -68,11 +69,12 @@ class DashboardCubit extends Cubit<DashboardState> {
       // Start real-time location tracking
       _startLocationTracking();
       
-      // Start periodic health vitals simulation
-      _startVitalsSimulation();
+      // Start periodic health vitals simulation (optional, might conflict with manual updates)
+      // _startVitalsSimulation();
 
       CaregiverSummary? caregiver;
       if (profileId != null) {
+        // ... (rest of caregiver loading logic)
         final bookings = await _bookingRepository.getElderBookings(profileId);
 
         final realAccepted = bookings
@@ -96,7 +98,10 @@ class DashboardCubit extends Cubit<DashboardState> {
       emit(
         state.copyWith(
           status: DashboardStatus.success,
-          userName: 'Hello', // TODO: Fetch real name from profile API
+          userName: profile['name'] ?? 'Hello',
+          heartRate: profile['heart_rate'] as int? ?? 75,
+          systolicBp: profile['systolic_bp'] as int? ?? 120,
+          diastolicBp: profile['diastolic_bp'] as int? ?? 80,
           otherReminders: reminders,
           appointments: appointments,
           caregiver: caregiver,
@@ -156,6 +161,27 @@ class DashboardCubit extends Cubit<DashboardState> {
       debugPrint('DEBUG: Backend updated with location: ${position.latitude}, ${position.longitude}');
     } catch (e) {
       debugPrint('DEBUG: Failed to update backend location: $e');
+    }
+  }
+
+  Future<void> updateVitals(int hr, int systolic, int diastolic) async {
+    try {
+      final profileId = await _authRepository.getProfileId();
+      if (profileId != null) {
+        await _elderRepository.updateElderVitals(
+          elderId: profileId.toString(),
+          heartRate: hr,
+          systolic: systolic,
+          diastolic: diastolic,
+        );
+        emit(state.copyWith(
+          heartRate: hr,
+          systolicBp: systolic,
+          diastolicBp: diastolic,
+        ));
+      }
+    } catch (e) {
+      debugPrint('Error updating vitals: $e');
     }
   }
 

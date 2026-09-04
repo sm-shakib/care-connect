@@ -8,11 +8,14 @@ import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
 
+import 'package:frontend/elderly/data/repositories/elder_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
 import '../models/elder.dart';
 import 'family_dashboard_state.dart';
 
 class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   final BindingRepository _bindingRepository;
+  final _elderRepository = ElderRepository(ApiClient());
 
   FamilyDashboardCubit(this._bindingRepository) : super(const FamilyDashboardState()) {
     loadElders();
@@ -123,6 +126,21 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     if (systolic < 130 && diastolic < 80) return 'Elevated';
     if (systolic < 140 || diastolic < 90) return 'Stage 1';
     return 'High';
+  }
+
+  Future<void> updateElderVitals(String elderId, int hr, int systolic, int diastolic) async {
+    try {
+      await _elderRepository.updateElderVitals(
+        elderId: elderId,
+        heartRate: hr,
+        systolic: systolic,
+        diastolic: diastolic,
+      );
+      // Reload elders to show updated values
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error updating elder vitals: $e');
+    }
   }
 
   /// Filter elders by name or relationship

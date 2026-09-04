@@ -5,7 +5,10 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.elder import Elder
 from app.models.reminder import Appointment, CareReminder
-from app.schemas.elder import ElderSignupRequest, ElderSignupResponse, ElderOut, ElderUpdate
+from app.models.binding import FamilyElderLink, BindingStatus
+from app.schemas.elder import ElderSignupRequest, ElderSignupResponse, ElderOut, ElderUpdate, VitalsUpdate
+
+# ... (rest of imports)
 from app.schemas.reminder import AppointmentOut, AppointmentCreate, CareReminderOut, CareReminderCreate
 from app.core.security import get_password_hash
 from app.api.deps import get_current_user
@@ -77,6 +80,48 @@ def update_elder_profile(
     db.commit()
     db.refresh(elder)
     elder.email = current_user.email
+    return elder
+
+@router.patch("/{elder_id}/vitals", response_model=ElderOut)
+def update_vitals(
+    elder_id: int,
+    vitals: VitalsUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    elder = db.query(Elder).filter(Elder.id == elder_id).first()
+    if not elder:
+        raise HTTPException(status_code=404, detail="Elder not found")
+
+    # Authorization Check
+    authorized = False
+    
+    # 1. Is it the elder themselves?
+    if current_user.role == "elder" and elder.user_id == current_user.id:
+        authorized = True
+    
+    # 2. Is it a linked family member with accepted status?
+    elif current_user.role == "family":
+        from app.models.family import Family
+        family = db.query(Family).filter(Family.user_id == current_user.id).first()
+        if family:
+            link = db.query(FamilyElderLink).filter(
+                FamilyElderLink.elder_id == elder.id,
+                FamilyElderLink.family_id == family.id,
+                FamilyElderLink.status == "accepted"
+            ).first()
+            if link:
+                authorized = True
+
+    if not authorized:
+        raise HTTPException(status_code=403, detail="Not authorized to update these vitals")
+
+    elder.heart_rate = vitals.heart_rate
+    elder.systolic_bp = vitals.systolic_bp
+    elder.diastolic_bp = vitals.diastolic_bp
+    
+    db.commit()
+    db.refresh(elder)
     return elder
 
 @router.get("/appointments", response_model=List[AppointmentOut])

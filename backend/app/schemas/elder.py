@@ -37,6 +37,11 @@ class ElderUpdate(BaseModel):
     last_location_update: Optional[str] = None
     profile_image_url: Optional[str] = None
 
+class VitalsUpdate(BaseModel):
+    heart_rate: int
+    systolic_bp: int
+    diastolic_bp: int
+
 class FamilyLinkOut(BaseModel):
     id: int
     family_id: int
