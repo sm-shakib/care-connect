@@ -50,3 +50,4 @@ flutter:
     - assets/images/welcome_screen_image.png
     - assets/images/welcome.png
     - assets/images/map.png
+    - assets/sounds/alarm_sound.mp3

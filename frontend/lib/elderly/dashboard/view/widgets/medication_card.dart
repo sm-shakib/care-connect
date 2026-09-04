@@ -94,13 +94,6 @@ class _MedicationTile extends StatelessWidget {
                     color: colorScheme.onSurface,
                   ),
                 ),
-                Text(
-                  medication.dosage,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
               ],
             ),
           ),

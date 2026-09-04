@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/services/location_service.dart';
@@ -51,17 +52,17 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       final appointments = appointmentsData.map((a) => Appointment(
         id: a['id'].toString(),
-        doctorName: a['doctor_name'],
-        specialty: a['specialty'] ?? '',
-        date: a['appointment_date'],
-        time: a['appointment_time'],
-        location: a['location'] ?? '',
+        doctorName: a['doctor_name'] as String,
+        specialty: a['specialty'] as String? ?? '',
+        date: a['appointment_date'] as String,
+        time: a['appointment_time'] as String,
+        location: a['location'] as String? ?? '',
       )).toList();
 
       final reminders = remindersData.map((r) => CareReminder(
         id: r['id'].toString(),
-        title: r['title'],
-        subtitle: r['subtitle'] ?? '',
+        title: r['title'] as String,
+        subtitle: r['subtitle'] as String? ?? '',
         icon: Icons.notifications_active_outlined, // Default icon
       )).toList();
 
@@ -147,7 +148,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
-  Future<void> _updateBackendLocation(dynamic position) async {
+  Future<void> _updateBackendLocation(Position position) async {
     try {
       await _elderRepository.updateVitalsAndLocation(
         latitude: position.latitude,

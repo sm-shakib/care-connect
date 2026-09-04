@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -29,10 +31,44 @@ class MedicineAlarmPage extends StatefulWidget {
 
 class _MedicineAlarmPageState extends State<MedicineAlarmPage> {
   final _repository = MedicineRepository(ApiClient());
+  final _alarmSound = AudioPlayer();
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_playAlarmSound());
+  }
+
+  /// Loops the alarm tone for as long as this page is on screen, routed
+  /// through the alarm stream so it isn't silenced by a muted ringer —
+  /// matching how the notification itself is configured in
+  /// [MedicineAlarmService]. This is what actually guarantees the loop:
+  /// a notification's own sound only ever plays once.
+  Future<void> _playAlarmSound() async {
+    try {
+      await _alarmSound.setReleaseMode(ReleaseMode.loop);
+      await _alarmSound.setAudioContext(
+        AudioContext(
+          android: const AudioContextAndroid(
+            contentType: AndroidContentType.sonification,
+            usageType: AndroidUsageType.alarm,
+            audioFocus: AndroidAudioFocus.gainTransient,
+          ),
+          iOS: AudioContextIOS(
+            options: const {AVAudioSessionOptions.mixWithOthers},
+          ),
+        ),
+      );
+      await _alarmSound.play(AssetSource('sounds/alarm_sound.mp3'));
+    } catch (e) {
+      debugPrint('MedicineAlarmPage: failed to play alarm sound: $e');
+    }
+  }
 
   Future<void> _markTaken() async {
     setState(() => _isSubmitting = true);
+    unawaited(_alarmSound.stop());
     try {
       await _repository.markTaken(widget.args.medicineId, widget.args.time);
       MedicineAlarmService.instance.notifyMedicineUpdated();
@@ -44,12 +80,19 @@ class _MedicineAlarmPageState extends State<MedicineAlarmPage> {
 
   Future<void> _snooze() async {
     setState(() => _isSubmitting = true);
+    unawaited(_alarmSound.stop());
     try {
       await MedicineAlarmService.instance.snooze(widget.args);
     } catch (e) {
       debugPrint('MedicineAlarmPage.snooze error: $e');
     }
     if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_alarmSound.dispose());
+    super.dispose();
   }
 
   @override

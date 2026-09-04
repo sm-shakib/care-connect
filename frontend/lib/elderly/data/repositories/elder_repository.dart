@@ -43,7 +43,7 @@ class ElderRepository {
   // --- Appointments ---
   Future<List<Map<String, dynamic>>> getAppointments() async {
     final response = await _apiClient.get('/elders/appointments');
-    return List<Map<String, dynamic>>.from(response.data);
+    return List<Map<String, dynamic>>.from(response.data as List);
   }
 
   Future<void> addAppointment(Map<String, dynamic> data) async {
@@ -53,7 +53,7 @@ class ElderRepository {
   // --- Other Reminders ---
   Future<List<Map<String, dynamic>>> getReminders() async {
     final response = await _apiClient.get('/elders/reminders');
-    return List<Map<String, dynamic>>.from(response.data);
+    return List<Map<String, dynamic>>.from(response.data as List);
   }
 
   Future<void> addReminder(Map<String, dynamic> data) async {
