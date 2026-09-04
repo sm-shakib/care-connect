@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/theme/app_colors.dart';
 
-import '../data/chat_directory.dart';
 import '../data/chat_repository.dart';
 import '../models/chat_participant.dart';
 import '../models/conversation.dart';
@@ -38,9 +37,9 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Future<void> _addMembers(Conversation conversation) async {
     final currentIds = conversation.participants.map((p) => p.id).toSet();
-    final candidates = ChatDirectory.contactsFor(widget.currentUser)
-        .where((p) => !currentIds.contains(p.id))
-        .toList();
+    final allContacts = await widget.repository.getContacts(widget.currentUser);
+    final candidates = allContacts.where((p) => !currentIds.contains(p.id)).toList();
+    if (!mounted) return;
 
     if (candidates.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

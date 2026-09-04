@@ -82,6 +82,7 @@ class _ConversationViewState extends State<_ConversationView> {
         context,
         MaterialPageRoute<void>(
           builder: (_) => CallScreen(
+            currentUserId: cubit.currentUser.id,
             conversationId: cubit.conversationId,
             participants: others,
             groupTitle: conversation.displayTitle(cubit.currentUser.id),
@@ -98,6 +99,7 @@ class _ConversationViewState extends State<_ConversationView> {
       context,
       MaterialPageRoute<void>(
         builder: (_) => CallScreen(
+          currentUserId: cubit.currentUser.id,
           conversationId: cubit.conversationId,
           participants: [other],
           isVideo: isVideo,

@@ -67,6 +67,11 @@ class MockChatRepository implements ChatRepository {
   Conversation? conversationById(String conversationId) => _conversations[conversationId];
 
   @override
+  Future<List<ChatParticipant>> getContacts(ChatParticipant currentUser) async {
+    return ChatDirectory.contactsFor(currentUser);
+  }
+
+  @override
   Future<Conversation> createDirectConversation({
     required ChatParticipant currentUser,
     required ChatParticipant other,

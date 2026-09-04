@@ -21,6 +21,12 @@ abstract class ChatRepository {
   /// up to date as members are added/removed.
   Stream<Conversation?> watchConversation(String conversationId);
 
+  /// People `currentUser` is allowed to start a conversation with, beyond
+  /// whoever is already in one of their existing conversations. Backed by
+  /// the hardcoded contact directory in the mock; a real relationship
+  /// lookup (family/elder bindings, caregiver bookings) in the real one.
+  Future<List<ChatParticipant>> getContacts(ChatParticipant currentUser);
+
   Future<Conversation> createDirectConversation({
     required ChatParticipant currentUser,
     required ChatParticipant other,

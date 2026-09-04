@@ -50,10 +50,12 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
               body = const CaregiverRequestsView();
               break;
             case 2:
-              body = ChatInboxPage(
-                repository: MockChatRepository.instance,
-                currentUser: ChatDirectory.shakibKhan,
-                showHeader: false,
+              body = ChatSessionGate(
+                builder: (context, repository, currentUser) => ChatInboxPage(
+                  repository: repository,
+                  currentUser: currentUser,
+                  showHeader: false,
+                ),
               );
               break;
             case 3:
@@ -66,6 +68,7 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
               body = CaregiverProfilePage(
                 showTopBar: false,
                 onLogOut: () {
+                  ChatSession.reset();
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute<void>(builder: (_) => const LoginPage()),

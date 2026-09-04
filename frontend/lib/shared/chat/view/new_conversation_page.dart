@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/theme/app_colors.dart';
 
-import '../data/chat_directory.dart';
 import '../data/chat_repository.dart';
 import '../models/chat_participant.dart';
 import '../widgets/member_tile.dart';
@@ -25,6 +24,13 @@ class _NewConversationPageState extends State<NewConversationPage> {
   bool _groupMode = false;
   final _selected = <ChatParticipant>{};
   bool _isCreating = false;
+  late Future<List<ChatParticipant>> _contactsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _contactsFuture = widget.repository.getContacts(widget.currentUser);
+  }
 
   Future<void> _openDirect(ChatParticipant contact) async {
     setState(() => _isCreating = true);
@@ -93,8 +99,6 @@ class _NewConversationPageState extends State<NewConversationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final contacts = ChatDirectory.contactsFor(widget.currentUser);
-
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
@@ -116,27 +120,36 @@ class _NewConversationPageState extends State<NewConversationPage> {
       ),
       body: _isCreating
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                final isSelected = _selected.contains(contact);
-                return MemberTile(
-                  participant: contact,
-                  subtitle: contact.role.name,
-                  selected: isSelected,
-                  onTap: () {
-                    if (!_groupMode) {
-                      _openDirect(contact);
-                      return;
-                    }
-                    setState(() {
-                      if (isSelected) {
-                        _selected.remove(contact);
-                      } else {
-                        _selected.add(contact);
-                      }
-                    });
+          : FutureBuilder<List<ChatParticipant>>(
+              future: _contactsFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final contacts = snapshot.data!;
+                return ListView.builder(
+                  itemCount: contacts.length,
+                  itemBuilder: (context, index) {
+                    final contact = contacts[index];
+                    final isSelected = _selected.contains(contact);
+                    return MemberTile(
+                      participant: contact,
+                      subtitle: contact.role.name,
+                      selected: isSelected,
+                      onTap: () {
+                        if (!_groupMode) {
+                          _openDirect(contact);
+                          return;
+                        }
+                        setState(() {
+                          if (isSelected) {
+                            _selected.remove(contact);
+                          } else {
+                            _selected.add(contact);
+                          }
+                        });
+                      },
+                    );
                   },
                 );
               },

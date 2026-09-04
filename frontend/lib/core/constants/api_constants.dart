@@ -36,4 +36,26 @@ class ApiConstants {
 
   // Complaints
   static const String complaints = '/complaints/';
+
+  // Chat
+  static const String chatMe = '/chat/me';
+  static const String chatContacts = '/chat/contacts';
+  static const String chatConversations = '/chat/conversations';
+  static const String chatDirectConversation = '/chat/conversations/direct';
+  static const String chatGroupConversation = '/chat/conversations/group';
+  static String chatConversationDetail(String id) => '/chat/conversations/$id';
+  static String chatMessages(String conversationId) =>
+      '/chat/conversations/$conversationId/messages';
+  static String chatRead(String conversationId) => '/chat/conversations/$conversationId/read';
+  static String chatSearch(String conversationId) => '/chat/conversations/$conversationId/search';
+  static String chatMedia(String conversationId) => '/chat/conversations/$conversationId/media';
+  static String chatMute(String conversationId) => '/chat/conversations/$conversationId/mute';
+  static String chatMembers(String conversationId) =>
+      '/chat/conversations/$conversationId/members';
+  static String chatMember(String conversationId, String memberId) =>
+      '/chat/conversations/$conversationId/members/$memberId';
+
+  // ws:// (or wss://) equivalent of [baseUrl], for the chat/call socket.
+  static String get chatSocketBase =>
+      baseUrl.replaceFirst('http://', 'ws://').replaceFirst('https://', 'wss://');
 }
