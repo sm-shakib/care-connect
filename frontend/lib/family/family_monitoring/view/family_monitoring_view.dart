@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/widgets/vitals_update_dialog.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/family_monitoring/view/edit_reminders_page.dart';
 import 'package:frontend/family/family_monitoring/widgets/available_caregivers_card.dart';
@@ -101,15 +102,36 @@ class FamilyMonitoringView extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          const Text(
-            'Health Status',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Health Status',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () async {
+                  final cubit = context.read<FamilyDashboardCubit>();
+                  await showDialog<void>(
+                    context: context,
+                    builder: (context) => VitalsUpdateDialog(
+                      initialHr: elder.vitals.heartRate,
+                      initialSystolic: elder.vitals.systolic,
+                      initialDiastolic: elder.vitals.diastolic,
+                      onSave: (hr, sys, dia) => cubit.updateElderVitals(elder.id, hr, sys, dia),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit_note, size: 18, color: AppColors.darkTeal),
+                label: const Text('Update', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal)),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           /// Vitals Row
           HeartRateCard(

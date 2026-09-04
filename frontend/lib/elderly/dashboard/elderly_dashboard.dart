@@ -34,6 +34,7 @@ import 'package:intl/intl.dart';
 import 'package:frontend/core/services/location_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
+import 'package:frontend/core/widgets/vitals_update_dialog.dart';
 
 
 import 'package:frontend/core/repositories/auth_repository.dart';
@@ -265,6 +266,24 @@ class _DashboardHomeBody extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
+              _VitalsUpdateCard(
+                heartRate: state.heartRate,
+                systolic: state.systolicBp,
+                diastolic: state.diastolicBp,
+                onUpdate: () async {
+                  final cubit = context.read<DashboardCubit>();
+                  await showDialog<void>(
+                    context: context,
+                    builder: (context) => VitalsUpdateDialog(
+                      initialHr: state.heartRate,
+                      initialSystolic: state.systolicBp,
+                      initialDiastolic: state.diastolicBp,
+                      onSave: cubit.updateVitals,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
               DashboardCardHeader(
                 icon: Icons.medication_outlined,
                 title: context.l10n.dashboardMedicationTitle,
@@ -367,12 +386,7 @@ class _CaregiversTabBody extends StatelessWidget {
 
     return BlocProvider(
       create: (_) => CaregiverListCubit()
-        ..loadCaregivers(
-          /*
-          userLat: dashboardState.latitude,
-          userLng: dashboardState.longitude,
-          */
-        ),
+        ..loadCaregivers(),
       child: CaregiverListBody(
         onCaregiverTap: (caregiver) {
           Navigator.push(
@@ -528,6 +542,111 @@ class _PendingRequestBanner extends StatelessWidget {
   }
 }
 
+class _VitalsUpdateCard extends StatelessWidget {
+  const _VitalsUpdateCard({
+    required this.heartRate,
+    required this.systolic,
+    required this.diastolic,
+    required this.onUpdate,
+  });
+
+  final int heartRate;
+  final int systolic;
+  final int diastolic;
+  final VoidCallback onUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.outlineVariantLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.monitor_heart_outlined, color: AppColors.darkTeal),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'My Health Status',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurfaceLight),
+                ),
+              ),
+              TextButton(
+                onPressed: onUpdate,
+                child: const Text('Update', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _VitalsValue(
+                label: 'Heart Rate',
+                value: '$heartRate BPM',
+                icon: Icons.favorite,
+                color: Colors.redAccent,
+              ),
+              Container(width: 1, height: 40, color: AppColors.outlineVariantLight, margin: const EdgeInsets.symmetric(horizontal: 20)),
+              _VitalsValue(
+                label: 'Blood Pressure',
+                value: '$systolic/$diastolic',
+                icon: Icons.speed,
+                color: Colors.blueAccent,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VitalsValue extends StatelessWidget {
+  const _VitalsValue({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariantLight)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurfaceLight)),
+        ],
+      ),
+    );
+  }
+}
+
 class _LocationRationaleDialog extends StatelessWidget {
   const _LocationRationaleDialog();
 
@@ -542,7 +661,7 @@ class _LocationRationaleDialog extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.paleMint,
                 shape: BoxShape.circle,
               ),

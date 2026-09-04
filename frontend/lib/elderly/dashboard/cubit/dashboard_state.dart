@@ -17,8 +17,9 @@ class DashboardState extends Equatable {
     this.caregiver,
     this.chatPreview,
     this.errorMessage,
-    // this.latitude = 23.8103, // Default to Dhaka
-    // this.longitude = 90.4125,
+    this.heartRate = 75,
+    this.systolicBp = 120,
+    this.diastolicBp = 80,
   });
 
   final DashboardStatus status;
@@ -29,8 +30,9 @@ class DashboardState extends Equatable {
   final CaregiverSummary? caregiver;
   final ChatPreview? chatPreview;
   final String? errorMessage;
-  // final double latitude;
-  // final double longitude;
+  final int heartRate;
+  final int systolicBp;
+  final int diastolicBp;
 
   bool get isLoading =>
       status == DashboardStatus.loading || status == DashboardStatus.initial;
@@ -44,8 +46,9 @@ class DashboardState extends Equatable {
     CaregiverSummary? caregiver,
     ChatPreview? chatPreview,
     String? errorMessage,
-    // double? latitude,
-    // double? longitude,
+    int? heartRate,
+    int? systolicBp,
+    int? diastolicBp,
   }) {
     return DashboardState(
       status: status ?? this.status,
@@ -56,8 +59,9 @@ class DashboardState extends Equatable {
       caregiver: caregiver ?? this.caregiver,
       chatPreview: chatPreview ?? this.chatPreview,
       errorMessage: errorMessage,
-      // latitude: latitude ?? this.latitude,
-      // longitude: longitude ?? this.longitude,
+      heartRate: heartRate ?? this.heartRate,
+      systolicBp: systolicBp ?? this.systolicBp,
+      diastolicBp: diastolicBp ?? this.diastolicBp,
     );
   }
 
@@ -71,7 +75,8 @@ class DashboardState extends Equatable {
         caregiver,
         chatPreview,
         errorMessage,
-        // latitude,
-        // longitude,
+        heartRate,
+        systolicBp,
+        diastolicBp,
       ];
 }
