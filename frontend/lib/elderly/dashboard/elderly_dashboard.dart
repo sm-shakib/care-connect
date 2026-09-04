@@ -31,6 +31,11 @@ import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
 
+import 'package:frontend/core/services/location_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:frontend/core/widgets/primary_pill_button.dart';
+
+
 import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
@@ -69,6 +74,33 @@ class _ElderlyDashboardView extends StatefulWidget {
 
 class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLocationPermission();
+    });
+  }
+
+  Future<void> _checkLocationPermission() async {
+    final permission = await Geolocator.checkPermission();
+    
+    if (permission == LocationPermission.denied) {
+      if (!mounted) return;
+      
+      final bool? proceed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const _LocationRationaleDialog(),
+      );
+
+      if (proceed == true) {
+        // Now trigger the actual system/browser prompt
+        await Geolocator.requestPermission();
+      }
+    }
+  }
 
   static List<String> _titles(BuildContext context) => [
         context.l10n.careConnectTitle,
@@ -184,7 +216,6 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
     );
   }
 }
-
 
 class _DashboardHomeBody extends StatelessWidget {
   const _DashboardHomeBody({this.onOpenChat, this.onOpenMedicine});
@@ -490,6 +521,68 @@ class _PendingRequestBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LocationRationaleDialog extends StatelessWidget {
+  const _LocationRationaleDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.paleMint,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.location_on,
+                color: AppColors.darkTeal,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Enable Live Location',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkTeal,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'To help your family monitor your safety, CareConnect needs permission to access your location while you use the app.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: AppColors.onSurfaceVariantLight,
+              ),
+            ),
+            const SizedBox(height: 28),
+            PrimaryPillButton(
+              label: 'Allow Access',
+              onPressed: () => Navigator.pop(context, true),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text(
+                'Maybe Later',
+                style: TextStyle(color: AppColors.outlineLight),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

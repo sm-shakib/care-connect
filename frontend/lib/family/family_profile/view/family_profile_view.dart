@@ -7,6 +7,8 @@ import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
+import 'package:frontend/core/widgets/success_dialog.dart';
+import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/family_profile_cubit.dart';
@@ -460,13 +462,40 @@ class _ActionsSection extends StatelessWidget {
           label: 'Log Out',
           color: colorScheme.error,
           backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.2),
-          onTap: () {
+          onTap: () async {
+            // Show confirmation dialog or log out immediately
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Log Out'),
+                content: const Text('Are you sure you want to log out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Log Out'),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirmed != true) return;
+
             cubit.logOut();
-            if (onLogOut != null) {
-              onLogOut!.call();
-            } else {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
+
+            if (!context.mounted) return;
+
+            // Navigate to login page and tell it to show the success dialog
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => LoginPage(showLogoutSuccess: true),
+              ),
+              (route) => false,
+            );
           },
         ),
       ],

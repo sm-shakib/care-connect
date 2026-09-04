@@ -11,7 +11,9 @@ import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
+import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
+import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -904,14 +906,18 @@ class _ActionsSection extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: () async {
+                Navigator.pop(context); // Close confirmation
                 cubit.logOut();
-                if (onLogOut != null) {
-                  onLogOut!.call();
-                } else {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
+
+                // Navigate to login page and tell it to show the success dialog
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => LoginPage(showLogoutSuccess: true),
+                  ),
+                  (route) => false,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.warningRed,
