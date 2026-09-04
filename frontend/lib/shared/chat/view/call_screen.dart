@@ -74,7 +74,8 @@ class CallScreen extends StatelessWidget {
                       Positioned.fill(
                         child: RTCVideoView(
                           cubit.remoteRenderer,
-                          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                         ),
                       ),
                     SizedBox(
@@ -85,7 +86,9 @@ class CallScreen extends StatelessWidget {
                           isGroupCall
                               ? _GroupCallAvatars(participants: participants)
                               : _SoloCallAvatar(
-                                  participant: participants.isNotEmpty ? participants.first : null,
+                                  participant: participants.isNotEmpty
+                                      ? participants.first
+                                      : null,
                                 ),
                           const SizedBox(height: 16),
                           Text(
@@ -104,13 +107,19 @@ class CallScreen extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, color: Colors.white54),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white54,
+                              ),
                             ),
                           ],
                           const SizedBox(height: 8),
                           Text(
                             _statusLabel(session, state.elapsedLabel),
-                            style: const TextStyle(fontSize: 15, color: Colors.white70),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -127,7 +136,8 @@ class CallScreen extends StatelessWidget {
                             child: RTCVideoView(
                               cubit.localRenderer,
                               mirror: true,
-                              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
                             ),
                           ),
                         ),
@@ -139,7 +149,9 @@ class CallScreen extends StatelessWidget {
                         child: isIncoming && session.state == CallState.ringing
                             ? _IncomingCallActions(cubit: cubit)
                             : Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                ),
                                 child: CallControlsBar(
                                   isMuted: session.isMuted,
                                   isSpeakerOn: session.isSpeakerOn,
@@ -189,7 +201,11 @@ class _SoloCallAvatar extends StatelessWidget {
       backgroundColor: participant?.avatarColor ?? AppColors.paleMint,
       child: Text(
         participant?.initials ?? '?',
-        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.darkTeal),
+        style: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: AppColors.darkTeal,
+        ),
       ),
     );
   }
@@ -213,15 +229,20 @@ class _GroupCallAvatars extends StatelessWidget {
     final shown = participants.take(maxShown).toList();
     final overflow = participants.length - shown.length;
     final bubbleCount = shown.length + (overflow > 0 ? 1 : 0);
-    final totalWidth = bubbleCount == 0 ? 0.0 : _bubbleSize + (bubbleCount - 1) * _step;
+    final totalWidth = bubbleCount == 0
+        ? 0.0
+        : _bubbleSize + (bubbleCount - 1) * _step;
 
     Widget bubble(Widget inner) => Container(
-          width: _bubbleSize,
-          height: _bubbleSize,
-          decoration: const BoxDecoration(color: Color(0xFF0B1F1C), shape: BoxShape.circle),
-          padding: const EdgeInsets.all(4),
-          child: inner,
-        );
+      width: _bubbleSize,
+      height: _bubbleSize,
+      decoration: const BoxDecoration(
+        color: Color(0xFF0B1F1C),
+        shape: BoxShape.circle,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: inner,
+    );
 
     // Positioned (rather than negative Padding, which asserts non-negative
     // insets) so bubbles can overlap.
@@ -255,7 +276,11 @@ class _GroupCallAvatars extends StatelessWidget {
                   backgroundColor: Colors.white24,
                   child: Text(
                     '+$overflow',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

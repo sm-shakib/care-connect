@@ -46,8 +46,9 @@ class IncomingCallService {
       if (navigator == null) return;
 
       final session = await ChatSession.ensureStarted();
-      final conversation =
-          await session.repository.watchConversation(conversationId).first;
+      final conversation = await session.repository
+          .watchConversation(conversationId)
+          .first;
       if (conversation == null) return;
 
       final others = conversation.participants
@@ -61,8 +62,9 @@ class IncomingCallService {
             currentUserId: session.currentUser.id,
             conversationId: conversationId,
             participants: others,
-            groupTitle:
-                conversation.isGroup ? conversation.displayTitle(session.currentUser.id) : null,
+            groupTitle: conversation.isGroup
+                ? conversation.displayTitle(session.currentUser.id)
+                : null,
             isVideo: event['is_video'] as bool? ?? false,
             isIncoming: true,
           ),

@@ -9,6 +9,7 @@ class ConversationState extends Equatable {
     this.isSearching = false,
     this.searchQuery = '',
     this.searchResultIds = const [],
+    this.replyTarget,
   });
 
   final ChatParticipant currentUser;
@@ -18,6 +19,10 @@ class ConversationState extends Equatable {
   final bool isSearching;
   final String searchQuery;
   final List<String> searchResultIds;
+
+  /// The message currently staged to reply to — shown as a preview banner
+  /// above the composer, cleared once that reply is sent (or dismissed).
+  final ChatMessage? replyTarget;
 
   String get title => conversation?.displayTitle(currentUser.id) ?? '';
   bool get isGroup => conversation?.isGroup ?? false;
@@ -29,6 +34,7 @@ class ConversationState extends Equatable {
     bool? isSearching,
     String? searchQuery,
     List<String>? searchResultIds,
+    ChatMessage? Function()? replyTarget,
   }) {
     return ConversationState(
       currentUser: currentUser,
@@ -38,17 +44,19 @@ class ConversationState extends Equatable {
       isSearching: isSearching ?? this.isSearching,
       searchQuery: searchQuery ?? this.searchQuery,
       searchResultIds: searchResultIds ?? this.searchResultIds,
+      replyTarget: replyTarget != null ? replyTarget() : this.replyTarget,
     );
   }
 
   @override
   List<Object?> get props => [
-        currentUser,
-        conversation,
-        messages,
-        isLoading,
-        isSearching,
-        searchQuery,
-        searchResultIds,
-      ];
+    currentUser,
+    conversation,
+    messages,
+    isLoading,
+    isSearching,
+    searchQuery,
+    searchResultIds,
+    replyTarget,
+  ];
 }

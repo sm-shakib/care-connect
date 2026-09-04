@@ -11,7 +11,11 @@ import 'conversation_page.dart';
 /// (or create) a direct 1:1 chat, or switch to "New group" to select
 /// multiple contacts and name a group.
 class NewConversationPage extends StatefulWidget {
-  const NewConversationPage({super.key, required this.repository, required this.currentUser});
+  const NewConversationPage({
+    super.key,
+    required this.repository,
+    required this.currentUser,
+  });
 
   final ChatRepository repository;
   final ChatParticipant currentUser;
@@ -70,7 +74,8 @@ class _NewConversationPageState extends State<NewConversationPage> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, titleController.text.trim()),
+            onPressed: () =>
+                Navigator.pop(dialogContext, titleController.text.trim()),
             child: const Text('Create'),
           ),
         ],
@@ -108,12 +113,15 @@ class _NewConversationPageState extends State<NewConversationPage> {
             onPressed: _isCreating
                 ? null
                 : () => setState(() {
-                      _groupMode = !_groupMode;
-                      _selected.clear();
-                    }),
+                    _groupMode = !_groupMode;
+                    _selected.clear();
+                  }),
             child: Text(
               _groupMode ? 'Cancel' : 'New group',
-              style: const TextStyle(color: AppColors.darkTeal, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                color: AppColors.darkTeal,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
@@ -159,7 +167,10 @@ class _NewConversationPageState extends State<NewConversationPage> {
               backgroundColor: AppColors.darkTeal,
               onPressed: _createGroup,
               icon: const Icon(Icons.check, color: Colors.white),
-              label: const Text('Create group', style: TextStyle(color: Colors.white)),
+              label: const Text(
+                'Create group',
+                style: TextStyle(color: Colors.white),
+              ),
             )
           : null,
     );

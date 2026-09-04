@@ -5,6 +5,7 @@ import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/conversation_cubit.dart';
 import '../data/chat_repository.dart';
+import '../models/chat_message.dart';
 import '../models/chat_participant.dart';
 import '../widgets/chat_composer_bar.dart';
 import '../widgets/search_field.dart';
@@ -75,8 +76,9 @@ class _ConversationViewState extends State<_ConversationView> {
     if (conversation == null) return;
 
     if (conversation.isGroup) {
-      final others =
-          conversation.participants.where((p) => p.id != cubit.currentUser.id).toList();
+      final others = conversation.participants
+          .where((p) => p.id != cubit.currentUser.id)
+          .toList();
       if (others.isEmpty) return;
       Navigator.push(
         context,
@@ -124,21 +126,40 @@ class _ConversationViewState extends State<_ConversationView> {
             return Column(
               children: [
                 _ConversationAppBar(state: state, onCall: _startCall),
-                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                Divider(
+                  height: 1,
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ),
                 if (state.isSearching) _SearchResultBar(state: state),
                 Expanded(
                   child: state.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : ListView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
                           itemCount: state.messages.length,
                           itemBuilder: (context, index) {
                             final message = state.messages[index];
+                            final isCallLog =
+                                message.type == ChatMessageType.callLog;
                             return ThemedChatBubble(
                               message: message,
                               showSenderName: state.isGroup,
-                              highlighted: state.searchResultIds.contains(message.id),
+                              highlighted: state.searchResultIds.contains(
+                                message.id,
+                              ),
+                              onReply: isCallLog || message.isDeleted
+                                  ? null
+                                  : () => cubit.setReplyTarget(message),
+                              onUnsend:
+                                  !isCallLog &&
+                                      !message.isDeleted &&
+                                      message.isFromMe
+                                  ? () => cubit.unsendMessage(message.id)
+                                  : null,
                             );
                           },
                         ),
@@ -147,6 +168,8 @@ class _ConversationViewState extends State<_ConversationView> {
                   onSendText: cubit.sendText,
                   onSendAttachments: cubit.sendAttachments,
                   onSendVoice: cubit.sendVoiceMessage,
+                  replyTarget: state.replyTarget,
+                  onCancelReply: cubit.clearReplyTarget,
                 ),
               ],
             );
@@ -175,13 +198,16 @@ class _ConversationAppBar extends StatelessWidget {
           children: [
             IconButton(
               icon: Icon(Icons.arrow_back, color: colorScheme.primary),
-              onPressed: () => context.read<ConversationCubit>().toggleSearch(open: false),
+              onPressed: () =>
+                  context.read<ConversationCubit>().toggleSearch(open: false),
             ),
             Expanded(
               child: SearchField(
                 hintText: 'Search in this conversation',
                 autofocus: true,
-                onChanged: (query) => context.read<ConversationCubit>().searchInConversation(query),
+                onChanged: (query) => context
+                    .read<ConversationCubit>()
+                    .searchInConversation(query),
               ),
             ),
           ],
@@ -212,16 +238,24 @@ class _ConversationAppBar extends StatelessWidget {
               state.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
           IconButton(
             icon: Icon(Icons.call_outlined, color: colorScheme.primary),
-            onPressed: conversation == null ? null : () => onCall(context, isVideo: false),
+            onPressed: conversation == null
+                ? null
+                : () => onCall(context, isVideo: false),
           ),
           IconButton(
             icon: Icon(Icons.videocam_outlined, color: colorScheme.primary),
-            onPressed: conversation == null ? null : () => onCall(context, isVideo: true),
+            onPressed: conversation == null
+                ? null
+                : () => onCall(context, isVideo: true),
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: colorScheme.primary),
@@ -267,13 +301,23 @@ class _ConversationAppBar extends StatelessWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'search', child: Text('Search in conversation')),
+              const PopupMenuItem(
+                value: 'search',
+                child: Text('Search in conversation'),
+              ),
               const PopupMenuItem(value: 'media', child: Text('Media & files')),
               if (state.isGroup)
-                const PopupMenuItem(value: 'group_info', child: Text('Group info')),
+                const PopupMenuItem(
+                  value: 'group_info',
+                  child: Text('Group info'),
+                ),
               PopupMenuItem(
                 value: 'mute',
-                child: Text((conversation?.isMuted ?? false) ? 'Unmute notifications' : 'Mute notifications'),
+                child: Text(
+                  (conversation?.isMuted ?? false)
+                      ? 'Unmute notifications'
+                      : 'Mute notifications',
+                ),
               ),
               const PopupMenuItem(value: 'delete', child: Text('Delete chat')),
             ],
@@ -284,14 +328,23 @@ class _ConversationAppBar extends StatelessWidget {
   }
 }
 
-Future<void> _confirmAndDelete(BuildContext context, ConversationCubit cubit, String title) async {
+Future<void> _confirmAndDelete(
+  BuildContext context,
+  ConversationCubit cubit,
+  String title,
+) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Delete chat?'),
-      content: Text('This removes "$title" and its message history from your device.'),
+      content: Text(
+        'This removes "$title" and its message history from your device.',
+      ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: const Text('Cancel'),
+        ),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.warningRed),
           onPressed: () => Navigator.pop(dialogContext, true),
@@ -323,7 +376,9 @@ class _SearchResultBar extends StatelessWidget {
       color: const Color(0xFFFBFEFC),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
-        count == 0 ? 'No matches' : '$count match${count == 1 ? '' : 'es'} found',
+        count == 0
+            ? 'No matches'
+            : '$count match${count == 1 ? '' : 'es'} found',
         style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
       ),
     );

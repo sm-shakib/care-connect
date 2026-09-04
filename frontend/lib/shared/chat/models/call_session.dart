@@ -45,7 +45,8 @@ class CallSession {
   /// Name shown at the top of the call screen: the group's name for group
   /// calls, otherwise the other participant's name.
   String get displayName =>
-      groupTitle ?? (participants.isNotEmpty ? participants.first.name : 'Unknown');
+      groupTitle ??
+      (participants.isNotEmpty ? participants.first.name : 'Unknown');
 
   CallSession copyWith({
     CallState? state,

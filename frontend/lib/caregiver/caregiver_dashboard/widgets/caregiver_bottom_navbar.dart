@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class CaregiverBottomNavBar extends StatelessWidget {
@@ -45,8 +46,8 @@ class CaregiverBottomNavBar extends StatelessWidget {
             label: context.l10n.requestsLabel,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.chat_bubble_outline),
-            activeIcon: const Icon(Icons.chat_bubble),
+            icon: const ChatUnreadBadge(child: Icon(Icons.chat_bubble_outline)),
+            activeIcon: const ChatUnreadBadge(child: Icon(Icons.chat_bubble)),
             label: context.l10n.chatsLabel,
           ),
           BottomNavigationBarItem(

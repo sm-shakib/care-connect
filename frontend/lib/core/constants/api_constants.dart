@@ -15,9 +15,11 @@ class ApiConstants {
   // Admin
   static const String adminVerificationList = '/admin/caregivers/verification';
   static String adminCaregiverReviewDetail(int id) => '/admin/caregivers/$id';
-  static String adminCaregiverUserDetail(int id) => '/admin/caregivers/user/$id';
+  static String adminCaregiverUserDetail(int id) =>
+      '/admin/caregivers/user/$id';
   static String adminVerifyCaregiver(int id) => '/admin/caregivers/$id/verify';
-  static String adminVerifyDocument(int id) => '/admin/caregivers/documents/$id/verify';
+  static String adminVerifyDocument(int id) =>
+      '/admin/caregivers/documents/$id/verify';
   static const String adminUserList = '/admin/users';
   static String adminUserStatus(int id) => '/admin/users/$id/status';
   static String adminUserDelete(int id) => '/admin/users/$id';
@@ -31,7 +33,8 @@ class ApiConstants {
 
   // Bookings
   static const String bookings = '/bookings/';
-  static String caregiverBookings(int caregiverId) => '/bookings/caregiver/$caregiverId';
+  static String caregiverBookings(int caregiverId) =>
+      '/bookings/caregiver/$caregiverId';
   static String bookingDetail(int id) => '/bookings/$id';
 
   // Complaints
@@ -46,16 +49,23 @@ class ApiConstants {
   static String chatConversationDetail(String id) => '/chat/conversations/$id';
   static String chatMessages(String conversationId) =>
       '/chat/conversations/$conversationId/messages';
-  static String chatRead(String conversationId) => '/chat/conversations/$conversationId/read';
-  static String chatSearch(String conversationId) => '/chat/conversations/$conversationId/search';
-  static String chatMedia(String conversationId) => '/chat/conversations/$conversationId/media';
-  static String chatMute(String conversationId) => '/chat/conversations/$conversationId/mute';
+  static String chatMessage(String conversationId, String messageId) =>
+      '/chat/conversations/$conversationId/messages/$messageId';
+  static String chatRead(String conversationId) =>
+      '/chat/conversations/$conversationId/read';
+  static String chatSearch(String conversationId) =>
+      '/chat/conversations/$conversationId/search';
+  static String chatMedia(String conversationId) =>
+      '/chat/conversations/$conversationId/media';
+  static String chatMute(String conversationId) =>
+      '/chat/conversations/$conversationId/mute';
   static String chatMembers(String conversationId) =>
       '/chat/conversations/$conversationId/members';
   static String chatMember(String conversationId, String memberId) =>
       '/chat/conversations/$conversationId/members/$memberId';
 
   // ws:// (or wss://) equivalent of [baseUrl], for the chat/call socket.
-  static String get chatSocketBase =>
-      baseUrl.replaceFirst('http://', 'ws://').replaceFirst('https://', 'wss://');
+  static String get chatSocketBase => baseUrl
+      .replaceFirst('http://', 'ws://')
+      .replaceFirst('https://', 'wss://');
 }

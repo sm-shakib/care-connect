@@ -27,6 +27,18 @@ class AttachmentOut(BaseModel):
         from_attributes = True
 
 
+class ReplyPreviewOut(BaseModel):
+    """A lightweight snapshot of the message being replied to — enough to
+    render a quoted preview, without recursing into its own reply chain."""
+
+    id: int
+    sender_id: str
+    sender_name: str
+    type: str
+    text: Optional[str] = None
+    is_deleted: bool = False
+
+
 class MessageOut(BaseModel):
     id: int
     conversation_id: int
@@ -40,6 +52,8 @@ class MessageOut(BaseModel):
     call_is_video: Optional[bool] = None
     call_outcome: Optional[str] = None
     call_duration_seconds: Optional[int] = None
+    reply_to: Optional[ReplyPreviewOut] = None
+    is_deleted: bool = False
 
 
 class ConversationOut(BaseModel):

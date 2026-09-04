@@ -44,7 +44,13 @@ abstract class ChatRepository {
     String? text,
     ChatMessageType type = ChatMessageType.text,
     List<MessageAttachment> attachments = const [],
+    String? replyToMessageId,
   });
+
+  /// "Unsends" a message: only the sender may call this, and only for
+  /// their own message. It keeps its place in the thread but renders as
+  /// "This message was unsent" for everyone from then on.
+  Future<void> unsendMessage(String conversationId, String messageId);
 
   Future<void> markRead(String conversationId, String userId);
 
@@ -52,7 +58,10 @@ abstract class ChatRepository {
 
   /// All attachments of [kind] ever sent in [conversationId] (any kind
   /// when null), most-recent first — backs the media/files/voice gallery.
-  List<MessageAttachment> mediaFor(String conversationId, {AttachmentKind? kind});
+  List<MessageAttachment> mediaFor(
+    String conversationId, {
+    AttachmentKind? kind,
+  });
 
   Future<void> addMembers(String conversationId, List<ChatParticipant> members);
 

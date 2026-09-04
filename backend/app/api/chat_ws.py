@@ -10,6 +10,8 @@ Handles two jobs:
   contents, it just routes them to whoever is online. When a call ends
   with an outcome, it also persists a `call_log` message so the call shows
   up in history for every participant, the same way `message:new` does.
+- `ping` -> `pong`: the client's heartbeat (see `ChatSocketService`), used
+  to detect a dead-but-not-yet-closed connection and force a reconnect.
 
 Everything is in-memory (a `dict[user_id, set[WebSocket]]`), which is fine
 since this app runs as a single process; a multi-instance deployment would
@@ -128,8 +130,19 @@ async def chat_socket(websocket: WebSocket, token: str = Query(...)) -> None:
 
 async def _handle_incoming(sender_id: int, data: dict) -> None:
     event_type = data.get("type")
-    conversation_id = data.get("conversation_id")
-    if event_type not in _CALL_AND_PRESENCE_EVENTS or conversation_id is None:
+    if event_type == "ping":
+        await manager.send_to_user(sender_id, {"type": "pong"})
+        return
+    if event_type not in _CALL_AND_PRESENCE_EVENTS or data.get("conversation_id") is None:
+        return
+    try:
+        # The Flutter client sends conversation_id as a string (it's typed
+        # `String` throughout the chat module); the column is Integer, so
+        # this must be cast or the lookup below silently matches nothing —
+        # which used to make every client-initiated signaling message
+        # (call:invite/ready/offer/answer/ice/leave/end) a silent no-op.
+        conversation_id = int(data["conversation_id"])
+    except (TypeError, ValueError):
         return
 
     db: Session = SessionLocal()

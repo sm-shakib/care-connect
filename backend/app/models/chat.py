@@ -100,6 +100,20 @@ class Message(Base):
     call_outcome = Column(String, nullable=True)  # answered / missed / declined
     call_duration_seconds = Column(Integer, nullable=True)
 
+    # Set when this message is a reply to another one in the same
+    # conversation. SET NULL (rather than cascading) so unsending the
+    # original doesn't take the reply down with it — the reply preview
+    # just falls back to "Original message deleted".
+    reply_to_message_id = Column(
+        Integer, ForeignKey("messages.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # "Unsend" — set instead of hard-deleting the row so the conversation
+    # keeps a "This message was unsent" placeholder in order, the way
+    # WhatsApp/Messenger do. ciphertext/attachments are wiped at the same
+    # time (see the unsend endpoint), so nothing sensitive lingers.
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     conversation = relationship("Conversation", back_populates="messages")
@@ -109,6 +123,7 @@ class Message(Base):
         back_populates="message",
         cascade="all, delete-orphan",
     )
+    reply_to = relationship("Message", remote_side=[id])
 
 
 class MessageAttachment(Base):

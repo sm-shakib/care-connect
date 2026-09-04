@@ -147,16 +147,39 @@ def _message_status(conversation: Conversation, message: Message) -> str:
     return "sent"
 
 
-def serialize_message(db: Session, conversation: Conversation, message: Message) -> dict:
-    text = None
-    if message.ciphertext:
-        data_key = crypto.get_or_create_conversation_key(db, conversation.id)
-        text = crypto.decrypt_text(data_key, message.ciphertext)
-
+def _sender_identity(db: Session, message: Message) -> dict:
     sender = message.sender or db.query(User).filter(User.id == message.sender_id).first()
-    sender_identity = (
-        resolve_identity(db, sender) if sender else {"id": str(message.sender_id), "name": "Unknown"}
-    )
+    return resolve_identity(db, sender) if sender else {"id": str(message.sender_id), "name": "Unknown"}
+
+
+def _decrypt_text(db: Session, conversation_id: int, message: Message) -> Optional[str]:
+    if not message.ciphertext:
+        return None
+    data_key = crypto.get_or_create_conversation_key(db, conversation_id)
+    return crypto.decrypt_text(data_key, message.ciphertext)
+
+
+def _reply_preview(db: Session, conversation: Conversation, message: Message) -> Optional[dict]:
+    """A shallow snapshot of the message being replied to (no attachments,
+    no further reply chain) — just enough to render a quoted preview."""
+    original = message.reply_to
+    if original is None:
+        return None
+    identity = _sender_identity(db, original)
+    is_deleted = original.deleted_at is not None
+    return {
+        "id": original.id,
+        "sender_id": identity["id"],
+        "sender_name": identity["name"],
+        "type": original.type,
+        "text": None if is_deleted else _decrypt_text(db, conversation.id, original),
+        "is_deleted": is_deleted,
+    }
+
+
+def serialize_message(db: Session, conversation: Conversation, message: Message) -> dict:
+    is_deleted = message.deleted_at is not None
+    sender_identity = _sender_identity(db, message)
 
     return {
         "id": message.id,
@@ -164,8 +187,10 @@ def serialize_message(db: Session, conversation: Conversation, message: Message)
         "sender_id": sender_identity["id"],
         "sender_name": sender_identity["name"],
         "type": message.type,
-        "text": text,
-        "attachments": [
+        "text": None if is_deleted else _decrypt_text(db, conversation.id, message),
+        "attachments": []
+        if is_deleted
+        else [
             {
                 "id": a.id,
                 "kind": a.kind,
@@ -188,6 +213,8 @@ def serialize_message(db: Session, conversation: Conversation, message: Message)
         "call_is_video": message.call_is_video,
         "call_outcome": message.call_outcome,
         "call_duration_seconds": message.call_duration_seconds,
+        "reply_to": _reply_preview(db, conversation, message),
+        "is_deleted": is_deleted,
     }
 
 
@@ -492,6 +519,7 @@ async def send_message(
     conversation_id: int,
     type: str = Form("text"),
     text: Optional[str] = Form(None),
+    reply_to_message_id: Optional[int] = Form(None),
     files: List[UploadFile] = File(default=[]),
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user),
@@ -502,12 +530,27 @@ async def send_message(
     if not text and not files:
         raise HTTPException(status_code=400, detail="Message must have text or at least one attachment")
 
+    if reply_to_message_id is not None:
+        original = (
+            db.query(Message)
+            .filter(Message.id == reply_to_message_id, Message.conversation_id == conversation_id)
+            .first()
+        )
+        if not original:
+            raise HTTPException(status_code=404, detail="Message being replied to was not found")
+
     ciphertext = None
     if text:
         data_key = crypto.get_or_create_conversation_key(db, conversation_id)
         ciphertext = crypto.encrypt_text(data_key, text)
 
-    message = Message(conversation_id=conversation_id, sender_id=current_user.id, type=type, ciphertext=ciphertext)
+    message = Message(
+        conversation_id=conversation_id,
+        sender_id=current_user.id,
+        type=type,
+        ciphertext=ciphertext,
+        reply_to_message_id=reply_to_message_id,
+    )
     db.add(message)
     db.flush()
 
@@ -541,6 +584,45 @@ async def send_message(
         conversation,
         {"type": "message:new", "conversation_id": conversation_id, "message": payload},
         exclude_user_id=current_user.id,
+    )
+    return payload
+
+
+@router.delete("/conversations/{conversation_id}/messages/{message_id}", response_model=MessageOut)
+async def unsend_message(
+    conversation_id: int,
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    """"Unsend" — only the sender may do this, and only for their own
+    message. The row stays (so ordering and any replies to it survive, see
+    `Message.reply_to_message_id`'s ON DELETE SET NULL) but its content is
+    wiped and it renders as "This message was unsent" for everyone,
+    matching WhatsApp/Messenger's behavior rather than a silent local-only
+    delete."""
+    conversation, _ = _get_conversation_and_participant(db, conversation_id, current_user)
+    message = (
+        db.query(Message)
+        .filter(Message.id == message_id, Message.conversation_id == conversation_id)
+        .first()
+    )
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    if message.sender_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only unsend your own messages")
+
+    message.deleted_at = datetime.now(timezone.utc)
+    message.ciphertext = None
+    for attachment in list(message.attachments):
+        db.delete(attachment)
+    db.commit()
+    db.refresh(message)
+
+    payload = serialize_message(db, conversation, message)
+    await chat_ws.manager.broadcast_to_conversation(
+        conversation,
+        {"type": "message:deleted", "conversation_id": conversation_id, "message": payload},
     )
     return payload
 

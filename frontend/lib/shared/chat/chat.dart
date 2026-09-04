@@ -21,3 +21,4 @@ export 'view/conversation_page.dart';
 export 'view/group_info_page.dart';
 export 'view/media_gallery_page.dart';
 export 'view/new_conversation_page.dart';
+export 'widgets/chat_unread_badge.dart';

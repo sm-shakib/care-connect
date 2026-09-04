@@ -43,18 +43,18 @@ class CallCubit extends Cubit<CallCubitState> {
     String? groupTitle,
     bool isIncoming = false,
     ChatSocketService? socket,
-  })  : _socket = socket ?? ChatSocketService.instance,
-        super(
-          CallCubitState(
-            session: CallSession(
-              conversationId: conversationId,
-              participants: participants,
-              groupTitle: groupTitle,
-              isVideo: isVideo,
-              isIncoming: isIncoming,
-            ),
-          ),
-        ) {
+  }) : _socket = socket ?? ChatSocketService.instance,
+       super(
+         CallCubitState(
+           session: CallSession(
+             conversationId: conversationId,
+             participants: participants,
+             groupTitle: groupTitle,
+             isVideo: isVideo,
+             isIncoming: isIncoming,
+           ),
+         ),
+       ) {
     _socketSubscription = _socket.events.listen(_handleSignal);
     unawaited(_setUp());
   }
@@ -104,6 +104,9 @@ class CallCubit extends Cubit<CallCubitState> {
     if (state.session.isIncoming) {
       return; // wait for accept()/decline()
     }
+    // The socket may still be (re)connecting at the exact moment a call is
+    // placed — wait rather than silently dropping the invite.
+    await _socket.ensureConnected();
     _socket.send({
       'type': 'call:invite',
       'conversation_id': _conversationId,
@@ -117,9 +120,14 @@ class CallCubit extends Cubit<CallCubitState> {
     });
   }
 
-  void accept() {
+  Future<void> accept() async {
     if (state.session.state != CallState.ringing) return;
-    emit(state.copyWith(session: state.session.copyWith(state: CallState.connecting)));
+    emit(
+      state.copyWith(
+        session: state.session.copyWith(state: CallState.connecting),
+      ),
+    );
+    await _socket.ensureConnected();
     _becomeReady();
   }
 
@@ -136,14 +144,16 @@ class CallCubit extends Cubit<CallCubitState> {
       _leaveGroupCall();
       return;
     }
-    final outcome =
-        state.session.state == CallState.active ? CallOutcome.answered : CallOutcome.missed;
+    final outcome = state.session.state == CallState.active
+        ? CallOutcome.answered
+        : CallOutcome.missed;
     _endCall(outcome: outcome);
   }
 
   void toggleMute() {
     final next = !state.session.isMuted;
-    for (final track in _localStream?.getAudioTracks() ?? const <MediaStreamTrack>[]) {
+    for (final track
+        in _localStream?.getAudioTracks() ?? const <MediaStreamTrack>[]) {
       track.enabled = !next;
     }
     emit(state.copyWith(session: state.session.copyWith(isMuted: next)));
@@ -157,7 +167,8 @@ class CallCubit extends Cubit<CallCubitState> {
 
   void toggleCamera() {
     final next = !state.session.isCameraOn;
-    for (final track in _localStream?.getVideoTracks() ?? const <MediaStreamTrack>[]) {
+    for (final track
+        in _localStream?.getVideoTracks() ?? const <MediaStreamTrack>[]) {
       track.enabled = next;
     }
     emit(state.copyWith(session: state.session.copyWith(isCameraOn: next)));
@@ -216,7 +227,8 @@ class CallCubit extends Cubit<CallCubitState> {
       if (event.streams.isNotEmpty) _bindRemoteStream(event.streams.first);
     };
     pc.onConnectionState = (connectionState) {
-      if (connectionState == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
+      if (connectionState ==
+          RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
         _onAnyPeerConnected();
       }
     };
@@ -240,7 +252,10 @@ class CallCubit extends Cubit<CallCubitState> {
     if (state.session.state == CallState.active) return;
     emit(
       state.copyWith(
-        session: state.session.copyWith(state: CallState.active, startedAt: DateTime.now()),
+        session: state.session.copyWith(
+          state: CallState.active,
+          startedAt: DateTime.now(),
+        ),
         elapsedSeconds: 0,
       ),
     );
@@ -278,7 +293,10 @@ class CallCubit extends Cubit<CallCubitState> {
     final pc = _peers[peerId] ?? await _createPeerConnection(peerId);
     _peers[peerId] = pc;
     await pc.setRemoteDescription(
-      RTCSessionDescription(event['sdp'] as String, event['sdp_type'] as String?),
+      RTCSessionDescription(
+        event['sdp'] as String,
+        event['sdp_type'] as String?,
+      ),
     );
     await _flushPendingCandidates(peerId, pc);
     final answer = await pc.createAnswer();
@@ -296,12 +314,18 @@ class CallCubit extends Cubit<CallCubitState> {
     final pc = _peers[peerId];
     if (pc == null) return;
     await pc.setRemoteDescription(
-      RTCSessionDescription(event['sdp'] as String, event['sdp_type'] as String?),
+      RTCSessionDescription(
+        event['sdp'] as String,
+        event['sdp_type'] as String?,
+      ),
     );
     await _flushPendingCandidates(peerId, pc);
   }
 
-  Future<void> _handleRemoteIce(String peerId, Map<String, dynamic> event) async {
+  Future<void> _handleRemoteIce(
+    String peerId,
+    Map<String, dynamic> event,
+  ) async {
     final candidate = RTCIceCandidate(
       event['candidate'] as String?,
       event['sdp_mid'] as String?,
@@ -315,7 +339,10 @@ class CallCubit extends Cubit<CallCubitState> {
     await pc.addCandidate(candidate);
   }
 
-  Future<void> _flushPendingCandidates(String peerId, RTCPeerConnection pc) async {
+  Future<void> _flushPendingCandidates(
+    String peerId,
+    RTCPeerConnection pc,
+  ) async {
     _remoteDescriptionSet[peerId] = true;
     final pending = _pendingCandidates.remove(peerId);
     if (pending == null) return;
@@ -365,7 +392,9 @@ class CallCubit extends Cubit<CallCubitState> {
       unawaited(pc.close());
     }
     _peers.clear();
-    emit(state.copyWith(session: state.session.copyWith(state: CallState.ended)));
+    emit(
+      state.copyWith(session: state.session.copyWith(state: CallState.ended)),
+    );
   }
 
   @override

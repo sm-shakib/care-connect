@@ -9,7 +9,6 @@ import 'package:frontend/shared/medicine/alarm/medicine_alarm_service.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
 
-
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -85,7 +84,8 @@ class _AppViewState extends State<AppView> {
                 onContactSupport: () {
                   // TODO: open support link
                 },
-                onLanguageToggle: () => context.read<LocaleCubit>().toggleLocale(),
+                onLanguageToggle: () =>
+                    context.read<LocaleCubit>().toggleLocale(),
               ),
             ),
           ),

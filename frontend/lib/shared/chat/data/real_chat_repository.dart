@@ -23,7 +23,7 @@ import 'chat_wire.dart';
 /// instead of seed data.
 class RealChatRepository implements ChatRepository {
   RealChatRepository({required this.currentUserId, ChatSocketService? socket})
-      : _socket = socket ?? ChatSocketService.instance {
+    : _socket = socket ?? ChatSocketService.instance {
     _socketSubscription = _socket.events.listen(_handleSocketEvent);
   }
 
@@ -59,7 +59,9 @@ class RealChatRepository implements ChatRepository {
   }
 
   Future<List<Conversation>> _refreshConversations() async {
-    final response = await _apiClient.get<List<dynamic>>(ApiConstants.chatConversations);
+    final response = await _apiClient.get<List<dynamic>>(
+      ApiConstants.chatConversations,
+    );
     for (final raw in response.data ?? const []) {
       final conversation = _conversationFromJson(raw as Map<String, dynamic>);
       _conversations[conversation.id] = conversation;
@@ -99,11 +101,14 @@ class RealChatRepository implements ChatRepository {
   }
 
   @override
-  Conversation? conversationById(String conversationId) => _conversations[conversationId];
+  Conversation? conversationById(String conversationId) =>
+      _conversations[conversationId];
 
   @override
   Future<List<ChatParticipant>> getContacts(ChatParticipant currentUser) async {
-    final response = await _apiClient.get<List<dynamic>>(ApiConstants.chatContacts);
+    final response = await _apiClient.get<List<dynamic>>(
+      ApiConstants.chatContacts,
+    );
     return (response.data ?? const [])
         .map((raw) => chatParticipantFromJson(raw as Map<String, dynamic>))
         .toList();
@@ -144,7 +149,10 @@ class RealChatRepository implements ChatRepository {
   }
 
   @override
-  Future<void> addMembers(String conversationId, List<ChatParticipant> members) async {
+  Future<void> addMembers(
+    String conversationId,
+    List<ChatParticipant> members,
+  ) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
       ApiConstants.chatMembers(conversationId),
       data: {'member_ids': members.map((m) => int.parse(m.id)).toList()},
@@ -177,7 +185,9 @@ class RealChatRepository implements ChatRepository {
 
   @override
   Future<void> deleteConversation(String conversationId) async {
-    await _apiClient.delete<void>(ApiConstants.chatConversationDetail(conversationId));
+    await _apiClient.delete<void>(
+      ApiConstants.chatConversationDetail(conversationId),
+    );
     _conversations.remove(conversationId);
     _messages.remove(conversationId);
     _media.remove(conversationId);
@@ -190,7 +200,8 @@ class RealChatRepository implements ChatRepository {
   Stream<List<ChatMessage>> watchMessages(String conversationId) async* {
     yield await _refreshMessages(conversationId);
     yield* _changes.stream.map(
-      (_) => List<ChatMessage>.unmodifiable(_messages[conversationId] ?? const []),
+      (_) =>
+          List<ChatMessage>.unmodifiable(_messages[conversationId] ?? const []),
     );
   }
 
@@ -208,7 +219,9 @@ class RealChatRepository implements ChatRepository {
 
   Future<void> _refreshMedia(String conversationId) async {
     try {
-      final response = await _apiClient.get<List<dynamic>>(ApiConstants.chatMedia(conversationId));
+      final response = await _apiClient.get<List<dynamic>>(
+        ApiConstants.chatMedia(conversationId),
+      );
       _media[conversationId] = (response.data ?? const [])
           .map((raw) => _attachmentFromJson(raw as Map<String, dynamic>))
           .toList();
@@ -218,8 +231,12 @@ class RealChatRepository implements ChatRepository {
   }
 
   @override
-  List<MessageAttachment> mediaFor(String conversationId, {AttachmentKind? kind}) {
-    final attachments = _media[conversationId] ??
+  List<MessageAttachment> mediaFor(
+    String conversationId, {
+    AttachmentKind? kind,
+  }) {
+    final attachments =
+        _media[conversationId] ??
         (_messages[conversationId] ?? const [])
             .expand((m) => m.attachments)
             .toList()
@@ -236,7 +253,25 @@ class RealChatRepository implements ChatRepository {
     String? text,
     ChatMessageType type = ChatMessageType.text,
     List<MessageAttachment> attachments = const [],
+    String? replyToMessageId,
   }) async {
+    ReplyPreview? replyTo;
+    if (replyToMessageId != null) {
+      for (final candidate
+          in _messages[conversationId] ?? const <ChatMessage>[]) {
+        if (candidate.id == replyToMessageId) {
+          replyTo = ReplyPreview(
+            id: candidate.id,
+            senderName: candidate.senderName,
+            type: candidate.type,
+            text: candidate.text,
+            isDeleted: candidate.isDeleted,
+          );
+          break;
+        }
+      }
+    }
+
     // Optimistic local echo so the composer feels instant; swapped for the
     // server's copy (real id, decrypted-on-read text, uploaded URLs) once
     // the request resolves.
@@ -252,6 +287,7 @@ class RealChatRepository implements ChatRepository {
       text: text,
       attachments: attachments,
       status: MessageDeliveryStatus.sending,
+      replyTo: replyTo,
     );
     final list = _messages.putIfAbsent(conversationId, () => []);
     list.add(optimistic);
@@ -262,11 +298,17 @@ class RealChatRepository implements ChatRepository {
       final formData = dio.FormData.fromMap({
         'type': chatMessageTypeToWire(type),
         if (text != null && text.isNotEmpty) 'text': text,
+        if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
         if (attachments.isNotEmpty)
           'files': await Future.wait(
             attachments
                 .where((a) => a.localPath != null)
-                .map((a) => dio.MultipartFile.fromFile(a.localPath!, filename: a.fileName)),
+                .map(
+                  (a) => dio.MultipartFile.fromFile(
+                    a.localPath!,
+                    filename: a.fileName,
+                  ),
+                ),
           ),
       });
       final response = await _apiClient.post<Map<String, dynamic>>(
@@ -293,10 +335,49 @@ class RealChatRepository implements ChatRepository {
     }
   }
 
+  @override
+  Future<void> unsendMessage(String conversationId, String messageId) async {
+    final list = _messages[conversationId];
+    final index = list?.indexWhere((m) => m.id == messageId) ?? -1;
+    final previous = index != -1 ? list![index] : null;
+    if (list != null && index != -1) {
+      list[index] = list[index].copyWith(isDeleted: true);
+      if (_conversations[conversationId]?.lastMessage?.id == messageId) {
+        _bumpLastMessage(conversationId, list[index]);
+      }
+      _notify();
+    }
+    try {
+      final response = await _apiClient.delete<Map<String, dynamic>>(
+        ApiConstants.chatMessage(conversationId, messageId),
+      );
+      final updated = _messageFromJson(response.data!);
+      final freshIndex =
+          _messages[conversationId]?.indexWhere((m) => m.id == messageId) ?? -1;
+      if (freshIndex != -1) {
+        _messages[conversationId]![freshIndex] = updated;
+        if (_conversations[conversationId]?.lastMessage?.id == messageId) {
+          _bumpLastMessage(conversationId, updated);
+        }
+        _notify();
+      }
+    } catch (_) {
+      // Revert the optimistic delete if the server rejected it (e.g. no
+      // longer the sender's message, or already offline-queued too late).
+      if (list != null && index != -1 && previous != null) {
+        list[index] = previous;
+        _notify();
+      }
+      rethrow;
+    }
+  }
+
   void _bumpLastMessage(String conversationId, ChatMessage message) {
     final conversation = _conversations[conversationId];
     if (conversation == null) return;
-    _conversations[conversationId] = conversation.copyWith(lastMessage: message);
+    _conversations[conversationId] = conversation.copyWith(
+      lastMessage: message,
+    );
   }
 
   @override
@@ -310,7 +391,10 @@ class RealChatRepository implements ChatRepository {
   }
 
   @override
-  Future<List<ChatMessage>> searchMessages(String conversationId, String query) async {
+  Future<List<ChatMessage>> searchMessages(
+    String conversationId,
+    String query,
+  ) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return const [];
     final response = await _apiClient.get<List<dynamic>>(
@@ -328,6 +412,8 @@ class RealChatRepository implements ChatRepository {
     switch (event['type'] as String?) {
       case 'message:new':
         _onMessageNew(event);
+      case 'message:deleted':
+        _onMessageDeleted(event);
       case 'message:read':
         _onMessageRead(event);
       case 'conversation:updated':
@@ -344,8 +430,23 @@ class RealChatRepository implements ChatRepository {
     _bumpLastMessage(conversationId, message);
     final conversation = _conversations[conversationId];
     if (conversation != null) {
-      _conversations[conversationId] =
-          conversation.copyWith(unreadCount: conversation.unreadCount + 1);
+      _conversations[conversationId] = conversation.copyWith(
+        unreadCount: conversation.unreadCount + 1,
+      );
+    }
+    _notify();
+  }
+
+  void _onMessageDeleted(Map<String, dynamic> event) {
+    final conversationId = event['conversation_id'].toString();
+    final updated = _messageFromJson(event['message'] as Map<String, dynamic>);
+    final list = _messages[conversationId];
+    if (list != null) {
+      final index = list.indexWhere((m) => m.id == updated.id);
+      if (index != -1) list[index] = updated;
+    }
+    if (_conversations[conversationId]?.lastMessage?.id == updated.id) {
+      _bumpLastMessage(conversationId, updated);
     }
     _notify();
   }
@@ -361,7 +462,9 @@ class RealChatRepository implements ChatRepository {
   }
 
   void _onConversationUpdated(Map<String, dynamic> event) {
-    final conversation = _conversationFromJson(event['conversation'] as Map<String, dynamic>);
+    final conversation = _conversationFromJson(
+      event['conversation'] as Map<String, dynamic>,
+    );
     _conversations[conversation.id] = conversation;
     _notify();
   }
@@ -409,6 +512,10 @@ class RealChatRepository implements ChatRepository {
           .toList(),
       status: chatStatusFromWire(json['status'] as String),
       callLog: callLog,
+      replyTo: chatReplyPreviewFromJson(
+        json['reply_to'] as Map<String, dynamic>?,
+      ),
+      isDeleted: json['is_deleted'] as bool? ?? false,
     );
   }
 
@@ -422,7 +529,9 @@ class RealChatRepository implements ChatRepository {
           .toList(),
       title: json['title'] as String?,
       avatarColor: chatColorFromHex(json['avatar_color'] as String?),
-      lastMessage: lastMessageJson != null ? _messageFromJson(lastMessageJson) : null,
+      lastMessage: lastMessageJson != null
+          ? _messageFromJson(lastMessageJson)
+          : null,
       unreadCount: json['unread_count'] as int? ?? 0,
       createdBy: json['created_by'] as String?,
       isMuted: json['is_muted'] as bool? ?? false,

@@ -91,6 +91,17 @@ MessageDeliveryStatus chatStatusFromWire(String status) {
   }
 }
 
+ReplyPreview? chatReplyPreviewFromJson(Map<String, dynamic>? json) {
+  if (json == null) return null;
+  return ReplyPreview(
+    id: json['id'].toString(),
+    senderName: json['sender_name'] as String,
+    type: chatMessageTypeFromWire(json['type'] as String),
+    text: json['text'] as String?,
+    isDeleted: json['is_deleted'] as bool? ?? false,
+  );
+}
+
 CallOutcome chatCallOutcomeFromWire(String? outcome) {
   switch (outcome) {
     case 'missed':

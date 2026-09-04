@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -21,7 +23,22 @@ class ChatSession {
 
   static Future<ChatSession>? _future;
 
-  static Future<ChatSession> ensureStarted() => _future ??= _start();
+  /// Starts the session on first call and reuses it after — except on
+  /// failure (e.g. the access token hadn't finished being written to
+  /// secure storage yet right after login, or a transient network error):
+  /// a failed attempt is never cached, so the next call — the badge
+  /// rebuilding, the user opening the Chats tab — retries from scratch
+  /// instead of wedging chat for the rest of the app session.
+  static Future<ChatSession> ensureStarted() {
+    final future = _future ??= _start();
+    unawaited(
+      future.catchError((Object error) {
+        if (identical(_future, future)) _future = null;
+        throw error;
+      }),
+    );
+    return future;
+  }
 
   static Future<ChatSession> _start() async {
     const storage = FlutterSecureStorage();
@@ -31,7 +48,9 @@ class ChatSession {
     }
     ChatSocketService.instance.connect(token);
 
-    final response = await ApiClient().get<Map<String, dynamic>>(ApiConstants.chatMe);
+    final response = await ApiClient().get<Map<String, dynamic>>(
+      ApiConstants.chatMe,
+    );
     final currentUser = chatParticipantFromJson(response.data!);
     final repository = RealChatRepository(currentUserId: currentUser.id);
     return ChatSession._(repository, currentUser);
@@ -51,8 +70,12 @@ class ChatSession {
 class ChatSessionGate extends StatelessWidget {
   const ChatSessionGate({super.key, required this.builder});
 
-  final Widget Function(BuildContext context, ChatRepository repository, ChatParticipant currentUser)
-      builder;
+  final Widget Function(
+    BuildContext context,
+    ChatRepository repository,
+    ChatParticipant currentUser,
+  )
+  builder;
 
   @override
   Widget build(BuildContext context) {
