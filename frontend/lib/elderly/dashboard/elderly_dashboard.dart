@@ -423,10 +423,12 @@ class _ChatTabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChatInboxPage(
-      repository: MockChatRepository.instance,
-      currentUser: ChatDirectory.adib,
-      showHeader: false,
+    return ChatSessionGate(
+      builder: (context, repository, currentUser) => ChatInboxPage(
+        repository: repository,
+        currentUser: currentUser,
+        showHeader: false,
+      ),
     );
   }
 }

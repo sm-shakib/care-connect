@@ -1,6 +1,6 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'package:frontend/theme/app_colors.dart';
 
@@ -9,14 +9,14 @@ import '../models/call_session.dart';
 import '../models/chat_participant.dart';
 import '../widgets/call_controls_bar.dart';
 
-/// Full-screen voice/video call UI. There is no signaling backend in this
-/// app (see `call_session.dart`), so the "other side" answering is
-/// simulated by [CallCubit] — but the local mic/camera are real: video
-/// calls show a genuine self-view via the `camera` package (mobile only,
-/// per project scope).
-class CallScreen extends StatefulWidget {
+/// Full-screen voice/video call UI, backed by a real WebRTC connection
+/// (see `CallCubit`'s doc comment for the signaling protocol) — both the
+/// local self-view and, for 1:1 calls, the other participant's video are
+/// genuine `flutter_webrtc` renderers.
+class CallScreen extends StatelessWidget {
   const CallScreen({
     super.key,
+    required this.currentUserId,
     required this.conversationId,
     required this.participants,
     required this.isVideo,
@@ -24,6 +24,7 @@ class CallScreen extends StatefulWidget {
     this.isIncoming = false,
   });
 
+  final String currentUserId;
   final String conversationId;
 
   /// Everyone else on the call. A single entry for a 1:1 call, or every
@@ -36,63 +37,21 @@ class CallScreen extends StatefulWidget {
   bool get isGroupCall => groupTitle != null;
 
   @override
-  State<CallScreen> createState() => _CallScreenState();
-}
-
-class _CallScreenState extends State<CallScreen> {
-  CameraController? _cameraController;
-  bool _cameraFailed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isVideo) _initCamera();
-  }
-
-  Future<void> _initCamera() async {
-    try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) {
-        setState(() => _cameraFailed = true);
-        return;
-      }
-      final front = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first,
-      );
-      final controller = CameraController(front, ResolutionPreset.medium, enableAudio: false);
-      await controller.initialize();
-      if (!mounted) {
-        await controller.dispose();
-        return;
-      }
-      setState(() => _cameraController = controller);
-    } catch (_) {
-      if (mounted) setState(() => _cameraFailed = true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => CallCubit(
-        conversationId: widget.conversationId,
-        participants: widget.participants,
-        groupTitle: widget.groupTitle,
-        isVideo: widget.isVideo,
-        isIncoming: widget.isIncoming,
+        currentUserId: currentUserId,
+        conversationId: conversationId,
+        participants: participants,
+        groupTitle: groupTitle,
+        isVideo: isVideo,
+        isIncoming: isIncoming,
       ),
       child: BlocConsumer<CallCubit, CallCubitState>(
         listener: (context, state) {
           if (state.session.state == CallState.ended) {
             Future.delayed(const Duration(milliseconds: 500), () {
-              if (mounted) Navigator.of(context).maybePop();
+              if (context.mounted) Navigator.of(context).maybePop();
             });
           }
         },
@@ -111,16 +70,24 @@ class _CallScreenState extends State<CallScreen> {
                 child: Stack(
                   alignment: Alignment.topCenter,
                   children: [
+                    if (isVideo && !isGroupCall && state.hasRemoteVideo)
+                      Positioned.fill(
+                        child: RTCVideoView(
+                          cubit.remoteRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        ),
+                      ),
                     SizedBox(
                       width: double.infinity,
                       child: Column(
                         children: [
                           const SizedBox(height: 32),
-                          widget.isGroupCall
-                              ? _GroupCallAvatars(participants: widget.participants)
+                          isGroupCall
+                              ? _GroupCallAvatars(participants: participants)
                               : _SoloCallAvatar(
-                                  participant: widget.participants.isNotEmpty
-                                      ? widget.participants.first
+                                  participant: participants.isNotEmpty
+                                      ? participants.first
                                       : null,
                                 ),
                           const SizedBox(height: 16),
@@ -133,25 +100,31 @@ class _CallScreenState extends State<CallScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          if (widget.isGroupCall) ...[
+                          if (isGroupCall) ...[
                             const SizedBox(height: 4),
                             Text(
-                              widget.participants.map((p) => p.name).join(', '),
+                              participants.map((p) => p.name).join(', '),
                               textAlign: TextAlign.center,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, color: Colors.white54),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white54,
+                              ),
                             ),
                           ],
                           const SizedBox(height: 8),
                           Text(
                             _statusLabel(session, state.elapsedLabel),
-                            style: const TextStyle(fontSize: 15, color: Colors.white70),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    if (widget.isVideo && session.isCameraOn && _cameraController != null)
+                    if (isVideo && session.isCameraOn)
                       Positioned(
                         top: 16,
                         right: 16,
@@ -160,28 +133,29 @@ class _CallScreenState extends State<CallScreen> {
                           child: SizedBox(
                             width: 110,
                             height: 150,
-                            child: CameraPreview(_cameraController!),
+                            child: RTCVideoView(
+                              cubit.localRenderer,
+                              mirror: true,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                            ),
                           ),
                         ),
-                      )
-                    else if (widget.isVideo && _cameraFailed)
-                      const Positioned(
-                        top: 16,
-                        right: 16,
-                        child: _CameraUnavailableBadge(),
                       ),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 28),
-                        child: widget.isIncoming && session.state == CallState.ringing
+                        child: isIncoming && session.state == CallState.ringing
                             ? _IncomingCallActions(cubit: cubit)
                             : Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                ),
                                 child: CallControlsBar(
                                   isMuted: session.isMuted,
                                   isSpeakerOn: session.isSpeakerOn,
-                                  isVideo: widget.isVideo,
+                                  isVideo: isVideo,
                                   isCameraOn: session.isCameraOn,
                                   onToggleMute: cubit.toggleMute,
                                   onToggleSpeaker: cubit.toggleSpeaker,
@@ -204,9 +178,7 @@ class _CallScreenState extends State<CallScreen> {
   String _statusLabel(CallSession session, String elapsedLabel) {
     switch (session.state) {
       case CallState.ringing:
-        return widget.isIncoming
-            ? '${widget.isVideo ? 'Video' : 'Voice'} call'
-            : 'Calling…';
+        return isIncoming ? '${isVideo ? 'Video' : 'Voice'} call' : 'Calling…';
       case CallState.connecting:
         return 'Connecting…';
       case CallState.active:
@@ -229,7 +201,11 @@ class _SoloCallAvatar extends StatelessWidget {
       backgroundColor: participant?.avatarColor ?? AppColors.paleMint,
       child: Text(
         participant?.initials ?? '?',
-        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.darkTeal),
+        style: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: AppColors.darkTeal,
+        ),
       ),
     );
   }
@@ -253,15 +229,20 @@ class _GroupCallAvatars extends StatelessWidget {
     final shown = participants.take(maxShown).toList();
     final overflow = participants.length - shown.length;
     final bubbleCount = shown.length + (overflow > 0 ? 1 : 0);
-    final totalWidth = bubbleCount == 0 ? 0.0 : _bubbleSize + (bubbleCount - 1) * _step;
+    final totalWidth = bubbleCount == 0
+        ? 0.0
+        : _bubbleSize + (bubbleCount - 1) * _step;
 
     Widget bubble(Widget inner) => Container(
-          width: _bubbleSize,
-          height: _bubbleSize,
-          decoration: const BoxDecoration(color: Color(0xFF0B1F1C), shape: BoxShape.circle),
-          padding: const EdgeInsets.all(4),
-          child: inner,
-        );
+      width: _bubbleSize,
+      height: _bubbleSize,
+      decoration: const BoxDecoration(
+        color: Color(0xFF0B1F1C),
+        shape: BoxShape.circle,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: inner,
+    );
 
     // Positioned (rather than negative Padding, which asserts non-negative
     // insets) so bubbles can overlap.
@@ -295,7 +276,11 @@ class _GroupCallAvatars extends StatelessWidget {
                   backgroundColor: Colors.white24,
                   child: Text(
                     '+$overflow',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -333,22 +318,6 @@ class _IncomingCallActions extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CameraUnavailableBadge extends StatelessWidget {
-  const _CameraUnavailableBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Icon(Icons.videocam_off, color: Colors.white70),
     );
   }
 }

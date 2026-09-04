@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class NavbarButton extends StatelessWidget {
@@ -8,12 +9,16 @@ class NavbarButton extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onPressed,
+    this.showChatBadge = false,
   });
 
   final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onPressed;
+
+  /// Wraps the icon in [ChatUnreadBadge] — set for the Chats tab only.
+  final bool showChatBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,11 @@ class NavbarButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: foregroundColor, size: 28),
+                showChatBadge
+                    ? ChatUnreadBadge(
+                        child: Icon(icon, color: foregroundColor, size: 28),
+                      )
+                    : Icon(icon, color: foregroundColor, size: 28),
                 const SizedBox(height: 6),
                 // FittedBox shrinks the label instead of letting it
                 // truncate on narrow screens / longer labels.
@@ -45,7 +54,9 @@ class NavbarButton extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       color: foregroundColor,
                     ),
                     maxLines: 1,

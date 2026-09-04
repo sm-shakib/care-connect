@@ -38,14 +38,15 @@ class MockChatRepository implements ChatRepository {
   }
 
   List<Conversation> _conversationsFor(String userId) {
-    final list = _conversations.values
-        .where((c) => c.participants.any((p) => p.id == userId))
-        .toList()
-      ..sort((a, b) {
-        final aTime = a.lastMessage?.timestamp ?? DateTime(2000);
-        final bTime = b.lastMessage?.timestamp ?? DateTime(2000);
-        return bTime.compareTo(aTime);
-      });
+    final list =
+        _conversations.values
+            .where((c) => c.participants.any((p) => p.id == userId))
+            .toList()
+          ..sort((a, b) {
+            final aTime = a.lastMessage?.timestamp ?? DateTime(2000);
+            final bTime = b.lastMessage?.timestamp ?? DateTime(2000);
+            return bTime.compareTo(aTime);
+          });
     return list;
   }
 
@@ -53,7 +54,8 @@ class MockChatRepository implements ChatRepository {
   Stream<List<ChatMessage>> watchMessages(String conversationId) async* {
     yield List.unmodifiable(_messages[conversationId] ?? const []);
     yield* _changes.stream.map(
-      (_) => List<ChatMessage>.unmodifiable(_messages[conversationId] ?? const []),
+      (_) =>
+          List<ChatMessage>.unmodifiable(_messages[conversationId] ?? const []),
     );
   }
 
@@ -64,7 +66,13 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
-  Conversation? conversationById(String conversationId) => _conversations[conversationId];
+  Conversation? conversationById(String conversationId) =>
+      _conversations[conversationId];
+
+  @override
+  Future<List<ChatParticipant>> getContacts(ChatParticipant currentUser) async {
+    return ChatDirectory.contactsFor(currentUser);
+  }
 
   @override
   Future<Conversation> createDirectConversation({
@@ -118,8 +126,30 @@ class MockChatRepository implements ChatRepository {
     String? text,
     ChatMessageType type = ChatMessageType.text,
     List<MessageAttachment> attachments = const [],
+    String? replyToMessageId,
     CallLogInfo? callLog,
   }) async {
+    ReplyPreview? replyTo;
+    if (replyToMessageId != null) {
+      ChatMessage? original;
+      for (final candidate
+          in _messages[conversationId] ?? const <ChatMessage>[]) {
+        if (candidate.id == replyToMessageId) {
+          original = candidate;
+          break;
+        }
+      }
+      if (original != null) {
+        replyTo = ReplyPreview(
+          id: original.id,
+          senderName: original.senderName,
+          type: original.type,
+          text: original.text,
+          isDeleted: original.isDeleted,
+        );
+      }
+    }
+
     final message = ChatMessage(
       id: _uuid.v4(),
       conversationId: conversationId,
@@ -132,6 +162,7 @@ class MockChatRepository implements ChatRepository {
       attachments: attachments,
       status: MessageDeliveryStatus.sending,
       callLog: callLog,
+      replyTo: replyTo,
     );
     _messages.putIfAbsent(conversationId, () => []).add(message);
     _bumpLastMessage(conversationId, message);
@@ -143,11 +174,39 @@ class MockChatRepository implements ChatRepository {
     return message;
   }
 
-  Future<void> _simulateDelivery(String conversationId, String messageId) async {
+  @override
+  Future<void> unsendMessage(String conversationId, String messageId) async {
+    final messages = _messages[conversationId];
+    if (messages == null) return;
+    final index = messages.indexWhere((m) => m.id == messageId);
+    if (index == -1) return;
+    messages[index] = ChatMessage(
+      id: messages[index].id,
+      conversationId: messages[index].conversationId,
+      senderId: messages[index].senderId,
+      senderName: messages[index].senderName,
+      timestamp: messages[index].timestamp,
+      isFromMe: messages[index].isFromMe,
+      type: messages[index].type,
+      status: messages[index].status,
+      isDeleted: true,
+    );
+    _bumpLastMessage(conversationId, messages[index]);
+    _notify();
+  }
+
+  Future<void> _simulateDelivery(
+    String conversationId,
+    String messageId,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
     _updateMessageStatus(conversationId, messageId, MessageDeliveryStatus.sent);
     await Future<void>.delayed(const Duration(milliseconds: 700));
-    _updateMessageStatus(conversationId, messageId, MessageDeliveryStatus.delivered);
+    _updateMessageStatus(
+      conversationId,
+      messageId,
+      MessageDeliveryStatus.delivered,
+    );
   }
 
   void _updateMessageStatus(
@@ -166,7 +225,9 @@ class MockChatRepository implements ChatRepository {
   void _bumpLastMessage(String conversationId, ChatMessage message) {
     final conversation = _conversations[conversationId];
     if (conversation == null) return;
-    _conversations[conversationId] = conversation.copyWith(lastMessage: message);
+    _conversations[conversationId] = conversation.copyWith(
+      lastMessage: message,
+    );
   }
 
   @override
@@ -178,7 +239,10 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
-  Future<List<ChatMessage>> searchMessages(String conversationId, String query) async {
+  Future<List<ChatMessage>> searchMessages(
+    String conversationId,
+    String query,
+  ) async {
     final trimmed = query.trim().toLowerCase();
     if (trimmed.isEmpty) return const [];
     final messages = _messages[conversationId] ?? const [];
@@ -188,7 +252,10 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
-  List<MessageAttachment> mediaFor(String conversationId, {AttachmentKind? kind}) {
+  List<MessageAttachment> mediaFor(
+    String conversationId, {
+    AttachmentKind? kind,
+  }) {
     final messages = _messages[conversationId] ?? const [];
     final attachments = messages
         .expand((m) => m.attachments)
@@ -198,11 +265,16 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
-  Future<void> addMembers(String conversationId, List<ChatParticipant> members) async {
+  Future<void> addMembers(
+    String conversationId,
+    List<ChatParticipant> members,
+  ) async {
     final conversation = _conversations[conversationId];
     if (conversation == null) return;
     final updated = {...conversation.participants, ...members}.toList();
-    _conversations[conversationId] = conversation.copyWith(participants: updated);
+    _conversations[conversationId] = conversation.copyWith(
+      participants: updated,
+    );
     _notify();
   }
 
@@ -210,9 +282,12 @@ class MockChatRepository implements ChatRepository {
   Future<void> removeMember(String conversationId, String memberId) async {
     final conversation = _conversations[conversationId];
     if (conversation == null) return;
-    final updated =
-        conversation.participants.where((p) => p.id != memberId).toList();
-    _conversations[conversationId] = conversation.copyWith(participants: updated);
+    final updated = conversation.participants
+        .where((p) => p.id != memberId)
+        .toList();
+    _conversations[conversationId] = conversation.copyWith(
+      participants: updated,
+    );
     _notify();
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/theme/app_colors.dart';
 
-import '../data/chat_directory.dart';
 import '../data/chat_repository.dart';
 import '../models/chat_participant.dart';
 import '../widgets/member_tile.dart';
@@ -12,7 +11,11 @@ import 'conversation_page.dart';
 /// (or create) a direct 1:1 chat, or switch to "New group" to select
 /// multiple contacts and name a group.
 class NewConversationPage extends StatefulWidget {
-  const NewConversationPage({super.key, required this.repository, required this.currentUser});
+  const NewConversationPage({
+    super.key,
+    required this.repository,
+    required this.currentUser,
+  });
 
   final ChatRepository repository;
   final ChatParticipant currentUser;
@@ -25,6 +28,13 @@ class _NewConversationPageState extends State<NewConversationPage> {
   bool _groupMode = false;
   final _selected = <ChatParticipant>{};
   bool _isCreating = false;
+  late Future<List<ChatParticipant>> _contactsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _contactsFuture = widget.repository.getContacts(widget.currentUser);
+  }
 
   Future<void> _openDirect(ChatParticipant contact) async {
     setState(() => _isCreating = true);
@@ -64,7 +74,8 @@ class _NewConversationPageState extends State<NewConversationPage> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, titleController.text.trim()),
+            onPressed: () =>
+                Navigator.pop(dialogContext, titleController.text.trim()),
             child: const Text('Create'),
           ),
         ],
@@ -93,8 +104,6 @@ class _NewConversationPageState extends State<NewConversationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final contacts = ChatDirectory.contactsFor(widget.currentUser);
-
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
@@ -104,39 +113,51 @@ class _NewConversationPageState extends State<NewConversationPage> {
             onPressed: _isCreating
                 ? null
                 : () => setState(() {
-                      _groupMode = !_groupMode;
-                      _selected.clear();
-                    }),
+                    _groupMode = !_groupMode;
+                    _selected.clear();
+                  }),
             child: Text(
               _groupMode ? 'Cancel' : 'New group',
-              style: const TextStyle(color: AppColors.darkTeal, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                color: AppColors.darkTeal,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
       ),
       body: _isCreating
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                final isSelected = _selected.contains(contact);
-                return MemberTile(
-                  participant: contact,
-                  subtitle: contact.role.name,
-                  selected: isSelected,
-                  onTap: () {
-                    if (!_groupMode) {
-                      _openDirect(contact);
-                      return;
-                    }
-                    setState(() {
-                      if (isSelected) {
-                        _selected.remove(contact);
-                      } else {
-                        _selected.add(contact);
-                      }
-                    });
+          : FutureBuilder<List<ChatParticipant>>(
+              future: _contactsFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final contacts = snapshot.data!;
+                return ListView.builder(
+                  itemCount: contacts.length,
+                  itemBuilder: (context, index) {
+                    final contact = contacts[index];
+                    final isSelected = _selected.contains(contact);
+                    return MemberTile(
+                      participant: contact,
+                      subtitle: contact.role.name,
+                      selected: isSelected,
+                      onTap: () {
+                        if (!_groupMode) {
+                          _openDirect(contact);
+                          return;
+                        }
+                        setState(() {
+                          if (isSelected) {
+                            _selected.remove(contact);
+                          } else {
+                            _selected.add(contact);
+                          }
+                        });
+                      },
+                    );
                   },
                 );
               },
@@ -146,7 +167,10 @@ class _NewConversationPageState extends State<NewConversationPage> {
               backgroundColor: AppColors.darkTeal,
               onPressed: _createGroup,
               icon: const Icon(Icons.check, color: Colors.white),
-              label: const Text('Create group', style: TextStyle(color: Colors.white)),
+              label: const Text(
+                'Create group',
+                style: TextStyle(color: Colors.white),
+              ),
             )
           : null,
     );

@@ -2,11 +2,10 @@ import 'chat_participant.dart';
 
 enum CallState { ringing, connecting, active, ended }
 
-/// In-app model of an ongoing call. There is no real signaling backend in
-/// this app yet, so [CallCubit] drives this through a simulated state
-/// machine (ringing -> connecting -> active) — the local camera/mic are
-/// still real (via the `camera`/`record` packages), only the "other side"
-/// of the call is simulated.
+/// In-app model of an ongoing call, driven by `CallCubit` through a real
+/// WebRTC connection (ringing -> connecting -> active), signaled over the
+/// backend's `/ws/chat` WebSocket — see `CallCubit`'s doc comment for the
+/// signaling protocol.
 ///
 /// Works for both 1:1 calls (a single entry in [participants]) and group
 /// calls (every other member of the group conversation) — [groupTitle] is
@@ -46,7 +45,8 @@ class CallSession {
   /// Name shown at the top of the call screen: the group's name for group
   /// calls, otherwise the other participant's name.
   String get displayName =>
-      groupTitle ?? (participants.isNotEmpty ? participants.first.name : 'Unknown');
+      groupTitle ??
+      (participants.isNotEmpty ? participants.first.name : 'Unknown');
 
   CallSession copyWith({
     CallState? state,

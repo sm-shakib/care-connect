@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -21,5 +23,19 @@ class Settings:
     SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
     FROM_EMAIL: str = os.getenv("FROM_EMAIL")
+
+    # Chat message encryption-at-rest (see app/core/crypto.py). Must be a
+    # base64-encoded 32-byte key in production — set CHAT_MASTER_KEY in
+    # .env. If unset, falls back to a key deterministically derived from
+    # SECRET_KEY so local dev doesn't lose access to encrypted messages on
+    # every restart; this fallback is NOT a substitute for a real secret.
+    CHAT_MASTER_KEY: str = os.getenv("CHAT_MASTER_KEY") or base64.b64encode(
+        hashlib.sha256(f"chat-master-key:{SECRET_KEY}".encode()).digest()
+    ).decode()
+
+    # WebRTC ICE servers handed to the frontend for call setup. Public
+    # STUN only for now — add a TURN entry here (urls/username/credential)
+    # if calls need to survive stricter NATs later.
+    ICE_SERVERS: list = [{"urls": "stun:stun.l.google.com:19302"}]
 
 settings = Settings()
