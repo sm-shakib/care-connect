@@ -107,4 +107,50 @@ class ComplaintDetail extends Equatable {
     description,
     internalNotes,
   ];
+
+  factory ComplaintDetail.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status'] as String? ?? 'pending';
+    final ComplaintDetailStatus status;
+    final String statusDetail;
+
+    if (statusStr == 'resolved') {
+      status = ComplaintDetailStatus.resolved;
+      statusDetail = 'Resolved';
+    } else {
+      status = ComplaintDetailStatus.pendingReview;
+      statusDetail = 'Pending Review';
+    }
+
+    final List<InternalNote> internalNotes = [];
+    if (json['admin_notes'] != null && (json['admin_notes'] as String).isNotEmpty) {
+      internalNotes.add(InternalNote(
+        id: '1',
+        authorName: 'Admin',
+        note: json['admin_notes'] as String,
+        createdAt: DateTime.now(), // Fallback
+      ));
+    }
+
+    return ComplaintDetail(
+      id: 'CP-${json['id']}',
+      status: status,
+      statusDetail: statusDetail,
+      filedDate: DateTime.parse(json['created_at'] as String),
+      reporter: Person(
+        id: json['reporter_id'].toString(),
+        name: json['reporter_name'] as String? ?? 'Unknown',
+        role: json['reporter_role'] as String? ?? 'Reporter',
+        avatarUrl: '',
+      ),
+      against: Person(
+        id: json['caregiver_id'].toString(),
+        name: json['caregiver_name'] as String? ?? 'Unknown',
+        role: 'Caregiver',
+        avatarUrl: '',
+      ),
+      category: json['category'] as String? ?? 'General',
+      description: json['description'] as String? ?? '',
+      internalNotes: internalNotes,
+    );
+  }
 }

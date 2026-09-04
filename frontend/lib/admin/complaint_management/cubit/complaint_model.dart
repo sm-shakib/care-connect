@@ -67,4 +67,28 @@ class Complaint extends Equatable {
     status,
     statusDetail,
   ];
+
+  factory Complaint.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status'] as String? ?? 'pending';
+    final ComplaintStatus status;
+    final String statusDetail;
+
+    if (statusStr == 'resolved') {
+      status = ComplaintStatus.resolved;
+      statusDetail = 'Resolved';
+    } else {
+      status = ComplaintStatus.pendingReview;
+      statusDetail = 'Pending Review';
+    }
+
+    return Complaint(
+      id: 'CP-${json['id']}',
+      reportedAt: DateTime.parse(json['created_at'] as String),
+      reporterName: json['reporter_name'] as String? ?? 'Unknown',
+      againstName: json['caregiver_name'] as String? ?? 'Unknown',
+      category: json['category'] as String? ?? 'General',
+      status: status,
+      statusDetail: statusDetail,
+    );
+  }
 }

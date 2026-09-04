@@ -43,6 +43,7 @@ class FamilyMemberOut(BaseModel):
     appointments: List[AppointmentOut] = []
     reminders: List[CareReminderOut] = []
     caregiver_names: List[str] = []
+    caregiver_details: List[dict] = []  # List of {"id": int, "name": str}
 
     class Config:
         from_attributes = True

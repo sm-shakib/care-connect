@@ -64,6 +64,7 @@ class FamilyMonitoringView extends StatelessWidget {
                   for (var i = 0; i < elder.caregivers.length; i++) ...[
                     CaregiverStatusCard(
                       caregiverName: elder.caregivers[i],
+                      caregiverId: elder.caregiverIdMap[elder.caregivers[i]],
                       onTap: () {
                         // Handled inside widget
                       },

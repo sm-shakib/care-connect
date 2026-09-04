@@ -143,4 +143,40 @@ class AdminRepository {
     );
     return response.data!;
   }
+
+  Future<List<Map<String, dynamic>>> getComplaints({String? status}) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<List<dynamic>>(
+      ApiConstants.adminComplaintList,
+      queryParameters: status != null ? {'status': status} : null,
+      options: options,
+    );
+    return List<Map<String, dynamic>>.from(response.data!);
+  }
+
+  Future<Map<String, dynamic>> getComplaintDetail(int id) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      ApiConstants.adminComplaintDetail(id),
+      options: options,
+    );
+    return response.data!;
+  }
+
+  Future<Map<String, dynamic>> updateComplaintStatus({
+    required int complaintId,
+    required String status,
+    String? adminNotes,
+  }) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      ApiConstants.adminComplaintUpdate(complaintId),
+      data: {
+        'status': status,
+        if (adminNotes != null) 'admin_notes': adminNotes,
+      },
+      options: options,
+    );
+    return response.data!;
+  }
 }
