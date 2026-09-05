@@ -69,4 +69,17 @@ class BindingRepository {
       rethrow;
     }
   }
+
+  Future<List<Map<String, dynamic>>> getLinkedFamilyMembers() async {
+    try {
+      final response = await _apiClient.get<List<dynamic>>('/bindings/elder/members');
+      if (response.statusCode == 200) {
+        final data = response.data ?? const <dynamic>[];
+        return data.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+      }
+      return const <Map<String, dynamic>>[];
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

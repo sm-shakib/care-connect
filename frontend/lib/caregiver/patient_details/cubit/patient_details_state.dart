@@ -20,10 +20,12 @@ class PatientDetailsState extends Equatable {
     this.email = '',
     this.address = '',
     this.healthCondition = '',
+    this.imageUrl = '',
   });
 
   final String patientId;
   final String patientName;
+  final String imageUrl;
 
   final int bpSystolic;
   final int bpDiastolic;
@@ -66,6 +68,7 @@ class PatientDetailsState extends Equatable {
     String? email,
     String? address,
     String? healthCondition,
+    String? imageUrl,
   }) {
     return PatientDetailsState(
       patientId: patientId,
@@ -86,6 +89,7 @@ class PatientDetailsState extends Equatable {
       email: email ?? this.email,
       address: address ?? this.address,
       healthCondition: healthCondition ?? this.healthCondition,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
@@ -93,6 +97,7 @@ class PatientDetailsState extends Equatable {
   List<Object?> get props => [
     patientId,
     patientName,
+    imageUrl,
     bpSystolic,
     bpDiastolic,
     bpCheckedAt,

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 
 from app.db.session import get_db
@@ -9,7 +9,7 @@ from app.models.user import User
 from app.models.family import Family
 from app.models.notification import Notification
 from app.models.booking import Booking
-from app.schemas.binding import BindingCreate, BindingOut, BindingUpdate, FamilyMemberOut
+from app.schemas.binding import BindingCreate, BindingOut, BindingUpdate, FamilyMemberOut, LinkedFamilyMemberOut
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/bindings", tags=["Bindings"])
@@ -120,13 +120,18 @@ def get_my_family_members(
     for link in links:
         elder = link.elder
         
-        # Fetch accepted caregivers for this elder
-        bookings = db.query(Booking).filter(
-            Booking.elder_id == elder.id,
-            Booking.status == "accepted"
+        # Fetch all relevant bookings for this elder (pending, accepted, etc.)
+        all_bookings = db.query(Booking).options(
+            joinedload(Booking.caregiver),
+            joinedload(Booking.elder)
+        ).filter(
+            Booking.elder_id == elder.id
         ).all()
-        caregiver_names = [b.caregiver.name for b in bookings if b.caregiver]
-        caregiver_details = [{"id": b.caregiver.id, "name": b.caregiver.name} for b in bookings if b.caregiver]
+        
+        # Keep Active Caregivers as only accepted ones
+        active_bookings = [b for b in all_bookings if b.status == "accepted"]
+        caregiver_names = [b.caregiver.name for b in active_bookings if b.caregiver]
+        caregiver_details = [{"id": b.caregiver.id, "name": b.caregiver.name} for b in active_bookings if b.caregiver]
 
         results.append({
             "relationship": link.relationship,
@@ -135,7 +140,45 @@ def get_my_family_members(
             "appointments": elder.appointments if elder else [],
             "reminders": elder.reminders if elder else [],
             "caregiver_names": caregiver_names,
-            "caregiver_details": caregiver_details
+            "caregiver_details": caregiver_details,
+            "bookings": all_bookings
         })
+    
+    return results
+
+@router.get("/elder/members", response_model=List[LinkedFamilyMemberOut])
+def get_my_linked_family_members(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "elder":
+        raise HTTPException(status_code=403, detail="Only elders can view linked family members")
+    
+    elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+    if not elder:
+        raise HTTPException(status_code=404, detail="Elder profile not found")
+    
+    links = db.query(FamilyElderLink).options(
+        joinedload(FamilyElderLink.family).joinedload(Family.user)
+    ).filter(
+        FamilyElderLink.elder_id == elder.id,
+        FamilyElderLink.status == BindingStatus.accepted
+    ).all()
+
+    results = []
+    for link in links:
+        family = link.family
+        if family:
+            results.append({
+                "id": link.id,
+                "family_id": family.id,
+                "name": family.name,
+                "relationship": link.relationship,
+                "gender": family.gender,
+                "phone": family.phone,
+                "email": family.user.email if family.user else None,
+                "address": family.address,
+                "profile_image_url": family.profile_image_url
+            })
     
     return results

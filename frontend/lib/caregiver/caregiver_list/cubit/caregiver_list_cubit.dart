@@ -18,24 +18,42 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
       final response =
           await ApiClient().get<List<dynamic>>(ApiConstants.caregivers);
       final data = response.data ?? const <dynamic>[];
-      final caregivers = List<Map<String, dynamic>>.from(
+      final allCaregivers = List<Map<String, dynamic>>.from(
         (data as List<dynamic>)
             .map((item) => Map<String, dynamic>.from(item as Map)),
       ).map(Caregiver.fromJson).toList();
 
-      emit(
-        state.copyWith(
-          caregivers: caregivers,
-          filteredCaregivers: caregivers,
-        ),
-      );
+      emit(state.copyWith(allCaregivers: allCaregivers));
+      _applyExclusion();
     } on Exception {
       emit(
         state.copyWith(
+          allCaregivers: const <Caregiver>[],
           caregivers: const <Caregiver>[],
           filteredCaregivers: const <Caregiver>[],
         ),
       );
+    }
+  }
+
+  void _applyExclusion() {
+    final caregivers = state.allCaregivers
+        .where((c) => !state.excludedIds.contains(c.id))
+        .toList();
+
+    emit(
+      state.copyWith(
+        caregivers: caregivers,
+        filteredCaregivers: caregivers,
+      ),
+    );
+    
+    // Also re-apply search and filter if they were active
+    if (state.searchText.isNotEmpty) {
+      searchCaregiver(state.searchText);
+    }
+    if (state.selectedFilter != 'All') {
+      filterCaregivers(state.selectedFilter);
     }
   }
 
@@ -83,6 +101,11 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
     return degree * math.pi / 180;
   }
   */
+
+  void setExcludedIds(List<String> excludedIds) {
+    emit(state.copyWith(excludedIds: excludedIds));
+    _applyExclusion();
+  }
 
   void searchCaregiver(String query) {
     final lowerQuery = query.toLowerCase();

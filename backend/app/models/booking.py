@@ -21,6 +21,7 @@ class Booking(Base):
     status = Column(String, default="pending")  # pending, accepted, rejected, cancelled
     payment_status = Column(String, default="pending")  # pending, paid
     requested_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    requested_by_name = Column(String, nullable=True)
 
     # Relationships
     elder = relationship("Elder")

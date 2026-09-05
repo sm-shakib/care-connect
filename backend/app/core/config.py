@@ -38,4 +38,11 @@ class Settings:
     # if calls need to survive stricter NATs later.
     ICE_SERVERS: list = [{"urls": "stun:stun.l.google.com:19302"}]
 
+    # bKash Settings
+    BKASH_USERNAME: str = os.getenv("BKASH_USERNAME")
+    BKASH_PASSWORD: str = os.getenv("BKASH_PASSWORD")
+    BKASH_APP_KEY: str = os.getenv("BKASH_APP_KEY")
+    BKASH_APP_SECRET: str = os.getenv("BKASH_APP_SECRET")
+    BKASH_BASE_URL: str = os.getenv("BKASH_BASE_URL", "https://tokenized.sandbox.bka.sh/v1.2.0-beta")
+
 settings = Settings()

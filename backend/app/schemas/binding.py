@@ -6,6 +6,7 @@ from enum import Enum
 from app.schemas.elder import ElderOut
 from app.schemas.medicine import MedicineOut
 from app.schemas.reminder import AppointmentOut, CareReminderOut
+from app.schemas.booking import BookingOut
 
 class BindingStatus(str, Enum):
     pending = "pending"
@@ -44,6 +45,21 @@ class FamilyMemberOut(BaseModel):
     reminders: List[CareReminderOut] = []
     caregiver_names: List[str] = []
     caregiver_details: List[dict] = []  # List of {"id": int, "name": str}
+    bookings: List[BookingOut] = []
+
+    class Config:
+        from_attributes = True
+
+class LinkedFamilyMemberOut(BaseModel):
+    id: int
+    family_id: int
+    name: str
+    relationship: str
+    gender: str
+    phone: str
+    email: Optional[str] = None
+    address: str
+    profile_image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

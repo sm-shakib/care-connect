@@ -5,26 +5,20 @@ import '../cubit/caregiver_list_cubit.dart';
 import 'caregiver_list_view.dart';
 
 class CaregiverListPage extends StatelessWidget {
-  const CaregiverListPage({super.key});
+  const CaregiverListPage({this.excludedIds, super.key});
+
+  final List<String>? excludedIds;
 
   @override
   Widget build(BuildContext context) {
-    // Try to get a reference elder for initial distance calculation
-    /*
-    final familyCubit = context.read<FamilyDashboardCubit>();
-    final refElder = familyCubit.state.elders.isNotEmpty
-        ? familyCubit.state.elders.first
-        : null;
-    */
-
     return BlocProvider(
-      create: (_) => CaregiverListCubit()
-        ..loadCaregivers(
-          /*
-          userLat: refElder?.latitude,
-          userLng: refElder?.longitude,
-          */
-        ),
+      create: (_) {
+        final cubit = CaregiverListCubit();
+        if (excludedIds != null) {
+          cubit.setExcludedIds(excludedIds!);
+        }
+        return cubit;
+      },
       child: const CaregiverListView(),
     );
   }
