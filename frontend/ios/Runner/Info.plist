@@ -56,6 +56,15 @@
 	<string>CareConnect needs access to your photo library to attach photos and videos in chat.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>CareConnect can save chat photos and videos to your photo library.</string>
+
+	<!-- Location permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To help your family monitor your safety, CareConnect needs permission to access your location while you use the app.</string>
+	<!-- If background location is required, add the key below and explain why. Be careful: App Store review is strict about background location. -->
+	<!--
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>CareConnect uses your location to share it with family even when the app is in the background.</string>
+	-->
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
