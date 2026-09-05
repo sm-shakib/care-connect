@@ -145,9 +145,18 @@ class _SosAlertPageState extends State<SosAlertPage>
                           Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (_) => ChatInboxPage(
-                                repository: MockChatRepository.instance,
-                                currentUser: ChatDirectory.adib,
+                              // Scaffolded here so the session gate's
+                              // loading/error states land on a Material
+                              // surface — ChatInboxPage brings its own.
+                              builder: (_) => Scaffold(
+                                body: ChatSessionGate(
+                                  builder:
+                                      (context, repository, currentUser) =>
+                                          ChatInboxPage(
+                                            repository: repository,
+                                            currentUser: currentUser,
+                                          ),
+                                ),
                               ),
                             ),
                           );

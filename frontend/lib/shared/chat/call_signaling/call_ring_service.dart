@@ -18,9 +18,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 ///   in Settings — played natively by `MainActivity`, since Flutter's
 ///   audio plugins can only reach bundled assets. Every other platform,
 ///   and any device whose ringtone won't play, falls back to the bundled
-///   `assets/sounds/call_ringtone.wav`. The caller hears the same tone at
-///   a lower volume as ringback, so it's obvious the call is actually
-///   going out.
+///   `assets/sounds/call_ringtone.wav`. The caller hears that bundled
+///   tone, quieter, as ringback — so it's obvious the call is going out
+///   without it sounding like a call coming in.
 /// - A **full-screen-intent notification** on Android, so a call still
 ///   reaches the user when the app is backgrounded and pushing a route
 ///   alone would show them nothing. The notification is deliberately
@@ -70,13 +70,18 @@ class CallRingService {
     required String callerName,
     required bool isVideo,
   }) async {
-    await _startTone(_incomingVolume);
+    await _startTone(_incomingVolume, useDeviceRingtone: true);
     await _showNotification(callerName: callerName, isVideo: isVideo);
   }
 
   /// Plays ringback while an outgoing call waits to be answered. No
   /// notification — the caller is looking at the call screen already.
-  Future<void> startOutgoing() => _startTone(_outgoingVolume);
+  ///
+  /// Deliberately the bundled tone rather than the phone's ringtone: a
+  /// ringback says "the other phone is ringing", and hearing your *own*
+  /// ringtone when you place a call reads as an incoming one.
+  Future<void> startOutgoing() =>
+      _startTone(_outgoingVolume, useDeviceRingtone: false);
 
   /// Silences everything. Idempotent, and safe to call from teardown
   /// paths that may run more than once. Both tone sources are stopped
@@ -97,10 +102,13 @@ class CallRingService {
     }
   }
 
-  Future<void> _startTone(double volume) async {
+  Future<void> _startTone(
+    double volume, {
+    required bool useDeviceRingtone,
+  }) async {
     if (_isRinging) return;
     _isRinging = true;
-    if (await _startDeviceRingtone(volume)) return;
+    if (useDeviceRingtone && await _startDeviceRingtone(volume)) return;
     await _startBundledTone(volume);
   }
 

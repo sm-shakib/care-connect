@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver/models/booking_request.dart';
@@ -237,25 +239,21 @@ class _ChatButton extends StatelessWidget {
     return SizedBox(
       height: 54,
       child: OutlinedButton.icon(
-        onPressed: () async {
+        onPressed: () {
           // Family chats with the elder's assigned (primary) caregiver.
-          final contactName = elder.caregivers.isNotEmpty ? elder.caregivers.first : 'Care Team';
-          final repository = MockChatRepository.instance;
-          final caregiver =
-              ChatDirectory.resolveOrCreateContact(contactName, role: ChatRole.caregiver);
-          final conversation = await repository.createDirectConversation(
-            currentUser: ChatDirectory.asifRahman,
-            other: caregiver,
-          );
-          if (!context.mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ConversationPage(
-                repository: repository,
-                conversationId: conversation.id,
-                currentUser: ChatDirectory.asifRahman,
+          if (elder.caregivers.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No caregiver is assigned to message yet.'),
               ),
+            );
+            return;
+          }
+          unawaited(
+            openDirectConversation(
+              context,
+              contactName: elder.caregivers.first,
+              role: ChatRole.caregiver,
             ),
           );
         },

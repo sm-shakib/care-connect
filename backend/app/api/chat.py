@@ -349,6 +349,38 @@ def list_contacts(
 # ==================== conversations ====================
 
 
+_EPOCH = datetime.min.replace(tzinfo=timezone.utc)
+
+
+def _last_activity_at(payload: dict) -> datetime:
+    """Sort key for the inbox: when this conversation last had a message.
+
+    `serialize_message` renders `created_at` as an ISO *string*, so sorting
+    the payloads directly compared a str against the datetime used for a
+    conversation with no messages yet — a `TypeError` that 500'd the whole
+    inbox for anyone holding one empty conversation (a thread opened from a
+    dashboard "Message" button before either side had said anything) plus
+    one real one. Parsing back to a datetime keeps every key one type.
+    """
+    last = payload.get("last_message")
+    if not last:
+        return _EPOCH
+    try:
+        # `.isoformat()` writes "+00:00", but the same timestamps go out
+        # through Pydantic as "Z" elsewhere in this API — accept both
+        # rather than quietly sorting a conversation to the bottom.
+        created_at = datetime.fromisoformat(
+            str(last["created_at"]).replace("Z", "+00:00")
+        )
+    except (KeyError, TypeError, ValueError):
+        return _EPOCH
+    # Rows written before `created_at` became timezone-aware would other-
+    # wise reintroduce the same cross-type comparison, naive vs aware.
+    if created_at.tzinfo is None:
+        return created_at.replace(tzinfo=timezone.utc)
+    return created_at
+
+
 @router.get("/conversations", response_model=List[ConversationOut])
 def list_conversations(
     db: Session = Depends(get_db),
@@ -364,11 +396,7 @@ def list_conversations(
         .all()
     )
     payloads = [_conversation_payload(db, row.conversation, current_user.id) for row in rows]
-    epoch = datetime.min.replace(tzinfo=timezone.utc)
-    payloads.sort(
-        key=lambda c: c["last_message"]["created_at"] if c["last_message"] else epoch,
-        reverse=True,
-    )
+    payloads.sort(key=_last_activity_at, reverse=True)
     return payloads
 
 

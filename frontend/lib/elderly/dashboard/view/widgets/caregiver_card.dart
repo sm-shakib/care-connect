@@ -220,29 +220,11 @@ class _CaregiverDetails extends StatelessWidget {
     return letters.toUpperCase();
   }
 
-  Future<void> _openConversation(BuildContext context) async {
-    final repository = MockChatRepository.instance;
-    final contact = ChatDirectory.resolveOrCreateContact(
-      caregiver.name,
+  Future<void> _openConversation(BuildContext context) {
+    return openDirectConversation(
+      context,
+      contactName: caregiver.name,
       role: ChatRole.caregiver,
-    );
-    final conversation = await repository.createDirectConversation(
-      currentUser: ChatDirectory.adib,
-      other: contact,
-    );
-    if (!context.mounted) return;
-
-    unawaited(
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => ConversationPage(
-            repository: repository,
-            conversationId: conversation.id,
-            currentUser: ChatDirectory.adib,
-          ),
-        ),
-      ),
     );
   }
 }

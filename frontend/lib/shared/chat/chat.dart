@@ -19,6 +19,7 @@ export 'models/message_attachment.dart';
 export 'view/call_screen.dart';
 export 'view/chat_inbox_page.dart';
 export 'view/conversation_page.dart';
+export 'view/direct_conversation_launcher.dart';
 export 'view/group_info_page.dart';
 export 'view/media_gallery_page.dart';
 export 'view/new_conversation_page.dart';
