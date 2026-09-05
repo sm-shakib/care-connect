@@ -48,8 +48,8 @@ class Caregiver {
       final docsList = json['documents'] as List<dynamic>;
       for (final doc in docsList) {
         final docMap = doc as Map<String, dynamic>;
-        final typeStr = docMap['document_type'] as String;
-        final url = docMap['document_url'] as String;
+        final typeStr = (docMap['document_type'] ?? '') as String;
+        final url = (docMap['document_url'] ?? '') as String;
 
         final type = CaregiverDocumentType.values.firstWhere(
           (e) => e.name == typeStr,

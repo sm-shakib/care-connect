@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
@@ -5,7 +7,7 @@ import 'package:frontend/shared/reminders/models/care_reminder.dart';
 import 'health_vitals.dart';
 import 'medical_record.dart';
 
-class Elder {
+class Elder extends Equatable {
   const Elder({
     required this.id,
     required this.name,
@@ -24,6 +26,7 @@ class Elder {
     this.medicalRecords = const [],
     this.appointments = const [],
     this.otherReminders = const [],
+    this.bookings = const [],
     this.latitude,
     this.longitude,
   });
@@ -42,6 +45,7 @@ class Elder {
   final List<MedicalRecord> medicalRecords;
   final List<Appointment> appointments;
   final List<CareReminder> otherReminders;
+  final List<BookingRequest> bookings;
   
   // New dynamic health fields
   final HealthVitals vitals;
@@ -66,6 +70,7 @@ class Elder {
     List<MedicalRecord>? medicalRecords,
     List<Appointment>? appointments,
     List<CareReminder>? otherReminders,
+    List<BookingRequest>? bookings,
     HealthVitals? vitals,
     String? lastLocationUpdate,
     String? locationImage,
@@ -87,6 +92,7 @@ class Elder {
       medicalRecords: medicalRecords ?? this.medicalRecords,
       appointments: appointments ?? this.appointments,
       otherReminders: otherReminders ?? this.otherReminders,
+      bookings: bookings ?? this.bookings,
       vitals: vitals ?? this.vitals,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
       locationImage: locationImage ?? this.locationImage,
@@ -94,4 +100,28 @@ class Elder {
       longitude: longitude ?? this.longitude,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        age,
+        relationship,
+        gender,
+        hasCaregiver,
+        healthStatus,
+        imageUrl,
+        caregivers,
+        caregiverIdMap,
+        medications,
+        medicalRecords,
+        appointments,
+        otherReminders,
+        bookings,
+        vitals,
+        lastLocationUpdate,
+        locationImage,
+        latitude,
+        longitude,
+      ];
 }

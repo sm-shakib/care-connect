@@ -56,7 +56,9 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
               title = 'Family Dashboard';
             }
           } else if (_selectedIndex == 1) {
-            body = const CaregiverListPage();
+            body = CaregiverListPage(
+              excludedIds: state.bookingForElder?.caregiverIdMap.values.toList(),
+            );
             title = state.bookingForElder != null
                 ? 'Select for ${state.bookingForElder!.name}'
                 : 'Available Caregivers';

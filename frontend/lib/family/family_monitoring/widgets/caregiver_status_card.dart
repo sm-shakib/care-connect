@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
 import 'package:frontend/caregiver/data/repositories/caregiver_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -8,12 +9,14 @@ class CaregiverStatusCard extends StatelessWidget {
   const CaregiverStatusCard({
     required this.caregiverName,
     this.caregiverId,
+    this.booking,
     required this.onTap,
     super.key,
   });
 
   final String caregiverName;
   final String? caregiverId;
+  final BookingRequest? booking;
   final VoidCallback onTap;
 
   Future<void> _handleTap(BuildContext context) async {
@@ -26,6 +29,7 @@ class CaregiverStatusCard extends StatelessWidget {
           builder: (_) => CaregiverDetailsPage(
             caregiver: caregiver,
             isAssigned: true,
+            booking: booking,
           ),
         ),
       );
@@ -51,6 +55,7 @@ class CaregiverStatusCard extends StatelessWidget {
             builder: (_) => CaregiverDetailsPage(
               caregiver: fullCaregiver,
               isAssigned: true,
+              booking: booking,
             ),
           ),
         );

@@ -61,16 +61,19 @@ class PreviousBookingRequestsPage extends StatelessWidget {
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  // leading: CircleAvatar(
-                  //   backgroundColor: AppColors.paleMint,
-                  //   backgroundImage: NetworkImage(request.elderImageUrl),
-                  // ),
                   leading: CircleAvatar(
                     backgroundColor: AppColors.paleMint,
-                    child: Icon(
-                      request.elderGender == 'Male' ? Icons.man : Icons.woman,
-                      color: AppColors.darkTeal,
-                    ),
+                    backgroundImage: request.elderImageUrl.isNotEmpty
+                        ? NetworkImage(request.elderImageUrl)
+                        : null,
+                    child: request.elderImageUrl.isEmpty
+                        ? Icon(
+                            request.elderGender == 'Male'
+                                ? Icons.man
+                                : Icons.woman,
+                            color: AppColors.darkTeal,
+                          )
+                        : null,
                   ),
                   title: Text(
                     request.elderName,

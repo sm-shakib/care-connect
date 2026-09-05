@@ -1,7 +1,7 @@
 class ApiConstants {
   // Use 10.0.2.2 for Android Emulator.
   // Use your computer's IP (e.g., 192.168.x.x) if testing on a real phone.
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://192.168.0.192:8000';
 
   static const String elderSignup = '/elders/signup/elder';
   static const String caregiverSignup = '/signup/caregiver';
@@ -37,6 +37,11 @@ class ApiConstants {
   static String caregiverBookings(int caregiverId) =>
       '/bookings/caregiver/$caregiverId';
   static String bookingDetail(int id) => '/bookings/$id';
+
+  // bKash Payment
+  static String bkashCreate(int bookingId) => '/bookings/$bookingId/bkash/create';
+  static String bkashExecute(int bookingId) =>
+      '/bookings/$bookingId/bkash/execute';
 
   // Complaints
   static const String complaints = '/complaints/';

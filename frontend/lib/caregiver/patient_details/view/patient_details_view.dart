@@ -167,26 +167,39 @@ class _PatientHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Center(
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 56,
-            backgroundColor: AppColors.paleMint,
-            child: const Icon(Icons.person, size: 56, color: AppColors.darkTeal),
+    return BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
+      builder: (context, state) {
+        return Center(
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 56,
+                backgroundColor: AppColors.paleMint,
+                backgroundImage: state.imageUrl.isNotEmpty
+                    ? NetworkImage(state.imageUrl)
+                    : null,
+                child: state.imageUrl.isEmpty
+                    ? const Icon(
+                        Icons.person,
+                        size: 56,
+                        color: AppColors.darkTeal,
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 14),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

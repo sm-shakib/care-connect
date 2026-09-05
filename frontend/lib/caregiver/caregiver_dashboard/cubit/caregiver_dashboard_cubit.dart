@@ -35,8 +35,11 @@ class CaregiverDashboardCubit extends Cubit<CaregiverDashboardState> {
             name: r.elderName,
             age: 0, // Age not in booking schema
             location: r.elderAddress,
-            status: isPast ? PatientCareStatus.previous : PatientCareStatus.active,
+            status: isPast
+                ? PatientCareStatus.previous
+                : PatientCareStatus.active,
             schedule: r.timingLabel,
+            imageUrl: r.elderImageUrl,
           );
         }).toList();
 

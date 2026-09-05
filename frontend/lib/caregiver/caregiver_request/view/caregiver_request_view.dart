@@ -137,11 +137,16 @@ class _BookingRequestCard extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: AppColors.paleMint,
-                child: Icon(
-                  request.elderGender == 'Male' ? Icons.man : Icons.woman,
-                  size: 35,
-                  color: AppColors.darkTeal,
-                ),
+                backgroundImage: request.elderImageUrl.isNotEmpty
+                    ? NetworkImage(request.elderImageUrl)
+                    : null,
+                child: request.elderImageUrl.isEmpty
+                    ? Icon(
+                        request.elderGender == 'Male' ? Icons.man : Icons.woman,
+                        size: 35,
+                        color: AppColors.darkTeal,
+                      )
+                    : null,
               ),
               const SizedBox(width: 14),
               Expanded(
