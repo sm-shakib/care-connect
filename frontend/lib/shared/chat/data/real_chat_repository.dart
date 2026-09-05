@@ -36,10 +36,21 @@ class RealChatRepository implements ChatRepository {
 
   late final StreamSubscription<Map<String, dynamic>> _socketSubscription;
   final _changes = StreamController<void>.broadcast();
+  final _typingChanges = StreamController<void>.broadcast();
 
   final Map<String, Conversation> _conversations = {};
   final Map<String, List<ChatMessage>> _messages = {};
   final Map<String, List<MessageAttachment>> _media = {};
+
+  /// Per conversation, the peers currently typing and the timer that
+  /// forgets each of them. A peer that goes quiet without sending
+  /// `is_typing: false` (backgrounded, killed, lost signal) would
+  /// otherwise be shown as typing forever.
+  final Map<String, Map<String, Timer>> _typingPeers = {};
+
+  /// The conversation the user currently has open, if any — see
+  /// [setActiveConversation].
+  String? _activeConversationId;
 
   void _notify() => _changes.add(null);
 
@@ -47,7 +58,20 @@ class RealChatRepository implements ChatRepository {
   /// logout) — see `ChatSession.reset`.
   void dispose() {
     _socketSubscription.cancel();
+    _typingResendTimer?.cancel();
+    for (final timers in _typingPeers.values) {
+      for (final timer in timers.values) {
+        timer.cancel();
+      }
+    }
+    _typingPeers.clear();
     unawaited(_changes.close());
+    unawaited(_typingChanges.close());
+  }
+
+  @override
+  void setActiveConversation(String? conversationId) {
+    _activeConversationId = conversationId;
   }
 
   // ==================== conversations ====================
@@ -209,12 +233,26 @@ class RealChatRepository implements ChatRepository {
     final response = await _apiClient.get<List<dynamic>>(
       ApiConstants.chatMessages(conversationId),
     );
-    final list = (response.data ?? const [])
+    final fetched = (response.data ?? const [])
         .map((raw) => _messageFromJson(raw as Map<String, dynamic>))
         .toList();
-    _messages[conversationId] = list;
+
+    // Merge rather than replace. This request is in flight for as long as
+    // the round trip takes, and anything the socket delivers in that
+    // window — or an optimistic send still waiting on its response — was
+    // being wiped by the assignment that used to live here, which is why
+    // a message could arrive live and then vanish until the thread was
+    // reopened. The server's copy always wins for ids it knows about.
+    final fetchedIds = fetched.map((m) => m.id).toSet();
+    final locallyKnown = (_messages[conversationId] ?? const <ChatMessage>[])
+        .where((m) => !fetchedIds.contains(m.id))
+        .toList();
+    final merged = [...fetched, ...locallyKnown]
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    _messages[conversationId] = merged;
     unawaited(_refreshMedia(conversationId));
-    return List.unmodifiable(list);
+    return List.unmodifiable(merged);
   }
 
   Future<void> _refreshMedia(String conversationId) async {
@@ -289,6 +327,9 @@ class RealChatRepository implements ChatRepository {
       status: MessageDeliveryStatus.sending,
       replyTo: replyTo,
     );
+    // Sending is the clearest possible "done typing".
+    setTyping(conversationId, isTyping: false);
+
     final list = _messages.putIfAbsent(conversationId, () => []);
     list.add(optimistic);
     _bumpLastMessage(conversationId, optimistic);
@@ -418,6 +459,36 @@ class RealChatRepository implements ChatRepository {
         _onMessageRead(event);
       case 'conversation:updated':
         _onConversationUpdated(event);
+      case 'typing':
+        _onTyping(event);
+      case 'socket:connected':
+        _onSocketConnected();
+    }
+  }
+
+  /// Everything pushed while the socket was down is gone — the server
+  /// keeps no per-device queue — so a reconnect has to refetch rather
+  /// than assume the cache is still current. Without this the app stayed
+  /// silently stale after any drop (backgrounding, a network switch, the
+  /// heartbeat killing a zombie connection) until the user backed out of
+  /// the screen and came back, which is exactly the "chat doesn't update
+  /// live" symptom.
+  void _onSocketConnected() {
+    unawaited(_resync(_refreshConversations()));
+    final activeId = _activeConversationId;
+    if (activeId != null) unawaited(_resync(_refreshMessages(activeId)));
+  }
+
+  /// Publishes the result of a resync fetch, tolerating a failure: the
+  /// socket is up either way, so the next event (or the next reconnect)
+  /// gets another chance rather than this throwing into a stream nobody
+  /// can catch.
+  Future<void> _resync(Future<Object?> fetch) async {
+    try {
+      await fetch;
+      _notify();
+    } catch (_) {
+      // Keep whatever is cached; a stale view beats a broken one.
     }
   }
 
@@ -426,13 +497,25 @@ class RealChatRepository implements ChatRepository {
     final message = _messageFromJson(event['message'] as Map<String, dynamic>);
     final list = _messages.putIfAbsent(conversationId, () => []);
     if (list.any((m) => m.id == message.id)) return;
-    list.add(message);
+
+    // Ordered insert: a call log written by the peer and a message sent
+    // here can land out of order, and the thread renders in list order.
+    final index = list.lastIndexWhere(
+      (m) => !m.timestamp.isAfter(message.timestamp),
+    );
+    list.insert(index + 1, message);
     _bumpLastMessage(conversationId, message);
-    final conversation = _conversations[conversationId];
-    if (conversation != null) {
-      _conversations[conversationId] = conversation.copyWith(
-        unreadCount: conversation.unreadCount + 1,
-      );
+
+    // The sender stopped typing by definition.
+    _clearTyping(conversationId, message.senderId);
+
+    // Unread counts come from the server (`conversation:updated` follows
+    // every `message:new`), so nothing is incremented locally — doing both
+    // is what let the badge drift. If the thread is open on screen, read
+    // it straight away instead of showing the user an unread count for a
+    // message they're looking at.
+    if (conversationId == _activeConversationId && !message.isFromMe) {
+      unawaited(markRead(conversationId, currentUserId));
     }
     _notify();
   }
@@ -460,6 +543,102 @@ class RealChatRepository implements ChatRepository {
       unawaited(_refreshMessages(conversationId).then((_) => _notify()));
     }
   }
+
+  // ==================== typing ====================
+
+  /// How long a peer stays "typing" without another `typing` frame. The
+  /// sender re-sends every [_typingResendInterval] while they keep typing,
+  /// so this only ever fires once they've genuinely stopped (or dropped
+  /// off the network mid-word).
+  static const _typingExpiry = Duration(seconds: 6);
+
+  /// How often the local user re-announces that they're still typing.
+  /// Comfortably under [_typingExpiry] so the indicator never flickers.
+  static const _typingResendInterval = Duration(seconds: 3);
+
+  Timer? _typingResendTimer;
+  String? _typingConversationId;
+
+  @override
+  Stream<List<ChatParticipant>> watchTypingParticipants(
+    String conversationId,
+  ) async* {
+    yield _typingParticipants(conversationId);
+    yield* _typingChanges.stream.map((_) => _typingParticipants(conversationId));
+  }
+
+  List<ChatParticipant> _typingParticipants(String conversationId) {
+    final peerIds = _typingPeers[conversationId]?.keys.toSet() ?? const {};
+    if (peerIds.isEmpty) return const [];
+    final participants = _conversations[conversationId]?.participants;
+    if (participants == null) return const [];
+    return participants.where((p) => peerIds.contains(p.id)).toList();
+  }
+
+  @override
+  void setTyping(String conversationId, {required bool isTyping}) {
+    _typingResendTimer?.cancel();
+    _typingResendTimer = null;
+
+    if (!isTyping) {
+      // Only tell the peers to clear an indicator we actually raised.
+      if (_typingConversationId == null) return;
+      _socket.send({
+        'type': 'typing',
+        'conversation_id': _typingConversationId,
+        'is_typing': false,
+      });
+      _typingConversationId = null;
+      return;
+    }
+
+    _typingConversationId = conversationId;
+    _socket.send({
+      'type': 'typing',
+      'conversation_id': conversationId,
+      'is_typing': true,
+    });
+    _typingResendTimer = Timer.periodic(_typingResendInterval, (_) {
+      _socket.send({
+        'type': 'typing',
+        'conversation_id': conversationId,
+        'is_typing': true,
+      });
+    });
+  }
+
+  void _onTyping(Map<String, dynamic> event) {
+    final conversationId = event['conversation_id']?.toString();
+    final peerId = event['from_user_id'] as String?;
+    if (conversationId == null || peerId == null) return;
+    if (peerId == currentUserId) return;
+
+    if (event['is_typing'] as bool? ?? false) {
+      final peers = _typingPeers.putIfAbsent(conversationId, () => {});
+      final wasTyping = peers.containsKey(peerId);
+      peers[peerId]?.cancel();
+      peers[peerId] = Timer(
+        _typingExpiry,
+        () => _clearTyping(conversationId, peerId),
+      );
+      // Refreshing the expiry of someone already shown as typing isn't a
+      // change anyone needs to rebuild for.
+      if (!wasTyping) _typingChanges.add(null);
+      return;
+    }
+    _clearTyping(conversationId, peerId);
+  }
+
+  void _clearTyping(String conversationId, String peerId) {
+    final peers = _typingPeers[conversationId];
+    final timer = peers?.remove(peerId);
+    if (timer == null) return;
+    timer.cancel();
+    if (peers!.isEmpty) _typingPeers.remove(conversationId);
+    if (!_typingChanges.isClosed) _typingChanges.add(null);
+  }
+
+  // ==================== socket events (continued) ====================
 
   void _onConversationUpdated(Map<String, dynamic> event) {
     final conversation = _conversationFromJson(

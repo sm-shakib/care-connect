@@ -8,10 +8,10 @@ import '../../../core/constants/api_constants.dart';
 
 /// Owns the single WebSocket connection used for both live chat delivery
 /// (`message:new` / `message:read` / `message:deleted` /
-/// `conversation:updated`) and WebRTC call signaling (`call:invite` /
-/// `call:ready` / `call:offer` / `call:answer` / `call:ice` / `call:leave`
-/// / `call:end`) — see `backend/app/api/chat_ws.py` for the server side
-/// of this contract.
+/// `conversation:updated` / `typing`) and WebRTC call signaling
+/// (`call:invite` / `call:ready` / `call:offer` / `call:answer` /
+/// `call:ice` / `call:leave` / `call:end`) — see
+/// `backend/app/api/chat_ws.py` for the server side of this contract.
 ///
 /// One connection is shared for the whole app session (kept alive across
 /// screens, not per-conversation): `RealChatRepository`, `CallCubit`, and
@@ -26,10 +26,22 @@ import '../../../core/constants/api_constants.dart';
 /// if not, it tears down and reconnects. It also forces a fresh
 /// connection whenever the app returns to the foreground, since that's
 /// the single most common moment a socket has gone stale.
+///
+/// Reconnecting alone isn't enough, though: everything pushed while the
+/// socket was down is gone for good, so a client that only reconnects
+/// silently stays stale until the user backs out and re-enters the
+/// screen. Every successful (re)connection therefore emits a synthetic
+/// [connectedEvent] on [events], which `RealChatRepository` treats as
+/// "refetch whatever you're showing".
 class ChatSocketService with WidgetsBindingObserver {
   ChatSocketService._();
 
   static final ChatSocketService instance = ChatSocketService._();
+
+  /// Synthetic event pushed onto [events] each time the socket finishes
+  /// connecting. Not sent by the server — it's the signal to resync
+  /// anything that may have been missed while disconnected.
+  static const connectedEvent = {'type': 'socket:connected'};
 
   static const _reconnectDelay = Duration(seconds: 3);
   static const _heartbeatInterval = Duration(seconds: 15);
@@ -42,6 +54,13 @@ class ChatSocketService with WidgetsBindingObserver {
   String? _token;
   bool _manuallyDisconnected = true;
   bool _observerRegistered = false;
+
+  /// True only once the handshake has actually completed. A channel exists
+  /// from the moment [WebSocketChannel.connect] is called, long before it
+  /// is usable, so this — not `_channel != null` — is what [isConnected]
+  /// and [ensureConnected] report.
+  bool _isReady = false;
+
   Timer? _reconnectTimer;
   Timer? _heartbeatTimer;
   DateTime _lastActivityAt = DateTime.fromMillisecondsSinceEpoch(0);
@@ -52,7 +71,7 @@ class ChatSocketService with WidgetsBindingObserver {
   /// [connect] hasn't been followed by [disconnect].
   Stream<Map<String, dynamic>> get events => _eventsController.stream;
 
-  bool get isConnected => _channel != null;
+  bool get isConnected => _isReady;
 
   /// Opens the socket for [token] (a no-op if already connected with the
   /// same token). Safe to call again after login/token refresh.
@@ -71,8 +90,7 @@ class ChatSocketService with WidgetsBindingObserver {
   void _open() {
     final token = _token;
     if (token == null) return;
-    _subscription?.cancel();
-    _heartbeatTimer?.cancel();
+    _closeChannel();
 
     final uri = Uri.parse(
       '${ApiConstants.chatSocketBase}/ws/chat?token=$token',
@@ -82,12 +100,18 @@ class ChatSocketService with WidgetsBindingObserver {
 
     channel.ready.then(
       (_) {
+        // A reconnect that raced with a teardown must not resurrect the
+        // heartbeat for a channel nobody is listening to any more.
+        if (!identical(_channel, channel)) return;
         _lastActivityAt = DateTime.now();
+        _isReady = true;
         _resolveReady();
+        _heartbeatTimer?.cancel();
         _heartbeatTimer = Timer.periodic(
           _heartbeatInterval,
           (_) => _checkHeartbeat(),
         );
+        _eventsController.add(Map<String, dynamic>.from(connectedEvent));
       },
       onError: (Object _) {
         // The `stream` below also sees this as a done/error event and
@@ -107,8 +131,11 @@ class ChatSocketService with WidgetsBindingObserver {
           // Malformed frame — ignore rather than tear down the socket.
         }
       },
-      onDone: _scheduleReconnect,
-      onError: (Object _) => _scheduleReconnect(),
+      // Guarded on identity: a channel we already replaced still reports
+      // done/error as it winds down, and acting on that would tear the
+      // *new* healthy connection back down three seconds later.
+      onDone: () => _scheduleReconnect(from: channel),
+      onError: (Object _) => _scheduleReconnect(from: channel),
       cancelOnError: true,
     );
   }
@@ -121,9 +148,25 @@ class ChatSocketService with WidgetsBindingObserver {
     send(const {'type': 'ping'});
   }
 
-  void _scheduleReconnect() {
-    _channel = null;
+  /// Drops the current channel and everything hanging off it. Leaving the
+  /// old socket open (as this used to) stranded a connection server-side
+  /// for every reconnect, so a user accumulated phantom devices that the
+  /// backend kept trying to deliver to.
+  void _closeChannel() {
+    _isReady = false;
     _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+    final subscription = _subscription;
+    final channel = _channel;
+    _subscription = null;
+    _channel = null;
+    unawaited(subscription?.cancel());
+    unawaited(channel?.sink.close());
+  }
+
+  void _scheduleReconnect({WebSocketChannel? from}) {
+    if (from != null && !identical(_channel, from)) return;
+    _closeChannel();
     if (_manuallyDisconnected || _token == null) return;
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(_reconnectDelay, _open);
@@ -136,21 +179,30 @@ class ChatSocketService with WidgetsBindingObserver {
     _readyCompleters.clear();
   }
 
-  /// Resolves once the socket is connected, or after [timeout] — whichever
-  /// comes first. Callers that need signaling to actually go out (placing
-  /// or answering a call, say) should await this before [send]ing rather
-  /// than assuming a prior [connect] already succeeded.
+  /// Resolves once the socket has finished connecting, or after [timeout]
+  /// — whichever comes first. Callers that need signaling to actually go
+  /// out (placing or answering a call, say) should await this before
+  /// [send]ing rather than assuming a prior [connect] already succeeded.
+  ///
+  /// If a reconnect is merely pending, this brings it forward instead of
+  /// burning the caller's timeout waiting on [_reconnectDelay].
   Future<void> ensureConnected({
     Duration timeout = const Duration(seconds: 5),
   }) async {
     if (isConnected) return;
+    if (_channel == null && !_manuallyDisconnected && _token != null) {
+      _reconnectTimer?.cancel();
+      _open();
+    }
     final completer = Completer<void>();
     _readyCompleters.add(completer);
     await completer.future.timeout(timeout, onTimeout: () {});
   }
 
   /// Sends one signaling/typing envelope. No-op while disconnected — call
-  /// [ensureConnected] first for anything that isn't safe to silently drop.
+  /// [ensureConnected] first for anything that isn't safe to silently
+  /// drop. Writes made while the handshake is still in flight are buffered
+  /// by the channel and flushed on connect.
   void send(Map<String, dynamic> event) {
     _channel?.sink.add(jsonEncode(event));
   }
@@ -159,10 +211,8 @@ class ChatSocketService with WidgetsBindingObserver {
     _manuallyDisconnected = true;
     _token = null;
     _reconnectTimer?.cancel();
-    _heartbeatTimer?.cancel();
-    _subscription?.cancel();
-    unawaited(_channel?.sink.close());
-    _channel = null;
+    _closeChannel();
+    _resolveReady();
     if (_observerRegistered) {
       WidgetsBinding.instance.removeObserver(this);
       _observerRegistered = false;
@@ -173,14 +223,12 @@ class ChatSocketService with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed ||
         _manuallyDisconnected ||
-        _token == null)
+        _token == null) {
       return;
+    }
     // The socket may look "connected" but be a stale zombie left over from
     // however the OS handled the app while backgrounded — force a fresh
     // one rather than waiting on the heartbeat to notice.
-    _subscription?.cancel();
-    unawaited(_channel?.sink.close());
-    _channel = null;
     _reconnectTimer?.cancel();
     _open();
   }

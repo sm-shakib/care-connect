@@ -23,6 +23,7 @@ from typing import Dict, Optional, Set
 from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from starlette.websockets import WebSocketState
 
 from app.core.config import settings
 from app.db.session import SessionLocal
@@ -64,6 +65,13 @@ class ConnectionManager:
 
     async def send_to_user(self, user_id: int, event: dict) -> None:
         for ws in list(self._connections.get(user_id, ())):
+            # A socket the client dropped without a clean close (backgrounded
+            # app, dead mobile link) can linger here until its receive loop
+            # notices. Sending to one raises, which would otherwise abandon
+            # the rest of this user's devices mid-loop.
+            if ws.application_state is not WebSocketState.CONNECTED:
+                self.disconnect(user_id, ws)
+                continue
             try:
                 await ws.send_json(event)
             except (WebSocketDisconnect, RuntimeError):
@@ -159,6 +167,7 @@ async def _handle_incoming(sender_id: int, data: dict) -> None:
         event = dict(data)
         event["from_user_id"] = str(sender_id)
 
+        call_log_written = False
         if event_type == "call:end" and data.get("outcome"):
             # Deferred import: app.api.chat imports this module, so importing
             # it back at module load time would be circular.
@@ -178,6 +187,7 @@ async def _handle_incoming(sender_id: int, data: dict) -> None:
             db.commit()
             db.refresh(message)
             event["message"] = serialize_message(db, conversation, message)
+            call_log_written = True
 
         to_user_id = data.get("to_user_id")
         target_ids = (
@@ -191,5 +201,18 @@ async def _handle_incoming(sender_id: int, data: dict) -> None:
         )
         for uid in target_ids:
             await manager.send_to_user(uid, event)
+
+        if call_log_written:
+            # The call log is a real message, so the thread and the inbox
+            # row both moved. Everyone gets it — including the caller, who
+            # is excluded from `target_ids` above but still needs its own
+            # log to appear without reopening the conversation. Clients
+            # ignore a `message:new` whose id they already hold, so this
+            # is safe alongside the `call:end` that carries the same
+            # message for whoever is still on the call screen.
+            from app.api.chat import broadcast_conversation_updated, broadcast_message_new
+
+            await broadcast_message_new(db, conversation, message)
+            await broadcast_conversation_updated(db, conversation)
     finally:
         db.close()

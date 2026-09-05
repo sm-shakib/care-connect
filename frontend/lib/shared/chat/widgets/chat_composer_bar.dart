@@ -24,6 +24,7 @@ class ChatComposerBar extends StatefulWidget {
     required this.onSendText,
     required this.onSendAttachments,
     required this.onSendVoice,
+    this.onTypingChanged,
     this.replyTarget,
     this.onCancelReply,
   });
@@ -32,6 +33,12 @@ class ChatComposerBar extends StatefulWidget {
   final void Function(List<MessageAttachment> attachments, AttachmentKind kind)
   onSendAttachments;
   final ValueChanged<MessageAttachment> onSendVoice;
+
+  /// Called with the current draft on every keystroke, so the peers can be
+  /// shown a typing indicator. Whether that's worth sending — and how
+  /// often — is the repository's call, not this widget's.
+  final ValueChanged<String>? onTypingChanged;
+
   final ChatMessage? replyTarget;
   final VoidCallback? onCancelReply;
 
@@ -50,6 +57,7 @@ class _ChatComposerBarState extends State<ChatComposerBar> {
     _controller.addListener(() {
       final canSend = _controller.text.trim().isNotEmpty;
       if (canSend != _canSend) setState(() => _canSend = canSend);
+      widget.onTypingChanged?.call(_controller.text);
     });
     _recorder.addListener(() => setState(() {}));
   }

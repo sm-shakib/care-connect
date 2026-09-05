@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../call_signaling/call_ring_service.dart';
 import '../data/chat_socket_service.dart';
 import '../models/call_log_info.dart';
 import '../models/call_session.dart';
@@ -56,7 +57,18 @@ class CallCubit extends Cubit<CallCubitState> {
          ),
        ) {
     _socketSubscription = _socket.events.listen(_handleSignal);
-    unawaited(_setUp());
+    if (isIncoming) {
+      unawaited(
+        CallRingService.instance.startIncoming(
+          callerName: participants.isNotEmpty
+              ? participants.first.name
+              : 'Unknown caller',
+          isVideo: isVideo,
+        ),
+      );
+    }
+    _setUpFuture = _setUp();
+    unawaited(_setUpFuture);
   }
 
   static const _iceServers = {
@@ -81,6 +93,11 @@ class CallCubit extends Cubit<CallCubitState> {
   final Set<String> _readyPeerIds = {};
   bool _iAmReady = false;
 
+  /// Completes once the renderers are initialized (and, for an
+  /// outgoing call, the invite is out). [accept] awaits it so answering
+  /// the instant the screen appears can't race the setup.
+  late final Future<void> _setUpFuture;
+
   Timer? _noAnswerTimer;
   Timer? _elapsedTicker;
 
@@ -88,8 +105,45 @@ class CallCubit extends Cubit<CallCubitState> {
   bool get _isVideo => state.session.isVideo;
 
   Future<void> _setUp() async {
-    await localRenderer.initialize();
-    await remoteRenderer.initialize();
+    try {
+      await localRenderer.initialize();
+      await remoteRenderer.initialize();
+    } catch (_) {
+      // No video surface available. Audio and signaling are unaffected,
+      // and [accept] awaits this future — it must never fail the call.
+    }
+
+    if (state.session.isIncoming) {
+      // Deliberately no `getUserMedia` yet. The hardware isn't needed
+      // until the call is accepted, and opening the audio input takes the
+      // focus the ringtone is playing on — so grabbing it here silenced
+      // the ring. Wait for accept()/decline().
+      return;
+    }
+
+    await _acquireLocalMedia();
+    // The socket may still be (re)connecting at the exact moment a call is
+    // placed — wait rather than silently dropping the invite.
+    await _socket.ensureConnected();
+    _socket.send({
+      'type': 'call:invite',
+      'conversation_id': _conversationId,
+      'is_video': _isVideo,
+    });
+    unawaited(CallRingService.instance.startOutgoing());
+    _becomeReady();
+    _noAnswerTimer = Timer(_noAnswerTimeout, () {
+      if (state.session.state == CallState.ringing) {
+        _endCall(outcome: CallOutcome.missed);
+      }
+    });
+  }
+
+  /// Opens the mic (and camera, for a video call). Split out of [_setUp]
+  /// so an incoming call can defer it until [accept] — see [_setUp].
+  Future<void> _acquireLocalMedia() async {
+    if (_localStream != null) return;
+    await _setAndroidAudioMode(AndroidAudioConfiguration.communication);
     try {
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': true,
@@ -100,33 +154,41 @@ class CallCubit extends Cubit<CallCubitState> {
       // Mic/camera denied or unavailable — proceed without local media so
       // signaling/UI still work; peers just won't receive our tracks.
     }
+  }
 
-    if (state.session.isIncoming) {
-      return; // wait for accept()/decline()
+  /// Android runs a WebRTC session in media mode on the loudspeaker unless
+  /// told otherwise, which is why call audio came out at speakerphone
+  /// volume while the on-screen speaker button still read "off" — nothing
+  /// had ever set a route, so the toggle disagreed with what you could
+  /// hear. Communication mode is what makes the earpiece the default and
+  /// the toggle meaningful. It has to be set before the session starts, so
+  /// this runs alongside opening the mic rather than on connect, and it is
+  /// put back to [AndroidAudioConfiguration.media] on teardown — left in
+  /// communication mode, the *next* call's ringtone would come out of the
+  /// earpiece instead of ringing out loud.
+  ///
+  /// No-op on iOS (the plugin guards it), and never fatal: routing is a
+  /// nicety, a call that connects is not.
+  Future<void> _setAndroidAudioMode(AndroidAudioConfiguration config) async {
+    try {
+      await Helper.setAndroidAudioConfiguration(config);
+    } catch (_) {
+      // Older OS, odd OEM audio HAL — carry on with the system default.
     }
-    // The socket may still be (re)connecting at the exact moment a call is
-    // placed — wait rather than silently dropping the invite.
-    await _socket.ensureConnected();
-    _socket.send({
-      'type': 'call:invite',
-      'conversation_id': _conversationId,
-      'is_video': _isVideo,
-    });
-    _becomeReady();
-    _noAnswerTimer = Timer(_noAnswerTimeout, () {
-      if (state.session.state == CallState.ringing) {
-        _endCall(outcome: CallOutcome.missed);
-      }
-    });
   }
 
   Future<void> accept() async {
     if (state.session.state != CallState.ringing) return;
+    unawaited(CallRingService.instance.stop());
     emit(
       state.copyWith(
         session: state.session.copyWith(state: CallState.connecting),
       ),
     );
+    // The renderers are initialized by [_setUp], which may still be in
+    // flight if the call was answered the instant it appeared.
+    await _setUpFuture;
+    await _acquireLocalMedia();
     await _socket.ensureConnected();
     _becomeReady();
   }
@@ -249,12 +311,20 @@ class CallCubit extends Cubit<CallCubitState> {
 
   void _onAnyPeerConnected() {
     _noAnswerTimer?.cancel();
+    unawaited(CallRingService.instance.stop());
     if (state.session.state == CallState.active) return;
+    // Media is flowing: put it where this kind of call belongs. A voice
+    // call goes to the earpiece, like a phone call; a video call keeps the
+    // loudspeaker, since the phone isn't at your ear. Emitted with the
+    // state so the speaker button shows the route actually in use.
+    final speakerOn = _isVideo;
+    unawaited(Helper.setSpeakerphoneOn(speakerOn));
     emit(
       state.copyWith(
         session: state.session.copyWith(
           state: CallState.active,
           startedAt: DateTime.now(),
+          isSpeakerOn: speakerOn,
         ),
         elapsedSeconds: 0,
       ),
@@ -386,6 +456,8 @@ class CallCubit extends Cubit<CallCubitState> {
   }
 
   void _teardown() {
+    unawaited(CallRingService.instance.stop());
+    unawaited(_setAndroidAudioMode(AndroidAudioConfiguration.media));
     _noAnswerTimer?.cancel();
     _elapsedTicker?.cancel();
     for (final pc in _peers.values) {
@@ -399,6 +471,10 @@ class CallCubit extends Cubit<CallCubitState> {
 
   @override
   Future<void> close() async {
+    await CallRingService.instance.stop();
+    // Also restored in [_teardown]; repeated here because a call screen
+    // can be disposed without ever having ended cleanly.
+    await _setAndroidAudioMode(AndroidAudioConfiguration.media);
     await _socketSubscription.cancel();
     _noAnswerTimer?.cancel();
     _elapsedTicker?.cancel();

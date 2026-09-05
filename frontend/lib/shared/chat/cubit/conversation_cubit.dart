@@ -28,6 +28,15 @@ class ConversationCubit extends Cubit<ConversationState> {
     ) {
       emit(state.copyWith(conversation: () => conversation));
     });
+    _typingSub = repository.watchTypingParticipants(conversationId).listen((
+      participants,
+    ) {
+      emit(state.copyWith(typingParticipants: participants));
+    });
+    // Tells the repository this thread is on screen, so messages arriving
+    // for it are read on arrival instead of showing the user an unread
+    // count for a conversation they're looking at.
+    repository.setActiveConversation(conversationId);
     repository.markRead(conversationId, currentUser.id);
   }
 
@@ -37,6 +46,7 @@ class ConversationCubit extends Cubit<ConversationState> {
 
   late final StreamSubscription<List<ChatMessage>> _messagesSub;
   late final StreamSubscription<Conversation?> _conversationSub;
+  late final StreamSubscription<List<ChatParticipant>> _typingSub;
 
   Future<void> sendText(String text) async {
     final trimmed = text.trim();
@@ -88,6 +98,13 @@ class ConversationCubit extends Cubit<ConversationState> {
       attachments: [voiceNote],
       replyToMessageId: replyToMessageId,
     );
+  }
+
+  /// Called on every keystroke in the composer. The repository handles
+  /// the rate limiting (it re-announces on a timer while the flag stays
+  /// set), so this only ever states what's true right now.
+  void onComposerChanged(String text) {
+    repository.setTyping(conversationId, isTyping: text.trim().isNotEmpty);
   }
 
   /// Stages [message] to be quoted by the next message sent — shown as a
@@ -145,8 +162,14 @@ class ConversationCubit extends Cubit<ConversationState> {
 
   @override
   Future<void> close() {
+    // Leaving the thread must clear both the peers' indicator and this
+    // thread's claim on "currently open", or the next message to arrive
+    // would be silently marked read while the user is elsewhere.
+    repository.setTyping(conversationId, isTyping: false);
+    repository.setActiveConversation(null);
     _messagesSub.cancel();
     _conversationSub.cancel();
+    _typingSub.cancel();
     return super.close();
   }
 }

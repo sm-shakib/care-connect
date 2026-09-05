@@ -632,25 +632,11 @@ class _ChatButton extends StatelessWidget {
     return SizedBox(
       height: 54,
       child: OutlinedButton.icon(
-        onPressed: () async {
-          final repository = MockChatRepository.instance;
-          final patient = ChatDirectory.resolveOrCreateContact(patientName);
-          final conversation = await repository.createDirectConversation(
-            currentUser: ChatDirectory.shakibKhan,
-            other: patient,
-          );
-          if (!context.mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ConversationPage(
-                repository: repository,
-                conversationId: conversation.id,
-                currentUser: ChatDirectory.shakibKhan,
-              ),
-            ),
-          );
-        },
+        onPressed: () => openDirectConversation(
+          context,
+          contactName: patientName,
+          role: ChatRole.elderly,
+        ),
         icon: const Icon(Icons.chat_bubble_outline, size: 20),
         label: Text(context.l10n.chatsLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
         style: OutlinedButton.styleFrom(

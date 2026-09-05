@@ -10,6 +10,7 @@ class ConversationState extends Equatable {
     this.searchQuery = '',
     this.searchResultIds = const [],
     this.replyTarget,
+    this.typingParticipants = const [],
   });
 
   final ChatParticipant currentUser;
@@ -19,6 +20,10 @@ class ConversationState extends Equatable {
   final bool isSearching;
   final String searchQuery;
   final List<String> searchResultIds;
+
+  /// The other participants typing right now — drives the animated
+  /// typing bubble under the thread and the app bar's subtitle.
+  final List<ChatParticipant> typingParticipants;
 
   /// The message currently staged to reply to — shown as a preview banner
   /// above the composer, cleared once that reply is sent (or dismissed).
@@ -35,6 +40,7 @@ class ConversationState extends Equatable {
     String? searchQuery,
     List<String>? searchResultIds,
     ChatMessage? Function()? replyTarget,
+    List<ChatParticipant>? typingParticipants,
   }) {
     return ConversationState(
       currentUser: currentUser,
@@ -45,6 +51,7 @@ class ConversationState extends Equatable {
       searchQuery: searchQuery ?? this.searchQuery,
       searchResultIds: searchResultIds ?? this.searchResultIds,
       replyTarget: replyTarget != null ? replyTarget() : this.replyTarget,
+      typingParticipants: typingParticipants ?? this.typingParticipants,
     );
   }
 
@@ -58,5 +65,6 @@ class ConversationState extends Equatable {
     searchQuery,
     searchResultIds,
     replyTarget,
+    typingParticipants,
   ];
 }

@@ -10,6 +10,7 @@ import '../models/chat_participant.dart';
 import '../widgets/chat_composer_bar.dart';
 import '../widgets/search_field.dart';
 import '../widgets/themed_chat_bubble.dart';
+import '../widgets/typing_indicator_bubble.dart';
 import 'call_screen.dart';
 import 'group_info_page.dart';
 import 'media_gallery_page.dart';
@@ -140,8 +141,19 @@ class _ConversationViewState extends State<_ConversationView> {
                             horizontal: 8,
                             vertical: 12,
                           ),
-                          itemCount: state.messages.length,
+                          // One extra row for the typing bubble, so it
+                          // scrolls with the thread and stays pinned under
+                          // the newest message.
+                          itemCount:
+                              state.messages.length +
+                              (state.typingParticipants.isEmpty ? 0 : 1),
                           itemBuilder: (context, index) {
+                            if (index == state.messages.length) {
+                              return TypingIndicatorBubble(
+                                participants: state.typingParticipants,
+                                showName: state.isGroup,
+                              );
+                            }
                             final message = state.messages[index];
                             final isCallLog =
                                 message.type == ChatMessageType.callLog;
@@ -166,6 +178,7 @@ class _ConversationViewState extends State<_ConversationView> {
                 ),
                 ChatComposerBar(
                   onSendText: cubit.sendText,
+                  onTypingChanged: cubit.onComposerChanged,
                   onSendAttachments: cubit.sendAttachments,
                   onSendVoice: cubit.sendVoiceMessage,
                   replyTarget: state.replyTarget,
@@ -234,15 +247,34 @@ class _ConversationAppBar extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              state.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  state.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                // Repeated here as well as in the thread's typing bubble:
+                // the bubble is only visible when scrolled to the bottom.
+                if (state.typingParticipants.isNotEmpty)
+                  Text(
+                    typingLabel(state.typingParticipants),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.darkTeal,
+                    ),
+                  ),
+              ],
             ),
           ),
           IconButton(
