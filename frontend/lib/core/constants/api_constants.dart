@@ -1,7 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConstants {
-  // Use 10.0.2.2 for Android Emulator.
-  // Use your computer's IP (e.g., 192.168.x.x) if testing on a real phone.
-  static const String baseUrl = 'http://localhost:8000';
+  /// The base URL for the backend API.
+  /// 
+  /// Read from the .env file in the frontend root.
+  static String get baseUrl => dotenv.env['BASE_URL'] ?? 'http://192.168.0.103:8000';
 
   static const String elderSignup = '/elders/signup/elder';
   static const String caregiverSignup = '/signup/caregiver';

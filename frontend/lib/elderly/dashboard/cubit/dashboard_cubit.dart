@@ -52,18 +52,18 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       final appointments = appointmentsData.map((a) => Appointment(
         id: a['id'].toString(),
-        doctorName: a['doctor_name'],
-        specialty: a['specialty'] ?? '',
-        date: a['appointment_date'],
-        time: a['appointment_time'],
-        location: a['location'] ?? '',
+        doctorName: a['doctor_name']?.toString() ?? '',
+        specialty: a['specialty']?.toString() ?? '',
+        date: a['appointment_date']?.toString() ?? '',
+        time: a['appointment_time']?.toString() ?? '',
+        location: a['location']?.toString() ?? '',
       )).toList();
 
       final reminders = remindersData.map((r) => CareReminder(
         id: r['id'].toString(),
-        title: r['title'],
-        subtitle: r['subtitle'] ?? '',
-        icon: Icons.notifications_active_outlined, // Default icon
+        title: r['title']?.toString() ?? '',
+        subtitle: r['subtitle']?.toString() ?? '',
+        icon: Icons.notifications_active_outlined,
       )).toList();
 
       // Start real-time location tracking
@@ -98,7 +98,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       emit(
         state.copyWith(
           status: DashboardStatus.success,
-          userName: profile['name'] ?? 'Hello',
+          userName: profile['name']?.toString() ?? 'Hello',
           heartRate: profile['heart_rate'] as int? ?? 75,
           systolicBp: profile['systolic_bp'] as int? ?? 120,
           diastolicBp: profile['diastolic_bp'] as int? ?? 80,
@@ -155,10 +155,14 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> _updateBackendLocation(dynamic position) async {
     try {
       await _elderRepository.updateVitalsAndLocation(
-        latitude: position.latitude,
-        longitude: position.longitude,
+        latitude: (position.latitude as num).toDouble(),
+        longitude: (position.longitude as num).toDouble(),
       );
-      debugPrint('DEBUG: Backend updated with location: ${position.latitude}, ${position.longitude}');
+
+      debugPrint(
+        'DEBUG: Backend updated with location: '
+            '${position.latitude}, ${position.longitude}',
+      );
     } catch (e) {
       debugPrint('DEBUG: Failed to update backend location: $e');
     }
