@@ -1,7 +1,11 @@
 part of 'caregiver_profile_cubit.dart';
 
+enum CaregiverProfileStatus { initial, loading, success, failure }
+
 class CaregiverProfileState extends Equatable {
   const CaregiverProfileState({
+    this.status = CaregiverProfileStatus.initial,
+    this.errorMessage,
     // Not editable — shown read-only regardless of edit mode.
     this.name = '',
     this.email = '',
@@ -15,6 +19,7 @@ class CaregiverProfileState extends Equatable {
     this.hourlyRate = '',
     this.experienceYears = '',
     this.profileImageBytes,
+    this.profileImageUrl = '',
     // Verified documents (view-only here).
     this.documents = const {},
     // Earnings.
@@ -28,6 +33,9 @@ class CaregiverProfileState extends Equatable {
     this.editSessionId = 0,
   });
 
+  final CaregiverProfileStatus status;
+  final String? errorMessage;
+
   final String name;
   final String email;
 
@@ -40,6 +48,7 @@ class CaregiverProfileState extends Equatable {
   final String hourlyRate;
   final String experienceYears;
   final Uint8List? profileImageBytes;
+  final String profileImageUrl;
 
   final Map<CaregiverDocumentType, String> documents;
 
@@ -57,6 +66,10 @@ class CaregiverProfileState extends Equatable {
   final int editSessionId;
 
   CaregiverProfileState copyWith({
+    CaregiverProfileStatus? status,
+    String? errorMessage,
+    String? name,
+    String? email,
     String? phone,
     String? address,
     Gender? gender,
@@ -66,6 +79,7 @@ class CaregiverProfileState extends Equatable {
     String? hourlyRate,
     String? experienceYears,
     Uint8List? profileImageBytes,
+    String? profileImageUrl,
     Map<CaregiverDocumentType, String>? documents,
     double? totalEarningsThisMonth,
     double? lastPayoutAmount,
@@ -76,8 +90,10 @@ class CaregiverProfileState extends Equatable {
     int? editSessionId,
   }) {
     return CaregiverProfileState(
-      name: name,
-      email: email,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      name: name ?? this.name,
+      email: email ?? this.email,
       phone: phone ?? this.phone,
       address: address ?? this.address,
       gender: gender ?? this.gender,
@@ -87,6 +103,7 @@ class CaregiverProfileState extends Equatable {
       hourlyRate: hourlyRate ?? this.hourlyRate,
       experienceYears: experienceYears ?? this.experienceYears,
       profileImageBytes: profileImageBytes ?? this.profileImageBytes,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       documents: documents ?? this.documents,
       totalEarningsThisMonth: totalEarningsThisMonth ?? this.totalEarningsThisMonth,
       lastPayoutAmount: lastPayoutAmount ?? this.lastPayoutAmount,
@@ -100,6 +117,8 @@ class CaregiverProfileState extends Equatable {
 
   @override
   List<Object?> get props => [
+    status,
+    errorMessage,
     name,
     email,
     phone,
@@ -111,6 +130,7 @@ class CaregiverProfileState extends Equatable {
     hourlyRate,
     experienceYears,
     profileImageBytes,
+    profileImageUrl,
     documents,
     totalEarningsThisMonth,
     lastPayoutAmount,

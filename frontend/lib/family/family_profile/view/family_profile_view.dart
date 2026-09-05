@@ -9,6 +9,7 @@ import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/family_profile_cubit.dart';
@@ -448,7 +449,7 @@ class _ActionsSection extends StatelessWidget {
 
     return Column(
       children: [
-        if (!state.isEditing)
+        if (!state.isEditing) ...[
           _ActionRow(
             icon: Icons.edit_outlined,
             label: 'Edit Profile',
@@ -456,6 +457,17 @@ class _ActionsSection extends StatelessWidget {
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: cubit.startEditing,
           ),
+          const SizedBox(height: 10),
+          _ActionRow(
+            icon: Icons.report_problem_outlined,
+            label: 'My Complaints',
+            color: colorScheme.onSurface,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: () {
+              Navigator.push(context, UserComplaintsPage.route());
+            },
+          ),
+        ],
         const SizedBox(height: 10),
         _ActionRow(
           icon: Icons.logout,

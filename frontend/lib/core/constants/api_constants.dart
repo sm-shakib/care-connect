@@ -30,6 +30,7 @@ class ApiConstants {
   static const String adminComplaintList = '/admin/complaints';
   static String adminComplaintDetail(int id) => '/admin/complaints/$id';
   static String adminComplaintUpdate(int id) => '/admin/complaints/$id';
+  static String adminComplaintNotes(int id) => '/admin/complaints/$id/notes';
 
   // Bookings
   static const String bookings = '/bookings/';

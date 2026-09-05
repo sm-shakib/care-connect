@@ -5,6 +5,9 @@ from app.db.session import get_db
 from app.api import deps
 from app.models.user import User
 from app.schemas.user import UserMe, UserUpdate, UserOut
+from app.schemas.elder import ElderOut
+from app.schemas.caregiver import CaregiverOut
+from app.schemas.family import FamilyOut
 from app.core.security import get_password_hash
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -20,14 +23,20 @@ def read_user_me(
     profile_id = None
 
     if current_user.role == "elder":
-        profile = current_user.elder_profile
-        if profile: profile_id = profile.id
+        profile_obj = current_user.elder_profile
+        if profile_obj:
+            profile_id = profile_obj.id
+            profile = ElderOut.model_validate(profile_obj)
     elif current_user.role == "caregiver":
-        profile = current_user.caregiver_profile
-        if profile: profile_id = profile.id
+        profile_obj = current_user.caregiver_profile
+        if profile_obj:
+            profile_id = profile_obj.id
+            profile = CaregiverOut.model_validate(profile_obj)
     elif current_user.role == "family":
-        profile = current_user.family_profile
-        if profile: profile_id = profile.id
+        profile_obj = current_user.family_profile
+        if profile_obj:
+            profile_id = profile_obj.id
+            profile = FamilyOut.model_validate(profile_obj)
 
     return {
         "id": current_user.id,
@@ -90,4 +99,13 @@ def update_profile_me(
     db.add(profile)
     db.commit()
     db.refresh(profile)
+
+    # Return validated schema based on role
+    if current_user.role == "elder":
+        return ElderOut.model_validate(profile)
+    elif current_user.role == "caregiver":
+        return CaregiverOut.model_validate(profile)
+    elif current_user.role == "family":
+        return FamilyOut.model_validate(profile)
+
     return profile

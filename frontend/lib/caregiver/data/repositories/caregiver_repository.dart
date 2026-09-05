@@ -21,4 +21,17 @@ class CaregiverRepository {
     );
     return Caregiver.fromJson(response.data!);
   }
+
+  Future<Map<String, dynamic>> getMyProfile() async {
+    final response = await _apiClient.get<Map<String, dynamic>>('/users/me');
+    final data = response.data!;
+    final profile = data['profile'] as Map<String, dynamic>;
+    // Merge email from the user object if needed
+    profile['email'] = data['email'];
+    return profile;
+  }
+
+  Future<void> updateProfile(Map<String, dynamic> data) async {
+    await _apiClient.patch('/users/me/profile', data: data);
+  }
 }

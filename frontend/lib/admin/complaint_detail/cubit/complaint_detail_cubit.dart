@@ -72,25 +72,39 @@ class ComplaintDetailCubit extends Cubit<ComplaintDetailState> {
     
     try {
       final id = int.parse(complaintId.replaceFirst('CP-', ''));
-      await _adminRepository.updateComplaintStatus(
+      final data = await _adminRepository.addComplaintNote(
         complaintId: id,
-        status: complaint.status == ComplaintDetailStatus.resolved ? 'resolved' : 'under_review',
-        adminNotes: note.trim(),
+        note: note.trim(),
       );
 
-      final newNote = InternalNote(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        authorName: 'Admin',
-        note: note.trim(),
-        createdAt: DateTime.now(),
-      );
-      final updated = complaint.copyWith(
-        internalNotes: [newNote, ...complaint.internalNotes],
-      );
+      final updatedComplaint = ComplaintDetail.fromJson(data);
       emit(
         state.copyWith(
-          complaint: updated,
+          complaint: updatedComplaint,
           action: ComplaintDetailAction.noteAdded,
+        ),
+      );
+    } catch (_) {
+    }
+  }
+
+  Future<void> addResolutionFeedback(String feedback) async {
+    final complaint = state.complaint;
+    if (complaint == null || feedback.trim().isEmpty) return;
+
+    try {
+      final id = int.parse(complaintId.replaceFirst('CP-', ''));
+      final data = await _adminRepository.updateComplaintStatus(
+        complaintId: id,
+        status: 'resolved',
+        resolutionFeedback: feedback.trim(),
+      );
+
+      final updatedComplaint = ComplaintDetail.fromJson(data);
+      emit(
+        state.copyWith(
+          complaint: updatedComplaint,
+          action: ComplaintDetailAction.resolved,
         ),
       );
     } catch (_) {
