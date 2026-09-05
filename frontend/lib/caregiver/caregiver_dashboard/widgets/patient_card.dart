@@ -54,11 +54,16 @@ class PatientCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: AppColors.paleMint,
-                  child: const Icon(
-                    Icons.person,
-                    size: 28,
-                    color: AppColors.darkTeal,
-                  ),
+                  backgroundImage: patient.imageUrl.isNotEmpty
+                      ? NetworkImage(patient.imageUrl)
+                      : null,
+                  child: patient.imageUrl.isEmpty
+                      ? const Icon(
+                          Icons.person,
+                          size: 28,
+                          color: AppColors.darkTeal,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 14),
                 Expanded(

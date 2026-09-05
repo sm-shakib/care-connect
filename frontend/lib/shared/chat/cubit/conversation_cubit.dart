@@ -23,7 +23,9 @@ class ConversationCubit extends Cubit<ConversationState> {
     _messagesSub = repository.watchMessages(conversationId).listen((messages) {
       emit(state.copyWith(messages: messages, isLoading: false));
     });
-    _conversationSub = repository.watchConversation(conversationId).listen((conversation) {
+    _conversationSub = repository.watchConversation(conversationId).listen((
+      conversation,
+    ) {
       emit(state.copyWith(conversation: () => conversation));
     });
     repository.markRead(conversationId, currentUser.id);
@@ -39,14 +41,20 @@ class ConversationCubit extends Cubit<ConversationState> {
   Future<void> sendText(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
+    final replyToMessageId = state.replyTarget?.id;
+    clearReplyTarget();
     await repository.sendMessage(
       conversationId: conversationId,
       sender: currentUser,
       text: trimmed,
+      replyToMessageId: replyToMessageId,
     );
   }
 
-  Future<void> sendAttachments(List<MessageAttachment> attachments, AttachmentKind kind) async {
+  Future<void> sendAttachments(
+    List<MessageAttachment> attachments,
+    AttachmentKind kind,
+  ) async {
     if (attachments.isEmpty) return;
     final type = switch (kind) {
       AttachmentKind.image => ChatMessageType.image,
@@ -54,28 +62,58 @@ class ConversationCubit extends Cubit<ConversationState> {
       AttachmentKind.document => ChatMessageType.document,
       AttachmentKind.voice => ChatMessageType.voice,
     };
+    // A reply only ever anchors to one message — if several attachments
+    // are sent together, only the first carries it.
+    var replyToMessageId = state.replyTarget?.id;
+    clearReplyTarget();
     for (final attachment in attachments) {
       await repository.sendMessage(
         conversationId: conversationId,
         sender: currentUser,
         type: type,
         attachments: [attachment],
+        replyToMessageId: replyToMessageId,
       );
+      replyToMessageId = null;
     }
   }
 
   Future<void> sendVoiceMessage(MessageAttachment voiceNote) async {
+    final replyToMessageId = state.replyTarget?.id;
+    clearReplyTarget();
     await repository.sendMessage(
       conversationId: conversationId,
       sender: currentUser,
       type: ChatMessageType.voice,
       attachments: [voiceNote],
+      replyToMessageId: replyToMessageId,
     );
+  }
+
+  /// Stages [message] to be quoted by the next message sent — shown as a
+  /// preview banner above the composer until sent or [clearReplyTarget].
+  void setReplyTarget(ChatMessage message) {
+    emit(state.copyWith(replyTarget: () => message));
+  }
+
+  void clearReplyTarget() {
+    emit(state.copyWith(replyTarget: () => null));
+  }
+
+  /// "Unsends" a message the current user sent — see
+  /// `ChatRepository.unsendMessage`.
+  Future<void> unsendMessage(String messageId) async {
+    await repository.unsendMessage(conversationId, messageId);
   }
 
   void toggleSearch({bool? open}) {
     final next = open ?? !state.isSearching;
-    emit(state.copyWith(isSearching: next, searchQuery: next ? state.searchQuery : ''));
+    emit(
+      state.copyWith(
+        isSearching: next,
+        searchQuery: next ? state.searchQuery : '',
+      ),
+    );
   }
 
   Future<void> searchInConversation(String query) async {

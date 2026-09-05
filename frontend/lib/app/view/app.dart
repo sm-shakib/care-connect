@@ -4,10 +4,10 @@ import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/alarm/medicine_alarm_service.dart';
 import 'package:frontend/splash/splash.dart';
 import 'package:frontend/welcome_screen/welcome_screen.dart';
-
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -41,6 +41,9 @@ class _AppViewState extends State<AppView> {
     // alarms are only ever scheduled once an elder's medicines load
     // (see MedicineCubit), so this is a no-op for other roles.
     MedicineAlarmService.instance.initialize(_navigatorKey);
+    // Lets an incoming call be caught (and its full-screen ring UI pushed)
+    // from anywhere in the app, not just while a conversation is open.
+    IncomingCallService.instance.initialize(_navigatorKey);
   }
 
   @override
@@ -81,7 +84,8 @@ class _AppViewState extends State<AppView> {
                 onContactSupport: () {
                   // TODO: open support link
                 },
-                onLanguageToggle: () => context.read<LocaleCubit>().toggleLocale(),
+                onLanguageToggle: () =>
+                    context.read<LocaleCubit>().toggleLocale(),
               ),
             ),
           ),

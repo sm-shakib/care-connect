@@ -1,21 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/caregiver/caregiver_details/view/caregiver_details_page.dart';
+import 'package:frontend/caregiver/data/repositories/caregiver_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class CaregiverStatusCard extends StatelessWidget {
   const CaregiverStatusCard({
     required this.caregiverName,
+    this.caregiverId,
+    this.booking,
     required this.onTap,
     super.key,
   });
 
   final String caregiverName;
+  final String? caregiverId;
+  final BookingRequest? booking;
   final VoidCallback onTap;
 
-  Caregiver _fallbackCaregiver(String name) {
+  Future<void> _handleTap(BuildContext context) async {
+    if (caregiverId == null) {
+      // If no ID, fallback to basic view
+      final caregiver = _fallbackCaregiver(caregiverName, null);
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => CaregiverDetailsPage(
+            caregiver: caregiver,
+            isAssigned: true,
+            booking: booking,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Show loading
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final repo = CaregiverRepository();
+      final fullCaregiver = await repo.getCaregiverById(int.parse(caregiverId!));
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CaregiverDetailsPage(
+              caregiver: fullCaregiver,
+              isAssigned: true,
+              booking: booking,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to load caregiver profile: $e')),
+        );
+      }
+    }
+  }
+
+  Caregiver _fallbackCaregiver(String name, String? id) {
     return Caregiver(
-      id: name.replaceAll(RegExp(r'\s+'), '_'),
+      id: id ?? name.replaceAll(RegExp(r'\s+'), '_'),
       name: name,
       profession: 'Caregiver',
       imageUrl: '',
@@ -36,20 +93,10 @@ class CaregiverStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final caregiver = _fallbackCaregiver(caregiverName);
+    final caregiver = _fallbackCaregiver(caregiverName, caregiverId);
 
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => CaregiverDetailsPage(
-              caregiver: caregiver,
-              isAssigned: true,
-            ),
-          ),
-        );
-      },
+      onTap: () => _handleTap(context),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Row(

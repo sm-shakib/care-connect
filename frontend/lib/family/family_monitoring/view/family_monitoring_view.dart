@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/core/widgets/vitals_update_dialog.dart';
 import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/family_monitoring/view/edit_reminders_page.dart';
@@ -63,12 +64,29 @@ class FamilyMonitoringView extends StatelessWidget {
               child: Column(
                 children: [
                   for (var i = 0; i < elder.caregivers.length; i++) ...[
-                    CaregiverStatusCard(
-                      caregiverName: elder.caregivers[i],
-                      onTap: () {
-                        // Handled inside widget
-                      },
-                    ),
+                    (() {
+                      final caregiverName = elder.caregivers[i];
+                      final caregiverId = elder.caregiverIdMap[caregiverName];
+                      
+                      BookingRequest? booking;
+                      try {
+                        booking = elder.bookings.firstWhere(
+                          (b) => b.caregiverId.toString() == caregiverId || 
+                                 b.caregiverName == caregiverName,
+                        );
+                      } catch (_) {
+                        booking = null;
+                      }
+
+                      return CaregiverStatusCard(
+                        caregiverName: caregiverName,
+                        caregiverId: caregiverId,
+                        booking: booking,
+                        onTap: () {
+                          // Handled inside widget
+                        },
+                      );
+                    })(),
                     if (i != elder.caregivers.length - 1)
                       Divider(
                           height: 1,

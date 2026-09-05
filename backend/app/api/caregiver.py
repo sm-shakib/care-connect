@@ -58,7 +58,16 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
 def list_verified_caregivers(db: Session = Depends(get_db)):
     """
     Public endpoint to list caregivers with status == 'verified'.
-    Returns only caregivers that are verified and uses the CaregiverOut schema (without rating/review_count).
     """
-    caregivers = db.query(Caregiver).options().join(Caregiver.user).filter(Caregiver.status == "verified").all()
+    caregivers = db.query(Caregiver).join(Caregiver.user).filter(Caregiver.status == "verified").all()
     return caregivers
+
+@router.get("/caregivers/{caregiver_id}", response_model=CaregiverOut)
+def get_caregiver_profile(caregiver_id: int, db: Session = Depends(get_db)):
+    """
+    Public endpoint to get a single caregiver's profile.
+    """
+    caregiver = db.query(Caregiver).filter(Caregiver.id == caregiver_id).first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver not found")
+    return caregiver

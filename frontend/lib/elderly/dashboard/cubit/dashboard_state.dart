@@ -14,7 +14,9 @@ class DashboardState extends Equatable {
     this.otherReminders = const <CareReminder>[],
     this.appointments = const <Appointment>[],
     this.bindingRequests = const <BindingRequest>[],
-    this.caregiver,
+    this.caregivers = const <CaregiverSummary>[],
+    this.activeCaregiverIds = const <String>[],
+    this.linkedFamilyMembers = const [],
     this.chatPreview,
     this.errorMessage,
     this.heartRate = 75,
@@ -27,7 +29,9 @@ class DashboardState extends Equatable {
   final List<CareReminder> otherReminders;
   final List<Appointment> appointments;
   final List<BindingRequest> bindingRequests;
-  final CaregiverSummary? caregiver;
+  final List<CaregiverSummary> caregivers;
+  final List<String> activeCaregiverIds;
+  final List<Map<String, dynamic>> linkedFamilyMembers;
   final ChatPreview? chatPreview;
   final String? errorMessage;
   final int heartRate;
@@ -43,7 +47,9 @@ class DashboardState extends Equatable {
     List<CareReminder>? otherReminders,
     List<Appointment>? appointments,
     List<BindingRequest>? bindingRequests,
-    CaregiverSummary? caregiver,
+    List<CaregiverSummary>? caregivers,
+    List<String>? activeCaregiverIds,
+    List<Map<String, dynamic>>? linkedFamilyMembers,
     ChatPreview? chatPreview,
     String? errorMessage,
     int? heartRate,
@@ -56,7 +62,9 @@ class DashboardState extends Equatable {
       otherReminders: otherReminders ?? this.otherReminders,
       appointments: appointments ?? this.appointments,
       bindingRequests: bindingRequests ?? this.bindingRequests,
-      caregiver: caregiver ?? this.caregiver,
+      caregivers: caregivers ?? this.caregivers,
+      activeCaregiverIds: activeCaregiverIds ?? this.activeCaregiverIds,
+      linkedFamilyMembers: linkedFamilyMembers ?? this.linkedFamilyMembers,
       chatPreview: chatPreview ?? this.chatPreview,
       errorMessage: errorMessage,
       heartRate: heartRate ?? this.heartRate,
@@ -72,7 +80,9 @@ class DashboardState extends Equatable {
         otherReminders,
         appointments,
         bindingRequests,
-        caregiver,
+        caregivers,
+        activeCaregiverIds,
+        linkedFamilyMembers,
         chatPreview,
         errorMessage,
         heartRate,

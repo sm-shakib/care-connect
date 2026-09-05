@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
 import 'package:frontend/family/models/health_vitals.dart';
 import 'package:frontend/shared/medicine/data/medicine_dto.dart';
@@ -42,10 +43,10 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           final ad = a as Map<String, dynamic>;
           return Appointment(
             id: ad['id'].toString(),
-            doctorName: ad['doctor_name'] as String,
+            doctorName: (ad['doctor_name'] ?? '') as String,
             specialty: ad['specialty'] as String? ?? 'Specialist',
-            date: ad['appointment_date'] as String,
-            time: ad['appointment_time'] as String,
+            date: (ad['appointment_date'] ?? '') as String,
+            time: (ad['appointment_time'] ?? '') as String,
             location: ad['location'] as String? ?? 'Hospital',
           );
         }).toList();
@@ -55,13 +56,25 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           final rd = r as Map<String, dynamic>;
           return CareReminder(
             id: rd['id'].toString(),
-            title: rd['title'] as String,
+            title: (rd['title'] ?? '') as String,
             subtitle: rd['subtitle'] as String? ?? '',
             icon: Icons.notifications_active_outlined,
           );
         }).toList();
 
-        final List<String> caregiverNames = List<String>.from(data['caregiver_names'] as List? ?? []);
+        final bookingsRaw = data['bookings'] as List? ?? [];
+        final List<BookingRequest> bookings = bookingsRaw.map((b) {
+          return BookingRequest.fromJson(b as Map<String, dynamic>);
+        }).toList();
+
+        final List<String> caregiverNames =
+            List<String>.from(data['caregiver_names'] as List? ?? []);
+        final Map<String, String> caregiverIdMap = {};
+        final caregiverDetails = data['caregiver_details'] as List? ?? [];
+        for (final detail in caregiverDetails) {
+          final d = detail as Map<String, dynamic>;
+          caregiverIdMap[(d['name'] ?? '') as String] = (d['id'] ?? 0).toString();
+        }
 
         final hr = elderData['heart_rate'] as int? ?? 75;
         final systolic = elderData['systolic_bp'] as int? ?? 120;
@@ -77,6 +90,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           healthStatus: elderData['health_condition']?.toString() ?? 'Stable',
           imageUrl: elderData['profile_image_url']?.toString() ?? '',
           caregivers: caregiverNames,
+          caregiverIdMap: caregiverIdMap,
           vitals: HealthVitals(
             heartRate: hr,
             heartRateStatus: _getHeartRateStatus(hr),
@@ -92,6 +106,7 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           medications: medications,
           appointments: appointments,
           otherReminders: reminders,
+          bookings: bookings,
         );
       }).toList();
 
@@ -99,6 +114,20 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
         state.copyWith(
           elders: elders,
           filteredElders: elders,
+          // Keep the booking context updated with the latest elder data
+          bookingForElder: state.bookingForElder != null
+              ? () => elders.firstWhere(
+                    (e) => e.id == state.bookingForElder!.id,
+                    orElse: () => state.bookingForElder!,
+                  )
+              : null,
+          // Also update selected elder if viewing one
+          selectedElder: state.selectedElder != null
+              ? () => elders.firstWhere(
+                    (e) => e.id == state.selectedElder!.id,
+                    orElse: () => state.selectedElder!,
+                  )
+              : null,
         ),
       );
     } catch (e) {

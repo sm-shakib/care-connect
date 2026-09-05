@@ -15,6 +15,7 @@ class PatientBasicInfo {
     required this.email,
     required this.address,
     required this.healthCondition,
+    this.imageUrl = '',
   });
 
   final Gender gender;
@@ -23,6 +24,7 @@ class PatientBasicInfo {
   final String email;
   final String address;
   final String healthCondition;
+  final String imageUrl;
 }
 
 // TODO: replace with a real repository call keyed by patientId once the
@@ -36,6 +38,7 @@ class PatientDetailsDummyData {
       email: 'karim@gmail.com',
       address: 'Pallabi, Dhaka',
       healthCondition: 'High Blood Pressure, Diabetes Type 2',
+      imageUrl: 'https://img.freepik.com/free-photo/view-senior-man-smiling-camera_23-2148740051.jpg',
     );
   }
 

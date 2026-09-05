@@ -1,35 +1,36 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/services/location_service.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
+import 'package:frontend/elderly/dashboard/cubit/dashboard_state.dart';
 import 'package:frontend/elderly/data/repositories/elder_repository.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
-import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
-import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/family/models/binding_request.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
-
-import 'dashboard_models.dart';
-import 'dashboard_state.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
+  DashboardCubit(this._bindingRepository) : super(const DashboardState());
+
   final BindingRepository _bindingRepository;
   final _bookingRepository = BookingRepository();
   final _authRepository = AuthRepository();
   final _elderRepository = ElderRepository(ApiClient());
   final _locationService = LocationService();
-  StreamSubscription? _locationSubscription;
+  StreamSubscription<Position>? _locationSubscription;
   Timer? _vitalsTimer;
 
-  DashboardCubit(this._bindingRepository) : super(const DashboardState());
-
   @override
-  Future<void> close() {
-    _locationSubscription?.cancel();
+  Future<void> close() async {
+    await _locationSubscription?.cancel();
     _vitalsTimer?.cancel();
     return super.close();
   }
@@ -39,11 +40,12 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   Future<void> loadDashboard() async {
-    print('DEBUG: loadDashboard called');
+    log('DEBUG: loadDashboard called');
     emit(state.copyWith(status: DashboardStatus.loading));
     try {
       final profileId = await _authRepository.getProfileId();
       final requests = await _bindingRepository.getPendingRequests();
+      final familyMembers = await _bindingRepository.getLinkedFamilyMembers();
       
       // Fetch real data from backend
       final profile = await _elderRepository.getMyProfile();
@@ -67,30 +69,33 @@ class DashboardCubit extends Cubit<DashboardState> {
       )).toList();
 
       // Start real-time location tracking
-      _startLocationTracking();
+      unawaited(_startLocationTracking());
       
-      // Start periodic health vitals simulation (optional, might conflict with manual updates)
+      // Start periodic health vitals simulation (optional, might conflict 
+      // with manual updates)
       // _startVitalsSimulation();
 
-      CaregiverSummary? caregiver;
+      final caregivers = <CaregiverSummary>[];
+      final activeCaregiverIds = <String>[];
       if (profileId != null) {
-        // ... (rest of caregiver loading logic)
+        // caregiver loading logic
         final bookings = await _bookingRepository.getElderBookings(profileId);
 
-        final realAccepted = bookings
-            .where((b) => b.status == BookingStatus.accepted)
-            .toList();
+        final realAccepted =
+            bookings.where((b) => b.status == BookingStatus.accepted).toList();
 
-        if (realAccepted.isNotEmpty) {
-          final b = realAccepted.first;
-          caregiver = CaregiverSummary(
-            id: b.caregiverId.toString(),
-            name: b.caregiverName,
-            profession: b.caregiverProfession,
-            nextVisitLabel: 'Today, ${b.timingLabel.split('—')[0].trim()}',
-            phone: b.caregiverPhone,
-            entity: b.caregiverEntity,
-            booking: b,
+        for (final b in realAccepted) {
+          activeCaregiverIds.add(b.caregiverId.toString());
+          caregivers.add(
+            CaregiverSummary(
+              id: b.caregiverId.toString(),
+              name: b.caregiverName,
+              profession: b.caregiverProfession,
+              nextVisitLabel: 'Today, ${b.timingLabel.split('—')[0].trim()}',
+              phone: b.caregiverPhone,
+              entity: b.caregiverEntity,
+              booking: b,
+            ),
           );
         }
       }
@@ -104,17 +109,18 @@ class DashboardCubit extends Cubit<DashboardState> {
           diastolicBp: profile['diastolic_bp'] as int? ?? 80,
           otherReminders: reminders,
           appointments: appointments,
-          caregiver: caregiver,
-          chatPreview: null,
+          caregivers: caregivers,
+          activeCaregiverIds: activeCaregiverIds,
+          linkedFamilyMembers: familyMembers,
           bindingRequests: requests,
         ),
       );
     } catch (e) {
-      print('DEBUG: loadDashboard error: $e');
+      log('DEBUG: loadDashboard error: $e');
       emit(
         state.copyWith(
           status: DashboardStatus.failure,
-          errorMessage: 'Unable to load your dashboard: ${e.toString()}',
+          errorMessage: 'Unable to load your dashboard: $e',
         ),
       );
     }
@@ -124,35 +130,35 @@ class DashboardCubit extends Cubit<DashboardState> {
     _vitalsTimer?.cancel();
     _vitalsTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       final random = DateTime.now().second;
-      _elderRepository.updateVitalsAndLocation(
-        heartRate: 70 + (random % 20), // 70-90
-        systolicBp: 115 + (random % 10), // 115-125
-        diastolicBp: 75 + (random % 10), // 75-85
+      unawaited(
+        _elderRepository.updateVitalsAndLocation(
+          heartRate: 70 + (random % 20), // 70–90
+          systolicBp: 115 + (random % 10), // 115–125
+          diastolicBp: 75 + (random % 10), // 75–85
+        ),
       );
       debugPrint('DEBUG: Vitals updated in backend');
     });
   }
 
-  void _startLocationTracking() async {
+  Future<void> _startLocationTracking() async {
     // Cancel existing subscription if any
     await _locationSubscription?.cancel();
 
     // Request permissions and get initial location
     final initialPos = await _locationService.getCurrentLocation();
     if (initialPos != null) {
-      _updateBackendLocation(initialPos);
+      await _updateBackendLocation(initialPos);
     }
 
     // Subscribe to continuous updates
     _locationSubscription = _locationService.getLocationStream().listen(
-      (position) {
-        _updateBackendLocation(position);
-      },
-      onError: (e) => debugPrint('Location tracking error: $e'),
+      _updateBackendLocation,
+      onError: (Object e) => debugPrint('Location tracking error: $e'),
     );
   }
 
-  Future<void> _updateBackendLocation(dynamic position) async {
+  Future<void> _updateBackendLocation(Position position) async {
     try {
       await _elderRepository.updateVitalsAndLocation(
         latitude: (position.latitude as num).toDouble(),
@@ -162,6 +168,10 @@ class DashboardCubit extends Cubit<DashboardState> {
       debugPrint(
         'DEBUG: Backend updated with location: '
             '${position.latitude}, ${position.longitude}',
+      );
+      debugPrint(
+        'DEBUG: Backend updated with location: '
+        '${position.latitude}, ${position.longitude}',
       );
     } catch (e) {
       debugPrint('DEBUG: Failed to update backend location: $e');
@@ -189,17 +199,21 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  void addReminder(CareReminder reminder) async {
-    try {
-      await _elderRepository.addReminder({
-        'title': reminder.title,
-        'subtitle': reminder.subtitle,
-        'icon_name': 'notifications_active_outlined',
-      });
-      loadDashboard(); // Refresh from server
-    } catch (e) {
-      debugPrint('Error adding reminder: $e');
-    }
+  void addReminder(CareReminder reminder) {
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.addReminder({
+            'title': reminder.title,
+            'subtitle': reminder.subtitle,
+            'icon_name': 'notifications_active_outlined',
+          });
+          await loadDashboard(); // Refresh from server
+        } catch (e) {
+          debugPrint('Error adding reminder: $e');
+        }
+      }(),
+    );
   }
 
   void updateReminder(CareReminder reminder) {
@@ -210,19 +224,23 @@ class DashboardCubit extends Cubit<DashboardState> {
     // ... existing local logic or implement DELETE backend ...
   }
 
-  void addAppointment(Appointment appointment) async {
-    try {
-      await _elderRepository.addAppointment({
-        'doctor_name': appointment.doctorName,
-        'specialty': appointment.specialty,
-        'appointment_date': appointment.date,
-        'appointment_time': appointment.time,
-        'location': appointment.location,
-      });
-      loadDashboard(); // Refresh from server
-    } catch (e) {
-      debugPrint('Error adding appointment: $e');
-    }
+  void addAppointment(Appointment appointment) {
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.addAppointment({
+            'doctor_name': appointment.doctorName,
+            'specialty': appointment.specialty,
+            'appointment_date': appointment.date,
+            'appointment_time': appointment.time,
+            'location': appointment.location,
+          });
+          await loadDashboard(); // Refresh from server
+        } catch (e) {
+          debugPrint('Error adding appointment: $e');
+        }
+      }(),
+    );
   }
 
   void updateAppointment(Appointment appointment) {
@@ -236,19 +254,25 @@ class DashboardCubit extends Cubit<DashboardState> {
     emit(state.copyWith(appointments: updated));
   }
 
-  void updateRequestStatus(String requestId, BindingStatus status) async {
-    try {
-      final bindingId = int.parse(requestId);
-      await _bindingRepository.respondToRequest(bindingId, status);
-      
-      final updatedRequests = state.bindingRequests.where((req) => req.id != requestId).toList();
-      emit(state.copyWith(bindingRequests: updatedRequests));
-    } catch (e) {
-      // Handle error
-    }
+  void updateRequestStatus(String requestId, BindingStatus status) {
+    unawaited(
+      () async {
+        try {
+          final bindingId = int.parse(requestId);
+          await _bindingRepository.respondToRequest(bindingId, status);
+
+          final updatedRequests =
+              state.bindingRequests.where((req) => req.id != requestId).toList();
+          emit(state.copyWith(bindingRequests: updatedRequests));
+        } catch (e) {
+          // Handle error
+        }
+      }(),
+    );
   }
 
   // Temporary mock data for reminders/appointments until those APIs are ready
+  // ignore: unused_field
   static const _mockOtherReminders = [
     CareReminder(
       id: 'rem_1',
@@ -264,6 +288,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     ),
   ];
 
+  // ignore: unused_field
   static const _mockAppointments = [
     Appointment(
       id: 'apt_1',

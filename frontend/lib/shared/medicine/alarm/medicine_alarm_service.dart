@@ -26,6 +26,13 @@ class MedicineAlarmService {
   static const _channelDescription =
       'Alerts the elder when it is time to take a medicine.';
 
+  /// Filename (no extension) of the alarm tone, bundled as an Android raw
+  /// resource at `android/app/src/main/res/raw/alarm_sound.<ext>`. This only
+  /// covers the notification's own one-shot sound; the looping playback
+  /// while the alarm is on screen is handled by [MedicineAlarmPage] with
+  /// `audioplayers`, from the Flutter asset at `assets/sounds/alarm_sound.mp3`.
+  static const _alarmSoundResource = 'alarm_sound';
+
   final _plugin = FlutterLocalNotificationsPlugin();
   GlobalKey<NavigatorState>? _navigatorKey;
   bool _initialized = false;
@@ -74,6 +81,8 @@ class MedicineAlarmService {
         _channelName,
         description: _channelDescription,
         importance: Importance.max,
+        sound: RawResourceAndroidNotificationSound(_alarmSoundResource),
+        audioAttributesUsage: AudioAttributesUsage.alarm,
       ),
     );
     await androidPlugin?.requestNotificationsPermission();
@@ -181,6 +190,10 @@ class MedicineAlarmService {
         category: AndroidNotificationCategory.alarm,
         visibility: NotificationVisibility.public,
         fullScreenIntent: true,
+        // Only takes effect below Android 8 (API 26) — from 8 onward the
+        // channel's own sound (set in `initialize`) is what's used.
+        sound: RawResourceAndroidNotificationSound(_alarmSoundResource),
+        audioAttributesUsage: AudioAttributesUsage.alarm,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,

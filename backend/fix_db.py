@@ -72,6 +72,37 @@ def fix_database():
             else:
                 print(f"Column '{col}' already exists in elders table.")
 
+        # 7. Handle complaints table missing resolution_feedback
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'complaints';")
+        complaint_columns = [row[0] for row in cur.fetchall()]
+        if 'resolution_feedback' not in complaint_columns:
+            print("Adding missing column 'resolution_feedback' to complaints table...")
+            cur.execute("ALTER TABLE complaints ADD COLUMN resolution_feedback TEXT;")
+        else:
+            print("Column 'resolution_feedback' already exists in complaints table.")
+
+        if 'caregiver_explanation' not in complaint_columns:
+            print("Adding missing column 'caregiver_explanation' to complaints table...")
+            cur.execute("ALTER TABLE complaints ADD COLUMN caregiver_explanation TEXT;")
+        else:
+            print("Column 'caregiver_explanation' already exists in complaints table.")
+
+        # 8. Check and Create complaint_notes if metadata didn't catch it
+        cur.execute("SELECT to_regclass('public.complaint_notes');")
+        if not cur.fetchone()[0]:
+            print("Creating table complaint_notes...")
+            cur.execute("""
+                CREATE TABLE complaint_notes (
+                    id SERIAL PRIMARY KEY,
+                    complaint_id INTEGER REFERENCES complaints(id) ON DELETE CASCADE,
+                    author_name VARCHAR DEFAULT 'Admin',
+                    note TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                );
+            """)
+        else:
+            print("Table complaint_notes already exists.")
+
         conn.commit()
         print("Database updated successfully!")
         

@@ -84,7 +84,7 @@ class LiveLocationCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Coords: ${latitude!.substring(0, 8)}, ${longitude!.substring(0, 8)}',
+                        'Coords: ${latitude!.length > 8 ? latitude!.substring(0, 8) : latitude}, ${longitude!.length > 8 ? longitude!.substring(0, 8) : longitude}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.onSurfaceVariantLight,

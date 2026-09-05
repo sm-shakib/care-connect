@@ -51,6 +51,15 @@ class InternalNote extends Equatable {
 
   @override
   List<Object?> get props => [id, authorName, note, createdAt];
+
+  factory InternalNote.fromJson(Map<String, dynamic> json) {
+    return InternalNote(
+      id: json['id'].toString(),
+      authorName: json['author_name'] as String? ?? 'Admin',
+      note: json['note'] as String? ?? '',
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
 }
 
 /// Full detail record for a single complaint.
@@ -65,6 +74,8 @@ class ComplaintDetail extends Equatable {
     required this.category,
     required this.description,
     required this.internalNotes,
+    this.resolutionFeedback,
+    this.caregiverExplanation,
   });
 
   final String id;
@@ -76,11 +87,15 @@ class ComplaintDetail extends Equatable {
   final String category;
   final String description;
   final List<InternalNote> internalNotes;
+  final String? resolutionFeedback;
+  final String? caregiverExplanation;
 
   ComplaintDetail copyWith({
     ComplaintDetailStatus? status,
     String? statusDetail,
     List<InternalNote>? internalNotes,
+    String? resolutionFeedback,
+    String? caregiverExplanation,
   }) {
     return ComplaintDetail(
       id: id,
@@ -92,6 +107,8 @@ class ComplaintDetail extends Equatable {
       category: category,
       description: description,
       internalNotes: internalNotes ?? this.internalNotes,
+      resolutionFeedback: resolutionFeedback ?? this.resolutionFeedback,
+      caregiverExplanation: caregiverExplanation ?? this.caregiverExplanation,
     );
   }
 
@@ -106,5 +123,49 @@ class ComplaintDetail extends Equatable {
     category,
     description,
     internalNotes,
+    resolutionFeedback,
+    caregiverExplanation,
   ];
+
+  factory ComplaintDetail.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status'] as String? ?? 'pending';
+    final ComplaintDetailStatus status;
+    final String statusDetail;
+
+    if (statusStr == 'resolved') {
+      status = ComplaintDetailStatus.resolved;
+      statusDetail = 'Resolved';
+    } else {
+      status = ComplaintDetailStatus.pendingReview;
+      statusDetail = 'Pending Review';
+    }
+
+    final List<InternalNote> internalNotes = (json['notes'] as List? ?? [])
+        .map((dynamic n) => InternalNote.fromJson(n as Map<String, dynamic>))
+        .toList();
+
+    return ComplaintDetail(
+      id: 'CP-${json['id']}',
+      status: status,
+      statusDetail: statusDetail,
+      filedDate: DateTime.parse(json['created_at'] as String),
+      reporter: Person(
+        id: json['reporter_id'].toString(),
+        name: json['reporter_name'] as String? ?? 'Unknown',
+        role: json['reporter_role'] as String? ?? 'Reporter',
+        avatarUrl: '',
+      ),
+      against: Person(
+        id: json['caregiver_id'].toString(),
+        name: json['caregiver_name'] as String? ?? 'Unknown',
+        role: 'Caregiver',
+        avatarUrl: '',
+      ),
+      category: json['category'] as String? ?? 'General',
+      description: json['description'] as String? ?? '',
+      internalNotes: internalNotes,
+      resolutionFeedback: json['resolution_feedback'] as String?,
+      caregiverExplanation: json['caregiver_explanation'] as String?,
+    );
+  }
 }

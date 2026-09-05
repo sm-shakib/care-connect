@@ -1,12 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'caregiver.dart';
 
 enum BookingStatus { pending, accepted, rejected, cancelled }
 
-enum PaymentStatus { pending, paid }
+enum PaymentStatus { pending, paid, completed }
 
-class BookingRequest {
+class BookingRequest extends Equatable {
   const BookingRequest({
     required this.id,
     required this.elderId,
@@ -19,10 +20,12 @@ class BookingRequest {
     required this.status,
     required this.paymentStatus,
     required this.requestedAt,
+    this.totalAmount = 0,
     this.reason = '',
     this.elderName = '',
     this.elderGender = '',
     this.elderAddress = '',
+    this.elderImageUrl = '',
     this.requesterName = '',
     this.caregiverName = '',
     this.caregiverProfession = '',
@@ -41,12 +44,14 @@ class BookingRequest {
   final BookingStatus status;
   final PaymentStatus paymentStatus;
   final DateTime requestedAt;
+  final double totalAmount;
   final String reason;
   
   /// Extra fields for UI display convenience
   final String elderName;
   final String elderGender;
   final String elderAddress;
+  final String elderImageUrl;
   final String requesterName;
   final String caregiverName;
   final String caregiverProfession;
@@ -88,11 +93,11 @@ class BookingRequest {
       id: json['id'] as int,
       elderId: json['elder_id'] as int,
       caregiverId: json['caregiver_id'] as int,
-      startDate: DateTime.parse(json['service_start_date'] as String),
-      endDate: DateTime.parse(json['service_end_date'] as String),
-      daysOfWeek: (json['days_of_week'] as String).split(','),
-      startTime: parseTime(json['daily_timing_start'] as String),
-      endTime: parseTime(json['daily_timing_end'] as String),
+      startDate: DateTime.parse((json['service_start_date'] ?? '') as String),
+      endDate: DateTime.parse((json['service_end_date'] ?? '') as String),
+      daysOfWeek: ((json['days_of_week'] ?? '') as String).split(','),
+      startTime: parseTime((json['daily_timing_start'] ?? '00:00') as String),
+      endTime: parseTime((json['daily_timing_end'] ?? '00:00') as String),
       status: BookingStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => BookingStatus.pending,
@@ -101,13 +106,19 @@ class BookingRequest {
         (e) => e.name == json['payment_status'],
         orElse: () => PaymentStatus.pending,
       ),
-      requestedAt: DateTime.parse(json['requested_at'] as String).toLocal(),
+      requestedAt: DateTime.parse(
+        (json['requested_at'] ?? DateTime.now().toIso8601String()) as String,
+      ).toLocal(),
+      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0,
       reason: json['booking_reason'] as String? ?? '',
       elderName: elder != null ? (elder['name'] as String? ?? '') : '',
       elderGender: elder != null ? (elder['gender'] as String? ?? '') : '',
       elderAddress: elder != null ? (elder['address'] as String? ?? '') : '',
-      requesterName: '', // Could be fetched if needed
-      caregiverName: caregiver != null ? (caregiver['name'] as String? ?? '') : '',
+      elderImageUrl:
+          elder != null ? (elder['profile_image_url'] as String? ?? '') : '',
+      requesterName: (json['requested_by_name'] ?? '') as String,
+      caregiverName:
+          caregiver != null ? (caregiver['name'] as String? ?? '') : '',
       caregiverProfession: caregiver != null ? (caregiver['profession'] as String? ?? 'Caregiver') : '',
       caregiverPhone: caregiver != null ? (caregiver['phone'] as String? ?? '') : '',
       caregiverEntity: caregiver != null ? Caregiver.fromJson(caregiver) : null,
@@ -143,10 +154,12 @@ class BookingRequest {
     BookingStatus? status,
     PaymentStatus? paymentStatus,
     DateTime? requestedAt,
+    double? totalAmount,
     String? reason,
     String? elderName,
     String? elderGender,
     String? elderAddress,
+    String? elderImageUrl,
     String? requesterName,
     String? caregiverName,
     String? caregiverProfession,
@@ -165,10 +178,12 @@ class BookingRequest {
       status: status ?? this.status,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       requestedAt: requestedAt ?? this.requestedAt,
+      totalAmount: totalAmount ?? this.totalAmount,
       reason: reason ?? this.reason,
       elderName: elderName ?? this.elderName,
       elderGender: elderGender ?? this.elderGender,
       elderAddress: elderAddress ?? this.elderAddress,
+      elderImageUrl: elderImageUrl ?? this.elderImageUrl,
       requesterName: requesterName ?? this.requesterName,
       caregiverName: caregiverName ?? this.caregiverName,
       caregiverProfession: caregiverProfession ?? this.caregiverProfession,
@@ -176,4 +191,30 @@ class BookingRequest {
       caregiverEntity: caregiverEntity ?? this.caregiverEntity,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        id,
+        elderId,
+        caregiverId,
+        startDate,
+        endDate,
+        daysOfWeek,
+        startTime,
+        endTime,
+        status,
+        paymentStatus,
+        requestedAt,
+        totalAmount,
+        reason,
+        elderName,
+        elderGender,
+        elderAddress,
+        elderImageUrl,
+        requesterName,
+        caregiverName,
+        caregiverProfession,
+        caregiverPhone,
+        caregiverEntity,
+      ];
 }

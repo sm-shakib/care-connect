@@ -42,19 +42,21 @@ class BookingRequestDetailsPage extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  // CircleAvatar(
-                  //   radius: 50,
-                  //   backgroundColor: AppColors.paleMint,
-                  //   backgroundImage: NetworkImage(request.elderImageUrl),
-                  // ),
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: AppColors.paleMint,
-                    child: Icon(
-                      request.elderGender == 'Male' ? Icons.man : Icons.woman,
-                      size: 55,
-                      color: AppColors.darkTeal,
-                    ),
+                    backgroundImage: request.elderImageUrl.isNotEmpty
+                        ? NetworkImage(request.elderImageUrl)
+                        : null,
+                    child: request.elderImageUrl.isEmpty
+                        ? Icon(
+                            request.elderGender == 'Male'
+                                ? Icons.man
+                                : Icons.woman,
+                            size: 55,
+                            color: AppColors.darkTeal,
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   Text(

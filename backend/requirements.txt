@@ -10,3 +10,5 @@ python-multipart
 bcrypt
 passlib
 cloudinary
+cryptography
+httpx

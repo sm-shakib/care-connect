@@ -13,7 +13,7 @@ import 'package:frontend/family/cubit/family_dashboard_cubit.dart';
 import 'package:frontend/family/data/booking_dummy_data.dart';
 import 'package:frontend/family/models/booking_schedule.dart';
 import 'package:frontend/family/models/elder.dart';
-import 'package:frontend/family/view/payment/caregiver_payment_page.dart';
+import 'package:frontend/family/view/payment/bkash_webview_page.dart';
 import 'package:frontend/family/widgets/booking_options_sheet.dart';
 import 'package:frontend/family/widgets/file_complaint_sheet.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -27,7 +27,7 @@ const List<CaregiverDocumentType> _kRequiredDocuments = [
   CaregiverDocumentType.policeClearance,
 ];
 
-class CaregiverDetailsPage extends StatelessWidget {
+class CaregiverDetailsPage extends StatefulWidget {
   const CaregiverDetailsPage({
     required this.caregiver,
     this.bookingForElder,
@@ -42,31 +42,27 @@ class CaregiverDetailsPage extends StatelessWidget {
   final bool isAssigned;
   final BookingRequest? booking;
 
-  /// When set, "Book Now" books the caregiver for the current elder (the
-  /// app user themselves) using this name, skipping the family-only "which
-  /// elder is this for?" selection dialog. Used by the elder's own
-  /// caregiver list, which has no [FamilyDashboardCubit] in the widget tree.
   final String? selfBookingElderName;
+
+  @override
+  State<CaregiverDetailsPage> createState() => _CaregiverDetailsPageState();
+}
+
+class _CaregiverDetailsPageState extends State<CaregiverDetailsPage> {
+  late BookingRequest? _currentBooking;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentBooking = widget.booking;
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final dobLabel = caregiver.dateOfBirth != null
-        ? DateFormat('d MMM yyyy').format(caregiver.dateOfBirth!)
+    final dobLabel = widget.caregiver.dateOfBirth != null
+        ? DateFormat('d MMM yyyy').format(widget.caregiver.dateOfBirth!)
         : '—';
-
-    // Calculate distance if booking context exists
-    /*
-    double? calculatedDistance;
-    if (bookingForElder != null) {
-      calculatedDistance = _calculateDistance(
-        bookingForElder!.latitude,
-        bookingForElder!.longitude,
-        caregiver.latitude,
-        caregiver.longitude,
-      );
-    }
-    */
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
@@ -98,12 +94,12 @@ class CaregiverDetailsPage extends StatelessWidget {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: AppColors.paleMint,
-                    backgroundImage: caregiver.imageUrl.isNotEmpty
-                        ? NetworkImage(caregiver.imageUrl)
+                    backgroundImage: widget.caregiver.imageUrl.isNotEmpty
+                        ? NetworkImage(widget.caregiver.imageUrl)
                         : null,
-                    child: caregiver.imageUrl.isEmpty
+                    child: widget.caregiver.imageUrl.isEmpty
                         ? Icon(
-                            caregiver.gender == 'Male' ? Icons.man : Icons.woman,
+                            widget.caregiver.gender == 'Male' ? Icons.man : Icons.woman,
                             size: 55,
                             color: AppColors.primaryLight,
                           )
@@ -111,7 +107,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    caregiver.getName(context),
+                    widget.caregiver.getName(context),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -130,19 +126,19 @@ class CaregiverDetailsPage extends StatelessWidget {
                 _buildStatItem(
                   Icons.work_history_outlined,
                   context.l10n.expLabel,
-                  context.l10n.yearsLabel(caregiver.experience),
+                  context.l10n.yearsLabel(widget.caregiver.experience),
                   AppColors.primaryLight,
                 ),
                 _buildStatItem(
                   Icons.payments_outlined,
                   context.l10n.rateLabel,
-                  context.l10n.hourlyRateLabel(caregiver.hourlyRate),
+                  context.l10n.hourlyRateLabel(widget.caregiver.hourlyRate),
                   Colors.green,
                 ),
                 _buildStatItem(
                   Icons.event_available_outlined,
                   context.l10n.availabilityLabel,
-                  caregiver.getAvailabilityType(context),
+                  widget.caregiver.getAvailabilityType(context),
                   Colors.orange,
                 ),
               ],
@@ -166,24 +162,24 @@ class CaregiverDetailsPage extends StatelessWidget {
                   _InfoRow(
                     icon: Icons.phone_outlined,
                     label: context.l10n.phoneNumberLabel,
-                    value: caregiver.phone,
+                    value: widget.caregiver.phone,
                   ),
                   _InfoRow(
                     icon: Icons.mail_outline,
                     label: context.l10n.emailLabel,
-                    value: caregiver.email,
+                    value: widget.caregiver.email,
                   ),
                   _InfoRow(
                     icon: Icons.location_on_outlined,
                     label: context.l10n.addressLabel,
-                    value: caregiver.getAddress(context),
+                    value: widget.caregiver.getAddress(context),
                   ),
                   _InfoRow(
-                    icon: caregiver.gender == 'Male'
+                    icon: widget.caregiver.gender == 'Male'
                         ? Icons.man_outlined
                         : Icons.woman_outlined,
                     label: context.l10n.genderLabel,
-                    value: caregiver.getGenderLabel(context),
+                    value: widget.caregiver.getGenderLabel(context),
                   ),
                   _InfoRow(
                     icon: Icons.cake_outlined,
@@ -203,7 +199,7 @@ class CaregiverDetailsPage extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: caregiver.specialties
+              children: widget.caregiver.specialties
                   .map((e) => Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -214,7 +210,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          caregiver.getSpecialtyLabel(context, e),
+                          widget.caregiver.getSpecialtyLabel(context, e),
                           style: const TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w500),
                         ),
@@ -241,12 +237,12 @@ class CaregiverDetailsPage extends StatelessWidget {
                   for (var i = 0; i < _kRequiredDocuments.length; i++) ...[
                     VerifiedDocumentTile(
                       type: _kRequiredDocuments[i],
-                      fileName: caregiver.documents[_kRequiredDocuments[i]] ??
+                      fileName: widget.caregiver.documents[_kRequiredDocuments[i]] ??
                           'document.pdf',
-                      onView: caregiver.isVerified
+                      onView: widget.caregiver.isVerified
                           ? () async {
                               final url =
-                                  caregiver.documents[_kRequiredDocuments[i]];
+                                  widget.caregiver.documents[_kRequiredDocuments[i]];
                               if (url != null && url.isNotEmpty) {
                                 final uri = Uri.parse(url);
                                 if (await canLaunchUrl(uri)) {
@@ -267,24 +263,28 @@ class CaregiverDetailsPage extends StatelessWidget {
               ),
             ),
 
-            if (isAssigned) ...[
+            if (widget.isAssigned) ...[
               const SizedBox(height: 25),
               _SectionTitle(title: context.l10n.scheduleTitle),
               const SizedBox(height: 12),
               _BookingScheduleCard(
-                schedule: booking != null
+                schedule: _currentBooking != null
                     ? null
                     : BookingDummyData.getScheduleForCaregiver(
-                        caregiver.id,
+                        widget.caregiver.id,
                       ),
-                realBooking: booking,
+                realBooking: _currentBooking,
               ),
+              const SizedBox(height: 20),
+              _SectionTitle(title: context.l10n.paymentLabel),
+              const SizedBox(height: 12),
+              _AssignedBookingPaymentCard(booking: _currentBooking),
             ],
 
             const SizedBox(height: 32),
 
             /// Booking or Active Caregiver Actions
-            if (!isAssigned)
+            if (!widget.isAssigned)
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -341,21 +341,14 @@ class CaregiverDetailsPage extends StatelessWidget {
                     child: SizedBox(
                       height: 56,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          unawaited(
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => CaregiverPaymentPage(
-                                  caregiver: caregiver,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        onPressed: _currentBooking?.paymentStatus == PaymentStatus.completed || _currentBooking?.paymentStatus == PaymentStatus.paid
+                            ? null
+                            : () => _showPaymentOptions(context),
                         icon: const Icon(Icons.payments_outlined),
                         label: Text(
-                          context.l10n.paymentLabel,
+                          _currentBooking?.paymentStatus == PaymentStatus.completed || _currentBooking?.paymentStatus == PaymentStatus.paid
+                              ? 'Paid'
+                              : context.l10n.paymentLabel,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
@@ -379,13 +372,210 @@ class CaregiverDetailsPage extends StatelessWidget {
     );
   }
 
+  void _showPaymentOptions(BuildContext context) {
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Select Payment Method',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkTeal,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _PaymentOptionTile(
+                  icon: Icons.money_off_csred_outlined,
+                  title: 'Pay Offline',
+                  subtitle: 'Pay directly to the caregiver',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _handleOfflinePayment();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _PaymentOptionTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Pay via bKash',
+                  subtitle: 'Fast and secure online payment',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _handleBkashPayment();
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleBkashPayment() async {
+    if (_currentBooking == null) return;
+
+    // Show loading
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFFD12053)),
+      ),
+    );
+
+    try {
+      final repo = BookingRepository();
+      final bkashUrl = await repo.initializeBkashPayment(_currentBooking!.id);
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+
+        final result = await Navigator.push<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (_) => BkashWebViewPage(
+              bkashUrl: bkashUrl,
+              bookingId: _currentBooking!.id,
+            ),
+          ),
+        );
+
+        if (result is BookingRequest) {
+          setState(() {
+            _currentBooking = result;
+          });
+          _showPaymentSuccessDialog();
+        } else if (result == true) {
+          // Fallback if execute returns just true
+          // You might want to re-fetch the booking here
+          _showPaymentSuccessDialog();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to initialize bKash: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleOfflinePayment() async {
+    if (_currentBooking == null) return;
+
+    // Show loading
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final repo = BookingRepository();
+      final updatedBooking = await repo.updatePaymentStatus(
+        _currentBooking!.id,
+        PaymentStatus.completed,
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+        setState(() {
+          _currentBooking = updatedBooking;
+        });
+        _showPaymentSuccessDialog();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update payment: $e')),
+        );
+      }
+    }
+  }
+
+  void _showPaymentSuccessDialog() {
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 80,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Payment Successful',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'The payment status has been updated to Completed.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.onSurfaceVariantLight,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.darkTeal,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Done'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showFileComplaintSheet(BuildContext context) {
     unawaited(
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (context) => FileComplaintSheet(caregiverName: caregiver.name),
+        builder: (context) => FileComplaintSheet(
+          caregiverName: widget.caregiver.name,
+          caregiverId: int.tryParse(widget.caregiver.id) ?? 0,
+        ),
       ),
     );
   }
@@ -425,23 +615,23 @@ class CaregiverDetailsPage extends StatelessWidget {
   }
 
   void _handleBooking(BuildContext context) async {
-    if (selfBookingElderName != null) {
+    if (widget.selfBookingElderName != null) {
       // Elder booking for themselves: no elder to choose, book directly.
       final authRepo = AuthRepository();
       final profileId = await authRepo.getProfileId();
       if (profileId != null && context.mounted) {
         _showBookingOptionsSheet(
           context,
-          elderName: selfBookingElderName!,
+          elderName: widget.selfBookingElderName!,
           elderId: profileId,
         );
       }
-    } else if (bookingForElder != null) {
+    } else if (widget.bookingForElder != null) {
       _showBookingOptionsSheet(
         context,
-        elderName: bookingForElder!.name,
-        elderId: int.tryParse(bookingForElder!.id) ?? 0,
-        elder: bookingForElder,
+        elderName: widget.bookingForElder!.name,
+        elderId: int.tryParse(widget.bookingForElder!.id) ?? 0,
+        elder: widget.bookingForElder,
       );
     } else {
       _showElderSelectionDialog(context);
@@ -513,7 +703,7 @@ class CaregiverDetailsPage extends StatelessWidget {
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (sheetContext) => BookingOptionsSheet(
-          caregiverName: caregiver.name,
+          caregiverName: widget.caregiver.name,
           elderName: elderName,
           onConfirm: (
             startDate,
@@ -535,7 +725,7 @@ class CaregiverDetailsPage extends StatelessWidget {
               final request = BookingRequest(
                 id: 0, // Assigned by server
                 elderId: elderId,
-                caregiverId: int.tryParse(caregiver.id) ?? 0,
+                caregiverId: int.tryParse(widget.caregiver.id) ?? 0,
                 startDate: startDate,
                 endDate: endDate,
                 daysOfWeek: daysOfWeek,
@@ -547,9 +737,16 @@ class CaregiverDetailsPage extends StatelessWidget {
                 reason: reason,
               );
 
-              await repo.createBooking(request);
+              final createdBooking = await repo.createBooking(request);
 
               if (context.mounted) {
+                // Refresh the family dashboard to show the new pending request
+                try {
+                  context.read<FamilyDashboardCubit>().loadElders();
+                } catch (_) {
+                  // Not in family context
+                }
+
                 Navigator.pop(sheetContext); // Close loading
                 Navigator.pop(sheetContext); // Close options sheet
                 _showSuccessDialog(context, elder);
@@ -598,7 +795,7 @@ class CaregiverDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    pageContext.l10n.bookingRequestSentMessage(caregiver.name),
+                    pageContext.l10n.bookingRequestSentMessage(widget.caregiver.name),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontSize: 16, color: AppColors.onSurfaceVariantLight),
@@ -674,7 +871,7 @@ class _BookingScheduleCard extends StatelessWidget {
     final timing = realBooking?.timingLabel ?? schedule?.timingLabel ?? '';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(18),
@@ -719,6 +916,197 @@ class _SectionTitle extends StatelessWidget {
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: AppColors.darkTeal,
+      ),
+    );
+  }
+}
+
+class _AssignedBookingPaymentCard extends StatelessWidget {
+  const _AssignedBookingPaymentCard({required this.booking});
+
+  final BookingRequest? booking;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final amount = booking?.totalAmount ?? 0;
+    final amountLabel = NumberFormat.currency(
+      locale: 'en_BD',
+      symbol: '৳',
+      decimalDigits: 0,
+    ).format(amount);
+    
+    final isCompleted = booking?.paymentStatus == PaymentStatus.completed || 
+                        booking?.paymentStatus == PaymentStatus.paid;
+    
+    final statusLabel = isCompleted ? 'Completed' : 'Pending';
+    final statusColor = isCompleted ? Colors.green : Colors.orange;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.paleMint.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.primaryTeal.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 20,
+                      color: AppColors.darkTeal,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Payment Status',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Total Amount',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                amountLabel,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.darkTeal,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentOptionTile extends StatelessWidget {
+  const _PaymentOptionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.paleMint,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: AppColors.darkTeal,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

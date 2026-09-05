@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/repositories/complaint_repository.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FileComplaintSheet extends StatefulWidget {
-  const FileComplaintSheet({super.key, required this.caregiverName});
+  const FileComplaintSheet({
+    super.key,
+    required this.caregiverName,
+    required this.caregiverId,
+  });
 
   final String caregiverName;
+  final int caregiverId;
 
   @override
   State<FileComplaintSheet> createState() => _FileComplaintSheetState();
@@ -14,6 +20,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
   String? _selectedCategory;
   final _descriptionController = TextEditingController();
   bool _canSubmit = false;
+  bool _isSubmitting = false;
 
   final _categories = [
     'Care Quality',
@@ -38,11 +45,46 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
   }
 
   void _validateForm() {
-    final isValid = _selectedCategory != null && _descriptionController.text.trim().isNotEmpty;
+    final isValid =
+        _selectedCategory != null && _descriptionController.text.trim().isNotEmpty;
     if (isValid != _canSubmit) {
       setState(() {
         _canSubmit = isValid;
       });
+    }
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_canSubmit || _isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final repo = ComplaintRepository();
+      await repo.fileComplaint(
+        caregiverId: widget.caregiverId,
+        category: _selectedCategory!,
+        description: _descriptionController.text.trim(),
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        _showComplaintSuccessDialog(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit complaint: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 
@@ -107,25 +149,31 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
               setState(() => _selectedCategory = val);
               _validateForm();
             },
-            style: const TextStyle(fontSize: 15, color: AppColors.onSurfaceLight),
-            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.darkTeal),
+            style:
+                const TextStyle(fontSize: 15, color: AppColors.onSurfaceLight),
+            icon:
+                const Icon(Icons.keyboard_arrow_down, color: AppColors.darkTeal),
             decoration: InputDecoration(
               hintText: 'Select category',
               hintStyle: const TextStyle(color: AppColors.onSurfaceVariantLight),
               filled: true,
               fillColor: AppColors.surfaceContainerLowLight,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                borderSide:
+                    const BorderSide(color: AppColors.outlineVariantLight),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                borderSide:
+                    const BorderSide(color: AppColors.outlineVariantLight),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.darkTeal, width: 1.6),
+                borderSide:
+                    const BorderSide(color: AppColors.darkTeal, width: 1.6),
               ),
             ),
           ),
@@ -151,15 +199,18 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
               contentPadding: const EdgeInsets.all(12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                borderSide:
+                    const BorderSide(color: AppColors.outlineVariantLight),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.outlineVariantLight),
+                borderSide:
+                    const BorderSide(color: AppColors.outlineVariantLight),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.darkTeal, width: 1.6),
+                borderSide:
+                    const BorderSide(color: AppColors.darkTeal, width: 1.6),
               ),
             ),
           ),
@@ -168,12 +219,7 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
             width: double.infinity,
             height: 54,
             child: ElevatedButton(
-              onPressed: _canSubmit
-                  ? () {
-                      Navigator.pop(context);
-                      _showComplaintSuccessDialog(context);
-                    }
-                  : null,
+              onPressed: _canSubmit && !_isSubmitting ? _handleSubmit : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
                 foregroundColor: Colors.white,
@@ -182,10 +228,19 @@ class _FileComplaintSheetState extends State<FileComplaintSheet> {
                   borderRadius: BorderRadius.circular(28),
                 ),
               ),
-              child: const Text(
-                'Submit Complaint',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Submit Complaint',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
             ),
           ),
         ],

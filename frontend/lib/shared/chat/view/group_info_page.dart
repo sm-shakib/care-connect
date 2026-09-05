@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/theme/app_colors.dart';
 
-import '../data/chat_directory.dart';
 import '../data/chat_repository.dart';
 import '../models/chat_participant.dart';
 import '../models/conversation.dart';
@@ -38,13 +37,17 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   Future<void> _addMembers(Conversation conversation) async {
     final currentIds = conversation.participants.map((p) => p.id).toSet();
-    final candidates = ChatDirectory.contactsFor(widget.currentUser)
+    final allContacts = await widget.repository.getContacts(widget.currentUser);
+    final candidates = allContacts
         .where((p) => !currentIds.contains(p.id))
         .toList();
+    if (!mounted) return;
 
     if (candidates.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Everyone in your contacts is already in this group.')),
+        const SnackBar(
+          content: Text('Everyone in your contacts is already in this group.'),
+        ),
       );
       return;
     }
@@ -67,7 +70,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Add members', style: Theme.of(sheetContext).textTheme.headlineSmall),
+                    Text(
+                      'Add members',
+                      style: Theme.of(sheetContext).textTheme.headlineSmall,
+                    ),
                     const SizedBox(height: 8),
                     Flexible(
                       child: ListView.builder(
@@ -96,7 +102,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                       child: FilledButton(
                         onPressed: selected.isEmpty
                             ? null
-                            : () => Navigator.pop(sheetContext, selected.toList()),
+                            : () => Navigator.pop(
+                                sheetContext,
+                                selected.toList(),
+                              ),
                         child: const Text('Add to group'),
                       ),
                     ),
@@ -119,11 +128,18 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Remove member?'),
-        content: Text('${member.name} will no longer see this group\'s messages.'),
+        content: Text(
+          '${member.name} will no longer see this group\'s messages.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.warningRed),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.warningRed,
+            ),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Remove'),
           ),
@@ -140,11 +156,18 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Leave group?'),
-        content: const Text('You will no longer receive messages from this group.'),
+        content: const Text(
+          'You will no longer receive messages from this group.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.warningRed),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.warningRed,
+            ),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Leave'),
           ),
@@ -152,7 +175,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       ),
     );
     if (confirmed ?? false) {
-      await widget.repository.removeMember(widget.conversationId, widget.currentUser.id);
+      await widget.repository.removeMember(
+        widget.conversationId,
+        widget.currentUser.id,
+      );
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
@@ -168,7 +194,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         stream: _stream,
         builder: (context, snapshot) {
           final conversation = snapshot.data;
-          if (conversation == null) return const Center(child: CircularProgressIndicator());
+          if (conversation == null)
+            return const Center(child: CircularProgressIndicator());
 
           final isCreator = conversation.createdBy == widget.currentUser.id;
           final members = conversation.participants;
@@ -182,7 +209,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: conversation.avatarColor,
-                      child: const Icon(Icons.groups, size: 40, color: AppColors.darkTeal),
+                      child: const Icon(
+                        Icons.groups,
+                        size: 40,
+                        color: AppColors.darkTeal,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -201,11 +232,20 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Members', style: Theme.of(context).textTheme.labelLarge),
+                  Text(
+                    'Members',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                   TextButton.icon(
                     onPressed: () => _addMembers(conversation),
-                    icon: const Icon(Icons.person_add_alt, color: AppColors.darkTeal),
-                    label: const Text('Add', style: TextStyle(color: AppColors.darkTeal)),
+                    icon: const Icon(
+                      Icons.person_add_alt,
+                      color: AppColors.darkTeal,
+                    ),
+                    label: const Text(
+                      'Add',
+                      style: TextStyle(color: AppColors.darkTeal),
+                    ),
                   ),
                 ],
               ),
@@ -215,11 +255,14 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                   subtitle: member.id == widget.currentUser.id
                       ? 'You'
                       : member.id == conversation.createdBy
-                          ? '${member.role.name} • Group admin'
-                          : member.role.name,
+                      ? '${member.role.name} • Group admin'
+                      : member.role.name,
                   trailing: (isCreator && member.id != widget.currentUser.id)
                       ? IconButton(
-                          icon: Icon(Icons.remove_circle_outline, color: colorScheme.error),
+                          icon: Icon(
+                            Icons.remove_circle_outline,
+                            color: colorScheme.error,
+                          ),
                           tooltip: 'Remove member',
                           onPressed: () => _removeMember(member),
                         )
@@ -228,7 +271,9 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               const SizedBox(height: 24),
               OutlinedButton.icon(
                 onPressed: _leaveGroup,
-                style: OutlinedButton.styleFrom(foregroundColor: AppColors.warningRed),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.warningRed,
+                ),
                 icon: const Icon(Icons.logout),
                 label: const Text('Leave group'),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class FamilyBottomNavBar extends StatelessWidget {
@@ -44,8 +45,8 @@ class FamilyBottomNavBar extends StatelessWidget {
             label: 'Caregivers',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
+            icon: ChatUnreadBadge(child: Icon(Icons.chat_bubble_outline)),
+            activeIcon: ChatUnreadBadge(child: Icon(Icons.chat_bubble)),
             label: 'Chats',
           ),
           BottomNavigationBarItem(

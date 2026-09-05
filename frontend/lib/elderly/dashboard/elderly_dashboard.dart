@@ -10,8 +10,8 @@ import 'package:frontend/elderly/dashboard/cubit/dashboard_models.dart';
 import 'package:frontend/elderly/dashboard/cubit/dashboard_state.dart';
 import 'package:frontend/elderly/dashboard/view/edit_reminders_page.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/caregiver_card.dart';
-import 'package:frontend/elderly/dashboard/view/widgets/chat_card.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/dashboard_card_header.dart';
+import 'package:frontend/elderly/dashboard/view/widgets/family_member_card.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/greetings_section.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/medication_card.dart';
 import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
@@ -28,18 +28,12 @@ import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
-import 'package:intl/intl.dart';
-
-
-import 'package:frontend/core/services/location_service.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/vitals_update_dialog.dart';
-
-
-import 'package:frontend/core/repositories/auth_repository.dart';
-import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ElderlyDashboardPage extends StatelessWidget {
   const ElderlyDashboardPage({super.key});
@@ -196,7 +190,6 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
           index: _selectedIndex,
           children: [
             _DashboardHomeBody(
-              onOpenChat: () => setState(() => _selectedIndex = 3),
               onOpenMedicine: () => setState(() => _selectedIndex = 2),
             ),
             const _CaregiversTabBody(),
@@ -219,9 +212,8 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
 }
 
 class _DashboardHomeBody extends StatelessWidget {
-  const _DashboardHomeBody({this.onOpenChat, this.onOpenMedicine});
+  const _DashboardHomeBody({this.onOpenMedicine});
 
-  final VoidCallback? onOpenChat;
   final VoidCallback? onOpenMedicine;
 
   @override
@@ -308,19 +300,42 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 24),
               const _EditRemindersButton(),
               const SizedBox(height: 24),
-              DashboardCardHeader(
+              const DashboardCardHeader(
                 icon: Icons.favorite_outline,
-                title: context.l10n.dashboardCaregiverTitle,
+                title: 'Your Caregivers',
               ),
               const SizedBox(height: 12),
-              CaregiverCard(caregiver: state.caregiver),
+              if (state.caregivers.isEmpty)
+                const CaregiverCard(caregiver: null)
+              else
+                ...state.caregivers.map(
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: CaregiverCard(caregiver: c),
+                  ),
+                ),
               const SizedBox(height: 24),
-              DashboardCardHeader(
-                icon: Icons.chat_bubble_outline,
-                title: context.l10n.dashboardChatTitle,
+              const DashboardCardHeader(
+                icon: Icons.people_outline,
+                title: 'Linked Family Members',
               ),
               const SizedBox(height: 12),
-              ChatCard(chat: state.chatPreview, onTap: onOpenChat),
+              if (state.linkedFamilyMembers.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    'No family members linked yet.',
+                    style: TextStyle(color: AppColors.onSurfaceVariantLight),
+                  ),
+                )
+              else
+                ...state.linkedFamilyMembers.map(
+                  (m) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: FamilyMemberCard(member: m),
+                  ),
+                ),
+              const SizedBox(height: 24),
             ],
           ),
         );
@@ -380,25 +395,37 @@ class _CaregiversTabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The elder books for themselves, so no "which elder?" step is needed.
-    final dashboardState = context.read<DashboardCubit>().state;
-    final selfName = dashboardState.userName;
+    final dashboardCubit = context.read<DashboardCubit>();
 
     return BlocProvider(
       create: (_) => CaregiverListCubit()
-        ..loadCaregivers(),
-      child: CaregiverListBody(
-        onCaregiverTap: (caregiver) {
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => CaregiverDetailsPage(
-                caregiver: caregiver,
-                selfBookingElderName: selfName,
-              ),
-            ),
-          );
+        ..setExcludedIds(dashboardCubit.state.activeCaregiverIds),
+      child: BlocListener<DashboardCubit, DashboardState>(
+        listenWhen: (prev, curr) =>
+            prev.activeCaregiverIds != curr.activeCaregiverIds,
+        listener: (context, state) {
+          context
+              .read<CaregiverListCubit>()
+              .setExcludedIds(state.activeCaregiverIds);
         },
+        child: BlocBuilder<DashboardCubit, DashboardState>(
+          buildWhen: (prev, curr) => prev.userName != curr.userName,
+          builder: (context, dashboardState) {
+            return CaregiverListBody(
+              onCaregiverTap: (caregiver) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => CaregiverDetailsPage(
+                      caregiver: caregiver,
+                      selfBookingElderName: dashboardState.userName,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -468,10 +495,12 @@ class _ChatTabBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChatInboxPage(
-      repository: MockChatRepository.instance,
-      currentUser: ChatDirectory.adib,
-      showHeader: false,
+    return ChatSessionGate(
+      builder: (context, repository, currentUser) => ChatInboxPage(
+        repository: repository,
+        currentUser: currentUser,
+        showHeader: false,
+      ),
     );
   }
 }

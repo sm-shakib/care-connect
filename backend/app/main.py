@@ -10,9 +10,12 @@ from app.models.notification import Notification
 from app.models.medicine import Medicine
 from app.models.booking import Booking
 from app.models.reminder import Appointment, CareReminder
+from app.models.complaint import Complaint
+from app.models.chat import Conversation, ConversationParticipant, ConversationKey, Message, MessageAttachment
 from app.api import (
     elder, auth, caregiver, family, utils, admin,
-    binding, notification, medicine, users, booking
+    binding, notification, medicine, users, booking, complaint,
+    chat, chat_ws
 )
 
 # Create tables
@@ -39,6 +42,9 @@ app.include_router(binding.router)
 app.include_router(notification.router)
 app.include_router(medicine.router)
 app.include_router(booking.router, prefix="/bookings", tags=["Bookings"])
+app.include_router(complaint.router, prefix="/complaints", tags=["Complaints"])
+app.include_router(chat.router)
+app.include_router(chat_ws.router, tags=["Chat"])
 app.include_router(utils.router, tags=["Utilities"])
 
 @app.get("/")

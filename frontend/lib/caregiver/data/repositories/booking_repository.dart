@@ -43,4 +43,33 @@ class BookingRepository {
     );
     return BookingRequest.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<BookingRequest> updatePaymentStatus(
+    int bookingId,
+    PaymentStatus status,
+  ) async {
+    final response = await _apiClient.patch(
+      ApiConstants.bookingDetail(bookingId),
+      data: {'payment_status': status.name},
+    );
+    return BookingRequest.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<String> initializeBkashPayment(int bookingId) async {
+    final response = await _apiClient.post(
+      ApiConstants.bkashCreate(bookingId),
+    );
+    return response.data['bkashURL'] as String;
+  }
+
+  Future<BookingRequest> executeBkashPayment(
+    int bookingId,
+    String paymentId,
+  ) async {
+    final response = await _apiClient.post(
+      ApiConstants.bkashExecute(bookingId),
+      data: {'paymentID': paymentId},
+    );
+    return BookingRequest.fromJson(response.data as Map<String, dynamic>);
+  }
 }

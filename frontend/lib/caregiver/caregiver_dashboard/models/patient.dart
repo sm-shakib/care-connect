@@ -10,6 +10,7 @@ class Patient {
     //required this.conditionIcon,
     required this.status,
     required this.schedule,
+    this.imageUrl = '',
     this.isUrgent = false,
   });
 
@@ -21,6 +22,7 @@ class Patient {
   //final IconData conditionIcon;
   final PatientCareStatus status;
   final bool isUrgent;
+  final String imageUrl;
 
   /// Fixed weekly schedule label shown on patient cards.
   final String schedule;
