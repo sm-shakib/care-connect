@@ -27,4 +27,19 @@ class ComplaintRepository {
     );
     return List<Map<String, dynamic>>.from(response.data!);
   }
+
+  Future<List<Map<String, dynamic>>> getCaregiverComplaints() async {
+    final response = await _apiClient.get<List<dynamic>>(
+      '${ApiConstants.complaints}caregiver',
+    );
+    return List<Map<String, dynamic>>.from(response.data!);
+  }
+
+  Future<Map<String, dynamic>> respondToComplaint(int complaintId, String explanation) async {
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      '${ApiConstants.complaints}$complaintId/respond',
+      data: {'caregiver_explanation': explanation},
+    );
+    return response.data!;
+  }
 }

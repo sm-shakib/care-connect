@@ -13,6 +13,7 @@ import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
+import 'package:frontend/caregiver/caregiver_profile/view/caregiver_reports_page.dart';
 import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -38,6 +39,29 @@ class CaregiverProfileView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<CaregiverProfileCubit, CaregiverProfileState>(
           builder: (context, state) {
+            if (state.status == CaregiverProfileStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.status == CaregiverProfileStatus.failure) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text('Failed to load profile: ${state.errorMessage}'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () =>
+                          context.read<CaregiverProfileCubit>().loadProfile(),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final cubit = context.read<CaregiverProfileCubit>();
 
             return Column(
@@ -66,7 +90,8 @@ class CaregiverProfileView extends StatelessWidget {
                             context.l10n.appVersionLabel('1.0.0'),
                             style: TextStyle(
                               fontSize: 12,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                              color: colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -122,10 +147,13 @@ class _PersonalInfoCard extends StatelessWidget {
                   backgroundColor: AppColors.paleMint,
                   backgroundImage: state.profileImageBytes != null
                       ? MemoryImage(state.profileImageBytes!)
-                      : null,
-                  child: state.profileImageBytes == null
-                      // ? const Icon(Icons.person, size: 38, color: AppColors.darkTeal)
-                      ? const Icon(Icons.person, size: 44, color: AppColors.darkTeal)
+                      : (state.profileImageUrl.isNotEmpty
+                          ? NetworkImage(state.profileImageUrl)
+                          : null) as ImageProvider?,
+                  child: (state.profileImageBytes == null &&
+                          state.profileImageUrl.isEmpty)
+                      ? const Icon(Icons.person,
+                          size: 44, color: AppColors.darkTeal)
                       : null,
                 ),
         ),
@@ -846,6 +874,16 @@ class _ActionsSection extends StatelessWidget {
             //backgroundColor: colorScheme.surfaceContainerLow,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: cubit.startEditing,
+          ),
+          const SizedBox(height: 10),
+          _ActionRow(
+            icon: Icons.feedback_outlined,
+            label: 'Service Feedback',
+            color: colorScheme.onSurface,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: () {
+              Navigator.push(context, CaregiverReportsPage.route());
+            },
           ),
           const SizedBox(height: 10),
           _ActionRow(

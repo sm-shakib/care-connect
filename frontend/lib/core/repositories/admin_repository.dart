@@ -167,6 +167,7 @@ class AdminRepository {
     required int complaintId,
     required String status,
     String? adminNotes,
+    String? resolutionFeedback,
   }) async {
     final options = await _getAuthOptions();
     final response = await _apiClient.patch<Map<String, dynamic>>(
@@ -174,6 +175,24 @@ class AdminRepository {
       data: {
         'status': status,
         if (adminNotes != null) 'admin_notes': adminNotes,
+        if (resolutionFeedback != null) 'resolution_feedback': resolutionFeedback,
+      },
+      options: options,
+    );
+    return response.data!;
+  }
+
+  Future<Map<String, dynamic>> addComplaintNote({
+    required int complaintId,
+    required String note,
+    String authorName = 'Admin',
+  }) async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      ApiConstants.adminComplaintNotes(complaintId),
+      data: {
+        'author_name': authorName,
+        'note': note,
       },
       options: options,
     );

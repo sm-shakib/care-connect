@@ -51,6 +51,15 @@ class InternalNote extends Equatable {
 
   @override
   List<Object?> get props => [id, authorName, note, createdAt];
+
+  factory InternalNote.fromJson(Map<String, dynamic> json) {
+    return InternalNote(
+      id: json['id'].toString(),
+      authorName: json['author_name'] as String? ?? 'Admin',
+      note: json['note'] as String? ?? '',
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
 }
 
 /// Full detail record for a single complaint.
@@ -65,6 +74,8 @@ class ComplaintDetail extends Equatable {
     required this.category,
     required this.description,
     required this.internalNotes,
+    this.resolutionFeedback,
+    this.caregiverExplanation,
   });
 
   final String id;
@@ -76,11 +87,15 @@ class ComplaintDetail extends Equatable {
   final String category;
   final String description;
   final List<InternalNote> internalNotes;
+  final String? resolutionFeedback;
+  final String? caregiverExplanation;
 
   ComplaintDetail copyWith({
     ComplaintDetailStatus? status,
     String? statusDetail,
     List<InternalNote>? internalNotes,
+    String? resolutionFeedback,
+    String? caregiverExplanation,
   }) {
     return ComplaintDetail(
       id: id,
@@ -92,6 +107,8 @@ class ComplaintDetail extends Equatable {
       category: category,
       description: description,
       internalNotes: internalNotes ?? this.internalNotes,
+      resolutionFeedback: resolutionFeedback ?? this.resolutionFeedback,
+      caregiverExplanation: caregiverExplanation ?? this.caregiverExplanation,
     );
   }
 
@@ -106,6 +123,8 @@ class ComplaintDetail extends Equatable {
     category,
     description,
     internalNotes,
+    resolutionFeedback,
+    caregiverExplanation,
   ];
 
   factory ComplaintDetail.fromJson(Map<String, dynamic> json) {
@@ -121,15 +140,9 @@ class ComplaintDetail extends Equatable {
       statusDetail = 'Pending Review';
     }
 
-    final List<InternalNote> internalNotes = [];
-    if (json['admin_notes'] != null && (json['admin_notes'] as String).isNotEmpty) {
-      internalNotes.add(InternalNote(
-        id: '1',
-        authorName: 'Admin',
-        note: json['admin_notes'] as String,
-        createdAt: DateTime.now(), // Fallback
-      ));
-    }
+    final List<InternalNote> internalNotes = (json['notes'] as List? ?? [])
+        .map((dynamic n) => InternalNote.fromJson(n as Map<String, dynamic>))
+        .toList();
 
     return ComplaintDetail(
       id: 'CP-${json['id']}',
@@ -151,6 +164,8 @@ class ComplaintDetail extends Equatable {
       category: json['category'] as String? ?? 'General',
       description: json['description'] as String? ?? '',
       internalNotes: internalNotes,
+      resolutionFeedback: json['resolution_feedback'] as String?,
+      caregiverExplanation: json['caregiver_explanation'] as String?,
     );
   }
 }

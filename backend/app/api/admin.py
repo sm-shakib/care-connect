@@ -5,7 +5,7 @@ from app.db.session import get_db
 from app.api import deps
 from app.models.caregiver import Caregiver, CaregiverDocument
 from app.models.booking import Booking
-from app.models.complaint import Complaint
+from app.models.complaint import Complaint, ComplaintNote
 from app.schemas.caregiver import CaregiverOut, CaregiverDocumentOut, VerificationStatus
 from app.models.user import User
 from app.models.elder import Elder
@@ -15,7 +15,7 @@ from app.schemas.user import UserOut, UserAdminOut
 from app.schemas.elder import ElderOut
 from app.schemas.family import FamilyOut
 from app.schemas.booking import BookingOut
-from app.schemas.complaint import ComplaintOut, ComplaintUpdate
+from app.schemas.complaint import ComplaintOut, ComplaintUpdate, ComplaintNoteCreate
 
 from app.core.email import send_email
 
@@ -360,7 +360,8 @@ def list_complaints(
     query = db.query(Complaint).options(
         joinedload(Complaint.reporter).joinedload(User.elder_profile),
         joinedload(Complaint.reporter).joinedload(User.family_profile),
-        joinedload(Complaint.caregiver)
+        joinedload(Complaint.caregiver),
+        joinedload(Complaint.notes)
     )
     if status:
         query = query.filter(Complaint.status == status)
@@ -383,10 +384,13 @@ def list_complaints(
             "description": c.description,
             "status": c.status,
             "admin_notes": c.admin_notes,
+            "resolution_feedback": c.resolution_feedback,
+            "caregiver_explanation": c.caregiver_explanation,
             "created_at": c.created_at,
             "reporter_name": reporter_name,
             "reporter_role": c.reporter.role,
-            "caregiver_name": c.caregiver.name
+            "caregiver_name": c.caregiver.name,
+            "notes": c.notes
         })
     return results
 
@@ -402,7 +406,8 @@ def get_complaint_detail(
     c = db.query(Complaint).options(
         joinedload(Complaint.reporter).joinedload(User.elder_profile),
         joinedload(Complaint.reporter).joinedload(User.family_profile),
-        joinedload(Complaint.caregiver)
+        joinedload(Complaint.caregiver),
+        joinedload(Complaint.notes)
     ).filter(Complaint.id == complaint_id).first()
 
     if not c:
@@ -422,10 +427,13 @@ def get_complaint_detail(
         "description": c.description,
         "status": c.status,
         "admin_notes": c.admin_notes,
+        "resolution_feedback": c.resolution_feedback,
+        "caregiver_explanation": c.caregiver_explanation,
         "created_at": c.created_at,
         "reporter_name": reporter_name,
         "reporter_role": c.reporter.role,
-        "caregiver_name": c.caregiver.name
+        "caregiver_name": c.caregiver.name,
+        "notes": c.notes
     }
 
 @router.patch("/complaints/{complaint_id}", response_model=ComplaintOut)
@@ -447,5 +455,36 @@ def update_complaint(
         setattr(complaint, field, value)
 
     db.commit()
-    db.refresh(complaint)
-    return complaint
+
+    # Reload with all relationships
+    return get_complaint_detail(complaint_id, db, current_admin)
+
+@router.post("/complaints/{complaint_id}/notes", response_model=ComplaintOut)
+def add_complaint_note(
+    complaint_id: int,
+    note_in: ComplaintNoteCreate,
+    db: Session = Depends(get_db),
+    current_admin = Depends(deps.get_current_admin)
+):
+    """
+    Add an internal note to a complaint.
+    """
+    complaint = db.query(Complaint).filter(Complaint.id == complaint_id).first()
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    new_note = ComplaintNote(
+        complaint_id=complaint.id,
+        author_name=note_in.author_name,
+        note=note_in.note
+    )
+    db.add(new_note)
+
+    # Auto-update status to under_review if currently pending
+    if complaint.status == "pending":
+        complaint.status = "under_review"
+
+    db.commit()
+
+    # Reload with all relationships
+    return get_complaint_detail(complaint_id, db, current_admin)

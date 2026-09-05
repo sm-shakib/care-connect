@@ -13,6 +13,7 @@ import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/elderly/elderly_profile/cubit/elderly_profile_cubit.dart';
 import 'package:frontend/elderly/view/assistance_form_page.dart';
+import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -684,6 +685,16 @@ class _ActionsSection extends StatelessWidget {
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: cubit.startEditing,
+          ),
+          const SizedBox(height: 10),
+          _ActionRow(
+            icon: Icons.report_problem_outlined,
+            label: 'My Complaints',
+            color: colorScheme.onSurface,
+            backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
+            onTap: () {
+              Navigator.push(context, UserComplaintsPage.route());
+            },
           ),
           const SizedBox(height: 10),
           _ActionRow(
