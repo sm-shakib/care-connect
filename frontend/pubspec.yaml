@@ -29,6 +29,7 @@ dependencies:
   permission_handler: ^13.0.0
   dio: ^5.7.0
   geolocator: ^13.0.2
+  flutter_dotenv: ^5.2.1
   flutter_secure_storage: ^9.2.4
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
@@ -50,6 +51,7 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - .env
     - assets/images/welcome_screen_image.png
     - assets/images/welcome.png
     - assets/images/map.png

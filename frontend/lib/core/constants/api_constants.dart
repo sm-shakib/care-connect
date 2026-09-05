@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConstants {
   // Use 10.0.2.2 for Android Emulator.
   // Use your computer's IP (e.g., 192.168.x.x) if testing on a real phone.

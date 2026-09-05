@@ -54,18 +54,18 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       final appointments = appointmentsData.map((a) => Appointment(
         id: a['id'].toString(),
-        doctorName: (a['doctor_name'] ?? '') as String,
-        specialty: a['specialty'] as String? ?? '',
-        date: (a['appointment_date'] ?? '') as String,
-        time: (a['appointment_time'] ?? '') as String,
-        location: a['location'] as String? ?? '',
+        doctorName: a['doctor_name']?.toString() ?? '',
+        specialty: a['specialty']?.toString() ?? '',
+        date: a['appointment_date']?.toString() ?? '',
+        time: a['appointment_time']?.toString() ?? '',
+        location: a['location']?.toString() ?? '',
       )).toList();
 
       final reminders = remindersData.map((r) => CareReminder(
         id: r['id'].toString(),
-        title: (r['title'] ?? '') as String,
-        subtitle: r['subtitle'] as String? ?? '',
-        icon: Icons.notifications_active_outlined, // Default icon
+        title: r['title']?.toString() ?? '',
+        subtitle: r['subtitle']?.toString() ?? '',
+        icon: Icons.notifications_active_outlined,
       )).toList();
 
       // Start real-time location tracking
@@ -103,7 +103,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       emit(
         state.copyWith(
           status: DashboardStatus.success,
-          userName: (profile['name'] as String?) ?? 'Hello',
+          userName: profile['name']?.toString() ?? 'Hello',
           heartRate: profile['heart_rate'] as int? ?? 75,
           systolicBp: profile['systolic_bp'] as int? ?? 120,
           diastolicBp: profile['diastolic_bp'] as int? ?? 80,
@@ -161,8 +161,13 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> _updateBackendLocation(Position position) async {
     try {
       await _elderRepository.updateVitalsAndLocation(
-        latitude: position.latitude,
-        longitude: position.longitude,
+        latitude: (position.latitude as num).toDouble(),
+        longitude: (position.longitude as num).toDouble(),
+      );
+
+      debugPrint(
+        'DEBUG: Backend updated with location: '
+            '${position.latitude}, ${position.longitude}',
       );
       debugPrint(
         'DEBUG: Backend updated with location: '
