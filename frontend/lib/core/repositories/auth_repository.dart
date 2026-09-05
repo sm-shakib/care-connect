@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/core/constants/api_constants.dart';
 import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/shared/chat/data/chat_session.dart';
 
 class AuthRepository {
   final ApiClient _apiClient = ApiClient();
@@ -63,6 +64,16 @@ class AuthRepository {
     await _storage.write(key: 'access_token', value: token);
     await _storage.write(key: 'user_role', value: data['role'] as String);
     await _storage.write(key: 'profile_id', value: data['profile_id'].toString());
+
+    // Whoever was signed in before is gone. `ChatSession` caches the chat
+    // identity, the repository (with its conversation cache) and the open
+    // socket for the app's lifetime, so without this the next account
+    // inherits all three: the previous user's conversations listed in the
+    // inbox, every thread titled from *their* point of view, and a socket
+    // still authenticated as them. Every account switch funnels through
+    // here — logging in after a logout, and the auto-login each signup
+    // ends with — which the logout buttons themselves do not.
+    ChatSession.reset();
 
     return data;
   }

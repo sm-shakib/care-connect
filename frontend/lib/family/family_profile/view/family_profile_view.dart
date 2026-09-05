@@ -9,6 +9,7 @@ import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/shared/chat/data/chat_session.dart';
 import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/theme/app_colors.dart';
 
@@ -497,6 +498,11 @@ class _ActionsSection extends StatelessWidget {
             if (confirmed != true) return;
 
             cubit.logOut();
+
+            // Ends the chat session: drops the cached identity and
+            // conversations, and closes the socket that is still
+            // authenticated as this user.
+            ChatSession.reset();
 
             if (!context.mounted) return;
 

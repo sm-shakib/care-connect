@@ -15,6 +15,7 @@ import 'package:frontend/elderly/elderly_profile/cubit/elderly_profile_cubit.dar
 import 'package:frontend/elderly/view/assistance_form_page.dart';
 import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/shared/chat/data/chat_session.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
@@ -747,7 +748,12 @@ class _ActionsSection extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(context); // Close confirmation
-                
+
+                // Ends the chat session: drops the cached identity and
+                // conversations, and closes the socket that is still
+                // authenticated as this user.
+                ChatSession.reset();
+
                 // Navigate to login page and tell it to show the success dialog
                 Navigator.pushAndRemoveUntil(
                   context,

@@ -15,6 +15,7 @@ import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/caregiver/caregiver_earnings/caregiver_earnings.dart';
 import 'package:frontend/caregiver/caregiver_profile/view/caregiver_reports_page.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/shared/chat/data/chat_session.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -947,6 +948,11 @@ class _ActionsSection extends StatelessWidget {
               onPressed: () async {
                 Navigator.pop(context); // Close confirmation
                 cubit.logOut();
+
+                // Ends the chat session: drops the cached identity and
+                // conversations, and closes the socket that is still
+                // authenticated as this user.
+                ChatSession.reset();
 
                 // Navigate to login page and tell it to show the success dialog
                 Navigator.pushAndRemoveUntil(

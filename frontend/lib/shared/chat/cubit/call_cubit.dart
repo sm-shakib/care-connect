@@ -143,6 +143,7 @@ class CallCubit extends Cubit<CallCubitState> {
   /// so an incoming call can defer it until [accept] — see [_setUp].
   Future<void> _acquireLocalMedia() async {
     if (_localStream != null) return;
+    await _setAndroidAudioMode(AndroidAudioConfiguration.communication);
     try {
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': true,
@@ -152,6 +153,27 @@ class CallCubit extends Cubit<CallCubitState> {
     } catch (_) {
       // Mic/camera denied or unavailable — proceed without local media so
       // signaling/UI still work; peers just won't receive our tracks.
+    }
+  }
+
+  /// Android runs a WebRTC session in media mode on the loudspeaker unless
+  /// told otherwise, which is why call audio came out at speakerphone
+  /// volume while the on-screen speaker button still read "off" — nothing
+  /// had ever set a route, so the toggle disagreed with what you could
+  /// hear. Communication mode is what makes the earpiece the default and
+  /// the toggle meaningful. It has to be set before the session starts, so
+  /// this runs alongside opening the mic rather than on connect, and it is
+  /// put back to [AndroidAudioConfiguration.media] on teardown — left in
+  /// communication mode, the *next* call's ringtone would come out of the
+  /// earpiece instead of ringing out loud.
+  ///
+  /// No-op on iOS (the plugin guards it), and never fatal: routing is a
+  /// nicety, a call that connects is not.
+  Future<void> _setAndroidAudioMode(AndroidAudioConfiguration config) async {
+    try {
+      await Helper.setAndroidAudioConfiguration(config);
+    } catch (_) {
+      // Older OS, odd OEM audio HAL — carry on with the system default.
     }
   }
 
@@ -291,11 +313,18 @@ class CallCubit extends Cubit<CallCubitState> {
     _noAnswerTimer?.cancel();
     unawaited(CallRingService.instance.stop());
     if (state.session.state == CallState.active) return;
+    // Media is flowing: put it where this kind of call belongs. A voice
+    // call goes to the earpiece, like a phone call; a video call keeps the
+    // loudspeaker, since the phone isn't at your ear. Emitted with the
+    // state so the speaker button shows the route actually in use.
+    final speakerOn = _isVideo;
+    unawaited(Helper.setSpeakerphoneOn(speakerOn));
     emit(
       state.copyWith(
         session: state.session.copyWith(
           state: CallState.active,
           startedAt: DateTime.now(),
+          isSpeakerOn: speakerOn,
         ),
         elapsedSeconds: 0,
       ),
@@ -428,6 +457,7 @@ class CallCubit extends Cubit<CallCubitState> {
 
   void _teardown() {
     unawaited(CallRingService.instance.stop());
+    unawaited(_setAndroidAudioMode(AndroidAudioConfiguration.media));
     _noAnswerTimer?.cancel();
     _elapsedTicker?.cancel();
     for (final pc in _peers.values) {
@@ -442,6 +472,9 @@ class CallCubit extends Cubit<CallCubitState> {
   @override
   Future<void> close() async {
     await CallRingService.instance.stop();
+    // Also restored in [_teardown]; repeated here because a call screen
+    // can be disposed without ever having ended cleanly.
+    await _setAndroidAudioMode(AndroidAudioConfiguration.media);
     await _socketSubscription.cancel();
     _noAnswerTimer?.cancel();
     _elapsedTicker?.cancel();
