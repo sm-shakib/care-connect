@@ -82,13 +82,13 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
 
         return Elder(
           id: elderData['id'].toString(),
-          name: (elderData['name'] ?? '') as String,
+          name: elderData['name']?.toString() ?? 'Unknown',
           age: dob != null ? _calculateAge(dob) : 70,
-          relationship: (relationship ?? '') as String,
-          gender: elderData['gender'] as String? ?? 'Unknown',
+          relationship: relationship?.toString() ?? 'Unknown',
+          gender: elderData['gender']?.toString() ?? 'Unknown',
           hasCaregiver: caregiverNames.isNotEmpty,
-          healthStatus: elderData['health_condition'] as String? ?? 'Stable',
-          imageUrl: elderData['profile_image_url'] as String? ?? '',
+          healthStatus: elderData['health_condition']?.toString() ?? 'Stable',
+          imageUrl: elderData['profile_image_url']?.toString() ?? '',
           caregivers: caregiverNames,
           caregiverIdMap: caregiverIdMap,
           vitals: HealthVitals(
@@ -99,10 +99,10 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
             bpStatus: _getBPStatus(systolic, diastolic),
           ),
           lastLocationUpdate:
-              elderData['last_location_update'] as String? ?? 'Just now',
+          elderData['last_location_update']?.toString() ?? 'Just now',
           locationImage: 'assets/images/map.png',
-          latitude: elderData['latitude'] as String?,
-          longitude: elderData['longitude'] as String?,
+          latitude: elderData['latitude']?.toString(),
+          longitude: elderData['longitude']?.toString(),
           medications: medications,
           appointments: appointments,
           otherReminders: reminders,
