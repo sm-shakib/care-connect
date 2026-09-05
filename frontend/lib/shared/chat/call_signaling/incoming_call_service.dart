@@ -11,7 +11,8 @@ import '../view/call_screen.dart';
 /// full-screen medicine alarm from a background notification tap: a
 /// singleton, initialized once with the app's `NavigatorState` key, that
 /// pushes [CallScreen] itself rather than relying on whatever route
-/// happens to be on screen.
+/// happens to be on screen. [CallScreen]'s `CallCubit` is what actually
+/// rings (see `CallRingService`).
 ///
 /// Listens on the shared `ChatSocketService` for `call:invite` — the
 /// backend never echoes a broadcast back to its sender (see
@@ -29,6 +30,14 @@ class IncomingCallService {
   /// against pushing a second one for the same call while it's ringing.
   final Set<String> _ringingConversationIds = {};
 
+  /// Invites being prepared but not yet on screen. Resolving the
+  /// conversation takes a round trip, and a caller who gives up inside
+  /// that window sends a `call:end` that no `CallCubit` exists to hear
+  /// yet — so it's recorded here and the push is abandoned instead of
+  /// opening a call screen that would ring with nobody on the line.
+  final Set<String> _pendingConversationIds = {};
+  final Set<String> _cancelledConversationIds = {};
+
   void initialize(GlobalKey<NavigatorState> navigatorKey) {
     _navigatorKey = navigatorKey;
     _subscription?.cancel();
@@ -36,10 +45,24 @@ class IncomingCallService {
   }
 
   Future<void> _handleEvent(Map<String, dynamic> event) async {
-    if (event['type'] != 'call:invite') return;
     final conversationId = event['conversation_id']?.toString();
     if (conversationId == null) return;
-    if (!_ringingConversationIds.add(conversationId)) return;
+
+    switch (event['type']) {
+      case 'call:end':
+      case 'call:leave':
+        if (_pendingConversationIds.contains(conversationId)) {
+          _cancelledConversationIds.add(conversationId);
+        }
+        return;
+      case 'call:invite':
+        await _ring(conversationId, event);
+    }
+  }
+
+  Future<void> _ring(String conversationId, Map<String, dynamic> event) async {
+    if (_ringingConversationIds.contains(conversationId)) return;
+    if (!_pendingConversationIds.add(conversationId)) return;
 
     try {
       final navigator = _navigatorKey?.currentState;
@@ -56,22 +79,32 @@ class IncomingCallService {
           .toList();
       if (others.isEmpty) return;
 
-      await navigator.push(
-        MaterialPageRoute<void>(
-          builder: (_) => CallScreen(
-            currentUserId: session.currentUser.id,
-            conversationId: conversationId,
-            participants: others,
-            groupTitle: conversation.isGroup
-                ? conversation.displayTitle(session.currentUser.id)
-                : null,
-            isVideo: event['is_video'] as bool? ?? false,
-            isIncoming: true,
+      // The caller may have hung up while the above was in flight.
+      if (_cancelledConversationIds.contains(conversationId)) return;
+
+      _ringingConversationIds.add(conversationId);
+      _pendingConversationIds.remove(conversationId);
+      try {
+        await navigator.push(
+          MaterialPageRoute<void>(
+            builder: (_) => CallScreen(
+              currentUserId: session.currentUser.id,
+              conversationId: conversationId,
+              participants: others,
+              groupTitle: conversation.isGroup
+                  ? conversation.displayTitle(session.currentUser.id)
+                  : null,
+              isVideo: event['is_video'] as bool? ?? false,
+              isIncoming: true,
+            ),
           ),
-        ),
-      );
+        );
+      } finally {
+        _ringingConversationIds.remove(conversationId);
+      }
     } finally {
-      _ringingConversationIds.remove(conversationId);
+      _pendingConversationIds.remove(conversationId);
+      _cancelledConversationIds.remove(conversationId);
     }
   }
 }

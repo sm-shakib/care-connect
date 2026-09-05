@@ -75,4 +75,19 @@ abstract class ChatRepository {
   /// Permanently removes a conversation (and its message history) for the
   /// current device — mirrors "Delete chat" in most messaging apps.
   Future<void> deleteConversation(String conversationId);
+
+  /// The other participants currently typing in [conversationId],
+  /// re-emitted as people start and stop. Empty when nobody is.
+  Stream<List<ChatParticipant>> watchTypingParticipants(String conversationId);
+
+  /// Tells the other participants whether the current user is typing.
+  /// Fire-and-forget: a dropped signal only costs a missing indicator, so
+  /// this never throws or blocks the composer.
+  void setTyping(String conversationId, {required bool isTyping});
+
+  /// Marks [conversationId] as the thread the user is looking at (null
+  /// when they leave it). Messages that arrive for the open thread are
+  /// read on arrival rather than piling up an unread count the user can
+  /// see is wrong, and it's what a reconnect refetches first.
+  void setActiveConversation(String? conversationId);
 }

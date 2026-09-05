@@ -306,6 +306,20 @@ class MockChatRepository implements ChatRepository {
     _notify();
   }
 
+  // Typing and active-thread tracking need a peer on the other end of a
+  // socket, so there is nothing to mock: nobody is ever typing, and the
+  // seed data has no unread bookkeeping to keep in step.
+  @override
+  Stream<List<ChatParticipant>> watchTypingParticipants(
+    String conversationId,
+  ) => const Stream<List<ChatParticipant>>.empty();
+
+  @override
+  void setTyping(String conversationId, {required bool isTyping}) {}
+
+  @override
+  void setActiveConversation(String? conversationId) {}
+
   // ==================== Seed data ====================
 
   void _seed() {

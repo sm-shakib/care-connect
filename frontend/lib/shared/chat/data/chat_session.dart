@@ -58,9 +58,25 @@ class ChatSession {
 
   /// Clears the cached session and disconnects the socket — call on
   /// logout so the next login (possibly as a different user) starts over.
+  ///
+  /// The old repository is disposed too. It stays subscribed to the shared
+  /// socket otherwise, and since it resolves `isFromMe` against the
+  /// [currentUser] it was built with, leaving it alive means the *previous*
+  /// account's repository reacting to the next account's messages.
   static void reset() {
-    ChatSocketService.instance.disconnect();
+    final pending = _future;
     _future = null;
+    ChatSocketService.instance.disconnect();
+    if (pending == null) return;
+    unawaited(
+      pending
+          .then((session) {
+            final repository = session.repository;
+            if (repository is RealChatRepository) repository.dispose();
+          })
+          // A session that never started has nothing to dispose.
+          .catchError((Object _) {}),
+    );
   }
 }
 

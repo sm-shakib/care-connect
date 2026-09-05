@@ -54,3 +54,4 @@ flutter:
     - assets/images/welcome.png
     - assets/images/map.png
     - assets/sounds/alarm_sound.mp3
+    - assets/sounds/call_ringtone.wav

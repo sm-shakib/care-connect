@@ -231,7 +231,14 @@ def _conversation_payload(db: Session, conversation: Conversation, viewer_id: in
     participant = next((p for p in conversation.participants if p.user_id == viewer_id), None)
     last = _last_message(db, conversation.id)
 
-    unread_query = db.query(Message).filter(Message.conversation_id == conversation.id)
+    # Your own messages are never unread *for you*. Without this filter the
+    # inbox badge counted everything you sent since the last time the thread
+    # was opened — `mark_read` only runs on open, so every message you sent
+    # after that came back as unread the moment you left the conversation.
+    unread_query = db.query(Message).filter(
+        Message.conversation_id == conversation.id,
+        Message.sender_id != viewer_id,
+    )
     if participant is None:
         unread = 0
     elif participant.last_read_at is not None:
@@ -252,6 +259,46 @@ def _conversation_payload(db: Session, conversation: Conversation, viewer_id: in
         ],
         "last_message": serialize_message(db, conversation, last) if last else None,
     }
+
+
+async def broadcast_conversation_updated(db: Session, conversation: Conversation) -> None:
+    """Pushes a fresh conversation payload to every active participant.
+
+    Each one gets a payload rendered for *them*: `unread_count` and
+    `is_muted` are per-viewer, so sending one actor's payload to everybody
+    (as the membership endpoints used to) told every other participant
+    they had the actor's unread count and mute setting.
+
+    Also called from `chat_ws` after a call log is written, hence public.
+    """
+    for participant in conversation.participants:
+        if participant.left_at is not None:
+            continue
+        await chat_ws.manager.send_to_user(
+            participant.user_id,
+            {
+                "type": "conversation:updated",
+                "conversation": _conversation_payload(db, conversation, participant.user_id),
+            },
+        )
+
+
+async def broadcast_message_new(
+    db: Session,
+    conversation: Conversation,
+    message: Message,
+    exclude_user_id: Optional[int] = None,
+) -> None:
+    """Pushes one new message to the conversation's participants."""
+    await chat_ws.manager.broadcast_to_conversation(
+        conversation,
+        {
+            "type": "message:new",
+            "conversation_id": conversation.id,
+            "message": serialize_message(db, conversation, message),
+        },
+        exclude_user_id=exclude_user_id,
+    )
 
 
 def _get_conversation_and_participant(db: Session, conversation_id: int, user: User):
@@ -452,11 +499,8 @@ async def add_members(
     db.commit()
     db.refresh(conversation)
 
-    payload = _conversation_payload(db, conversation, current_user.id)
-    await chat_ws.manager.broadcast_to_conversation(
-        conversation, {"type": "conversation:updated", "conversation": payload}
-    )
-    return payload
+    await broadcast_conversation_updated(db, conversation)
+    return _conversation_payload(db, conversation, current_user.id)
 
 
 @router.delete("/conversations/{conversation_id}/members/{member_id}", response_model=ConversationOut)
@@ -485,11 +529,8 @@ async def remove_member(
     db.commit()
     db.refresh(conversation)
 
-    payload = _conversation_payload(db, conversation, current_user.id)
-    await chat_ws.manager.broadcast_to_conversation(
-        conversation, {"type": "conversation:updated", "conversation": payload}
-    )
-    return payload
+    await broadcast_conversation_updated(db, conversation)
+    return _conversation_payload(db, conversation, current_user.id)
 
 
 # ==================== messages ====================
@@ -580,11 +621,11 @@ async def send_message(
     db.refresh(message)
 
     payload = serialize_message(db, conversation, message)
-    await chat_ws.manager.broadcast_to_conversation(
-        conversation,
-        {"type": "message:new", "conversation_id": conversation_id, "message": payload},
-        exclude_user_id=current_user.id,
-    )
+    await broadcast_message_new(db, conversation, message, exclude_user_id=current_user.id)
+    # Also push the authoritative conversation row (last message + each
+    # viewer's own unread count) so the inbox list and the unread badge
+    # follow the server instead of every client guessing locally.
+    await broadcast_conversation_updated(db, conversation)
     return payload
 
 
@@ -624,6 +665,7 @@ async def unsend_message(
         conversation,
         {"type": "message:deleted", "conversation_id": conversation_id, "message": payload},
     )
+    await broadcast_conversation_updated(db, conversation)
     return payload
 
 
@@ -656,6 +698,16 @@ async def mark_read(
                 "reader_id": str(current_user.id),
             },
         )
+    # The reader's own unread count just went to zero — push it so the
+    # inbox row and the bottom-nav badge clear on every device they're
+    # signed in on, not just the one that opened the thread.
+    await chat_ws.manager.send_to_user(
+        current_user.id,
+        {
+            "type": "conversation:updated",
+            "conversation": _conversation_payload(db, conversation, current_user.id),
+        },
+    )
     return {"ok": True}
 
 
