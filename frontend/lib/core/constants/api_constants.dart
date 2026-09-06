@@ -1,7 +1,7 @@
 class ApiConstants {
   // Use 10.0.2.2 for Android Emulator.
   // Use your computer's IP (e.g., 192.168.x.x) if testing on a real phone.
-  static const String baseUrl = 'http://10.103.129.142:8000';
+  static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
 
   static const String elderSignup = '/elders/signup/elder';
   static const String caregiverSignup = '/signup/caregiver';
