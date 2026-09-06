@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/elderly/dashboard/view/family_member_details_page.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +15,6 @@ class FamilyMemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = member['name'] as String? ?? 'Family Member';
-    final relationship = member['relationship'] as String? ?? '';
     final imageUrl = member['profile_image_url'] as String? ?? '';
     final phone = member['phone'] as String? ?? '';
 
@@ -53,9 +53,11 @@ class FamilyMemberCard extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: AppColors.paleMint,
-                      backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                      backgroundImage:
+                          imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                       child: imageUrl.isEmpty
-                          ? const Icon(Icons.person, color: AppColors.darkTeal, size: 30)
+                          ? const Icon(Icons.person,
+                              color: AppColors.darkTeal, size: 30)
                           : null,
                     ),
                     const SizedBox(width: 16),
@@ -71,13 +73,6 @@ class FamilyMemberCard extends StatelessWidget {
                               color: AppColors.onSurfaceLight,
                             ),
                           ),
-                          Text(
-                            relationship,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.onSurfaceVariantLight,
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -88,12 +83,11 @@ class FamilyMemberCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Messaging will be integrated with the chat tab
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Chat with family member coming soon!')),
-                          );
-                        },
+                        onPressed: () => openDirectConversation(
+                          context,
+                          contactName: name,
+                          role: ChatRole.family,
+                        ),
                         icon: const Icon(Icons.chat_bubble_outline, size: 18),
                         label: const Text('Message'),
                         style: OutlinedButton.styleFrom(
