@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,7 +14,6 @@ class FamilyMemberDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = member['name'] as String? ?? 'Family Member';
-    final relationship = member['relationship'] as String? ?? '';
     final imageUrl = member['profile_image_url'] as String? ?? '';
     final phone = member['phone'] as String? ?? '';
     final email = member['email'] as String? ?? '';
@@ -25,7 +25,8 @@ class FamilyMemberDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Family Member Profile',
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,9 +45,11 @@ class FamilyMemberDetailsPage extends StatelessWidget {
                   CircleAvatar(
                     radius: 60,
                     backgroundColor: AppColors.paleMint,
-                    backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                    backgroundImage:
+                        imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                     child: imageUrl.isEmpty
-                        ? const Icon(Icons.person, color: AppColors.darkTeal, size: 60)
+                        ? const Icon(Icons.person,
+                            color: AppColors.darkTeal, size: 60)
                         : null,
                   ),
                   const SizedBox(height: 16),
@@ -56,14 +59,6 @@ class FamilyMemberDetailsPage extends StatelessWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.onSurfaceLight,
-                    ),
-                  ),
-                  Text(
-                    relationship,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.onSurfaceVariantLight,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -81,11 +76,11 @@ class FamilyMemberDetailsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Chat coming soon!')),
-                      );
-                    },
+                    onPressed: () => openDirectConversation(
+                      context,
+                      contactName: name,
+                      role: ChatRole.family,
+                    ),
                     icon: const Icon(Icons.chat_bubble_outline),
                     label: const Text('Message'),
                     style: OutlinedButton.styleFrom(
