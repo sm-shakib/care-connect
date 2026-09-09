@@ -91,6 +91,42 @@ class PatientDetailsView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
           builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.status == PatientDetailsStatus.failure) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline,
+                          color: Colors.red, size: 60),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Failed to load patient details',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        state.errorMessage ?? 'Unknown error occurred',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () =>
+                            context.read<PatientDetailsCubit>().loadCarePlan(),
+                        child: const Text('Try Again'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
             final cubit = context.read<PatientDetailsCubit>();
 
             return Column(
@@ -214,14 +250,17 @@ class _BasicInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final dobLabel = DateFormat('d MMM yyyy').format(state.dateOfBirth!);
+    final dobLabel = state.dateOfBirth != null
+        ? DateFormat('d MMM yyyy').format(state.dateOfBirth!)
+        : '—';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Column(
         children: [
@@ -229,9 +268,18 @@ class _BasicInfoSection extends StatelessWidget {
               icon: Icons.wc_outlined,
               label: context.l10n.genderLabel,
               value: state.gender?.label(context) ?? '—'),
-          _BasicInfoRow(icon: Icons.cake_outlined, label: context.l10n.dateOfBirthLabel, value: dobLabel),
-          _BasicInfoRow(icon: Icons.phone_outlined, label: context.l10n.phoneNumberLabel, value: state.phone),
-          _BasicInfoRow(icon: Icons.mail_outline, label: context.l10n.emailLabel, value: state.email),
+          _BasicInfoRow(
+              icon: Icons.cake_outlined,
+              label: context.l10n.dateOfBirthLabel,
+              value: dobLabel),
+          _BasicInfoRow(
+              icon: Icons.phone_outlined,
+              label: context.l10n.phoneNumberLabel,
+              value: state.phone),
+          _BasicInfoRow(
+              icon: Icons.mail_outline,
+              label: context.l10n.emailLabel,
+              value: state.email),
           _BasicInfoRow(
             icon: Icons.location_on_outlined,
             label: context.l10n.addressLabel,
@@ -366,8 +414,8 @@ class _VitalsRow extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
-              _HeartRateMiniChart(values: state.heartRateRecent, color: AppColors.darkTeal/*colorScheme.secondary*/),
+              //const SizedBox(height: 8),
+              //_HeartRateMiniChart(values: state.heartRateRecent, color: AppColors.darkTeal/*colorScheme.secondary*/),
             ],
           ),
           lastCheckedText: context.l10n.lastCheckedLabel(formatTimeAgo(state.heartRateCheckedAt)),

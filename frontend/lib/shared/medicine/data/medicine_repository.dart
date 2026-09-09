@@ -10,9 +10,10 @@ class MedicineRepository {
 
   final ApiClient _apiClient;
 
-  Future<List<Medicine>> getMedicines() async {
+  Future<List<Medicine>> getMedicines({int? elderId}) async {
     try {
-      final response = await _apiClient.get('/medicines/me');
+      final path = elderId != null ? '/medicines/$elderId' : '/medicines/me';
+      final response = await _apiClient.get(path);
       final data = response.data as List;
       return data
           .map((json) => MedicineDto.fromJson(json as Map<String, dynamic>).toEntity())
@@ -22,11 +23,13 @@ class MedicineRepository {
     }
   }
 
-  Future<Medicine> createMedicine(Medicine medicine) async {
+  Future<Medicine> createMedicine(Medicine medicine, {int? elderId}) async {
     try {
+      final queryParams = elderId != null ? {'elder_id': elderId} : null;
       final response = await _apiClient.post(
         '/medicines/',
         data: MedicineDto.fromEntity(medicine).toJson(),
+        queryParameters: queryParams,
       );
       return MedicineDto.fromJson(response.data as Map<String, dynamic>).toEntity();
     } catch (e) {

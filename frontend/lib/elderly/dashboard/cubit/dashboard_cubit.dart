@@ -61,12 +61,15 @@ class DashboardCubit extends Cubit<DashboardState> {
         location: a['location']?.toString() ?? '',
       )).toList();
 
-      final reminders = remindersData.map((r) => CareReminder(
-        id: r['id'].toString(),
-        title: r['title']?.toString() ?? '',
-        subtitle: r['subtitle']?.toString() ?? '',
-        icon: Icons.notifications_active_outlined,
-      )).toList();
+      final reminders = remindersData.map((r) {
+        final iconName = r['icon_name']?.toString() ?? 'notifications';
+        return CareReminder(
+          id: r['id'].toString(),
+          title: r['title']?.toString() ?? '',
+          subtitle: r['subtitle']?.toString() ?? '',
+          icon: CareReminder.mapIconNameToData(iconName),
+        );
+      }).toList();
 
       // Start real-time location tracking
       unawaited(_startLocationTracking());
@@ -206,7 +209,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           await _elderRepository.addReminder({
             'title': reminder.title,
             'subtitle': reminder.subtitle,
-            'icon_name': 'notifications_active_outlined',
+            'icon_name': CareReminder.mapIconDataToName(reminder.icon),
           });
           await loadDashboard(); // Refresh from server
         } catch (e) {

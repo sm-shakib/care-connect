@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,6 +8,10 @@ from app.db.session import get_db
 from app.models.elder import Elder
 from app.models.medicine import Medicine
 from app.models.user import User
+from app.models.family import Family
+from app.models.caregiver import Caregiver
+from app.models.booking import Booking
+from app.models.binding import FamilyElderLink
 from app.schemas.medicine import (
     MedicineCreate,
     MedicineOut,
@@ -18,6 +22,36 @@ from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/medicines", tags=["Medicines"])
 
+def _check_elder_access(elder_id: int, db: Session, current_user: User):
+    elder = db.query(Elder).filter(Elder.id == elder_id).first()
+    if not elder:
+        raise HTTPException(status_code=404, detail="Elder not found")
+
+    authorized = False
+    if current_user.role == "elder" and elder.user_id == current_user.id:
+        authorized = True
+    elif current_user.role == "family":
+        family = db.query(Family).filter(Family.user_id == current_user.id).first()
+        if family:
+            link = db.query(FamilyElderLink).filter(
+                FamilyElderLink.elder_id == elder.id,
+                FamilyElderLink.family_id == family.id,
+                FamilyElderLink.status == "accepted"
+            ).first()
+            if link: authorized = True
+    elif current_user.role == "caregiver":
+        caregiver = db.query(Caregiver).filter(Caregiver.user_id == current_user.id).first()
+        if caregiver:
+            booking = db.query(Booking).filter(
+                Booking.elder_id == elder.id,
+                Booking.caregiver_id == caregiver.id,
+                Booking.status == "accepted"
+            ).first()
+            if booking: authorized = True
+
+    if not authorized:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return elder
 
 def _get_own_elder(db: Session, current_user: User) -> Elder:
     if current_user.role != "elder":
@@ -55,15 +89,57 @@ def get_my_medicines(
         .all()
     )
 
+@router.get("/{elder_id}", response_model=List[MedicineOut])
+def get_elder_medicines(
+    elder_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Authorization Check
+    elder = db.query(Elder).filter(Elder.id == elder_id).first()
+    if not elder:
+        raise HTTPException(status_code=404, detail="Elder not found")
+
+    authorized = False
+    if current_user.role == "elder" and elder.user_id == current_user.id:
+        authorized = True
+    elif current_user.role == "family":
+        family = db.query(Family).filter(Family.user_id == current_user.id).first()
+        if family:
+            link = db.query(FamilyElderLink).filter(FamilyElderLink.elder_id == elder.id, FamilyElderLink.family_id == family.id, FamilyElderLink.status == "accepted").first()
+            if link: authorized = True
+    elif current_user.role == "caregiver":
+        caregiver = db.query(Caregiver).filter(Caregiver.user_id == current_user.id).first()
+        if caregiver:
+            booking = db.query(Booking).filter(Booking.elder_id == elder.id, Booking.caregiver_id == caregiver.id, Booking.status == "accepted").first()
+            if booking: authorized = True
+
+    if not authorized:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return (
+        db.query(Medicine)
+        .filter(Medicine.elder_id == elder_id, Medicine.end_date >= date.today())
+        .order_by(Medicine.start_date.desc())
+        .all()
+    )
+
 
 @router.post("/", response_model=MedicineOut)
 def create_medicine(
     payload: MedicineCreate,
+    elder_id: Optional[int] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    elder = _get_own_elder(db, current_user)
-    medicine = Medicine(elder_id=elder.id, **payload.model_dump())
+    if elder_id is None:
+        elder = _get_own_elder(db, current_user)
+        target_elder_id = elder.id
+    else:
+        _check_elder_access(elder_id, db, current_user)
+        target_elder_id = elder_id
+
+    medicine = Medicine(elder_id=target_elder_id, **payload.model_dump())
     db.add(medicine)
     db.commit()
     db.refresh(medicine)
@@ -77,8 +153,11 @@ def update_medicine(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    elder = _get_own_elder(db, current_user)
-    medicine = _get_own_medicine(db, elder, medicine_id)
+    medicine = db.query(Medicine).filter(Medicine.id == medicine_id).first()
+    if not medicine:
+        raise HTTPException(status_code=404, detail="Medicine not found")
+    
+    _check_elder_access(medicine.elder_id, db, current_user)
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(medicine, field, value)
@@ -102,8 +181,12 @@ def delete_medicine(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    elder = _get_own_elder(db, current_user)
-    medicine = _get_own_medicine(db, elder, medicine_id)
+    medicine = db.query(Medicine).filter(Medicine.id == medicine_id).first()
+    if not medicine:
+        raise HTTPException(status_code=404, detail="Medicine not found")
+    
+    _check_elder_access(medicine.elder_id, db, current_user)
+
     db.delete(medicine)
     db.commit()
 

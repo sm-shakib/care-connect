@@ -1,9 +1,12 @@
 part of 'patient_details_cubit.dart';
 
+enum PatientDetailsStatus { initial, loading, success, failure }
+
 class PatientDetailsState extends Equatable {
   const PatientDetailsState({
     required this.patientId,
     required this.patientName,
+    this.status = PatientDetailsStatus.initial,
     this.bpSystolic = 120,
     this.bpDiastolic = 80,
     this.bpCheckedAt,
@@ -21,11 +24,14 @@ class PatientDetailsState extends Equatable {
     this.address = '',
     this.healthCondition = '',
     this.imageUrl = '',
+    this.errorMessage,
   });
 
   final String patientId;
   final String patientName;
   final String imageUrl;
+  final PatientDetailsStatus status;
+  final String? errorMessage;
 
   final int bpSystolic;
   final int bpDiastolic;
@@ -51,7 +57,10 @@ class PatientDetailsState extends Equatable {
   int get medicationsRemainingCount =>
       medications.where((m) => !m.isTakenToday).length;
 
+  bool get isLoading => status == PatientDetailsStatus.loading;
+
   PatientDetailsState copyWith({
+    PatientDetailsStatus? status,
     int? bpSystolic,
     int? bpDiastolic,
     DateTime? bpCheckedAt,
@@ -69,10 +78,12 @@ class PatientDetailsState extends Equatable {
     String? address,
     String? healthCondition,
     String? imageUrl,
+    String? errorMessage,
   }) {
     return PatientDetailsState(
       patientId: patientId,
       patientName: patientName,
+      status: status ?? this.status,
       bpSystolic: bpSystolic ?? this.bpSystolic,
       bpDiastolic: bpDiastolic ?? this.bpDiastolic,
       bpCheckedAt: bpCheckedAt ?? this.bpCheckedAt,
@@ -90,6 +101,7 @@ class PatientDetailsState extends Equatable {
       address: address ?? this.address,
       healthCondition: healthCondition ?? this.healthCondition,
       imageUrl: imageUrl ?? this.imageUrl,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -98,6 +110,8 @@ class PatientDetailsState extends Equatable {
     patientId,
     patientName,
     imageUrl,
+    status,
+    errorMessage,
     bpSystolic,
     bpDiastolic,
     bpCheckedAt,

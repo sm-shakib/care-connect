@@ -48,12 +48,9 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
       ),
     );
     
-    // Also re-apply search and filter if they were active
+    // Also re-apply search if it was active
     if (state.searchText.isNotEmpty) {
       searchCaregiver(state.searchText);
-    }
-    if (state.selectedFilter != 'All') {
-      filterCaregivers(state.selectedFilter);
     }
   }
 
@@ -122,29 +119,6 @@ class CaregiverListCubit extends Cubit<CaregiverListState> {
       state.copyWith(
         searchText: query,
         filteredCaregivers: results,
-      ),
-    );
-  }
-
-  void filterCaregivers(String filter) {
-    if (filter == 'All') {
-      emit(
-        state.copyWith(
-          selectedFilter: filter,
-          filteredCaregivers: state.caregivers,
-        ),
-      );
-      return;
-    }
-
-    final filtered = state.caregivers.where((caregiver) {
-      return caregiver.specialties.contains(filter);
-    }).toList();
-
-    emit(
-      state.copyWith(
-        selectedFilter: filter,
-        filteredCaregivers: filtered,
       ),
     );
   }

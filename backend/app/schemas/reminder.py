@@ -12,6 +12,13 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(AppointmentBase):
     pass
 
+class AppointmentUpdate(BaseModel):
+    doctor_name: Optional[str] = None
+    specialty: Optional[str] = None
+    appointment_date: Optional[str] = None
+    appointment_time: Optional[str] = None
+    location: Optional[str] = None
+
 class AppointmentOut(AppointmentBase):
     id: int
     elder_id: int
@@ -27,6 +34,11 @@ class CareReminderBase(BaseModel):
 
 class CareReminderCreate(CareReminderBase):
     pass
+
+class CareReminderUpdate(BaseModel):
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    icon_name: Optional[str] = None
 
 class CareReminderOut(CareReminderBase):
     id: int
