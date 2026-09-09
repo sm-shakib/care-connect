@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/elderly/data/repositories/elder_repository.dart';
+import 'package:frontend/shared/medicine/data/medicine_repository.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
-
-import '../data/patient_details_dummy_data.dart';
 
 part 'patient_details_state.dart';
 
@@ -23,111 +25,247 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
     loadCarePlan();
   }
 
+  final _elderRepository = ElderRepository(ApiClient());
+  final _medicineRepository = MedicineRepository(ApiClient());
+
   /// Loads the patient's vitals, medications, and reminders.
-  /// TODO: replace with a real repository call keyed by [PatientDetailsState.patientId].
-  void loadCarePlan() {
-    final now = DateTime.now();
-    final basicInfo = PatientDetailsDummyData.basicInfo();
-    emit(
-      state.copyWith(
-        bpCheckedAt: now.subtract(const Duration(hours: 2)),
-        heartRateCheckedAt: now.subtract(const Duration(minutes: 15)),
-        medications: PatientDetailsDummyData.medications(),
-        otherReminders: PatientDetailsDummyData.otherReminders(),
-        appointments: PatientDetailsDummyData.appointments(),
-        gender: basicInfo.gender,
-        dateOfBirth: basicInfo.dateOfBirth,
-        phone: basicInfo.phone,
-        email: basicInfo.email,
-        address: basicInfo.address,
-        healthCondition: basicInfo.healthCondition,
-        imageUrl: basicInfo.imageUrl,
-      ),
-    );
+  Future<void> loadCarePlan() async {
+    final int? elderId = int.tryParse(state.patientId);
+    if (elderId == null) return;
+
+    emit(state.copyWith(status: PatientDetailsStatus.loading));
+
+    try {
+      final profile = await _elderRepository.getElderProfile(elderId);
+      final appointmentsData =
+          await _elderRepository.getAppointments(elderId: elderId);
+      final remindersData =
+          await _elderRepository.getReminders(elderId: elderId);
+      final medications =
+          await _medicineRepository.getMedicines(elderId: elderId);
+
+      final appointments = appointmentsData
+          .map((a) => Appointment(
+                id: a['id'].toString(),
+                doctorName: (a['doctor_name'] ?? '') as String,
+                specialty: a['specialty'] as String? ?? '',
+                date: (a['appointment_date'] ?? '') as String,
+                time: (a['appointment_time'] ?? '') as String,
+                location: a['location'] as String? ?? '',
+              ))
+          .toList();
+
+      final reminders = remindersData.map((r) {
+        final iconName = r['icon_name'] as String? ?? 'notifications';
+        return CareReminder(
+          id: r['id'].toString(),
+          title: (r['title'] ?? '') as String,
+          subtitle: r['subtitle'] as String? ?? '',
+          icon: CareReminder.mapIconNameToData(iconName),
+        );
+      }).toList();
+
+      final dobStr = profile['date_of_birth'] as String?;
+      final dob = dobStr != null ? DateTime.tryParse(dobStr) : null;
+      final genderStr = profile['gender'] as String? ?? 'Female';
+
+      emit(
+        state.copyWith(
+          status: PatientDetailsStatus.success,
+          bpSystolic: profile['systolic_bp'] as int? ?? 120,
+          bpDiastolic: profile['diastolic_bp'] as int? ?? 80,
+          heartRateBpm: profile['heart_rate'] as int? ?? 75,
+          bpCheckedAt: DateTime.now(),
+          heartRateCheckedAt: DateTime.now(),
+          medications: medications,
+          otherReminders: reminders,
+          appointments: appointments,
+          gender:
+              genderStr.toLowerCase() == 'male' ? Gender.male : Gender.female,
+          dateOfBirth: dob ?? DateTime(1950),
+          phone: profile['phone'] as String? ?? '',
+          email: profile['email'] as String? ?? '',
+          address: profile['address'] as String? ?? '',
+          healthCondition: profile['health_condition'] as String? ?? 'Stable',
+          imageUrl: profile['profile_image_url'] as String? ?? '',
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error loading patient care plan: $e');
+      emit(state.copyWith(
+        status: PatientDetailsStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 
-  void markMedicationTaken(String medicationId) {
-    final updated = state.medications.map((medicine) {
-      if (medicine.id != medicationId) return medicine;
-      return medicine.copyWith(isTakenToday: true);
-    }).toList();
-    emit(state.copyWith(medications: updated));
+  void markMedicationTaken(String medicationId) async {
+    try {
+      // Find the medicine to get the next reminder time
+      final medicine = state.medications.firstWhere((m) => m.id == medicationId);
+      await _medicineRepository.markTaken(medicationId, medicine.nextReminder);
+      // Refresh to get updated state from server
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error marking medication taken: $e');
+    }
   }
 
-  void logBloodPressure({required int systolic, required int diastolic}) {
-    // TODO: send the new reading to the backend.
-    emit(
-      state.copyWith(
-        bpSystolic: systolic,
-        bpDiastolic: diastolic,
-        bpCheckedAt: DateTime.now(),
-      ),
-    );
+  void logBloodPressure({required int systolic, required int diastolic}) async {
+    try {
+      await _elderRepository.updateElderVitals(
+        elderId: state.patientId,
+        heartRate: state.heartRateBpm,
+        systolic: systolic,
+        diastolic: diastolic,
+      );
+      emit(
+        state.copyWith(
+          bpSystolic: systolic,
+          bpDiastolic: diastolic,
+          bpCheckedAt: DateTime.now(),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error logging BP: $e');
+    }
   }
 
-  void logHeartRate(int bpm) {
-    // TODO: send the new reading to the backend.
-    final updatedRecent = [...state.heartRateRecent.skip(1), bpm];
-    emit(
-      state.copyWith(
-        heartRateBpm: bpm,
-        heartRateCheckedAt: DateTime.now(),
-        heartRateRecent: updatedRecent,
-      ),
-    );
+  void logHeartRate(int bpm) async {
+    try {
+      await _elderRepository.updateElderVitals(
+        elderId: state.patientId,
+        heartRate: bpm,
+        systolic: state.bpSystolic,
+        diastolic: state.bpDiastolic,
+      );
+      final updatedRecent = [...state.heartRateRecent.skip(1), bpm];
+      emit(
+        state.copyWith(
+          heartRateBpm: bpm,
+          heartRateCheckedAt: DateTime.now(),
+          heartRateRecent: updatedRecent,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error logging heart rate: $e');
+    }
   }
 
   // ---- Reminder editing (Add / Modify / Delete) ----
-  // TODO: sync these changes to a real backend once the care-plan API exists.
 
-  void addMedication(Medicine medicine) {
-    emit(state.copyWith(medications: [...state.medications, medicine]));
+  void addMedication(Medicine medicine) async {
+    final int? elderId = int.tryParse(state.patientId);
+    if (elderId == null) return;
+    try {
+      await _medicineRepository.createMedicine(medicine, elderId: elderId);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error adding medication: $e');
+    }
   }
 
-  void updateMedication(Medicine updatedMedicine) {
-    final updated = state.medications
-        .map((m) => m.id == updatedMedicine.id ? updatedMedicine : m)
-        .toList();
-    emit(state.copyWith(medications: updated));
+  void updateMedication(Medicine updatedMedicine) async {
+    try {
+      await _medicineRepository.updateMedicine(updatedMedicine);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error updating medication: $e');
+    }
   }
 
-  void deleteMedication(String medicationId) {
-    final updated =
-    state.medications.where((m) => m.id != medicationId).toList();
-    emit(state.copyWith(medications: updated));
+  void deleteMedication(String medicationId) async {
+    try {
+      await _medicineRepository.deleteMedicine(medicationId);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error deleting medication: $e');
+    }
   }
 
-  void addCareReminder(CareReminder reminder) {
-    emit(state.copyWith(otherReminders: [...state.otherReminders, reminder]));
+  void addCareReminder(CareReminder reminder) async {
+    final int? elderId = int.tryParse(state.patientId);
+    if (elderId == null) return;
+    try {
+      await _elderRepository.addReminder({
+        'title': reminder.title,
+        'subtitle': reminder.subtitle,
+        'icon_name': CareReminder.mapIconDataToName(reminder.icon),
+      }, elderId: elderId);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error adding reminder: $e');
+    }
   }
 
-  void updateCareReminder(CareReminder updatedReminder) {
-    final updated = state.otherReminders
-        .map((r) => r.id == updatedReminder.id ? updatedReminder : r)
-        .toList();
-    emit(state.copyWith(otherReminders: updated));
+  void updateCareReminder(CareReminder updatedReminder) async {
+    final int? reminderId = int.tryParse(updatedReminder.id);
+    if (reminderId == null) return;
+    try {
+      await _elderRepository.updateReminder(reminderId, {
+        'title': updatedReminder.title,
+        'subtitle': updatedReminder.subtitle,
+        'icon_name': CareReminder.mapIconDataToName(updatedReminder.icon),
+      });
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error updating reminder: $e');
+    }
   }
 
-  void deleteCareReminder(String reminderId) {
-    final updated =
-    state.otherReminders.where((r) => r.id != reminderId).toList();
-    emit(state.copyWith(otherReminders: updated));
+  void deleteCareReminder(String reminderId) async {
+    final int? id = int.tryParse(reminderId);
+    if (id == null) return;
+    try {
+      await _elderRepository.deleteReminder(id);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error deleting reminder: $e');
+    }
   }
 
-  void addAppointment(Appointment appointment) {
-    emit(state.copyWith(appointments: [...state.appointments, appointment]));
+  void addAppointment(Appointment appointment) async {
+    final int? elderId = int.tryParse(state.patientId);
+    if (elderId == null) return;
+    try {
+      await _elderRepository.addAppointment({
+        'doctor_name': appointment.doctorName,
+        'specialty': appointment.specialty,
+        'appointment_date': appointment.date,
+        'appointment_time': appointment.time,
+        'location': appointment.location,
+      }, elderId: elderId);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error adding appointment: $e');
+    }
   }
 
-  void updateAppointment(Appointment updatedAppointment) {
-    final updated = state.appointments
-        .map((a) => a.id == updatedAppointment.id ? updatedAppointment : a)
-        .toList();
-    emit(state.copyWith(appointments: updated));
+  void updateAppointment(Appointment updatedAppointment) async {
+    final int? appointmentId = int.tryParse(updatedAppointment.id);
+    if (appointmentId == null) return;
+    try {
+      await _elderRepository.updateAppointment(appointmentId, {
+        'doctor_name': updatedAppointment.doctorName,
+        'specialty': updatedAppointment.specialty,
+        'appointment_date': updatedAppointment.date,
+        'appointment_time': updatedAppointment.time,
+        'location': updatedAppointment.location,
+      });
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error updating appointment: $e');
+    }
   }
 
-  void deleteAppointment(String appointmentId) {
-    final updated =
-    state.appointments.where((a) => a.id != appointmentId).toList();
-    emit(state.copyWith(appointments: updated));
+  void deleteAppointment(String appointmentId) async {
+    final int? id = int.tryParse(appointmentId);
+    if (id == null) return;
+    try {
+      await _elderRepository.deleteAppointment(id);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error deleting appointment: $e');
+    }
   }
 }

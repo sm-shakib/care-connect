@@ -38,6 +38,40 @@ class CareReminder extends Equatable {
 
   @override
   List<Object?> get props => [id, title, subtitle, icon, isAttentionNeeded];
+
+  /// Maps a backend-provided icon name string to the corresponding [IconData].
+  static IconData mapIconNameToData(String? name) {
+    switch (name) {
+      case 'fitness_center':
+        return Icons.fitness_center;
+      case 'water_drop':
+        return Icons.water_drop;
+      case 'event':
+        return Icons.event;
+      case 'directions_walk':
+        return Icons.directions_walk;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'bedtime':
+        return Icons.bedtime;
+      case 'spa':
+        return Icons.spa;
+      default:
+        return Icons.notifications_active_outlined;
+    }
+  }
+
+  /// Maps an [IconData] to a string identifier used for storage in the backend.
+  static String mapIconDataToName(IconData data) {
+    if (data == Icons.fitness_center) return 'fitness_center';
+    if (data == Icons.water_drop) return 'water_drop';
+    if (data == Icons.event) return 'event';
+    if (data == Icons.directions_walk) return 'directions_walk';
+    if (data == Icons.restaurant) return 'restaurant';
+    if (data == Icons.bedtime) return 'bedtime';
+    if (data == Icons.spa) return 'spa';
+    return 'notifications';
+  }
 }
 
 /// Icon choices offered when adding/editing a [CareReminder].

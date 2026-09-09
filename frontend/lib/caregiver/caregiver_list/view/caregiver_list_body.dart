@@ -7,7 +7,6 @@ import 'package:frontend/caregiver/caregiver_list/cubit/caregiver_list_state.dar
 import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/caregiver/widgets/caregiver_card.dart';
-import 'package:frontend/caregiver/widgets/caregiver_filter_chip.dart';
 import 'package:frontend/caregiver/widgets/caregiver_search_bar.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -187,53 +186,6 @@ class CaregiverListBody extends StatelessWidget {
               onChanged: (value) {
                 context.read<CaregiverListCubit>().searchCaregiver(value);
               },
-            ),
-
-            /// Filter Chips
-            SizedBox(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  CaregiverFilterChip(
-                    label: context.l10n.filterAll,
-                    selected: state.selectedFilter == 'All',
-                    onTap: () {
-                      context
-                          .read<CaregiverListCubit>()
-                          .filterCaregivers('All');
-                    },
-                  ),
-                  CaregiverFilterChip(
-                    label: context.l10n.filterPhysiotherapy,
-                    selected: state.selectedFilter == 'Physiotherapy',
-                    onTap: () {
-                      context
-                          .read<CaregiverListCubit>()
-                          .filterCaregivers('Physiotherapy');
-                    },
-                  ),
-                  CaregiverFilterChip(
-                    label: context.l10n.filterSeniorCare,
-                    selected: state.selectedFilter == 'Senior Care',
-                    onTap: () {
-                      context
-                          .read<CaregiverListCubit>()
-                          .filterCaregivers('Senior Care');
-                    },
-                  ),
-                  CaregiverFilterChip(
-                    label: context.l10n.filterHomeNursing,
-                    selected: state.selectedFilter == 'Home Nursing',
-                    onTap: () {
-                      context
-                          .read<CaregiverListCubit>()
-                          .filterCaregivers('Home Nursing');
-                    },
-                  ),
-                ],
-              ),
             ),
 
             const SizedBox(height: 10),
