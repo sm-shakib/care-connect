@@ -31,6 +31,22 @@ class ElderRepository {
     await _apiClient.put('/elders/me', data: data);
   }
 
+  /// Fires an SOS: the backend shares this location (falling back to the
+  /// elder's last known one if [latitude]/[longitude] are omitted) with
+  /// every accepted family member and caregiver — see
+  /// `backend/app/api/elder.py::trigger_sos`.
+  Future<Map<String, dynamic>> triggerSos({
+    double? latitude,
+    double? longitude,
+  }) async {
+    final data = <String, dynamic>{};
+    if (latitude != null) data['latitude'] = latitude.toString();
+    if (longitude != null) data['longitude'] = longitude.toString();
+
+    final response = await _apiClient.post('/elders/sos', data: data);
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
   Future<Map<String, dynamic>> getMyProfile() async {
     final response = await _apiClient.get('/elders/me');
     return response.data as Map<String, dynamic>;

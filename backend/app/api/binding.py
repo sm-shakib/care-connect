@@ -51,6 +51,18 @@ def create_binding_request(
     )
 
     db.add(new_link)
+
+    # Mirrors the "New Request Accepted" notification sent the other way
+    # in respond_to_binding below — so the elder sees this in their
+    # notifications list/bell too, not just via /bindings/pending/me.
+    notification = Notification(
+        user_id=user.id,
+        title="New Family Request",
+        body=f"{family.name} sent you a binding request as their {request.relationship}.",
+        type="binding_request"
+    )
+    db.add(notification)
+
     db.commit()
     db.refresh(new_link)
     return new_link

@@ -14,6 +14,7 @@ import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/widgets/notification_bell.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
 
 class FamilyDashboardPage extends StatefulWidget {
@@ -105,16 +106,8 @@ class _FamilyDashboardPageState extends State<FamilyDashboardPage> {
                 ),
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: AppColors.darkTeal),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FamilyNotificationsPage(),
-                      ),
-                    );
-                  },
+                NotificationBell(
+                  pageBuilder: (_) => const FamilyNotificationsPage(),
                 ),
                 const SizedBox(width: 8),
               ],
