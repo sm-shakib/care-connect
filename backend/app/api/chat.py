@@ -40,17 +40,22 @@ _DEFAULT_GROUP_COLOR = "#CCFBF1"
 def resolve_identity(db: Session, user: User) -> dict:
     role = _ROLE_MAP.get(user.role, "family")
     name = user.email
+    avatar_url = None
     if user.role == "elder" and user.elder_profile:
         name = user.elder_profile.name
+        avatar_url = user.elder_profile.profile_image_url
     elif user.role == "caregiver" and user.caregiver_profile:
         name = user.caregiver_profile.name
+        avatar_url = user.caregiver_profile.profile_image_url
     elif user.role == "family" and user.family_profile:
         name = user.family_profile.name
+        avatar_url = user.family_profile.profile_image_url
     return {
         "id": str(user.id),
         "name": name,
         "role": role,
         "avatar_color": _AVATAR_COLORS.get(role, _DEFAULT_GROUP_COLOR),
+        "avatar_url": avatar_url,
         "is_online": chat_ws.manager.is_online(user.id),
     }
 

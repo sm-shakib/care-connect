@@ -15,6 +15,7 @@ class ChatParticipant {
     required this.name,
     required this.role,
     this.avatarColor = const Color(0xFF2DD4BF),
+    this.avatarUrl,
     this.isOnline = false,
   });
 
@@ -22,6 +23,11 @@ class ChatParticipant {
   final String name;
   final ChatRole role;
   final Color avatarColor;
+
+  /// The person's real profile photo (from their elder/caregiver/family
+  /// profile), when they have one set. Null falls back to the initials/icon
+  /// avatar — used for 1:1 chats only; group avatars stay icon-based.
+  final String? avatarUrl;
   final bool isOnline;
 
   String get initials {

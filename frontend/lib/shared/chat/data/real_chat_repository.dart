@@ -93,6 +93,12 @@ class RealChatRepository implements ChatRepository {
     return _conversationsSnapshot();
   }
 
+  @override
+  Future<void> refreshConversations(String userId) async {
+    await _refreshConversations();
+    _notify();
+  }
+
   List<Conversation> _conversationsSnapshot() {
     final list = _conversations.values.toList()
       ..sort((a, b) {
@@ -266,6 +272,12 @@ class RealChatRepository implements ChatRepository {
     } catch (_) {
       // mediaFor() falls back to deriving from cached messages below.
     }
+  }
+
+  @override
+  Future<void> refreshMessages(String conversationId) async {
+    await _refreshMessages(conversationId);
+    _notify();
   }
 
   @override

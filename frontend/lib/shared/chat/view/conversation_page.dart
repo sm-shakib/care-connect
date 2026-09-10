@@ -135,45 +135,49 @@ class _ConversationViewState extends State<_ConversationView> {
                 Expanded(
                   child: state.isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 12,
-                          ),
-                          // One extra row for the typing bubble, so it
-                          // scrolls with the thread and stays pinned under
-                          // the newest message.
-                          itemCount:
-                              state.messages.length +
-                              (state.typingParticipants.isEmpty ? 0 : 1),
-                          itemBuilder: (context, index) {
-                            if (index == state.messages.length) {
-                              return TypingIndicatorBubble(
-                                participants: state.typingParticipants,
-                                showName: state.isGroup,
+                      : RefreshIndicator(
+                          onRefresh: cubit.refresh,
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 12,
+                            ),
+                            // One extra row for the typing bubble, so it
+                            // scrolls with the thread and stays pinned under
+                            // the newest message.
+                            itemCount:
+                                state.messages.length +
+                                (state.typingParticipants.isEmpty ? 0 : 1),
+                            itemBuilder: (context, index) {
+                              if (index == state.messages.length) {
+                                return TypingIndicatorBubble(
+                                  participants: state.typingParticipants,
+                                  showName: state.isGroup,
+                                );
+                              }
+                              final message = state.messages[index];
+                              final isCallLog =
+                                  message.type == ChatMessageType.callLog;
+                              return ThemedChatBubble(
+                                message: message,
+                                showSenderName: state.isGroup,
+                                highlighted: state.searchResultIds.contains(
+                                  message.id,
+                                ),
+                                onReply: isCallLog || message.isDeleted
+                                    ? null
+                                    : () => cubit.setReplyTarget(message),
+                                onUnsend:
+                                    !isCallLog &&
+                                        !message.isDeleted &&
+                                        message.isFromMe
+                                    ? () => cubit.unsendMessage(message.id)
+                                    : null,
                               );
-                            }
-                            final message = state.messages[index];
-                            final isCallLog =
-                                message.type == ChatMessageType.callLog;
-                            return ThemedChatBubble(
-                              message: message,
-                              showSenderName: state.isGroup,
-                              highlighted: state.searchResultIds.contains(
-                                message.id,
-                              ),
-                              onReply: isCallLog || message.isDeleted
-                                  ? null
-                                  : () => cubit.setReplyTarget(message),
-                              onUnsend:
-                                  !isCallLog &&
-                                      !message.isDeleted &&
-                                      message.isFromMe
-                                  ? () => cubit.unsendMessage(message.id)
-                                  : null,
-                            );
-                          },
+                            },
+                          ),
                         ),
                 ),
                 ChatComposerBar(
@@ -203,6 +207,11 @@ class _ConversationAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final conversation = state.conversation;
+    // Group avatars stay icon-based; only 1:1 chats have a real person
+    // behind them worth showing a profile photo for.
+    final otherAvatarUrl = (conversation != null && !state.isGroup)
+        ? conversation.otherParticipant(state.currentUser.id)?.avatarUrl
+        : null;
 
     if (state.isSearching) {
       return Padding(
@@ -239,11 +248,16 @@ class _ConversationAppBar extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: conversation?.avatarColor ?? AppColors.paleMint,
-            child: Icon(
-              state.isGroup ? Icons.groups_2_outlined : Icons.person,
-              size: 20,
-              color: AppColors.darkTeal,
-            ),
+            backgroundImage: (otherAvatarUrl != null && otherAvatarUrl.isNotEmpty)
+                ? NetworkImage(otherAvatarUrl)
+                : null,
+            child: (otherAvatarUrl != null && otherAvatarUrl.isNotEmpty)
+                ? null
+                : Icon(
+                    state.isGroup ? Icons.groups_2_outlined : Icons.person,
+                    size: 20,
+                    color: AppColors.darkTeal,
+                  ),
           ),
           const SizedBox(width: 10),
           Expanded(

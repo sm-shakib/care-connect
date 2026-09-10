@@ -100,6 +100,11 @@ class ConversationTile extends StatelessWidget {
         : conversation.isGroup
             ? '${lastMessage.isFromMe ? 'You' : lastMessage.senderName}: ${lastMessage.previewText}'
             : lastMessage.previewText;
+    // Group avatars stay icon-based; only 1:1 chats have a real person
+    // behind them worth showing a profile photo for.
+    final otherAvatarUrl = conversation.isGroup
+        ? null
+        : conversation.otherParticipant(currentUser.id)?.avatarUrl;
 
     final tile = InkWell(
       onTap: onTap,
@@ -112,10 +117,15 @@ class ConversationTile extends StatelessWidget {
             CircleAvatar(
               radius: 24,
               backgroundColor: conversation.avatarColor,
-              child: Icon(
-                conversation.isGroup ? Icons.groups : Icons.person,
-                color: AppColors.darkTeal,
-              ),
+              backgroundImage: (otherAvatarUrl != null && otherAvatarUrl.isNotEmpty)
+                  ? NetworkImage(otherAvatarUrl)
+                  : null,
+              child: (otherAvatarUrl != null && otherAvatarUrl.isNotEmpty)
+                  ? null
+                  : Icon(
+                      conversation.isGroup ? Icons.groups : Icons.person,
+                      color: AppColors.darkTeal,
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(

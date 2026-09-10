@@ -48,6 +48,11 @@ class ConversationCubit extends Cubit<ConversationState> {
   late final StreamSubscription<Conversation?> _conversationSub;
   late final StreamSubscription<List<ChatParticipant>> _typingSub;
 
+  /// Re-fetches the message history for pull-to-refresh — `watchMessages`
+  /// already keeps the thread live, so this is only for the user-initiated
+  /// "did I miss anything" tug on the list.
+  Future<void> refresh() => repository.refreshMessages(conversationId);
+
   Future<void> sendText(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;

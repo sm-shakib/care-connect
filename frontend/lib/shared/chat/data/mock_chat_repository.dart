@@ -37,6 +37,11 @@ class MockChatRepository implements ChatRepository {
     yield* _changes.stream.map((_) => _conversationsFor(userId));
   }
 
+  @override
+  Future<void> refreshConversations(String userId) async {
+    // In-memory seed data is always current — nothing to fetch.
+  }
+
   List<Conversation> _conversationsFor(String userId) {
     final list =
         _conversations.values
@@ -57,6 +62,11 @@ class MockChatRepository implements ChatRepository {
       (_) =>
           List<ChatMessage>.unmodifiable(_messages[conversationId] ?? const []),
     );
+  }
+
+  @override
+  Future<void> refreshMessages(String conversationId) async {
+    // In-memory seed data is always current — nothing to fetch.
   }
 
   @override
