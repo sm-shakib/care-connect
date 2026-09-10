@@ -51,14 +51,6 @@ class AidRequestCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        request.caregiverType,
-                        style: const TextStyle(
-                          color: onSurfaceVariant,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ],
                   ),
                 ),

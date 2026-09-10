@@ -198,15 +198,24 @@ def review_aid_request(
         
     db.commit()
     
-    # Logic to update summary if status changed to approved/disbursed
+    # Logic to update summary if status changed
     summary = get_fund_summary(db)
-    
-    # If it was pending and now is something else, decrement pending count
+
+    # 1. Update pending count if status moved away from pending
     if old_status == "pending" and aid_request.status != "pending":
         summary.pending_aids_count = max(0, summary.pending_aids_count - 1)
-        
-    # If it's newly approved/disbursed, update distributed stats
+
+    # 2. Check for sufficient balance if status is changing to disbursed
     if old_status != "disbursed" and aid_request.status == "disbursed":
+        if summary.balance < aid_request.approved_amount:
+            # Revert status change if balance is insufficient
+            aid_request.status = old_status
+            db.commit()
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Insufficient Fund Balance. Available: ৳{summary.balance}"
+            )
+        
         summary.balance -= aid_request.approved_amount
         summary.aids_distributed_no += 1
         summary.aids_distributed_amount += aid_request.approved_amount

@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/admin/central_fund/data/repositories/central_fund_repository.dart';
 import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class AssistanceFormPage extends StatefulWidget {
@@ -11,18 +14,8 @@ class AssistanceFormPage extends StatefulWidget {
 }
 
 class _AssistanceFormPageState extends State<AssistanceFormPage> {
-  String? _selectedCaregiverType;
   final _reasonController = TextEditingController();
-  bool _documentAttached = false;
-
-  final List<String> _caregiverTypes = [
-    'Physiotherapist',
-    'Registered Nurse',
-    'Home Care Assistant',
-    'Dementia Care Specialist',
-    'General Companion',
-    'Other'
-  ];
+  PlatformFile? _selectedFile;
 
   @override
   void dispose() {
@@ -30,10 +23,23 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
     super.dispose();
   }
 
+  Future<void> _pickDocument() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'png', 'doc', 'docx'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedFile = result.files.first;
+      });
+    }
+  }
+
   void _submitApplication() async {
-    if (_selectedCaregiverType == null || _reasonController.text.isEmpty) {
+    if (_reasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: Text('Please describe your needs')),
       );
       return;
     }
@@ -47,11 +53,32 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
     );
 
     try {
+      String? documentUrl;
+      final authRepo = AuthRepository();
+
+      // 1. Upload document if selected
+      if (_selectedFile != null) {
+        List<int>? fileBytes = _selectedFile!.bytes?.toList();
+        
+        // If on mobile, bytes might be null, read from path
+        if (fileBytes == null && _selectedFile!.path != null) {
+          fileBytes = await File(_selectedFile!.path!).readAsBytes();
+        }
+
+        if (fileBytes != null) {
+          documentUrl = await authRepo.uploadFile(
+            fileBytes,
+            _selectedFile!.name,
+          );
+        }
+      }
+
+      // 2. Submit aid request
       final repository = CentralFundRepository(ApiClient());
       await repository.requestAid(
-        caregiverType: _selectedCaregiverType!,
+        caregiverType: 'General Assistance', // Merged into reason in UI
         reason: _reasonController.text,
-        documentUrl: _documentAttached ? 'Financial_Stability_Proof.pdf' : null,
+        documentUrl: documentUrl,
       );
       
       if (mounted) {
@@ -113,7 +140,6 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: AppColors.backgroundLight,
       backgroundColor: const Color(0xFFFBFEFC),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFBFEFC),
@@ -135,37 +161,28 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Apply for a specialized caregiver through the central fund. Admin will assess your eligibility.',
+              'Apply for a caregiver through the central fund. Admin will assess your eligibility based on your reason and documents.',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
             const SizedBox(height: 32),
-            DropdownButtonFormField<String>(
-              value: _selectedCaregiverType,
-              items: _caregiverTypes
-                  .map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Text(type),
-                      ))
-                  .toList(),
-              onChanged: (val) => setState(() => _selectedCaregiverType = val),
-              decoration: InputDecoration(
-                labelText: 'Caregiver Type Needed',
-                hintText: 'Select specialized care type',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+            
+            const Text(
+              'Details of Assistance Needed',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
             TextField(
               controller: _reasonController,
-              maxLines: 4,
+              maxLines: 6,
               decoration: InputDecoration(
-                labelText: 'Reason for Assistance',
                 alignLabelWithHint: true,
-                hintText: 'Describe why you need this service for free...',
+                hintText:
+                    'Please describe in detail:\n1. Why you need financial assistance\n2. What type of caregiver you need (e.g., Nurse, Physiotherapist, Companion)\n3. Duration of service needed',
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -173,44 +190,54 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
                 fillColor: Colors.white,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+            const Text(
+              'Make sure to mention the specific medical condition or support type required.',
+              style: TextStyle(fontSize: 13, color: Colors.grey, fontStyle: FontStyle.italic),
+            ),
+            
+            const SizedBox(height: 32),
             const Text(
               'Supporting Documents',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             InkWell(
-              onTap: () {
-                setState(() => _documentAttached = true);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Document attached successfully!')),
-                );
-              },
+              onTap: _pickDocument,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.outlineVariantLight),
                   borderRadius: BorderRadius.circular(12),
-                  color: _documentAttached ? Colors.green.shade50 : Colors.white,
+                  color: _selectedFile != null ? Colors.green.shade50 : Colors.white,
                 ),
                 child: Column(
                   children: [
                     Icon(
-                      _documentAttached ? Icons.file_present : Icons.upload_file,
-                      color: _documentAttached ? Colors.green : AppColors.primaryLight,
+                      _selectedFile != null ? Icons.file_present : Icons.upload_file,
+                      color: _selectedFile != null ? Colors.green : AppColors.primaryLight,
                       size: 32,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _documentAttached 
-                          ? 'Financial_Stability_Proof.pdf' 
+                      _selectedFile != null 
+                          ? _selectedFile!.name 
                           : 'Upload Income Proof / Medical Necessity',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _documentAttached ? Colors.green : Colors.grey,
-                        fontWeight: _documentAttached ? FontWeight.bold : null,
+                        color: _selectedFile != null ? Colors.green : Colors.grey,
+                        fontWeight: _selectedFile != null ? FontWeight.bold : null,
                       ),
                     ),
+                    if (_selectedFile != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${(_selectedFile!.size / 1024).toStringAsFixed(1)} KB',
+                          style: const TextStyle(fontSize: 11, color: Colors.green),
+                        ),
+                      ),
                   ],
                 ),
               ),
