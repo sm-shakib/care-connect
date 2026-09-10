@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/app_colors.dart';
 import '../../../family_member_detail/view/family_member_detail_page.dart';
+import '../../../elderly_detail/view/elderly_detail_page.dart';
 import '../../models/central_fund_models.dart';
 
 class DonationTile extends StatelessWidget {
@@ -14,9 +16,15 @@ class DonationTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(
-            FamilyMemberDetailPage.route(userId: donation.donorId),
-          );
+          if (donation.donorRole == 'elder') {
+            Navigator.of(context).push(
+              ElderlyDetailPage.route(userId: donation.donorId),
+            );
+          } else {
+            Navigator.of(context).push(
+              FamilyMemberDetailPage.route(userId: donation.donorId),
+            );
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -32,7 +40,13 @@ class DonationTile extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundImage: NetworkImage(donation.imageUrl),
+                    backgroundColor: AppColors.paleMint,
+                    backgroundImage: donation.imageUrl.isNotEmpty
+                        ? NetworkImage(donation.imageUrl)
+                        : null,
+                    child: donation.imageUrl.isEmpty
+                        ? const Icon(Icons.person, color: AppColors.darkTeal)
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Column(

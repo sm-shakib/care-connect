@@ -5,6 +5,7 @@ class DonationModel {
   final String paymentMethod;
   final String amount;
   final String imageUrl;
+  final String donorRole;
 
   const DonationModel({
     required this.donorId,
@@ -13,6 +14,7 @@ class DonationModel {
     required this.paymentMethod,
     required this.amount,
     required this.imageUrl,
+    required this.donorRole,
   });
 }
 

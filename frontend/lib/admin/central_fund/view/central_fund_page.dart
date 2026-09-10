@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../cubit/central_fund_cubit.dart';
 import '../cubit/central_fund_state.dart';
@@ -12,33 +13,6 @@ import 'widgets/transaction_tile.dart';
 /// Content body for the Central Fund screen.
 class CentralFundPage extends StatelessWidget {
   const CentralFundPage({super.key});
-
-  final List<DonationModel> donations = const [
-    DonationModel(
-        donorId: "3",
-        donorName: "Zayan Ahmed",
-        date: "12 Oct 2023",
-        paymentMethod: "Bkash",
-        amount: "৳ 5,000",
-        imageUrl:
-            "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
-    DonationModel(
-        donorId: "4",
-        donorName: "Mrs. Selina Rahman",
-        date: "11 Oct 2023",
-        paymentMethod: "Bank Transfer",
-        amount: "৳ 25,00",
-        imageUrl:
-            "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
-    DonationModel(
-        donorId: "5",
-        donorName: "Karim Ullah",
-        date: "10 Oct 2023",
-        paymentMethod: "Card",
-        amount: "৳ 1,200",
-        imageUrl:
-            "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg"),
-  ];
 
   final List<AidRequestModel> requests = const [
     AidRequestModel(
@@ -106,14 +80,32 @@ class CentralFundPage extends StatelessWidget {
                 IndexedStack(
                   index: state.selectedTabIndex,
                   children: [
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: donations.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, i) =>
-                          DonationTile(donation: donations[i]),
-                    ),
+                    state.status == CentralFundStatus.loading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: state.donations.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, i) {
+                              final d = state.donations[i];
+                              final date =
+                                  DateTime.parse(d['created_at'] as String);
+                              final donation = DonationModel(
+                                donorId: d['donor_id'].toString(),
+                                donorName: d['donor_name'] as String,
+                                date: DateFormat('dd MMM yyyy').format(date),
+                                paymentMethod: d['payment_method']
+                                    .toString()
+                                    .toUpperCase(),
+                                amount: '৳ ${d['amount']}',
+                                imageUrl: d['donor_image_url'] as String? ?? '',
+                                donorRole: d['donor_role'] as String? ?? 'user',
+                              );
+                              return DonationTile(donation: donation);
+                            },
+                          ),
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),

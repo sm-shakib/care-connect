@@ -103,6 +103,19 @@ def fix_database():
         else:
             print("Table complaint_notes already exists.")
 
+        # 9. Handle donations table missing columns
+        cur.execute("SELECT to_regclass('public.donations');")
+        if cur.fetchone()[0]:
+            cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'donations';")
+            donation_columns = [row[0] for row in cur.fetchall()]
+            if 'payment_status' not in donation_columns:
+                print("Adding missing column 'payment_status' to donations table...")
+                cur.execute("ALTER TABLE donations ADD COLUMN payment_status VARCHAR DEFAULT 'pending';")
+            else:
+                print("Column 'payment_status' already exists in donations table.")
+        else:
+            print("Table donations does not exist yet. It will be created by SQLAlchemy metadata.")
+
         conn.commit()
         print("Database updated successfully!")
         
