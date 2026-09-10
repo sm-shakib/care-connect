@@ -32,7 +32,7 @@ class AidRequest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     requester_id = Column(Integer, ForeignKey("users.id"))
-    caregiver_type = Column(String)
+    caregiver_type = Column(String, nullable=True)
     reason = Column(Text)
     document_url = Column(String)
     status = Column(String, default="pending")  # pending, approved, rejected, disbursed

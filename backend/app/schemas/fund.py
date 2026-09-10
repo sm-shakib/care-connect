@@ -34,7 +34,7 @@ class DonationOut(DonationBase):
         from_attributes = True
 
 class AidRequestBase(BaseModel):
-    caregiver_type: str
+    caregiver_type: Optional[str] = None
     reason: str
     document_url: Optional[str] = None
 

@@ -95,7 +95,7 @@ def get_caregiver_bookings(caregiver_id: int, db: Session = Depends(get_db)):
 @router.get("/elder/{elder_id}", response_model=List[BookingOut])
 def get_elder_bookings(elder_id: int, db: Session = Depends(get_db)):
     bookings = db.query(Booking).options(
-        joinedload(Booking.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family),
+        joinedload(Booking.elder),
         joinedload(Booking.caregiver).joinedload(Caregiver.user)
     ).filter(Booking.elder_id == elder_id).all()
     return bookings

@@ -44,22 +44,36 @@ class DashboardCubit extends Cubit<DashboardState> {
     emit(state.copyWith(status: DashboardStatus.loading));
     try {
       final profileId = await _authRepository.getProfileId();
-      final requests = await _bindingRepository.getPendingRequests();
-      final familyMembers = await _bindingRepository.getLinkedFamilyMembers();
-      
-      // Fetch real data from backend
-      final profile = await _elderRepository.getMyProfile();
-      final appointmentsData = await _elderRepository.getAppointments();
-      final remindersData = await _elderRepository.getReminders();
 
-      final appointments = appointmentsData.map((a) => Appointment(
-        id: a['id'].toString(),
-        doctorName: a['doctor_name']?.toString() ?? '',
-        specialty: a['specialty']?.toString() ?? '',
-        date: a['appointment_date']?.toString() ?? '',
-        time: a['appointment_time']?.toString() ?? '',
-        location: a['location']?.toString() ?? '',
-      )).toList();
+      final results = await Future.wait([
+        _bindingRepository.getPendingRequests(),
+        _bindingRepository.getLinkedFamilyMembers(),
+        _elderRepository.getMyProfile(),
+        _elderRepository.getAppointments(),
+        _elderRepository.getReminders(),
+        if (profileId != null)
+          _bookingRepository.getElderBookings(profileId)
+        else
+          Future.value(<BookingRequest>[]),
+      ]);
+
+      final requests = results[0] as List<BindingRequest>;
+      final familyMembers = results[1] as List<Map<String, dynamic>>;
+      final profile = results[2] as Map<String, dynamic>;
+      final appointmentsData = results[3] as List<Map<String, dynamic>>;
+      final remindersData = results[4] as List<Map<String, dynamic>>;
+      final bookings = results[5] as List<BookingRequest>;
+
+      final appointments = appointmentsData
+          .map((a) => Appointment(
+                id: a['id'].toString(),
+                doctorName: a['doctor_name']?.toString() ?? '',
+                specialty: a['specialty']?.toString() ?? '',
+                date: a['appointment_date']?.toString() ?? '',
+                time: a['appointment_time']?.toString() ?? '',
+                location: a['location']?.toString() ?? '',
+              ))
+          .toList();
 
       final reminders = remindersData.map((r) {
         final iconName = r['icon_name']?.toString() ?? 'notifications';
@@ -71,36 +85,28 @@ class DashboardCubit extends Cubit<DashboardState> {
         );
       }).toList();
 
-      // Start real-time location tracking
+      // Start real-time location tracking (non-blocking)
       unawaited(_startLocationTracking());
-      
-      // Start periodic health vitals simulation (optional, might conflict 
-      // with manual updates)
-      // _startVitalsSimulation();
 
       final caregivers = <CaregiverSummary>[];
       final activeCaregiverIds = <String>[];
-      if (profileId != null) {
-        // caregiver loading logic
-        final bookings = await _bookingRepository.getElderBookings(profileId);
 
-        final realAccepted =
-            bookings.where((b) => b.status == BookingStatus.accepted).toList();
+      final realAccepted =
+          bookings.where((b) => b.status == BookingStatus.accepted).toList();
 
-        for (final b in realAccepted) {
-          activeCaregiverIds.add(b.caregiverId.toString());
-          caregivers.add(
-            CaregiverSummary(
-              id: b.caregiverId.toString(),
-              name: b.caregiverName,
-              profession: b.caregiverProfession,
-              nextVisitLabel: 'Today, ${b.timingLabel.split('—')[0].trim()}',
-              phone: b.caregiverPhone,
-              entity: b.caregiverEntity,
-              booking: b,
-            ),
-          );
-        }
+      for (final b in realAccepted) {
+        activeCaregiverIds.add(b.caregiverId.toString());
+        caregivers.add(
+          CaregiverSummary(
+            id: b.caregiverId.toString(),
+            name: b.caregiverName,
+            profession: b.caregiverProfession,
+            nextVisitLabel: 'Today, ${b.timingLabel.split('—')[0].trim()}',
+            phone: b.caregiverPhone,
+            entity: b.caregiverEntity,
+            booking: b,
+          ),
+        );
       }
 
       emit(
@@ -170,10 +176,6 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       debugPrint(
         'DEBUG: Backend updated with location: '
-            '${position.latitude}, ${position.longitude}',
-      );
-      debugPrint(
-        'DEBUG: Backend updated with location: '
         '${position.latitude}, ${position.longitude}',
       );
     } catch (e) {
@@ -220,11 +222,33 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   void updateReminder(CareReminder reminder) {
-    // ... existing local logic or implement PUT backend ...
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.updateReminder(int.parse(reminder.id), {
+            'title': reminder.title,
+            'subtitle': reminder.subtitle,
+            'icon_name': CareReminder.mapIconDataToName(reminder.icon),
+          });
+          await loadDashboard();
+        } catch (e) {
+          debugPrint('Error updating reminder: $e');
+        }
+      }(),
+    );
   }
 
   void deleteReminder(String reminderId) {
-    // ... existing local logic or implement DELETE backend ...
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.deleteReminder(int.parse(reminderId));
+          await loadDashboard();
+        } catch (e) {
+          debugPrint('Error deleting reminder: $e');
+        }
+      }(),
+    );
   }
 
   void addAppointment(Appointment appointment) {
@@ -247,14 +271,35 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   void updateAppointment(Appointment appointment) {
-    final updated =
-        state.appointments.map((a) => a.id == appointment.id ? appointment : a).toList();
-    emit(state.copyWith(appointments: updated));
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.updateAppointment(int.parse(appointment.id), {
+            'doctor_name': appointment.doctorName,
+            'specialty': appointment.specialty,
+            'appointment_date': appointment.date,
+            'appointment_time': appointment.time,
+            'location': appointment.location,
+          });
+          await loadDashboard();
+        } catch (e) {
+          debugPrint('Error updating appointment: $e');
+        }
+      }(),
+    );
   }
 
   void deleteAppointment(String appointmentId) {
-    final updated = state.appointments.where((a) => a.id != appointmentId).toList();
-    emit(state.copyWith(appointments: updated));
+    unawaited(
+      () async {
+        try {
+          await _elderRepository.deleteAppointment(int.parse(appointmentId));
+          await loadDashboard();
+        } catch (e) {
+          debugPrint('Error deleting appointment: $e');
+        }
+      }(),
+    );
   }
 
   void updateRequestStatus(String requestId, BindingStatus status) {
@@ -273,33 +318,4 @@ class DashboardCubit extends Cubit<DashboardState> {
       }(),
     );
   }
-
-  // Temporary mock data for reminders/appointments until those APIs are ready
-  // ignore: unused_field
-  static const _mockOtherReminders = [
-    CareReminder(
-      id: 'rem_1',
-      title: 'Physical Therapy',
-      subtitle: 'At 2:00 PM',
-      icon: Icons.fitness_center,
-    ),
-    CareReminder(
-      id: 'rem_2',
-      title: 'Hydration',
-      subtitle: 'Drink 2L water',
-      icon: Icons.water_drop,
-    ),
-  ];
-
-  // ignore: unused_field
-  static const _mockAppointments = [
-    Appointment(
-      id: 'apt_1',
-      doctorName: 'Dr. Ariful Islam',
-      specialty: 'Cardiologist',
-      date: 'Aug 16, 2026',
-      time: '10:30 AM',
-      location: 'City Hospital, Dhaka',
-    ),
-  ];
 }
