@@ -17,11 +17,16 @@ class FamilyDashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FamilyDashboardCubit, FamilyDashboardState>(
       builder: (context, state) {
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            /// Welcome
-            const DashboardHeader(),
+        return RefreshIndicator(
+          onRefresh: () => context.read<FamilyDashboardCubit>().loadElders(),
+          displacement: 20,
+          color: AppColors.darkTeal,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              /// Welcome
+              const DashboardHeader(),
 
             const SizedBox(height: 25),
 
@@ -106,10 +111,11 @@ class FamilyDashboardView extends StatelessWidget {
             
             const SizedBox(height: 24),
           ],
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 }
 
 class _EmptyEldersState extends StatelessWidget {

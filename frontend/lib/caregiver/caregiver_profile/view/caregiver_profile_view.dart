@@ -247,7 +247,7 @@ class _StatsRow extends StatelessWidget {
             colorScheme: colorScheme,
             label: context.l10n.experienceLabel,
             value: context.l10n.yearsLabel(
-              int.tryParse(state.experienceYears) ?? 0,
+              (double.tryParse(state.experienceYears) ?? 0).toInt(),
             ),
           ),
         ),
@@ -323,7 +323,7 @@ class _ReadOnlyInfoRows extends StatelessWidget {
           icon: Icons.work_history_outlined,
           label: context.l10n.experienceLabel,
           value: context.l10n.yearsLabel(
-            int.tryParse(state.experienceYears) ?? 0,
+            (double.tryParse(state.experienceYears) ?? 0).toInt(),
           ),
         ),
         _InfoRow(
@@ -359,7 +359,7 @@ class _ReadOnlyInfoRows extends StatelessWidget {
           icon: Icons.payments_outlined,
           label: context.l10n.dailyRateLabel,
           value: context.l10n.hourlyRateLabel(
-            int.tryParse(state.hourlyRate) ?? 0,
+            (double.tryParse(state.hourlyRate) ?? 0).toInt(),
           ),
           isLast: true,
         ),
@@ -507,7 +507,7 @@ class _EditableInfoFields extends StatelessWidget {
           label: context.l10n.dailyRateLabel,
           icon: Icons.payments_outlined,
           value: context.l10n.hourlyRateLabel(
-            int.tryParse(state.hourlyRate) ?? 0,
+            (double.tryParse(state.hourlyRate) ?? 0).toInt(),
           ),
         ),
       ],

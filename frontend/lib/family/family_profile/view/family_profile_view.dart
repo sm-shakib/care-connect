@@ -58,29 +58,36 @@ class FamilyProfileView extends StatelessWidget {
               children: [
                 if (showTopBar) _ProfileTopBar(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _PersonalInfoCard(state: state, cubit: cubit),
-                        const SizedBox(height: 20),
-                        _ActionsSection(
-                          state: state,
-                          cubit: cubit,
-                          onLogOut: onLogOut,
-                        ),
-                        const SizedBox(height: 24),
-                        Center(
-                          child: Text(
-                            'Version 1.0.0',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  child: RefreshIndicator(
+                    onRefresh: () =>
+                        context.read<FamilyProfileCubit>().loadProfile(),
+                    color: AppColors.darkTeal,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _PersonalInfoCard(state: state, cubit: cubit),
+                          const SizedBox(height: 20),
+                          _ActionsSection(
+                            state: state,
+                            cubit: cubit,
+                            onLogOut: onLogOut,
+                          ),
+                          const SizedBox(height: 24),
+                          Center(
+                            child: Text(
+                              'Version 1.0.0',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
