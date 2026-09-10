@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/admin/central_fund/data/repositories/central_fund_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
 import '../models/donation.dart';
 
@@ -258,7 +260,7 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
     );
   }
 
-  void _processPayment() {
+  void _processPayment() async {
     if (_phoneController.text.isEmpty || _pinController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter phone number and PIN')));
       return;
@@ -270,10 +272,24 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
       builder: (context) => const Center(child: CircularProgressIndicator(color: AppColors.darkTeal)),
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Close loader
-      _showSuccessDialog();
-    });
+    try {
+      final repository = CentralFundRepository(ApiClient());
+      await repository.donate(
+        amount: _selectedAmount!,
+        method: _selectedMethod!.name,
+        transactionId: 'TXN-${DateTime.now().millisecondsSinceEpoch}',
+      );
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loader
+        _showSuccessDialog();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loader
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   void _showSuccessDialog() {

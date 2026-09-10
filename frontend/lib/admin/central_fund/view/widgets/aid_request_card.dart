@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
-import '../../models/central_fund_models.dart';
-import './aid_request_review_page.dart';
+import 'package:frontend/admin/central_fund/models/central_fund_models.dart';
+import 'package:frontend/admin/central_fund/view/widgets/aid_request_review_page.dart';
 
 class AidRequestCard extends StatelessWidget {
-  final AidRequestModel request;
+  const AidRequestCard({
+    required this.request,
+    super.key,
+  });
 
-  const AidRequestCard({super.key, required this.request});
+  final AidRequestModel request;
 
   @override
   Widget build(BuildContext context) {
-    final bool isApproved = request.status == "APPROVED";
+    final isApproved =
+        request.status == 'approved' || request.status == 'disbursed';
 
-    // Theme Colors based on your Tailwind config
-    const Color surfaceLowest = Color(0xFFFFFFFF);
-    const Color outlineVariant = Color(0xFFBACAC5);
-    const Color onSurface = Color(0xFF1A1C1C);
-    const Color onSurfaceVariant = Color(0xFF3C4A46);
-    const Color primary = Color(0xFF006B5F);
-    const Color onPrimary = Color(0xFFFFFFFF);
-    const Color secondary = Color(0xFF4059AA);
+    const surfaceLowest = Color(0xFFFFFFFF);
+    const outlineVariant = Color(0xFFBACAC5);
+    const onSurface = Color(0xFF1A1C1C);
+    const onSurfaceVariant = Color(0xFF3C4A46);
+    const primary = Color(0xFF006B5F);
+    const onPrimary = Color(0xFFFFFFFF);
+    const secondary = Color(0xFF4059AA);
 
     return Opacity(
       opacity: isApproved ? 0.7 : 1.0,
       child: Container(
-        padding: const EdgeInsets.all(20), // Tailwind p-5
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: surfaceLowest,
-          borderRadius: BorderRadius.circular(12), // Tailwind rounded-xl
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row: Names and Badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,15 +47,15 @@ class AidRequestCard extends StatelessWidget {
                         request.requesterName,
                         style: const TextStyle(
                           color: onSurface,
-                          fontSize: 16, // label-lg
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        request.requestTitle,
+                        request.caregiverType,
                         style: const TextStyle(
                           color: onSurfaceVariant,
-                          fontSize: 14, // label-md
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -61,15 +63,18 @@ class AidRequestCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isApproved
-                        ? primary.withOpacity(0.2) // bg-primary/20
-                        : secondary.withOpacity(0.1), // bg-secondary/10
+                        ? primary.withValues(alpha: 0.2)
+                        : secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
-                    request.status,
+                    request.status.toUpperCase(),
                     style: TextStyle(
                       color: isApproved ? primary : secondary,
                       fontSize: 11,
@@ -79,33 +84,26 @@ class AidRequestCard extends StatelessWidget {
                 ),
               ],
             ),
-
-            const SizedBox(height: 16), // Tailwind space-y-4
-
-            // Note
+            const SizedBox(height: 16),
             Text(
-              request.note,
+              request.reason,
               style: TextStyle(
                 color: onSurfaceVariant,
-                fontSize: 16, // body-md
+                fontSize: 16,
                 fontStyle: isApproved ? FontStyle.normal : FontStyle.italic,
               ),
             ),
-
-            const SizedBox(height: 16), // Tailwind space-y-4
-
-            // Footer Row: Date/Title and Action Button
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // FIX: Wrapped in Flexible to prevent right overflow when text is long
                 Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Requested: ${request.date}',
+                        'Requested: ${request.date.split('T')[0]}',
                         style: const TextStyle(
                           color: onSurfaceVariant,
                           fontSize: 12,
@@ -113,10 +111,10 @@ class AidRequestCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        isApproved ? 'Care Assigned' : 'Caregiver Needed',
+                        isApproved ? 'Aid Processed' : 'Caregiver Needed',
                         style: const TextStyle(
                           color: primary,
-                          fontSize: 20, // headline-sm
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -125,55 +123,61 @@ class AidRequestCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Action Button
-                isApproved
-                    ? OutlinedButton(
-                  onPressed: null, // Disabled for active/approved
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: primary, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    minimumSize: const Size(0, 48), // h-touch-target-min
-                  ),
-                  child: const Text(
-                    'Active',
-                    style: TextStyle(
-                      color: primary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-                    : ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AidRequestReviewPage(request: request),
+                if (isApproved)
+                  OutlinedButton(
+                    onPressed: null,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: primary, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    foregroundColor: onPrimary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      minimumSize: const Size(0, 48),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    minimumSize: const Size(0, 48), // h-touch-target-min
-                  ),
-                  child: const Text(
-                    'Review',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    child: const Text(
+                      'Active',
+                      style: TextStyle(
+                        color: primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                else
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push<void>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AidRequestReviewPage(request: request),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      foregroundColor: onPrimary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                      minimumSize: const Size(0, 48),
+                    ),
+                    child: const Text(
+                      'Review',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],
