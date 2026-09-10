@@ -192,16 +192,22 @@ class CaregiverListBody extends StatelessWidget {
 
             /// Caregiver List
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 16),
-                itemCount: state.filteredCaregivers.length,
-                itemBuilder: (context, index) {
-                  final caregiver = state.filteredCaregivers[index];
-                  return CaregiverCard(
-                    caregiver: caregiver,
-                    onTap: () => onCaregiverTap(caregiver),
-                  );
-                },
+              child: RefreshIndicator(
+                onRefresh: () =>
+                    context.read<CaregiverListCubit>().loadCaregivers(),
+                color: AppColors.darkTeal,
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: state.filteredCaregivers.length,
+                  itemBuilder: (context, index) {
+                    final caregiver = state.filteredCaregivers[index];
+                    return CaregiverCard(
+                      caregiver: caregiver,
+                      onTap: () => onCaregiverTap(caregiver),
+                    );
+                  },
+                ),
               ),
             ),
           ],

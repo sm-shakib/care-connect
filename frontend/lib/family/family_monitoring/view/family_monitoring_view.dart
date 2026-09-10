@@ -32,10 +32,14 @@ class FamilyMonitoringView extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const SizedBox(height: 8),
+          child: RefreshIndicator(
+            onRefresh: () => context.read<FamilyDashboardCubit>().loadElders(),
+            color: AppColors.darkTeal,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 8),
 
           MonitoringHeader(
             elderName: elder.name,
@@ -197,6 +201,7 @@ class FamilyMonitoringView extends StatelessWidget {
           const SizedBox(height: 24),
         ],
       ),
+          ),
         ),
         _BottomActionButtons(elder: elder),
       ],

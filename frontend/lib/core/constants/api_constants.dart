@@ -5,7 +5,7 @@ class ApiConstants {
   // --- LOCAL DEVELOPMENT ---
   // Use 10.0.2.2 for Android Emulator.
   // Use computer's IP (e.g., 192.168.0.x) for physical devices.
-  static const String baseUrl = 'http://192.168.137.97:8000';
+  static const String baseUrl = 'http://10.103.129.140:8000';
 
 
   static const String elderSignup = '/elders/signup/elder';
