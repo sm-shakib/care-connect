@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/admin/central_fund/data/repositories/central_fund_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class AssistanceFormPage extends StatefulWidget {
@@ -28,7 +30,7 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
     super.dispose();
   }
 
-  void _submitApplication() {
+  void _submitApplication() async {
     if (_selectedCaregiverType == null || _reasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
@@ -44,10 +46,24 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
       ),
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Close loader
-      _showSuccessDialog();
-    });
+    try {
+      final repository = CentralFundRepository(ApiClient());
+      await repository.requestAid(
+        caregiverType: _selectedCaregiverType!,
+        reason: _reasonController.text,
+        documentUrl: _documentAttached ? 'Financial_Stability_Proof.pdf' : null,
+      );
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loader
+        _showSuccessDialog();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loader
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   void _showSuccessDialog() {
