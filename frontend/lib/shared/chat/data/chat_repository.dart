@@ -14,8 +14,20 @@ abstract class ChatRepository {
   /// re-emitted whenever anything relevant changes.
   Stream<List<Conversation>> watchConversations(String userId);
 
+  /// Re-fetches `userId`'s conversation list, pushing the result to
+  /// whoever is subscribed via [watchConversations]. Backs the chat
+  /// inbox's pull-to-refresh — a no-op on the mock, whose in-memory data
+  /// is always current.
+  Future<void> refreshConversations(String userId);
+
   /// Messages in [conversationId], oldest first, re-emitted on change.
   Stream<List<ChatMessage>> watchMessages(String conversationId);
+
+  /// Re-fetches [conversationId]'s message history, pushing the result to
+  /// whoever is subscribed via [watchMessages]. Backs the conversation
+  /// screen's pull-to-refresh — a no-op on the mock, whose in-memory data
+  /// is always current.
+  Future<void> refreshMessages(String conversationId);
 
   /// A single conversation (e.g. for its title/participant list), kept
   /// up to date as members are added/removed.

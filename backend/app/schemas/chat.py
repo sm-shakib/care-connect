@@ -9,6 +9,7 @@ class ParticipantOut(BaseModel):
     name: str
     role: str
     avatar_color: str
+    avatar_url: Optional[str] = None
     is_online: bool = False
 
 

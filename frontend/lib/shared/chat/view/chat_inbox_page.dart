@@ -91,48 +91,63 @@ class _ChatInboxView extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
 
+                    final cubit = context.read<ChatInboxCubit>();
                     final conversations = state.filteredConversations;
                     if (conversations.isEmpty) {
-                      return Center(
-                        child: Text(
-                          state.query.isEmpty
-                              ? 'No conversations yet. Tap + to start one.'
-                              : 'No conversations match "${state.query}".',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      return RefreshIndicator(
+                        onRefresh: cubit.refresh,
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            SizedBox(
+                              height: 200,
+                              child: Center(
+                                child: Text(
+                                  state.query.isEmpty
+                                      ? 'No conversations yet. Tap + to start one.'
+                                      : 'No conversations match "${state.query}".',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
 
-                    return ListView.separated(
-                      padding: const EdgeInsets.only(bottom: 90, top: 4),
-                      itemCount: conversations.length,
-                      separatorBuilder: (context, index) => Divider(
-                        height: 1,
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.25),
-                      ),
-                      itemBuilder: (context, index) {
-                        final conversation = conversations[index];
-                        final cubit = context.read<ChatInboxCubit>();
-                        return ConversationTile(
-                          conversation: conversation,
-                          currentUser: state.currentUser,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => ConversationPage(
-                                  repository: cubit.repository,
-                                  conversationId: conversation.id,
-                                  currentUser: state.currentUser,
+                    return RefreshIndicator(
+                      onRefresh: cubit.refresh,
+                      child: ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 90, top: 4),
+                        itemCount: conversations.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+                        ),
+                        itemBuilder: (context, index) {
+                          final conversation = conversations[index];
+                          return ConversationTile(
+                            conversation: conversation,
+                            currentUser: state.currentUser,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => ConversationPage(
+                                    repository: cubit.repository,
+                                    conversationId: conversation.id,
+                                    currentUser: state.currentUser,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          onMuteToggle: () => cubit.toggleMute(conversation),
-                          onDelete: () => cubit.deleteConversation(conversation.id),
-                        );
-                      },
+                              );
+                            },
+                            onMuteToggle: () => cubit.toggleMute(conversation),
+                            onDelete: () => cubit.deleteConversation(conversation.id),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

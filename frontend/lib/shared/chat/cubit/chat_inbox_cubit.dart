@@ -28,6 +28,11 @@ class ChatInboxCubit extends Cubit<ChatInboxState> {
     emit(state.copyWith(query: query));
   }
 
+  /// Re-fetches the conversation list for pull-to-refresh —
+  /// `watchConversations` already keeps the list live, so this is only
+  /// for the user-initiated "did I miss anything" tug on the list.
+  Future<void> refresh() => repository.refreshConversations(currentUser.id);
+
   Future<void> toggleMute(Conversation conversation) {
     return repository.setMuted(conversation.id, !conversation.isMuted);
   }

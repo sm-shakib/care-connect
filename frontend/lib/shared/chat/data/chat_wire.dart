@@ -16,6 +16,7 @@ ChatParticipant chatParticipantFromJson(Map<String, dynamic> json) {
     name: json['name'] as String,
     role: chatRoleFromWire(json['role'] as String),
     avatarColor: chatColorFromHex(json['avatar_color'] as String?),
+    avatarUrl: json['avatar_url'] as String?,
     isOnline: json['is_online'] as bool? ?? false,
   );
 }
