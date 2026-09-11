@@ -8,8 +8,8 @@ import 'package:frontend/theme/app_colors.dart';
 
 class OtpVerificationPage extends StatelessWidget {
   const OtpVerificationPage({
-    super.key,
     required this.emailOrPhone,
+    super.key,
     this.onVerified,
     this.onBack,
   });
@@ -20,14 +20,14 @@ class OtpVerificationPage extends StatelessWidget {
 
   /// Called once the code has been successfully verified.
   /// Use this to navigate to the ResetPasswordPage.
-  final VoidCallback? onVerified;
+  final ValueChanged<String>? onVerified;
 
   final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OtpVerificationCubit(),
+      create: (_) => OtpVerificationCubit(email: emailOrPhone),
       child: _OtpVerificationView(
         emailOrPhone: emailOrPhone,
         onVerified: onVerified,
@@ -45,7 +45,7 @@ class _OtpVerificationView extends StatefulWidget {
   });
 
   final String emailOrPhone;
-  final VoidCallback? onVerified;
+  final ValueChanged<String>? onVerified;
   final VoidCallback? onBack;
 
   @override
@@ -122,7 +122,7 @@ class _OtpVerificationViewState extends State<_OtpVerificationView> {
         child: BlocConsumer<OtpVerificationCubit, OtpVerificationState>(
           listener: (context, state) {
             if (state.isSuccess) {
-              widget.onVerified?.call();
+              widget.onVerified?.call(state.code);
             }
             if (state.code.isEmpty) {
               // Cleared externally (e.g. after a resend) — clear boxes too.
