@@ -76,13 +76,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-enum _LoginRole {
-  elder,
-  caregiver,
-  family,
-  admin,
-}
-
 class _LoginView extends StatefulWidget {
   const _LoginView({
     this.onSignUp,
@@ -99,8 +92,6 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  _LoginRole? _selectedRole;
-
   void _navigateBasedOnRole(BuildContext context, String? role, String? status) {
     if (role == 'elder') {
       Navigator.pushAndRemoveUntil(
@@ -152,6 +143,40 @@ class _LoginViewState extends State<_LoginView> {
             },
           );
         },
+      ),
+    );
+  }
+
+  void _handleForgotPassword(BuildContext context) {
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (outerContext) => ForgotPasswordPage(
+          onBackToLogin: () => Navigator.of(outerContext).pop(),
+          onCodeSent: (emailOrPhone) {
+            Navigator.push(
+              outerContext,
+              MaterialPageRoute<void>(
+                builder: (otpContext) => OtpVerificationPage(
+                  emailOrPhone: emailOrPhone,
+                  onVerified: (otp) {
+                    Navigator.pushReplacement(
+                      otpContext,
+                      MaterialPageRoute<void>(
+                        builder: (resetContext) => ResetPasswordPage(
+                          email: emailOrPhone,
+                          otp: otp,
+                          onResetSuccess: () => Navigator.of(resetContext)
+                              .popUntil((route) => route.isFirst),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -231,37 +256,7 @@ class _LoginViewState extends State<_LoginView> {
                                 _FieldLabel(context.l10n.passwordLabel),
                                 GestureDetector(
                                   onTap: widget.onForgotPassword ??
-                                          () async {
-                                        await Navigator.push<void>(
-                                          context,
-                                          MaterialPageRoute<void>(
-                                            builder: (context) => ForgotPasswordPage(
-                                              onBackToLogin: () => Navigator.of(context).pop(),
-                                              onCodeSent: (emailOrPhone) {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute<void>(
-                                                    builder: (context) => OtpVerificationPage(
-                                                      emailOrPhone: emailOrPhone,
-                                                      onVerified: () {
-                                                        Navigator.pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute<void>(
-                                                            builder: (context) => ResetPasswordPage(
-                                                              onResetSuccess: () => Navigator.of(context)
-                                                                  .popUntil((route) => route.isFirst),
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                      () => _handleForgotPassword(context),
                                   child: Text(
                                     context.l10n.forgotPasswordLabel,
                                     style: const TextStyle(
@@ -418,7 +413,7 @@ class _LoginViewState extends State<_LoginView> {
 }
 
 class _LoginSuccessDialog extends StatelessWidget {
-  const _LoginSuccessDialog({required this.onDone});
+  const _LoginSuccessDialog({required this.onDone, super.key});
 
   final VoidCallback onDone;
 
@@ -428,129 +423,6 @@ class _LoginSuccessDialog extends StatelessWidget {
       title: 'Welcome Back!',
       message: 'Logged in successfully. Redirecting to your dashboard...',
       onDone: onDone,
-    );
-  }
-}
-
-class _RoleSelectorRow extends StatelessWidget {
-  const _RoleSelectorRow({
-    required this.selectedRole,
-    required this.onRoleSelected,
-  });
-
-  final _LoginRole? selectedRole;
-  final ValueChanged<_LoginRole> onRoleSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 110,
-            child: _RoleBox(
-              label: 'Elder',
-              icon: Icons.elderly,
-              isSelected: selectedRole == _LoginRole.elder,
-              onTap: () => onRoleSelected(_LoginRole.elder),
-            ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 110,
-            child: _RoleBox(
-              label: 'Caregiver',
-              icon: Icons.medical_services_outlined,
-              isSelected: selectedRole == _LoginRole.caregiver,
-              onTap: () => onRoleSelected(_LoginRole.caregiver),
-            ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 110,
-            child: _RoleBox(
-              label: 'Family',
-              icon: Icons.family_restroom,
-              isSelected: selectedRole == _LoginRole.family,
-              onTap: () => onRoleSelected(_LoginRole.family),
-            ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 110,
-            child: _RoleBox(
-              label: 'Admin',
-              icon: Icons.admin_panel_settings_outlined,
-              isSelected: selectedRole == _LoginRole.admin,
-              onTap: () => onRoleSelected(_LoginRole.admin),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoleBox extends StatelessWidget {
-  const _RoleBox({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        height: 44,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.darkTeal
-              : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.darkTeal,
-            width: isSelected ? 1.8 : 1.2,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected
-                  ? Colors.white
-                  : AppColors.darkTeal,
-            ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: isSelected
-                      ? Colors.white
-                      : AppColors.darkTeal,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -8,8 +8,13 @@ import 'package:frontend/theme/app_colors.dart';
 class ResetPasswordPage extends StatelessWidget {
   const ResetPasswordPage({
     super.key,
+    required this.email,
+    required this.otp,
     this.onResetSuccess,
   });
+
+  final String email;
+  final String otp;
 
   /// Called once the password has been successfully reset.
   /// Use this to navigate back to the LoginPage.
@@ -18,7 +23,7 @@ class ResetPasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ResetPasswordCubit(),
+      create: (_) => ResetPasswordCubit(email: email, otp: otp),
       child: _ResetPasswordView(onResetSuccess: onResetSuccess),
     );
   }

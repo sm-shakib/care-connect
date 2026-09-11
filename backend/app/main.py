@@ -13,6 +13,7 @@ from app.models.reminder import Appointment, CareReminder
 from app.models.complaint import Complaint
 from app.models.chat import Conversation, ConversationParticipant, ConversationKey, Message, MessageAttachment
 from app.models.fund import FundSummary, Donation, AidRequest
+from app.models.otp import OTP
 from app.api import (
     elder, auth, caregiver, family, utils, admin,
     binding, notification, medicine, users, booking, complaint,

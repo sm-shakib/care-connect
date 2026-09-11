@@ -3,6 +3,8 @@ part of 'reset_password_cubit.dart';
 enum ResetPasswordStatus { initial, submitting, success, failure }
 
 class ResetPasswordState extends Equatable {
+  final String email;
+  final String otp;
   final String newPassword;
   final String confirmPassword;
   final bool isNewPasswordObscured;
@@ -10,6 +12,8 @@ class ResetPasswordState extends Equatable {
   final ResetPasswordStatus status;
 
   const ResetPasswordState({
+    this.email = '',
+    this.otp = '',
     this.newPassword = '',
     this.confirmPassword = '',
     this.isNewPasswordObscured = true,
@@ -29,6 +33,8 @@ class ResetPasswordState extends Equatable {
   bool get isSuccess => status == ResetPasswordStatus.success;
 
   ResetPasswordState copyWith({
+    String? email,
+    String? otp,
     String? newPassword,
     String? confirmPassword,
     bool? isNewPasswordObscured,
@@ -36,6 +42,8 @@ class ResetPasswordState extends Equatable {
     ResetPasswordStatus? status,
   }) {
     return ResetPasswordState(
+      email: email ?? this.email,
+      otp: otp ?? this.otp,
       newPassword: newPassword ?? this.newPassword,
       confirmPassword: confirmPassword ?? this.confirmPassword,
       isNewPasswordObscured:
@@ -48,6 +56,8 @@ class ResetPasswordState extends Equatable {
 
   @override
   List<Object?> get props => [
+    email,
+    otp,
     newPassword,
     confirmPassword,
     isNewPasswordObscured,

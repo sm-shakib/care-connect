@@ -6,11 +6,13 @@ class OtpVerificationState extends Equatable {
   static const int codeLength = 6;
   static const int resendCooldownSeconds = 30;
 
+  final String email;
   final String code;
   final OtpVerificationStatus status;
   final int resendSecondsRemaining;
 
   const OtpVerificationState({
+    this.email = '',
     this.code = '',
     this.status = OtpVerificationStatus.initial,
     this.resendSecondsRemaining = resendCooldownSeconds,
@@ -23,11 +25,13 @@ class OtpVerificationState extends Equatable {
   bool get canResend => resendSecondsRemaining == 0;
 
   OtpVerificationState copyWith({
+    String? email,
     String? code,
     OtpVerificationStatus? status,
     int? resendSecondsRemaining,
   }) {
     return OtpVerificationState(
+      email: email ?? this.email,
       code: code ?? this.code,
       status: status ?? this.status,
       resendSecondsRemaining:
@@ -36,5 +40,5 @@ class OtpVerificationState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [code, status, resendSecondsRemaining];
+  List<Object?> get props => [email, code, status, resendSecondsRemaining];
 }

@@ -2,18 +2,20 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 
 part 'otp_verification_state.dart';
 
 class OtpVerificationCubit extends Cubit<OtpVerificationState> {
-  OtpVerificationCubit() : super(const OtpVerificationState()) {
+  OtpVerificationCubit({required String email}) 
+      : super(OtpVerificationState(email: email)) {
     _startResendTimer();
   }
 
+  final _authRepository = AuthRepository();
   Timer? _resendTimer;
 
   void codeChanged(String value) {
-    // Clear a previous failure as soon as the user edits the code again.
     final status = state.status == OtpVerificationStatus.failure
         ? OtpVerificationStatus.initial
         : state.status;
@@ -21,17 +23,15 @@ class OtpVerificationCubit extends Cubit<OtpVerificationState> {
   }
 
   /// Called when the user taps "Verify".
-  /// Hook your real "verify code" API call up here.
   Future<void> verify() async {
     if (!state.isComplete) return;
     emit(state.copyWith(status: OtpVerificationStatus.verifying));
 
     try {
-      // TODO: replace with a real API call, e.g.
-      // final token = await authRepository.verifyCode(emailOrPhone, state.code);
-      await Future.delayed(const Duration(milliseconds: 800));
+      await _authRepository.verifyOtp(state.email, state.code);
       emit(state.copyWith(status: OtpVerificationStatus.success));
-    } catch (_) {
+    } catch (e) {
+      print('OTP Verification Error: $e');
       emit(state.copyWith(status: OtpVerificationStatus.failure));
     }
   }
@@ -40,14 +40,19 @@ class OtpVerificationCubit extends Cubit<OtpVerificationState> {
   Future<void> resendCode() async {
     if (!state.canResend) return;
 
-    // TODO: replace with a real "resend code" API call.
-    emit(
-      state.copyWith(
-        code: '',
-        resendSecondsRemaining: OtpVerificationState.resendCooldownSeconds,
-      ),
-    );
-    _startResendTimer();
+    try {
+      await _authRepository.requestPasswordReset(state.email);
+      emit(
+        state.copyWith(
+          code: '',
+          resendSecondsRemaining: OtpVerificationState.resendCooldownSeconds,
+        ),
+      );
+      _startResendTimer();
+    } catch (e) {
+      print('Resend OTP Error: $e');
+      emit(state.copyWith(status: OtpVerificationStatus.failure));
+    }
   }
 
   void _startResendTimer() {
