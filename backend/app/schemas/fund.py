@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date, time
 
 class FundStats(BaseModel):
     balance: float
@@ -36,6 +36,11 @@ class DonationOut(DonationBase):
 class AidRequestBase(BaseModel):
     caregiver_type: Optional[str] = None
     reason: str
+    service_start_date: Optional[date] = None
+    service_end_date: Optional[date] = None
+    days_of_week: Optional[str] = None
+    daily_timing_start: Optional[time] = None
+    daily_timing_end: Optional[time] = None
     document_url: Optional[str] = None
 
 class AidRequestCreate(AidRequestBase):

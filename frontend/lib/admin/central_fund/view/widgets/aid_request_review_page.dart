@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/admin/central_fund/data/repositories/central_fund_repository.dart';
@@ -6,6 +7,7 @@ import 'package:frontend/caregiver/data/repositories/caregiver_repository.dart';
 import 'package:frontend/caregiver/models/caregiver.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AidRequestReviewPage extends StatefulWidget {
@@ -38,7 +40,7 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    unawaited(_loadInitialData());
   }
 
   Future<void> _loadInitialData() async {
@@ -51,12 +53,13 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
       if (mounted) {
         setState(() {
           final allCaregivers = results[0] as List<Caregiver>;
-          verifiedCaregivers = allCaregivers.where((c) => c.isVerified).toList();
+          verifiedCaregivers =
+              allCaregivers.where((c) => c.isVerified).toList();
           _fundStats = results[1] as FundStats;
           _isFetchingData = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() => _isFetchingData = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,12 +71,12 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedCaregiver = selectedCaregiverIndex != null 
-        ? verifiedCaregivers[selectedCaregiverIndex!] 
+    final selectedCaregiver = selectedCaregiverIndex != null
+        ? verifiedCaregivers[selectedCaregiverIndex!]
         : null;
-    
-    final bool hasInsufficientFunds = selectedCaregiver != null && 
-        _fundStats != null && 
+
+    final hasInsufficientFunds = selectedCaregiver != null &&
+        _fundStats != null &&
         selectedCaregiver.hourlyRate > _fundStats!.balance;
 
     return Scaffold(
@@ -122,6 +125,8 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
                 children: [
                   _buildDetailRow('Requester', widget.request.requesterName),
                   const Divider(height: 24),
+                  _buildDetailRow('Service Schedule', _formatSchedule()),
+                  const Divider(height: 24),
                   const Text(
                     'Reason for Assistance',
                     style: TextStyle(fontSize: 12, color: Color(0xFF6B7A76)),
@@ -129,10 +134,10 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
                   const SizedBox(height: 4),
                   Text(
                     widget.request.reason,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: onSurfaceVariant,
-                      fontStyle: FontStyle.italic,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black, // More black as requested
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const Divider(height: 24),
@@ -341,59 +346,200 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
               ),
               const SizedBox(height: 16),
               if (hasInsufficientFunds)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
                   child: Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                      const SizedBox(width: 8),
-                      const Expanded(
+                      Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(
                         child: Text(
                           'Insufficient funds in Central Fund to cover this caregiver.',
-                          style: TextStyle(color: Colors.orange, fontSize: 13, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                   ),
                 ),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (selectedCaregiverIndex == null || _isLoading || hasInsufficientFunds)
-                      ? null
-                      : _handleApproval,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _showDeclineSheet,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Decline',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Approve & Allocate Caregiver',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: (selectedCaregiverIndex == null ||
+                              _isLoading ||
+                              hasInsufficientFunds)
+                          ? null
+                          : _handleApproval,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primary,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Approve & Allocate',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _showDeclineSheet() {
+    final controller = TextEditingController();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          top: 24,
+          left: 24,
+          right: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Reason for Decline',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please provide a reason for declining this assistance request. This will be visible to the elder.',
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: controller,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: 'Enter reason here...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => _handleDecline(controller.text),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Confirm Decline',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleDecline(String reason) async {
+    if (reason.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide a reason for decline')),
+      );
+      return;
+    }
+
+    Navigator.pop(context); // Close sheet
+    setState(() => _isLoading = true);
+
+    try {
+      await _repository.reviewAidRequest(
+        widget.request.id,
+        status: 'rejected',
+        notes: reason,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Request declined successfully')),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  String _formatSchedule() {
+    final start = widget.request.serviceStartDate != null
+        ? DateFormat('MMM d').format(DateTime.parse(widget.request.serviceStartDate!))
+        : 'TBD';
+    final end = widget.request.serviceEndDate != null
+        ? DateFormat('MMM d, yyyy').format(DateTime.parse(widget.request.serviceEndDate!))
+        : 'TBD';
+    final days = widget.request.daysOfWeek ?? 'Everyday';
+    final timing = (widget.request.dailyTimingStart != null && widget.request.dailyTimingEnd != null)
+        ? '${widget.request.dailyTimingStart!.substring(0, 5)} - ${widget.request.dailyTimingEnd!.substring(0, 5)}'
+        : 'Flexible';
+
+    return '$start - $end\n$days ($timing)';
   }
 
   Future<void> _handleApproval() async {

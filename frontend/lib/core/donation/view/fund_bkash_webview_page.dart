@@ -20,6 +20,7 @@ class FundBkashWebViewPage extends StatefulWidget {
 class _FundBkashWebViewPageState extends State<FundBkashWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _isExecuting = false;
 
   @override
   void initState() {
@@ -57,6 +58,9 @@ class _FundBkashWebViewPageState extends State<FundBkashWebViewPage> {
   }
 
   Future<void> _handlePaymentSuccess(String url) async {
+    if (_isExecuting) return;
+    _isExecuting = true;
+
     final uri = Uri.parse(url);
     final paymentId = uri.queryParameters['paymentID'];
 

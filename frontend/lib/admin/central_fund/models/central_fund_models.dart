@@ -96,19 +96,31 @@ class AidRequestModel extends Equatable {
     required this.date,
     required this.amount,
     required this.status,
+    this.serviceStartDate,
+    this.serviceEndDate,
+    this.daysOfWeek,
+    this.dailyTimingStart,
+    this.dailyTimingEnd,
     this.documentUrl,
+    this.adminNotes,
   });
 
   factory AidRequestModel.fromJson(Map<String, dynamic> json) {
     return AidRequestModel(
       id: json['id'] as int,
       requesterName: (json['requester_name'] as String?) ?? 'Unknown',
-      caregiverType: json['caregiver_type'] as String,
-      reason: json['reason'] as String,
+      caregiverType: (json['caregiver_type'] as String?) ?? 'General',
+      reason: (json['reason'] as String?) ?? '',
       date: json['created_at'] as String,
       amount: '৳ ${json['approved_amount']}',
       status: json['status'] as String,
+      serviceStartDate: json['service_start_date'] as String?,
+      serviceEndDate: json['service_end_date'] as String?,
+      daysOfWeek: json['days_of_week'] as String?,
+      dailyTimingStart: json['daily_timing_start'] as String?,
+      dailyTimingEnd: json['daily_timing_end'] as String?,
       documentUrl: json['document_url'] as String?,
+      adminNotes: json['admin_notes'] as String?,
     );
   }
 
@@ -119,7 +131,13 @@ class AidRequestModel extends Equatable {
   final String date;
   final String amount;
   final String status;
+  final String? serviceStartDate;
+  final String? serviceEndDate;
+  final String? daysOfWeek;
+  final String? dailyTimingStart;
+  final String? dailyTimingEnd;
   final String? documentUrl;
+  final String? adminNotes;
 
   @override
   List<Object?> get props => [
@@ -130,7 +148,13 @@ class AidRequestModel extends Equatable {
         date,
         amount,
         status,
+        serviceStartDate,
+        serviceEndDate,
+        daysOfWeek,
+        dailyTimingStart,
+        dailyTimingEnd,
         documentUrl,
+        adminNotes,
       ];
 }
 

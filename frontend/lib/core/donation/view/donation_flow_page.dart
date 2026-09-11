@@ -201,7 +201,7 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
                   ),
                   const SizedBox(height: 40),
                   const Text(
-                    'Your contribution directly supports medical care and essential needs for elderly citizens in our community.',
+                    'Your contribution directly supports caregiver support for elderly citizens in our community.',
                     style: TextStyle(color: Colors.grey, height: 1.5),
                     textAlign: TextAlign.center,
                   ),

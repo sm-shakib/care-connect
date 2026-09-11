@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/core/donation/view/donation_flow_page.dart';
 import 'package:frontend/core/donation/view/donation_history_page.dart';
 import 'package:frontend/elderly/view/assistance_form_page.dart';
+import 'package:frontend/elderly/view/assistance_history_page.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 class DonationAssistancePage extends StatelessWidget {
@@ -30,6 +31,13 @@ class DonationAssistancePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            _DonationHistoryRow(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DonationHistoryPage()),
+              ),
+            ),
+            const SizedBox(height: 20),
             _AssistanceCard(
               onApply: () => Navigator.push(
                 context,
@@ -37,10 +45,10 @@ class DonationAssistancePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            _DonationHistoryRow(
+            _AssistanceHistoryRow(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const DonationHistoryPage()),
+                MaterialPageRoute(builder: (_) => const AssistanceHistoryPage()),
               ),
             ),
           ],
@@ -219,6 +227,48 @@ class _DonationHistoryRow extends StatelessWidget {
                 ),
               ),
               Icon(Icons.chevron_right, color: AppColors.darkTeal),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AssistanceHistoryRow extends StatelessWidget {
+  const _AssistanceHistoryRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.blue.shade50,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.blue.shade100),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.history_edu, color: Colors.blue),
+              SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  'Assistance History',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_right, color: Colors.blue),
             ],
           ),
         ),

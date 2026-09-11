@@ -89,5 +89,5 @@ class ApiConstants {
   static const String fundAdminRequests = '/fund/admin/requests';
   static String fundAdminReviewRequest(int id) => '/fund/admin/requests/$id/review';
   static const String fundBkashCreate = '/fund/bkash/create';
-  static const String fundBkashExecute = '/fund/bkash/execute';
+  static String fundBkashExecute(int id) => '/fund/bkash/execute/$id';
 }
