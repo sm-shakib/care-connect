@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
 from app.api import deps
@@ -12,8 +12,9 @@ import uuid
 
 router = APIRouter(prefix="/fund", tags=["Fund"])
 
-def get_fund_summary(db: Session) -> FundSummary:
-    summary = db.query(FundSummary).first()
+def get_latest_fund_summary(db: Session) -> FundSummary:
+    """Fetch the most recent summary record."""
+    summary = db.query(FundSummary).order_by(FundSummary.id.desc()).first()
     if not summary:
         summary = FundSummary(
             balance=0.0, 
@@ -23,7 +24,7 @@ def get_fund_summary(db: Session) -> FundSummary:
             aids_distributed_amount=0.0
         )
         db.add(summary)
-        db.flush()  # Use flush instead of commit to stay within the same transaction
+        db.flush()
     return summary
 
 @router.get("/stats", response_model=FundStats)
@@ -31,9 +32,9 @@ def get_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
-    """Get overall fund statistics."""
-    summary = get_fund_summary(db)
-    db.commit() # Ensure the initial row is committed if created
+    """Get overall fund statistics from the latest snapshot."""
+    summary = get_latest_fund_summary(db)
+    db.commit()
     return summary
 
 @router.post("/donate", response_model=DonationOut)
@@ -42,20 +43,27 @@ def donate(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
-    """Record a new donation and update fund balance."""
+    """Record a new donation and create a new fund snapshot."""
     donation = Donation(
         donor_id=current_user.id,
         amount=donation_in.amount,
         payment_method=donation_in.payment_method,
         transaction_id=donation_in.transaction_id,
-        status="completed" # Simplified: assuming payment success for now
+        status="completed"
     )
     db.add(donation)
+    db.flush()
     
-    # Update FundSummary
-    summary = get_fund_summary(db)
-    summary.balance += donation_in.amount
-    summary.total_donations += donation_in.amount
+    prev = get_latest_fund_summary(db)
+    new_summary = FundSummary(
+        donation_id=donation.id,
+        balance=prev.balance + donation.amount,
+        total_donations=prev.total_donations + donation.amount,
+        pending_aids_count=prev.pending_aids_count,
+        aids_distributed_no=prev.aids_distributed_no,
+        aids_distributed_amount=prev.aids_distributed_amount
+    )
+    db.add(new_summary)
     
     db.commit()
     db.refresh(donation)
@@ -67,7 +75,6 @@ async def create_fund_bkash_payment(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
-    # 1. Create a pending donation
     donation = Donation(
         donor_id=current_user.id,
         amount=donation_in.amount,
@@ -78,8 +85,9 @@ async def create_fund_bkash_payment(
     db.commit()
     db.refresh(donation)
 
-    # 2. Call bKash Create API
-    invoice_number = f"FUND-{donation.id}-{uuid.uuid4().hex[:6]}"
+    from datetime import datetime as dt
+    timestamp = int(dt.now().timestamp())
+    invoice_number = f"FUND-{donation.id}-{timestamp}-{uuid.uuid4().hex[:4]}"
     callback_url = "http://careconnect.com/bkash/callback"
     
     try:
@@ -88,35 +96,61 @@ async def create_fund_bkash_payment(
             invoice_number=invoice_number,
             callback_url=callback_url
         )
-        # Store paymentID temporarily if needed, or just return to frontend
         return {**payment_data, "donation_id": donation.id}
     except Exception as e:
         db.delete(donation)
         db.commit()
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/bkash/execute")
+@router.post("/bkash/execute/{donation_id}")
 async def execute_fund_bkash_payment(
-    payment_id: str,
     donation_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
     donation = db.query(Donation).filter(Donation.id == donation_id).first()
     if not donation:
         raise HTTPException(status_code=404, detail="Donation record not found")
+    
+    if donation.status == "completed":
+        return {"status": "success", "donation": donation}
 
     try:
-        execution_data = await bkash_client.execute_payment(payment_id)
+        body = await request.json()
+        payment_id = body.get("paymentID")
         
-        if execution_data.get("transactionStatus") == "Completed":
-            donation.status = "completed"
-            donation.transaction_id = execution_data.get("trxID")
+        if not payment_id:
+            raise HTTPException(status_code=400, detail="paymentID is required in body")
+
+        print(f"DEBUG: Executing fund donation {donation_id} with paymentID: {payment_id}")
+        execution_data = await bkash_client.execute_payment(payment_id)
+        print(f"DEBUG: bKash response: {execution_data}")
+        
+        # Handle case where bKash says it's a duplicate/already done
+        status_code = execution_data.get("statusCode")
+        if execution_data.get("transactionStatus") == "Completed" or status_code == "2029":
+            # If it's a duplicate, we should double check if we can mark it as success
+            # Usually trxID is present if it was successful
+            trx_id = execution_data.get("trxID")
             
-            # Update FundSummary
-            summary = get_fund_summary(db)
-            summary.balance += donation.amount
-            summary.total_donations += donation.amount
+            donation.status = "completed"
+            if trx_id:
+                donation.transaction_id = trx_id
+            
+            # Create NEW snapshot if not already done for this donation
+            existing_summary = db.query(FundSummary).filter(FundSummary.donation_id == donation.id).first()
+            if not existing_summary:
+                prev = get_latest_fund_summary(db)
+                new_summary = FundSummary(
+                    donation_id=donation.id,
+                    balance=prev.balance + donation.amount,
+                    total_donations=prev.total_donations + donation.amount,
+                    pending_aids_count=prev.pending_aids_count,
+                    aids_distributed_no=prev.aids_distributed_no,
+                    aids_distributed_amount=prev.aids_distributed_amount
+                )
+                db.add(new_summary)
             
             db.commit()
             db.refresh(donation)
@@ -124,9 +158,10 @@ async def execute_fund_bkash_payment(
         else:
             donation.status = "failed"
             db.commit()
-            raise HTTPException(status_code=400, detail=f"Payment failed: {execution_data}")
+            raise HTTPException(status_code=400, detail=f"Payment failed: {execution_data.get('statusMessage', 'Unknown error')}")
             
     except Exception as e:
+        print(f"ERROR: fund execution failed: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/request-aid", response_model=AidRequestOut)
@@ -135,19 +170,32 @@ def request_aid(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user)
 ):
-    """Submit a new aid request from an elder."""
+    """Submit a new aid request and update pending count snapshot."""
     aid_request = AidRequest(
         requester_id=current_user.id,
         caregiver_type=request_in.caregiver_type,
         reason=request_in.reason,
+        service_start_date=request_in.service_start_date,
+        service_end_date=request_in.service_end_date,
+        days_of_week=request_in.days_of_week,
+        daily_timing_start=request_in.daily_timing_start,
+        daily_timing_end=request_in.daily_timing_end,
         document_url=request_in.document_url,
         status="pending"
     )
     db.add(aid_request)
+    db.flush()
     
-    # Update pending count
-    summary = get_fund_summary(db)
-    summary.pending_aids_count += 1
+    prev = get_latest_fund_summary(db)
+    new_summary = FundSummary(
+        aid_request_id=aid_request.id,
+        balance=prev.balance,
+        total_donations=prev.total_donations,
+        pending_aids_count=prev.pending_aids_count + 1,
+        aids_distributed_no=prev.aids_distributed_no,
+        aids_distributed_amount=prev.aids_distributed_amount
+    )
+    db.add(new_summary)
     
     db.commit()
     db.refresh(aid_request)
@@ -201,7 +249,6 @@ def list_donations(
         name = d.donor.email
         image = None
         
-        # Access profiles directly from the donor object
         if d.donor.elder_profile:
             name = d.donor.elder_profile.name
             image = d.donor.elder_profile.profile_image_url
@@ -271,29 +318,48 @@ def review_aid_request(
     if review_in.admin_notes:
         aid_request.admin_notes = review_in.admin_notes
         
-    db.commit()
+    db.flush()
     
-    # Logic to update summary if status changed
-    summary = get_fund_summary(db)
+    prev = get_latest_fund_summary(db)
+    
+    new_balance = prev.balance
+    new_total_donations = prev.total_donations
+    new_pending_count = prev.pending_aids_count
+    new_distributed_no = prev.aids_distributed_no
+    new_distributed_amount = prev.aids_distributed_amount
 
     # 1. Update pending count if status moved away from pending
     if old_status == "pending" and aid_request.status != "pending":
-        summary.pending_aids_count = max(0, summary.pending_aids_count - 1)
+        new_pending_count = max(0, prev.pending_aids_count - 1)
 
     # 2. Check for sufficient balance if status is changing to disbursed
     if old_status != "disbursed" and aid_request.status == "disbursed":
-        if summary.balance < aid_request.approved_amount:
-            # Revert status change if balance is insufficient
+        if prev.balance < aid_request.approved_amount:
+            # Revert in-memory status for error consistency (though we haven't committed)
             aid_request.status = old_status
-            db.commit()
             raise HTTPException(
                 status_code=400, 
-                detail=f"Insufficient Fund Balance. Available: ৳{summary.balance}"
+                detail=f"Insufficient Fund Balance. Available: ৳{prev.balance}"
             )
         
-        summary.balance -= aid_request.approved_amount
-        summary.aids_distributed_no += 1
-        summary.aids_distributed_amount += aid_request.approved_amount
+        new_balance = prev.balance - aid_request.approved_amount
+        new_distributed_no = prev.aids_distributed_no + 1
+        new_distributed_amount = prev.aids_distributed_amount + aid_request.approved_amount
+        
+    # Create NEW snapshot if anything changed
+    if (new_balance != prev.balance or 
+        new_pending_count != prev.pending_aids_count or 
+        new_distributed_no != prev.aids_distributed_no):
+        
+        new_summary = FundSummary(
+            aid_request_id=aid_request.id,
+            balance=new_balance,
+            total_donations=new_total_donations,
+            pending_aids_count=new_pending_count,
+            aids_distributed_no=new_distributed_no,
+            aids_distributed_amount=new_distributed_amount
+        )
+        db.add(new_summary)
         
     db.commit()
     db.refresh(aid_request)

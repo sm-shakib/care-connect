@@ -5,6 +5,7 @@ import 'package:frontend/admin/central_fund/data/repositories/central_fund_repos
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:intl/intl.dart';
 
 class AssistanceFormPage extends StatefulWidget {
   const AssistanceFormPage({super.key});
@@ -17,10 +18,75 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
   final _reasonController = TextEditingController();
   PlatformFile? _selectedFile;
 
+  // New state for service details
+  DateTime? _startDate;
+  DateTime? _endDate;
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+  final List<String> _selectedDays = [];
+
+  final List<String> _daysOfWeek = [
+    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+  ];
+
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.darkTeal,
+              onPrimary: Colors.white,
+              onSurface: AppColors.onSurfaceLight,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
+  Future<void> _pickTime(bool isStart) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: isStart ? const TimeOfDay(hour: 9, minute: 0) : const TimeOfDay(hour: 17, minute: 0),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startTime = picked;
+        } else {
+          _endTime = picked;
+        }
+      });
+    }
+  }
+
+  void _toggleDay(String day) {
+    setState(() {
+      if (_selectedDays.contains(day)) {
+        _selectedDays.remove(day);
+      } else {
+        _selectedDays.add(day);
+      }
+    });
   }
 
   Future<void> _pickDocument() async {
@@ -37,9 +103,9 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
   }
 
   void _submitApplication() async {
-    if (_reasonController.text.isEmpty) {
+    if (_reasonController.text.isEmpty || _startDate == null || _endDate == null || _startTime == null || _endTime == null || _selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please describe your needs')),
+        const SnackBar(content: Text('Please fill all service details and reason')),
       );
       return;
     }
@@ -56,28 +122,30 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
       String? documentUrl;
       final authRepo = AuthRepository();
 
-      // 1. Upload document if selected
       if (_selectedFile != null) {
         List<int>? fileBytes = _selectedFile!.bytes?.toList();
-        
-        // If on mobile, bytes might be null, read from path
         if (fileBytes == null && _selectedFile!.path != null) {
           fileBytes = await File(_selectedFile!.path!).readAsBytes();
         }
-
         if (fileBytes != null) {
-          documentUrl = await authRepo.uploadFile(
-            fileBytes,
-            _selectedFile!.name,
-          );
+          documentUrl = await authRepo.uploadFile(fileBytes, _selectedFile!.name);
         }
       }
 
-      // 2. Submit aid request
       final repository = CentralFundRepository(ApiClient());
+      
+      // Format times for backend
+      final startStr = '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}:00';
+      final endStr = '${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}:00';
+
       await repository.requestAid(
-        caregiverType: 'General Assistance', // Merged into reason in UI
+        caregiverType: 'General Assistance',
         reason: _reasonController.text,
+        serviceStartDate: DateFormat('yyyy-MM-dd').format(_startDate!),
+        serviceEndDate: DateFormat('yyyy-MM-dd').format(_endDate!),
+        daysOfWeek: _selectedDays.join(','),
+        dailyTimingStart: startStr,
+        dailyTimingEnd: endStr,
         documentUrl: documentUrl,
       );
       
@@ -161,15 +229,138 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Apply for a caregiver through the central fund. Admin will assess your eligibility based on your reason and documents.',
+              'Apply for a caregiver through the central fund. Admin will assess your eligibility based on your requirements.',
               style: TextStyle(color: AppColors.onSurfaceVariantLight),
             ),
-            const SizedBox(height: 32),
             
-            const Text(
-              'Details of Assistance Needed',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            const SizedBox(height: 32),
+            _buildSectionHeader('1. Duration & Schedule'),
+            const SizedBox(height: 16),
+            
+            // Date Selection
+            InkWell(
+              onTap: _pickDateRange,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.outlineVariantLight),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.date_range, color: AppColors.darkTeal),
+                    const SizedBox(width: 12),
+                    Text(
+                      _startDate == null 
+                        ? 'Select Service Duration (Start - End)' 
+                        : '${DateFormat('MMM d, yyyy').format(_startDate!)} - ${DateFormat('MMM d, yyyy').format(_endDate!)}',
+                      style: TextStyle(
+                        color: _startDate == null ? Colors.grey : AppColors.onSurfaceLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
+            
+            const SizedBox(height: 16),
+            
+            // Days of the Week Selection
+            const Text('Days of the Week', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _daysOfWeek.map((day) {
+                final isSelected = _selectedDays.contains(day);
+                return GestureDetector(
+                  onTap: () => _toggleDay(day),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.darkTeal.withValues(alpha: 0.1)
+                          : Colors.white,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.darkTeal
+                            : AppColors.outlineVariantLight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      day,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? AppColors.darkTeal
+                            : AppColors.onSurfaceLight,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Time Selection
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _pickTime(true),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.outlineVariantLight),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time, color: AppColors.darkTeal, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            _startTime == null ? 'Start Time' : _startTime!.format(context),
+                            style: TextStyle(fontSize: 13, color: _startTime == null ? Colors.grey : Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _pickTime(false),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.outlineVariantLight),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time_filled, color: AppColors.darkTeal, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            _endTime == null ? 'End Time' : _endTime!.format(context),
+                            style: TextStyle(fontSize: 13, color: _endTime == null ? Colors.grey : Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+            _buildSectionHeader('2. Details of Assistance Needed'),
             const SizedBox(height: 8),
             TextField(
               controller: _reasonController,
@@ -177,7 +368,7 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
               decoration: InputDecoration(
                 alignLabelWithHint: true,
                 hintText:
-                    'Please describe in detail:\n1. Why you need financial assistance\n2. What type of caregiver you need (e.g., Nurse, Physiotherapist, Companion)\n3. Duration of service needed',
+                    'Please describe in detail:\n1. Why you need financial assistance\n2. What type of caregiver you need (e.g., Nurse, Physiotherapist, Companion)\n3. Any specific medical conditions',
                 hintStyle: TextStyle(
                   color: Colors.grey.shade400,
                   fontSize: 14,
@@ -197,10 +388,7 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
             ),
             
             const SizedBox(height: 32),
-            const Text(
-              'Supporting Documents',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+            _buildSectionHeader('3. Supporting Documents'),
             const SizedBox(height: 8),
             InkWell(
               onTap: _pickDocument,
@@ -230,14 +418,6 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
                         fontWeight: _selectedFile != null ? FontWeight.bold : null,
                       ),
                     ),
-                    if (_selectedFile != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          '${(_selectedFile!.size / 1024).toStringAsFixed(1)} KB',
-                          style: const TextStyle(fontSize: 11, color: Colors.green),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -264,6 +444,13 @@ class _AssistanceFormPageState extends State<AssistanceFormPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.darkTeal),
     );
   }
 }
