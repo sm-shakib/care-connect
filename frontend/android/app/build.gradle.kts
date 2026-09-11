@@ -62,17 +62,17 @@ android {
         create("production") {
             dimension = "default"
             applicationIdSuffix = ""
-            manifestPlaceholders["appName"] = "Frontend"
+            manifestPlaceholders["appName"] = "Care_Connect"
         }
         create("staging") {
             dimension = "default"
             applicationIdSuffix = ".stg"
-            manifestPlaceholders["appName"] = "[STG] Frontend"
+            manifestPlaceholders["appName"] = "[STG] Care_Connect"
         }
         create("development") {
             dimension = "default"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "[DEV] Frontend"
+            manifestPlaceholders["appName"] = "[DEV] Care_Connect"
         }
     }
 

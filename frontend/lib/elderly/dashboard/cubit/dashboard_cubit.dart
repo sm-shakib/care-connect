@@ -150,21 +150,59 @@ class DashboardCubit extends Cubit<DashboardState> {
     });
   }
 
+  /// Called from the UI after the user grants location permission.
+  void restartLocationTracking() {
+    unawaited(_startLocationTracking());
+  }
+
   Future<void> _startLocationTracking() async {
     // Cancel existing subscription if any
     await _locationSubscription?.cancel();
 
-    // Request permissions and get initial location
-    final initialPos = await _locationService.getCurrentLocation();
-    if (initialPos != null) {
-      await _updateBackendLocation(initialPos);
-    }
+    try {
+      // Ensure location services are on and permission is granted
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        debugPrint('DEBUG: Location services are disabled');
+        return;
+      }
 
-    // Subscribe to continuous updates
-    _locationSubscription = _locationService.getLocationStream().listen(
-      _updateBackendLocation,
-      onError: (Object e) => debugPrint('Location tracking error: $e'),
-    );
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          debugPrint('DEBUG: Location permission denied');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        debugPrint('DEBUG: Location permission denied forever');
+        return;
+      }
+
+      // Get initial location and push to backend immediately
+      final initialPos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      await _updateBackendLocation(initialPos);
+
+      // Subscribe to continuous updates
+      _locationSubscription = _locationService.getLocationStream().listen(
+        _updateBackendLocation,
+        onError: (Object e) {
+          debugPrint('Location tracking error: $e');
+          // Retry after a delay on stream error
+          Future<void>.delayed(const Duration(seconds: 30), () {
+            if (!isClosed) unawaited(_startLocationTracking());
+          });
+        },
+      );
+    } catch (e) {
+      debugPrint('DEBUG: Failed to start location tracking: $e');
+    }
   }
 
   Future<void> _updateBackendLocation(Position position) async {

@@ -80,8 +80,14 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
   }
 
   Future<void> _checkLocationPermission() async {
-    final permission = await Geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     
+    if (permission == LocationPermission.deniedForever) {
+      // Open system settings so the user can manually enable location
+      await Geolocator.openAppSettings();
+      return;
+    }
+
     if (permission == LocationPermission.denied) {
       if (!mounted) return;
       
@@ -93,8 +99,15 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
 
       if (proceed == true) {
         // Now trigger the actual system/browser prompt
-        await Geolocator.requestPermission();
+        permission = await Geolocator.requestPermission();
       }
+    }
+
+    // If permission was just granted, restart location tracking in the cubit
+    if (mounted &&
+        (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always)) {
+      context.read<DashboardCubit>().restartLocationTracking();
     }
   }
 
