@@ -7,6 +7,7 @@ import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/services/sos_alert_service.dart';
 import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
 import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
+import 'package:frontend/caregiver/caregiver_pending/caregiver_pending.dart';
 import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/admin/admin_shell/view/admin_shell_page.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -37,64 +38,14 @@ class AppView extends StatefulWidget {
 }
 
 class _AppViewState extends State<AppView> {
-  // Lets MedicineAlarmService push the full-screen alarm page on a
-  // notification tap, even from a cold start with no other route mounted
-  // yet.
   final _navigatorKey = GlobalKey<NavigatorState>();
-  Widget? _initialScreen;
 
   @override
   void initState() {
     super.initState();
-    // Fire-and-forget: sets up notification channels/permissions. Actual
-    // alarms are only ever scheduled once an elder's medicines load
-    // (see MedicineCubit), so this is a no-op for other roles.
     MedicineAlarmService.instance.initialize(_navigatorKey);
-    // Lets an incoming call be caught (and its full-screen ring UI pushed)
-    // from anywhere in the app, not just while a conversation is open.
     IncomingCallService.instance.initialize(_navigatorKey);
-    // Lets a family member or caregiver be notified the moment someone
-    // they care for presses SOS, wherever they are in the app — including
-    // pushing the full-screen SosAlertScreen via the same navigator key.
     unawaited(SosAlertService.instance.initialize(_navigatorKey));
-
-    _checkInitialScreen();
-  }
-
-  Future<void> _checkInitialScreen() async {
-    final authRepo = AuthRepository();
-    final loggedIn = await authRepo.isLoggedIn();
-
-    if (!mounted) return;
-
-    if (!loggedIn) {
-      setState(() {
-        _initialScreen = _buildWelcomeScreen();
-      });
-      return;
-    }
-
-    final role = await authRepo.getUserRole();
-    if (!mounted) return;
-
-    setState(() {
-      switch (role) {
-        case 'admin':
-          _initialScreen = const AdminShellPage();
-          break;
-        case 'elder':
-          _initialScreen = const ElderlyDashboardPage();
-          break;
-        case 'caregiver':
-          _initialScreen = const CaregiverDashboardPage();
-          break;
-        case 'family':
-          _initialScreen = const FamilyDashboardPage();
-          break;
-        default:
-          _initialScreen = _buildWelcomeScreen();
-      }
-    });
   }
 
   @override
@@ -114,24 +65,60 @@ class _AppViewState extends State<AppView> {
           supportedLocales: AppLocalizations.supportedLocales,
           home: SplashPage(
             duration: const Duration(milliseconds: 3000),
-            nextScreen: _initialScreen ?? const Scaffold(body: Center(child: CircularProgressIndicator())),
+            nextScreen: FutureBuilder<Widget?>(
+              future: _getInitialScreen(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return snapshot.data ?? _buildWelcomeScreen(context);
+              },
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildWelcomeScreen() {
+  Future<Widget?> _getInitialScreen() async {
+    final authRepo = AuthRepository();
+    final loggedIn = await authRepo.isLoggedIn();
+    if (!loggedIn) return null;
+
+    final role = await authRepo.getUserRole();
+    final status = await authRepo.getUserStatus();
+
+    switch (role) {
+      case 'admin':
+        return const AdminShellPage();
+      case 'elder':
+        return const ElderlyDashboardPage();
+      case 'caregiver':
+        if (status == 'verified') {
+          return const CaregiverDashboardPage();
+        } else {
+          return const CaregiverPendingPage();
+        }
+      case 'family':
+        return const FamilyDashboardPage();
+      default:
+        return null;
+    }
+  }
+
+  Widget _buildWelcomeScreen(BuildContext context) {
     return WelcomeScreenPage(
       onGetStarted: () {
-        _navigatorKey.currentState?.push(
+        Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (context) => const RoleSelectionPage(),
           ),
         );
       },
       onLogin: () {
-        _navigatorKey.currentState?.push(
+        Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (context) => const LoginPage(),
           ),

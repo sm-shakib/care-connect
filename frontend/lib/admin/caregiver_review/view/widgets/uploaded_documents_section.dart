@@ -39,7 +39,7 @@ class UploadedDocumentsSection extends StatelessWidget {
                   color: AppColors.primaryLight,
                 ),
               ),
-              TextButton(
+              /*TextButton(
                 onPressed: onViewAll,
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
@@ -54,7 +54,7 @@ class UploadedDocumentsSection extends StatelessWidget {
                     color: AppColors.primaryLight,
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
         ),
@@ -135,14 +135,22 @@ class _DocumentCard extends StatelessWidget {
                   child: Icon(
                     _icon,
                     size: 56,
-                    color: AppColors.outlineLight.withValues(alpha: 0.2),
+                    color: AppColors.outlineLight,
                   ),
                 ),
                 Image.network(
                   document.previewUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const SizedBox.shrink(),
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppColors.surfaceContainerHighLight,
+                    child: Center(
+                      child: Icon(
+                        _icon,
+                        size: 56,
+                        color: AppColors.outlineLight,
+                      ),
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 8,

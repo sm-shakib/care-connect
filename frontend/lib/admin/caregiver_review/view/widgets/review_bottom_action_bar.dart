@@ -11,6 +11,7 @@ class ReviewBottomActionBar extends StatefulWidget {
   const ReviewBottomActionBar({
     required this.notes,
     required this.isSubmitting,
+    required this.isSubmitted,
     required this.onNotesChanged,
     required this.onApprove,
     required this.onRequestDocs,
@@ -20,6 +21,7 @@ class ReviewBottomActionBar extends StatefulWidget {
 
   final String notes;
   final bool isSubmitting;
+  final bool isSubmitted;
   final ValueChanged<String> onNotesChanged;
   final VoidCallback onApprove;
   final VoidCallback onRequestDocs;
@@ -36,6 +38,63 @@ class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isSubmitted) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          border: Border(
+            top: BorderSide(color: AppColors.outlineVariantLight),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  color: AppColors.primaryLight, size: 48),
+              const SizedBox(height: 12),
+              const Text(
+                'Decision Submitted',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryLight,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The caregiver has been notified of your decision.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.onSurfaceVariantLight,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryLight,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Back to Applications',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,

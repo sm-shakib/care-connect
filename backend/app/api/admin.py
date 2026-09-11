@@ -65,6 +65,7 @@ def update_caregiver_verification_status(
         raise HTTPException(status_code=404, detail="Caregiver not found")
 
     caregiver.status = status.value
+    caregiver.admin_notes = notes # Save the notes in the profile
     db.commit()
     db.refresh(caregiver)
 
@@ -74,7 +75,7 @@ def update_caregiver_verification_status(
         if status == VerificationStatus.VERIFIED:
             body = f"Congratulations {caregiver.name}!\n\nYour account has been verified. You can now start using the CareConnect platform.\n\nAdmin Comments: {notes if notes else 'N/A'}"
         else:
-            body = f"Hello {caregiver.name},\n\nWe regret to inform you that your caregiver application has been {status.value}.\n\nAdmin Comments: {notes if notes else 'N/A'}"
+            body = f"Hello {caregiver.name},\n\nWe have reviewed your caregiver application and it requires further action.\n\nStatus: {status.value.capitalize()}\nAdmin Comments: {notes if notes else 'No specific comments provided.'}\n\nPlease open the CareConnect app on your device to re-upload the necessary documents and resubmit your application for review."
 
         send_email(caregiver.email, subject, body)
 
