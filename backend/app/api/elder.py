@@ -9,6 +9,7 @@ from app.models.caregiver import Caregiver
 from app.models.reminder import Appointment, CareReminder
 from app.models.binding import FamilyElderLink, BindingStatus
 from app.models.booking import Booking
+from app.models.notification import Notification
 from app.schemas.elder import ElderSignupRequest, ElderSignupResponse, ElderOut, ElderUpdate, VitalsUpdate
 
 # ... (rest of imports)
@@ -16,8 +17,10 @@ from app.schemas.reminder import (
     AppointmentOut, AppointmentCreate, AppointmentUpdate,
     CareReminderOut, CareReminderCreate, CareReminderUpdate
 )
+from app.schemas.notification import NotificationOut, SosAlertRequest, SosAlertRecipient, SosAlertResponse
 from app.core.security import get_password_hash
 from app.api.deps import get_current_user
+from app.api.chat_ws import manager
 
 router = APIRouter(prefix="/elders", tags=["Elderly"])
 
@@ -118,6 +121,106 @@ def update_elder_profile(
     db.refresh(elder)
     elder.email = current_user.email
     return elder
+
+@router.post("/sos", response_model=SosAlertResponse)
+async def trigger_sos(
+    payload: SosAlertRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Fires an emergency SOS: shares the elder's location with every
+    accepted family member and caregiver, both as a persisted
+    [Notification] (so it shows up even for whoever is offline right now)
+    and as a live `sos:alert` push over the same socket used for chat/calls
+    (see `app/api/chat_ws.py`) for whoever is online.
+
+    `payload.latitude`/`payload.longitude` is a fresh GPS fix taken by the
+    client right as the button was pressed. When the device couldn't get
+    one in time (permission denied, GPS off, no signal), they're omitted
+    and this falls back to the elder's last known location already on
+    file — kept current in the background by the elder app's normal
+    location tracking (see `DashboardCubit._startLocationTracking`).
+    """
+    if current_user.role != "elder":
+        raise HTTPException(status_code=403, detail="Only elders can trigger an SOS alert")
+
+    elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+    if not elder:
+        raise HTTPException(status_code=404, detail="Elder profile not found")
+
+    is_live = bool(payload.latitude and payload.longitude)
+    if is_live:
+        elder.latitude = payload.latitude
+        elder.longitude = payload.longitude
+        elder.last_location_update = "Just now"
+        db.commit()
+        db.refresh(elder)
+
+    location_note = "their live location" if is_live else (
+        "their last known location" if elder.latitude and elder.longitude else "an alert (no location on file)"
+    )
+
+    # Everyone allowed to see this elder's location today: accepted family
+    # links plus caregivers with an accepted booking — the same audiences
+    # `_check_elder_access` treats as authorized elsewhere in this file.
+    recipients: List[tuple] = []
+
+    family_links = db.query(FamilyElderLink).options(
+        joinedload(FamilyElderLink.family)
+    ).filter(
+        FamilyElderLink.elder_id == elder.id,
+        FamilyElderLink.status == BindingStatus.accepted
+    ).all()
+    for link in family_links:
+        if link.family:
+            recipients.append((link.family.user_id, "family", link.family.name))
+
+    accepted_bookings = db.query(Booking).options(
+        joinedload(Booking.caregiver)
+    ).filter(
+        Booking.elder_id == elder.id,
+        Booking.status == "accepted"
+    ).all()
+    seen_caregiver_ids = set()
+    for booking in accepted_bookings:
+        caregiver = booking.caregiver
+        if caregiver and caregiver.id not in seen_caregiver_ids:
+            seen_caregiver_ids.add(caregiver.id)
+            recipients.append((caregiver.user_id, "caregiver", caregiver.name))
+
+    pending_notifications = []
+    for user_id, role, name in recipients:
+        notification = Notification(
+            user_id=user_id,
+            title=f"\U0001F6A8 SOS Alert from {elder.name}",
+            body=f"{elder.name} triggered an emergency SOS and shared {location_note}.",
+            type="sos_alert",
+            elder_id=elder.id,
+            elder_name=elder.name,
+            latitude=elder.latitude,
+            longitude=elder.longitude,
+        )
+        db.add(notification)
+        pending_notifications.append((notification, role, name))
+
+    db.commit()
+
+    notified: List[SosAlertRecipient] = []
+    for notification, role, name in pending_notifications:
+        db.refresh(notification)
+        notified.append(SosAlertRecipient(user_id=notification.user_id, role=role, name=name))
+        await manager.send_to_user(notification.user_id, {
+            "type": "sos:alert",
+            "notification": NotificationOut.model_validate(notification).model_dump(mode="json"),
+        })
+
+    return SosAlertResponse(
+        elder_name=elder.name,
+        latitude=elder.latitude,
+        longitude=elder.longitude,
+        is_live=is_live,
+        notified=notified,
+    )
 
 @router.get("/appointments", response_model=List[AppointmentOut])
 def get_my_appointments(

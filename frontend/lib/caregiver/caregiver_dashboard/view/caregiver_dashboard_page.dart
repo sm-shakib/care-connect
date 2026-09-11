@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:frontend/core/widgets/notification_bell.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -103,14 +104,8 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
                 ],
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: AppColors.darkTeal),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CaregiverNotificationsPage(),
-                    ),
-                  ),
+                NotificationBell(
+                  pageBuilder: (_) => const CaregiverNotificationsPage(),
                 ),
                 const SizedBox(width: 8),
               ],

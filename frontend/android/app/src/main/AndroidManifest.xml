@@ -90,5 +90,14 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- url_launcher: without this, canLaunchUrl()/launchUrl() for any
+             https:// link (e.g. the "Open in Maps" SOS/live-location links)
+             can't resolve a browser/maps app on Android 11+ (API 30+)
+             package-visibility rules and silently no-ops. See
+             https://pub.dev/packages/url_launcher#android -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 </manifest>

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FamilyNotificationsPage extends StatefulWidget {
   const FamilyNotificationsPage({super.key});
@@ -32,8 +35,29 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
           _isLoading = false;
         });
       }
+      // Opening this page is itself the "read" action, same as the
+      // caregiver side — see CaregiverNotificationsCubit.markAllAsRead.
+      if (_notifications.any((n) => n['is_read'] != true)) {
+        unawaited(_markAllAsRead());
+      }
     } on Exception {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _markAllAsRead() async {
+    if (mounted) {
+      setState(() {
+        _notifications = [
+          for (final n in _notifications) {...n, 'is_read': true},
+        ];
+      });
+    }
+    try {
+      await ApiClient().put<void>('/notifications/read-all');
+    } on Exception {
+      // Best-effort: the list already reflects "read" locally; a failed
+      // sync just means it may show unread again after the next refresh.
     }
   }
 
@@ -57,20 +81,40 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
                     itemCount: _notifications.length,
                     itemBuilder: (context, index) {
                       final item = _notifications[index];
+                      final isSosAlert = item['type'] == 'sos_alert';
+                      final latitude = item['latitude']?.toString();
+                      final longitude = item['longitude']?.toString();
+                      final hasLocation = latitude != null && longitude != null;
+
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 0,
-                        color: AppColors.paleMint.withOpacity(0.18),
+                        color: isSosAlert
+                            ? AppColors.warningRed.withOpacity(0.08)
+                            : AppColors.paleMint.withOpacity(0.18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: AppColors.outlineVariantLight),
+                          side: BorderSide(
+                            color: isSosAlert
+                                ? AppColors.warningRed.withOpacity(0.4)
+                                : AppColors.outlineVariantLight,
+                          ),
                         ),
                         child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundColor: AppColors.paleMint,
+                          onTap: isSosAlert && hasLocation
+                              ? () => _openInMaps(latitude, longitude)
+                              : null,
+                          leading: CircleAvatar(
+                            backgroundColor: isSosAlert
+                                ? AppColors.warningRed.withOpacity(0.15)
+                                : AppColors.paleMint,
                             child: Icon(
-                              Icons.notifications_active,
-                              color: AppColors.darkTeal,
+                              isSosAlert
+                                  ? Icons.sos_rounded
+                                  : Icons.notifications_active,
+                              color: isSosAlert
+                                  ? AppColors.warningRed
+                                  : AppColors.darkTeal,
                             ),
                           ),
                           title: Text(
@@ -90,6 +134,23 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
                                   color: Colors.grey,
                                 ),
                               ),
+                              if (isSosAlert && hasLocation) ...[
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: const [
+                                    Icon(Icons.map, size: 14, color: AppColors.darkTeal),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Tap to open in Google Maps',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkTeal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -98,6 +159,15 @@ class _FamilyNotificationsPageState extends State<FamilyNotificationsPage> {
                   ),
                 ),
     );
+  }
+
+  Future<void> _openInMaps(String latitude, String longitude) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   String _formatTime(String isoDate) {

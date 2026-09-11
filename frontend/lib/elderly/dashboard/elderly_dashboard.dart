@@ -30,6 +30,7 @@ import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
+import 'package:frontend/core/widgets/notification_bell.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/vitals_update_dialog.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
@@ -170,17 +171,9 @@ class _ElderlyDashboardViewState extends State<_ElderlyDashboardView> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined,
-                color: AppColors.darkTeal, size: 28),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => const ElderlyNotificationsPage(),
-                ),
-              );
-            },
+          NotificationBell(
+            pageBuilder: (_) => const ElderlyNotificationsPage(),
+            size: 28,
           ),
           const SizedBox(width: 8),
         ],

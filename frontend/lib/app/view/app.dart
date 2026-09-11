@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
+import 'package:frontend/core/services/sos_alert_service.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -44,6 +47,9 @@ class _AppViewState extends State<AppView> {
     // Lets an incoming call be caught (and its full-screen ring UI pushed)
     // from anywhere in the app, not just while a conversation is open.
     IncomingCallService.instance.initialize(_navigatorKey);
+    // Lets a family member or caregiver be notified the moment someone
+    // they care for presses SOS, wherever they are in the app.
+    unawaited(SosAlertService.instance.initialize());
   }
 
   @override

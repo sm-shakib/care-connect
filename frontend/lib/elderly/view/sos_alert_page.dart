@@ -1,16 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/services/location_service.dart';
+import 'package:frontend/elderly/data/repositories/elder_repository.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 /// Full-screen SOS alert shown when the elder taps the SOS button.
 ///
-/// There is no backend yet, so this simulates an emergency alert going
-/// out: it shows a "sharing location" state (styled like an alarm going
-/// off — pulsing rings, siren red) for a couple of seconds, then settles
-/// into a confirmation that the location was shared and contacts were
-/// notified.
+/// Tries to grab a fresh GPS fix, then posts `/elders/sos` — the backend
+/// shares whatever location comes back (falling back to the elder's last
+/// known one if a fresh fix wasn't available) with every accepted family
+/// member and caregiver, and pushes them a notification. This page just
+/// reflects whatever actually happened: who got notified, and whether the
+/// shared location was live or last-known.
 class SosAlertPage extends StatefulWidget {
   const SosAlertPage({super.key});
 
@@ -18,7 +22,7 @@ class SosAlertPage extends StatefulWidget {
   State<SosAlertPage> createState() => _SosAlertPageState();
 }
 
-enum _SosStage { sharing, shared }
+enum _SosStage { sharing, shared, failed }
 
 class _NotifiedContact {
   const _NotifiedContact(this.name, this.role);
@@ -27,16 +31,22 @@ class _NotifiedContact {
   final String role;
 }
 
-const _notifiedContacts = [
-  _NotifiedContact('Saikat Ali', 'Family'),
-  _NotifiedContact('Nusrat Jahan', 'Caregiver'),
-];
+/// A fresh fix has to arrive within this window of pressing SOS, or the
+/// request goes out with none — better to notify with a last-known
+/// location right away than to leave the elder waiting on a slow GPS lock
+/// during an emergency.
+const _locationFixTimeout = Duration(seconds: 6);
 
 class _SosAlertPageState extends State<SosAlertPage>
     with SingleTickerProviderStateMixin {
+  final _elderRepository = ElderRepository(ApiClient());
+
   _SosStage _stage = _SosStage.sharing;
+  List<_NotifiedContact> _notifiedContacts = const [];
+  bool _isLiveLocation = false;
+  bool _hasLocation = false;
+  String? _errorMessage;
   late final AnimationController _pulseController;
-  Timer? _shareTimer;
 
   @override
   void initState() {
@@ -46,18 +56,83 @@ class _SosAlertPageState extends State<SosAlertPage>
       duration: const Duration(milliseconds: 1200),
     )..repeat();
 
-    _shareTimer = Timer(const Duration(seconds: 2), () {
+    unawaited(_sendSos());
+  }
+
+  Future<void> _sendSos() async {
+    setState(() {
+      _stage = _SosStage.sharing;
+      _errorMessage = null;
+    });
+    _pulseController
+      ..value = 0
+      ..repeat();
+
+    double? latitude;
+    double? longitude;
+    try {
+      final position = await LocationService()
+          .getCurrentLocation()
+          .timeout(_locationFixTimeout, onTimeout: () => null);
+      latitude = position?.latitude;
+      longitude = position?.longitude;
+    } catch (_) {
+      // No fresh fix — the backend falls back to the elder's last known
+      // location, so this is never fatal to sending the alert.
+    }
+
+    try {
+      final response = await _elderRepository.triggerSos(
+        latitude: latitude,
+        longitude: longitude,
+      );
       if (!mounted) return;
-      setState(() => _stage = _SosStage.shared);
+
+      final notified = (response['notified'] as List<dynamic>? ?? const [])
+          .map((raw) {
+            final entry = Map<String, dynamic>.from(raw as Map);
+            return _NotifiedContact(
+              entry['name']?.toString() ?? 'Contact',
+              _roleLabel(entry['role']?.toString()),
+            );
+          })
+          .toList();
+
+      setState(() {
+        _stage = _SosStage.shared;
+        _notifiedContacts = notified;
+        _isLiveLocation = response['is_live'] as bool? ?? false;
+        _hasLocation =
+            response['latitude'] != null && response['longitude'] != null;
+      });
       _pulseController
         ..stop()
         ..value = 0;
-    });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _stage = _SosStage.failed;
+        _errorMessage = 'Could not send your SOS alert. Please try again.';
+      });
+      _pulseController
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  String _roleLabel(String? role) {
+    switch (role) {
+      case 'family':
+        return 'Family';
+      case 'caregiver':
+        return 'Caregiver';
+      default:
+        return 'Contact';
+    }
   }
 
   @override
   void dispose() {
-    _shareTimer?.cancel();
     _pulseController.dispose();
     super.dispose();
   }
@@ -65,7 +140,12 @@ class _SosAlertPageState extends State<SosAlertPage>
   @override
   Widget build(BuildContext context) {
     final isSharing = _stage == _SosStage.sharing;
-    final accentColor = isSharing ? AppColors.warningRed : Colors.green;
+    final isFailed = _stage == _SosStage.failed;
+    final accentColor = isSharing
+        ? AppColors.warningRed
+        : isFailed
+            ? AppColors.warningRed
+            : Colors.green;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -85,12 +165,20 @@ class _SosAlertPageState extends State<SosAlertPage>
               _PulsingAlarmIcon(
                 controller: _pulseController,
                 color: accentColor,
-                icon: isSharing ? Icons.sos_rounded : Icons.check_rounded,
+                icon: isSharing
+                    ? Icons.sos_rounded
+                    : isFailed
+                        ? Icons.error_outline_rounded
+                        : Icons.check_rounded,
                 pulsing: isSharing,
               ),
               const SizedBox(height: 40),
               Text(
-                isSharing ? 'SOS ALERT ACTIVE' : 'Location Shared',
+                isSharing
+                    ? 'SOS ALERT ACTIVE'
+                    : isFailed
+                        ? 'Alert Not Sent'
+                        : 'Location Shared',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -103,7 +191,9 @@ class _SosAlertPageState extends State<SosAlertPage>
               Text(
                 isSharing
                     ? 'Sharing your live location...'
-                    : 'Your location has been shared and your\nemergency contacts have been notified.',
+                    : isFailed
+                        ? (_errorMessage ?? 'Something went wrong.')
+                        : _sharedSubtitle(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.75),
@@ -114,7 +204,7 @@ class _SosAlertPageState extends State<SosAlertPage>
               if (isSharing) ...[
                 const SizedBox(height: 28),
                 const _LoadingDots(),
-              ] else ...[
+              ] else if (!isFailed) ...[
                 const SizedBox(height: 28),
                 _NotifiedContactsCard(contacts: _notifiedContacts),
               ],
@@ -126,6 +216,40 @@ class _SosAlertPageState extends State<SosAlertPage>
                     'Cancel',
                     style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
+                )
+              else if (isFailed)
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.darkTeal,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () => unawaited(_sendSos()),
+                        child: const Text(
+                          'Try Again',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+                    ),
+                  ],
                 )
               else
                 Column(
@@ -200,6 +324,20 @@ class _SosAlertPageState extends State<SosAlertPage>
         ),
       ),
     );
+  }
+
+  String _sharedSubtitle() {
+    if (_notifiedContacts.isEmpty) {
+      return _hasLocation
+          ? 'Your location was recorded, but no linked family or\ncaregiver was found to notify.'
+          : 'No location or linked contacts were found to share.';
+    }
+    final locationLabel = !_hasLocation
+        ? 'An alert was'
+        : _isLiveLocation
+            ? 'Your live location has been'
+            : "Your last known location has been";
+    return '$locationLabel shared and your\nemergency contacts have been notified.';
   }
 }
 
@@ -300,6 +438,8 @@ class _NotifiedContactsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (contacts.isEmpty) return const SizedBox.shrink();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
