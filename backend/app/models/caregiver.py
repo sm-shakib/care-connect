@@ -24,6 +24,7 @@ class Caregiver(Base):
 
     # Verification & Social
     status = Column(String, default="pending")  # pending, verified, rejected
+    admin_notes = Column(Text) # Notes from admin regarding verification/rejection
     rating = Column(Float, default=0.0)
     review_count = Column(Integer, default=0)
 

@@ -4,8 +4,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.caregiver import Caregiver, CaregiverDocument
-from app.schemas.caregiver import CaregiverSignupRequest, CaregiverSignupResponse, CaregiverOut
+from app.schemas.caregiver import CaregiverSignupRequest, CaregiverSignupResponse, CaregiverOut, CaregiverDocumentCreate
 from app.core.security import get_password_hash
+from app.api import deps
 
 router = APIRouter()
 
@@ -70,4 +71,42 @@ def get_caregiver_profile(caregiver_id: int, db: Session = Depends(get_db)):
     caregiver = db.query(Caregiver).filter(Caregiver.id == caregiver_id).first()
     if not caregiver:
         raise HTTPException(status_code=404, detail="Caregiver not found")
+    return caregiver
+
+@router.put("/caregivers/me/documents", response_model=CaregiverOut)
+def update_caregiver_documents(
+    documents: List[CaregiverDocumentCreate],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """
+    Allow a caregiver to re-upload documents if requested by admin.
+    """
+    caregiver = db.query(Caregiver).filter(Caregiver.user_id == current_user.id).first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver profile not found")
+
+    # Only allow if status is pending or rejected?
+    # Usually pending is enough for "request docs".
+
+    # Delete old documents
+    db.query(CaregiverDocument).filter(CaregiverDocument.caregiver_id == caregiver.id).delete()
+
+    # Add new documents
+    for doc in documents:
+        new_doc = CaregiverDocument(
+            caregiver_id=caregiver.id,
+            **doc.model_dump(),
+            is_verified=False
+        )
+        db.add(new_doc)
+
+    # Reset status to pending if it was something else,
+    # though usually it stays pending.
+    caregiver.status = "pending"
+    # Clear admin notes once resubmitted?
+    # Or keep them until admin reviews again.
+
+    db.commit()
+    db.refresh(caregiver)
     return caregiver

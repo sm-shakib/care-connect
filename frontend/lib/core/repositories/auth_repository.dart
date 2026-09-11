@@ -64,6 +64,9 @@ class AuthRepository {
     await _storage.write(key: 'access_token', value: token);
     await _storage.write(key: 'user_role', value: data['role'] as String);
     await _storage.write(key: 'profile_id', value: data['profile_id'].toString());
+    if (data['status'] != null) {
+      await _storage.write(key: 'user_status', value: data['status'] as String);
+    }
 
     // Whoever was signed in before is gone. `ChatSession` caches the chat
     // identity, the repository (with its conversation cache) and the open
@@ -87,6 +90,10 @@ class AuthRepository {
     return _storage.read(key: 'user_role');
   }
 
+  Future<String?> getUserStatus() async {
+    return _storage.read(key: 'user_status');
+  }
+
   Future<String?> getAccessToken() async {
     return _storage.read(key: 'access_token');
   }
@@ -100,6 +107,7 @@ class AuthRepository {
     await _storage.delete(key: 'access_token');
     await _storage.delete(key: 'user_role');
     await _storage.delete(key: 'profile_id');
+    await _storage.delete(key: 'user_status');
     ChatSession.reset();
   }
 }

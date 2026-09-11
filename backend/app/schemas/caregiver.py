@@ -56,6 +56,7 @@ class CaregiverOut(CaregiverBase):
     email: str
     is_active: bool = True
     status: VerificationStatus
+    admin_notes: Optional[str] = None # Added for visibility to caregiver
     rating: float
     review_count: int
     documents: List[CaregiverDocumentOut] = []

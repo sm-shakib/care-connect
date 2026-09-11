@@ -103,6 +103,15 @@ def fix_database():
         else:
             print("Table complaint_notes already exists.")
 
+        # 9. Handle caregivers table missing admin_notes
+        cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'caregivers';")
+        caregiver_columns = [row[0] for row in cur.fetchall()]
+        if 'admin_notes' not in caregiver_columns:
+            print("Adding missing column 'admin_notes' to caregivers table...")
+            cur.execute("ALTER TABLE caregivers ADD COLUMN admin_notes TEXT;")
+        else:
+            print("Column 'admin_notes' already exists in caregivers table.")
+
         conn.commit()
         print("Database updated successfully!")
         

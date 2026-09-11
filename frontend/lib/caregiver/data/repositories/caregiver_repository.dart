@@ -34,4 +34,11 @@ class CaregiverRepository {
   Future<void> updateProfile(Map<String, dynamic> data) async {
     await _apiClient.patch('/users/me/profile', data: data);
   }
+
+  Future<void> reuploadDocuments(List<Map<String, String>> documents) async {
+    await _apiClient.put(
+      '/caregivers/me/documents',
+      data: documents,
+    );
+  }
 }

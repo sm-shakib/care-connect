@@ -127,6 +127,8 @@ class CaregiverReviewView extends StatelessWidget {
             return ReviewBottomActionBar(
               notes: state.adminNotes,
               isSubmitting: state.isSubmitting,
+              isSubmitted: state.submitStatus ==
+                  CaregiverReviewSubmitStatus.submitted,
               onNotesChanged: cubit.notesChanged,
               onApprove: cubit.approve,
               onRequestDocs: cubit.requestDocs,
