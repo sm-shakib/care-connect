@@ -3,7 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/services/sos_alert_service.dart';
+import 'package:frontend/elderly/dashboard/elderly_dashboard.dart';
+import 'package:frontend/caregiver/caregiver_dashboard/caregiver_dashboard.dart';
+import 'package:frontend/family/view/family_dashboard_page.dart';
+import 'package:frontend/admin/admin_shell/view/admin_shell_page.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/login.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -36,6 +41,7 @@ class _AppViewState extends State<AppView> {
   // notification tap, even from a cold start with no other route mounted
   // yet.
   final _navigatorKey = GlobalKey<NavigatorState>();
+  Widget? _initialScreen;
 
   @override
   void initState() {
@@ -51,6 +57,44 @@ class _AppViewState extends State<AppView> {
     // they care for presses SOS, wherever they are in the app — including
     // pushing the full-screen SosAlertScreen via the same navigator key.
     unawaited(SosAlertService.instance.initialize(_navigatorKey));
+
+    _checkInitialScreen();
+  }
+
+  Future<void> _checkInitialScreen() async {
+    final authRepo = AuthRepository();
+    final loggedIn = await authRepo.isLoggedIn();
+
+    if (!mounted) return;
+
+    if (!loggedIn) {
+      setState(() {
+        _initialScreen = _buildWelcomeScreen();
+      });
+      return;
+    }
+
+    final role = await authRepo.getUserRole();
+    if (!mounted) return;
+
+    setState(() {
+      switch (role) {
+        case 'admin':
+          _initialScreen = const AdminShellPage();
+          break;
+        case 'elder':
+          _initialScreen = const ElderlyDashboardPage();
+          break;
+        case 'caregiver':
+          _initialScreen = const CaregiverDashboardPage();
+          break;
+        case 'family':
+          _initialScreen = const FamilyDashboardPage();
+          break;
+        default:
+          _initialScreen = _buildWelcomeScreen();
+      }
+    });
   }
 
   @override
@@ -70,34 +114,33 @@ class _AppViewState extends State<AppView> {
           supportedLocales: AppLocalizations.supportedLocales,
           home: SplashPage(
             duration: const Duration(milliseconds: 3000),
-            nextScreen: Builder(
-              builder: (context) => WelcomeScreenPage(
-                onGetStarted: () async {
-                  await Navigator.push<void>(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (context) => const RoleSelectionPage(),
-                    ),
-                  );
-                },
-                onLogin: () async {
-                  await Navigator.push<void>(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage(),
-                    ),
-                  );
-                },
-                onContactSupport: () {
-                  // TODO: open support link
-                },
-                onLanguageToggle: () =>
-                    context.read<LocaleCubit>().toggleLocale(),
-              ),
-            ),
+            nextScreen: _initialScreen ?? const Scaffold(body: Center(child: CircularProgressIndicator())),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildWelcomeScreen() {
+    return WelcomeScreenPage(
+      onGetStarted: () {
+        _navigatorKey.currentState?.push(
+          MaterialPageRoute<void>(
+            builder: (context) => const RoleSelectionPage(),
+          ),
+        );
+      },
+      onLogin: () {
+        _navigatorKey.currentState?.push(
+          MaterialPageRoute<void>(
+            builder: (context) => const LoginPage(),
+          ),
+        );
+      },
+      onContactSupport: () {
+        // TODO: open support link
+      },
+      onLanguageToggle: () => context.read<LocaleCubit>().toggleLocale(),
     );
   }
 }

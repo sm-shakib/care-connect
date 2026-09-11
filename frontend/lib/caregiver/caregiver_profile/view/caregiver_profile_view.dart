@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import 'package:frontend/caregiver_signup/caregiver_signup.dart';
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_dropdown_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
@@ -947,12 +948,11 @@ class _ActionsSection extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(context); // Close confirmation
-                cubit.logOut();
+                
+                // Clear persistent storage and reset chat
+                await AuthRepository().logout();
 
-                // Ends the chat session: drops the cached identity and
-                // conversations, and closes the socket that is still
-                // authenticated as this user.
-                ChatSession.reset();
+                if (!context.mounted) return;
 
                 // Navigate to login page and tell it to show the success dialog
                 Navigator.pushAndRemoveUntil(

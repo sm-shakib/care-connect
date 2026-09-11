@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import '../../../core/widgets/success_dialog.dart';
 import '../../../login/view/login_page.dart';
 import '../../../theme/app_colors.dart';
@@ -49,6 +50,11 @@ class MoreView extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context); // Close confirmation
+
+              // Clear persistent storage and reset chat
+              await AuthRepository().logout();
+
+              if (!context.mounted) return;
 
               // Navigate to login page and tell it to show the success dialog
               Navigator.pushAndRemoveUntil(

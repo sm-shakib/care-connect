@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
@@ -504,12 +505,8 @@ class _ActionsSection extends StatelessWidget {
 
             if (confirmed != true) return;
 
-            cubit.logOut();
-
-            // Ends the chat session: drops the cached identity and
-            // conversations, and closes the socket that is still
-            // authenticated as this user.
-            ChatSession.reset();
+            // Clear persistent storage and reset chat
+            await AuthRepository().logout();
 
             if (!context.mounted) return;
 
