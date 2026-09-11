@@ -7,6 +7,9 @@ from app.models.fund import FundSummary, Donation, AidRequest
 from app.schemas.fund import DonationCreate, DonationOut, AidRequestCreate, AidRequestOut, FundStats, AidRequestUpdate
 from app.models.user import User
 
+from app.core.bkash import bkash_client
+import uuid
+
 router = APIRouter(prefix="/fund", tags=["Fund"])
 
 def get_fund_summary(db: Session) -> FundSummary:
@@ -20,8 +23,7 @@ def get_fund_summary(db: Session) -> FundSummary:
             aids_distributed_amount=0.0
         )
         db.add(summary)
-        db.commit()
-        db.refresh(summary)
+        db.flush()  # Use flush instead of commit to stay within the same transaction
     return summary
 
 @router.get("/stats", response_model=FundStats)
@@ -30,7 +32,9 @@ def get_stats(
     current_user: User = Depends(deps.get_current_active_user)
 ):
     """Get overall fund statistics."""
-    return get_fund_summary(db)
+    summary = get_fund_summary(db)
+    db.commit() # Ensure the initial row is committed if created
+    return summary
 
 @router.post("/donate", response_model=DonationOut)
 def donate(
@@ -56,6 +60,74 @@ def donate(
     db.commit()
     db.refresh(donation)
     return donation
+
+@router.post("/bkash/create")
+async def create_fund_bkash_payment(
+    donation_in: DonationCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    # 1. Create a pending donation
+    donation = Donation(
+        donor_id=current_user.id,
+        amount=donation_in.amount,
+        payment_method="bkash",
+        status="pending"
+    )
+    db.add(donation)
+    db.commit()
+    db.refresh(donation)
+
+    # 2. Call bKash Create API
+    invoice_number = f"FUND-{donation.id}-{uuid.uuid4().hex[:6]}"
+    callback_url = "http://careconnect.com/bkash/callback"
+    
+    try:
+        payment_data = await bkash_client.create_payment(
+            amount=donation.amount,
+            invoice_number=invoice_number,
+            callback_url=callback_url
+        )
+        # Store paymentID temporarily if needed, or just return to frontend
+        return {**payment_data, "donation_id": donation.id}
+    except Exception as e:
+        db.delete(donation)
+        db.commit()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/bkash/execute")
+async def execute_fund_bkash_payment(
+    payment_id: str,
+    donation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    donation = db.query(Donation).filter(Donation.id == donation_id).first()
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation record not found")
+
+    try:
+        execution_data = await bkash_client.execute_payment(payment_id)
+        
+        if execution_data.get("transactionStatus") == "Completed":
+            donation.status = "completed"
+            donation.transaction_id = execution_data.get("trxID")
+            
+            # Update FundSummary
+            summary = get_fund_summary(db)
+            summary.balance += donation.amount
+            summary.total_donations += donation.amount
+            
+            db.commit()
+            db.refresh(donation)
+            return {"status": "success", "donation": donation}
+        else:
+            donation.status = "failed"
+            db.commit()
+            raise HTTPException(status_code=400, detail=f"Payment failed: {execution_data}")
+            
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/request-aid", response_model=AidRequestOut)
 def request_aid(
@@ -118,14 +190,18 @@ def list_donations(
 ):
     """List all donations for admin monitoring."""
     donations = db.query(Donation).options(
-        joinedload(Donation.donor).joinedload(User.elder_profile),
-        joinedload(Donation.donor).joinedload(User.family_profile),
-        joinedload(Donation.donor).joinedload(User.caregiver_profile)
-    ).order_by(Donation.created_at.desc()).all()
+        joinedload(Donation.donor)
+    ).filter(Donation.status == "completed").order_by(Donation.created_at.desc()).all()
+    
     results = []
     for d in donations:
+        if not d.donor:
+            continue
+            
         name = d.donor.email
         image = None
+        
+        # Access profiles directly from the donor object
         if d.donor.elder_profile:
             name = d.donor.elder_profile.name
             image = d.donor.elder_profile.profile_image_url
@@ -150,17 +226,16 @@ def list_aid_requests(
     current_admin: User = Depends(deps.get_current_admin)
 ):
     """List all aid requests for admin review."""
-    query = db.query(AidRequest).options(
-        joinedload(AidRequest.requester).joinedload(User.elder_profile),
-        joinedload(AidRequest.requester).joinedload(User.family_profile),
-        joinedload(AidRequest.requester).joinedload(User.caregiver_profile)
-    )
+    query = db.query(AidRequest).options(joinedload(AidRequest.requester))
     if status:
         query = query.filter(AidRequest.status == status)
     
     requests = query.all()
     results = []
     for r in requests:
+        if not r.requester:
+            continue
+            
         name = r.requester.email
         if r.requester.elder_profile:
             name = r.requester.elder_profile.name
