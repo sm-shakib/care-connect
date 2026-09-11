@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/app/cubit/locale_cubit.dart';
-import 'package:frontend/core/donation/view/donation_flow_page.dart';
-import 'package:frontend/core/donation/view/donation_history_page.dart';
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/auth_date_field.dart';
 import 'package:frontend/core/widgets/auth_text_field.dart';
 import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
-import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/elderly/elderly_profile/cubit/elderly_profile_cubit.dart';
-import 'package:frontend/elderly/view/assistance_form_page.dart';
+import 'package:frontend/elderly/view/donation_assistance_page.dart';
 import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/login/view/login_page.dart';
 import 'package:frontend/shared/chat/data/chat_session.dart';
@@ -49,7 +46,8 @@ class ElderlyProfileView extends StatelessWidget {
                     Text('Failed to load profile: ${state.errorMessage}'),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => context.read<ElderlyProfileCubit>().loadProfile(),
+                      onPressed: () =>
+                          context.read<ElderlyProfileCubit>().loadProfile(),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -63,40 +61,36 @@ class ElderlyProfileView extends StatelessWidget {
               children: [
                 if (showTopBar) _ProfileTopBar(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _PersonalInfoCard(state: state, cubit: cubit),
-                        const SizedBox(height: 24),
-                        
-                        /// Donation System (Kept as requested)
-                        _DonationSection(),
-                        
-                        const SizedBox(height: 24),
-                        
-                        /// Assistance Section (Kept for consistency)
-                        _AssistanceSection(),
-                        
-                        const SizedBox(height: 24),
-                        _ActionsSection(
-                          state: state,
-                          cubit: cubit,
-                          onLogOut: onLogOut,
-                        ),
-                        const SizedBox(height: 24),
-                        Center(
-                          child: Text(
-                            context.l10n.appVersionLabel('1.0.0'),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onSurfaceVariant
-                                  .withValues(alpha: 0.5),
+                  child: RefreshIndicator(
+                    onRefresh: () =>
+                        context.read<ElderlyProfileCubit>().loadProfile(),
+                    color: AppColors.darkTeal,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _PersonalInfoCard(state: state, cubit: cubit),
+                          const SizedBox(height: 24),
+                          _ActionsSection(
+                            state: state,
+                            cubit: cubit,
+                            onLogOut: onLogOut,
+                          ),
+                          const SizedBox(height: 24),
+                          Center(
+                            child: Text(
+                              context.l10n.appVersionLabel('1.0.0'),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -159,7 +153,8 @@ class _PersonalInfoCard extends StatelessWidget {
                       : (state.profileImageUrl.isNotEmpty
                           ? NetworkImage(state.profileImageUrl)
                           : null) as ImageProvider?,
-                  child: (state.profileImageBytes == null && state.profileImageUrl.isEmpty)
+                  child: (state.profileImageBytes == null &&
+                          state.profileImageUrl.isEmpty)
                       ? const Icon(
                           Icons.person,
                           size: 50,
@@ -338,7 +333,8 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(
+                      fontSize: 14, color: colorScheme.onSurfaceVariant),
                 ),
                 Text(
                   value,
@@ -464,11 +460,14 @@ class _ReadOnlyEditField extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.6)),
+            border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.6)),
           ),
           child: Row(
             children: [
-              Icon(icon, size: 22, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
+              Icon(icon,
+                  size: 22,
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75)),
               const SizedBox(width: 12),
               Text(
                 value,
@@ -481,110 +480,6 @@ class _ReadOnlyEditField extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DonationSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.paleMint,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.volunteer_activism, size: 48, color: AppColors.primaryLight),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.centralDonationFundTitle,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkTeal),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                unawaited(
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => const DonationFlowPage(),
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkTeal,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: Text(context.l10n.donateNowLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AssistanceSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.volunteer_activism_outlined, size: 48, color: Colors.blue),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.assistanceTitle,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.assistanceSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                unawaited(
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => const AssistanceFormPage(),
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: Text(context.l10n.applyForAssistanceLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -626,10 +521,12 @@ class _ActionsSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   ListTile(
-                    leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                    leading:
+                        const Icon(Icons.language, color: AppColors.darkTeal),
                     title: Text(context.l10n.englishLanguageName),
                     trailing: currentLocale.languageCode == 'en'
-                        ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                        ? const Icon(Icons.check_circle,
+                            color: AppColors.darkTeal)
                         : null,
                     onTap: () {
                       context.read<LocaleCubit>().setLocale(const Locale('en'));
@@ -637,10 +534,12 @@ class _ActionsSection extends StatelessWidget {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.language, color: AppColors.darkTeal),
+                    leading:
+                        const Icon(Icons.language, color: AppColors.darkTeal),
                     title: Text(context.l10n.banglaLanguageName),
                     trailing: currentLocale.languageCode == 'bn'
-                        ? const Icon(Icons.check_circle, color: AppColors.darkTeal)
+                        ? const Icon(Icons.check_circle,
+                            color: AppColors.darkTeal)
                         : null,
                     onTap: () {
                       context.read<LocaleCubit>().setLocale(const Locale('bn'));
@@ -664,17 +563,15 @@ class _ActionsSection extends StatelessWidget {
       children: [
         if (!state.isEditing) ...[
           _ActionRow(
-            icon: Icons.history,
-            label: context.l10n.donationHistoryLabel,
+            icon: Icons.volunteer_activism_outlined,
+            label: 'Donation & Assistance',
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: () {
-              unawaited(
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => const DonationHistoryPage(),
-                  ),
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => const DonationAssistancePage(),
                 ),
               );
             },
@@ -817,7 +714,8 @@ class _ActionRow extends StatelessWidget {
                   style: TextStyle(fontSize: 18, color: color),
                 ),
               ),
-              Icon(Icons.chevron_right, color: color.withValues(alpha: 0.6), size: 24),
+              Icon(Icons.chevron_right,
+                  color: color.withValues(alpha: 0.6), size: 24),
             ],
           ),
         ),

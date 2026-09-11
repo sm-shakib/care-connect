@@ -39,19 +39,23 @@ class CentralFundPage extends StatelessWidget {
             // since we don't have a separate transaction endpoint yet
             transactions = [
               ...donations.map((d) => TransactionModel(
-                title: d.donorName,
-                subtitle: "Donation • ${d.date.split('T')[0]}",
-                amount: "+ ${d.amount}",
-                status: "COMPLETED",
-                type: TransactionType.donation,
-              )),
-              ...requests.where((r) => r.status == "disbursed").map((r) => TransactionModel(
-                title: r.requesterName,
-                subtitle: "Disbursement • ${r.date.split('T')[0]}",
-                amount: "- ${r.amount}",
-                status: "COMPLETED",
-                type: TransactionType.disbursement,
-              )),
+                    title: d.donorName,
+                    subtitle: "Donation • ${d.date.split('T')[0]}",
+                    amount: "+ ${d.amount}",
+                    status: "COMPLETED",
+                    type: TransactionType.donation,
+                    transactionId: d.transactionId,
+                  )),
+              ...requests
+                  .where((r) => r.status == "disbursed")
+                  .map((r) => TransactionModel(
+                        title: r.requesterName,
+                        subtitle: "Disbursement • ${r.date.split('T')[0]}",
+                        amount: "- ${r.amount}",
+                        status: "COMPLETED",
+                        type: TransactionType.disbursement,
+                        transactionId: "AID-${r.id}",
+                      )),
             ];
           }
 

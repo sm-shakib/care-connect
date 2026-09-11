@@ -1,11 +1,11 @@
 class ApiConstants {
   // --- PRODUCTION (Render) ---
-  // static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
+  static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
 
   // --- LOCAL DEVELOPMENT ---
   // Use 10.0.2.2 for Android Emulator.
   // Use computer's IP (e.g., 192.168.0.x) for physical devices.
-  static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
+  //static const String baseUrl = 'http://192.168.0.192:8000';
 
 
   static const String elderSignup = '/elders/signup/elder';
@@ -79,4 +79,15 @@ class ApiConstants {
   static String get chatSocketBase => baseUrl
       .replaceFirst('http://', 'ws://')
       .replaceFirst('https://', 'wss://');
+
+  // Fund
+  static const String fundStats = '/fund/stats';
+  static const String fundDonate = '/fund/donate';
+  static const String fundRequestAid = '/fund/request-aid';
+  static const String fundMyDonations = '/fund/my-donations';
+  static const String fundAdminDonations = '/fund/admin/donations';
+  static const String fundAdminRequests = '/fund/admin/requests';
+  static String fundAdminReviewRequest(int id) => '/fund/admin/requests/$id/review';
+  static const String fundBkashCreate = '/fund/bkash/create';
+  static const String fundBkashExecute = '/fund/bkash/execute';
 }

@@ -100,24 +100,44 @@ class DonationTile extends StatelessWidget {
                           color: Color(0xFF006B5F),
                           fontWeight: FontWeight.bold,
                           fontSize: 18)),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF006B5F).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text('SUCCESS',
-                        style: TextStyle(
-                            color: Color(0xFF006B5F),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold)),
-                  ),
+                  _buildStatusBadge(donation.status),
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    final Color color;
+    final String label;
+
+    switch (status.toLowerCase()) {
+      case 'completed':
+        color = const Color(0xFF006B5F);
+        label = 'SUCCESS';
+      case 'pending':
+        color = Colors.grey;
+        label = 'CANCELLED';
+      case 'failed':
+        color = Colors.red;
+        label = 'FAILED';
+      default:
+        color = Colors.grey;
+        label = status.toUpperCase();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/admin/central_fund/data/repositories/central_fund_repository.dart';
 import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
-import '../models/donation.dart';
+import './fund_bkash_webview_page.dart';
 
 class DonationFlowPage extends StatefulWidget {
   const DonationFlowPage({super.key});
@@ -12,277 +12,60 @@ class DonationFlowPage extends StatefulWidget {
 }
 
 class _DonationFlowPageState extends State<DonationFlowPage> {
-  int _currentStep = 0;
   double? _selectedAmount;
-  PaymentMethod? _selectedMethod;
   final _amountController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _pinController = TextEditingController();
-
-  final List<double> _quickAmounts = [200, 500, 1000, 2000, 5000];
-
-  void _nextStep() {
-    setState(() {
-      if (_currentStep < 2) _currentStep++;
-    });
-  }
-
-  void _previousStep() {
-    setState(() {
-      if (_currentStep > 0) _currentStep--;
-    });
-  }
+  final List<double> _quickAmounts = [100, 200, 500, 1000, 2000];
+  
+  static const Color bkashPink = Color(0xFFD12053);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        title: const Text('Central Fund Donation', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-      ),
-      body: Stepper(
-        type: StepperType.horizontal,
-        currentStep: _currentStep,
-        onStepContinue: _nextStep,
-        onStepCancel: _previousStep,
-        controlsBuilder: (context, details) => const SizedBox.shrink(),
-        steps: [
-          Step(
-            title: const Text('Amount'),
-            isActive: _currentStep >= 0,
-            content: _buildAmountStep(),
-          ),
-          Step(
-            title: const Text('Method'),
-            isActive: _currentStep >= 1,
-            content: _buildMethodStep(),
-          ),
-          Step(
-            title: const Text('Payment'),
-            isActive: _currentStep >= 2,
-            content: _buildPaymentStep(),
-          ),
-        ],
-      ),
-    );
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
   }
 
-  Widget _buildAmountStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Select or Enter Amount', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 10,
-          children: _quickAmounts.map((amt) {
-            final isSelected = _selectedAmount == amt;
-            return ChoiceChip(
-              label: Text('৳ $amt'),
-              selected: isSelected,
-              onSelected: (val) {
-                setState(() {
-                  _selectedAmount = val ? amt : null;
-                  if (val) _amountController.text = amt.toString();
-                });
-              },
-              selectedColor: AppColors.darkTeal,
-              labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: 'Custom Amount (৳)',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            prefixText: '৳ ',
-          ),
-          onChanged: (val) {
-            setState(() {
-              _selectedAmount = double.tryParse(val);
-            });
-          },
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: _selectedAmount != null && _selectedAmount! > 0 ? _nextStep : null,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkTeal, foregroundColor: Colors.white),
-            child: const Text('Continue to Payment Method'),
-          ),
-        ),
-      ],
-    );
+  void _onAmountSelected(double amt) {
+    setState(() {
+      _selectedAmount = amt;
+      _amountController.text = amt.toStringAsFixed(0);
+    });
   }
 
-  Widget _buildMethodStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Donating: ৳ $_selectedAmount', style: const TextStyle(fontSize: 16, color: AppColors.darkTeal, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        const Text('Choose Payment Gateway', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        _buildMethodTile(PaymentMethod.bkash, 'bKash', Icons.mobile_friendly, Colors.pink),
-        _buildMethodTile(PaymentMethod.nagad, 'Nagad', Icons.account_balance_wallet, Colors.orange),
-        _buildMethodTile(PaymentMethod.rocket, 'Rocket', Icons.rocket_launch, Colors.deepPurple),
-        _buildMethodTile(PaymentMethod.bank, 'Bank Transfer', Icons.account_balance, Colors.blue),
-        _buildMethodTile(PaymentMethod.cash, 'Cash Deposit', Icons.payments, Colors.green),
-        const SizedBox(height: 32),
-        Row(
-          children: [
-            Expanded(child: OutlinedButton(onPressed: _previousStep, child: const Text('Back'))),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _selectedMethod != null ? _nextStep : null,
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkTeal, foregroundColor: Colors.white),
-                child: const Text('Continue'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMethodTile(PaymentMethod method, String name, IconData icon, Color color) {
-    final isSelected = _selectedMethod == method;
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: isSelected ? AppColors.darkTeal : AppColors.outlineVariantLight, width: isSelected ? 2 : 1),
-      ),
-      child: ListTile(
-        onTap: () => setState(() => _selectedMethod = method),
-        leading: Icon(icon, color: color),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        trailing: isSelected ? const Icon(Icons.check_circle, color: AppColors.darkTeal) : null,
-      ),
-    );
-  }
-
-  Widget _buildPaymentStep() {
-    if (_selectedMethod == PaymentMethod.cash || _selectedMethod == PaymentMethod.bank) {
-      return _buildOfflineInstructions();
-    }
-
-    String methodName = _selectedMethod == PaymentMethod.bkash ? 'bKash' : (_selectedMethod == PaymentMethod.nagad ? 'Nagad' : 'Rocket');
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: Column(
-            children: [
-              const Icon(Icons.security, size: 48, color: AppColors.darkTeal),
-              const SizedBox(height: 12),
-              Text('Secure $methodName Payment', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        TextField(
-          controller: _phoneController,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            labelText: '$methodName Wallet Number',
-            hintText: '01XXXXXXXXX',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _pinController,
-          obscureText: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: 'Enter PIN',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 32),
-        Row(
-          children: [
-            Expanded(child: OutlinedButton(onPressed: _previousStep, child: const Text('Back'))),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _processPayment,
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkTeal, foregroundColor: Colors.white),
-                child: const Text('Pay Now'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOfflineInstructions() {
-    return Column(
-      children: [
-        const Icon(Icons.info_outline, size: 64, color: AppColors.primaryLight),
-        const SizedBox(height: 20),
-        Text(
-          _selectedMethod == PaymentMethod.bank ? 'Bank Transfer Details' : 'Cash Deposit Instructions',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppColors.paleMint, borderRadius: BorderRadius.circular(12)),
-          child: Text(
-            _selectedMethod == PaymentMethod.bank 
-              ? 'Bank: Dutch Bangla Bank\nAccount Name: CareConnect Fund\nAccount No: 123.456.78910\nBranch: Dhaka Main'
-              : 'Please visit our central office at:\nHouse 45, Road 12, Sector 4, Uttara, Dhaka.\nOffice Hours: 9:00 AM - 6:00 PM',
-            style: const TextStyle(fontSize: 15, height: 1.5),
-          ),
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkTeal, foregroundColor: Colors.white),
-            child: const Text('I Understand'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _processPayment() async {
-    if (_phoneController.text.isEmpty || _pinController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter phone number and PIN')));
+  Future<void> _startPayment() async {
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid amount')),
+      );
       return;
     }
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator(color: AppColors.darkTeal)),
+      builder: (context) => const Center(child: CircularProgressIndicator(color: bkashPink)),
     );
 
     try {
       final repository = CentralFundRepository(ApiClient());
-      await repository.donate(
-        amount: _selectedAmount!,
-        method: _selectedMethod!.name,
-        transactionId: 'TXN-${DateTime.now().millisecondsSinceEpoch}',
-      );
+      final paymentData = await repository.initializeBkashDonation(amount);
       
       if (mounted) {
         Navigator.pop(context); // Close loader
-        _showSuccessDialog();
+
+        final bool? success = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FundBkashWebViewPage(
+              bkashUrl: paymentData['bkashURL'] as String,
+              donationId: paymentData['donation_id'] as int,
+            ),
+          ),
+        );
+
+        if (success == true) {
+          _showSuccessDialog(amount);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -292,7 +75,7 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(double amount) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -305,7 +88,7 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
             const SizedBox(height: 20),
             const Text('Donation Successful!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Text('Thank you for your generous contribution of ৳$_selectedAmount to the Central Fund.', textAlign: TextAlign.center),
+            Text('Thank you for your generous contribution of ৳${amount.toStringAsFixed(0)} to the Central Fund.', textAlign: TextAlign.center),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -320,6 +103,134 @@ class _DonationFlowPageState extends State<DonationFlowPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Donation Amount', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: bkashPink,
+        centerTitle: true,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Column(
+        children: [
+          // bKash Header Style
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+            decoration: const BoxDecoration(
+              color: bkashPink,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.volunteer_activism, size: 50, color: Colors.white),
+                const SizedBox(height: 16),
+                const Text(
+                  'Enter Donation Amount',
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: TextField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: bkashPink),
+                    decoration: const InputDecoration(
+                      hintText: '0',
+                      border: InputBorder.none,
+                      prefixText: '৳ ',
+                      prefixStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: bkashPink),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Select Quick Amount',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _quickAmounts.map((amt) {
+                      final isSelected = _selectedAmount == amt;
+                      return GestureDetector(
+                        onTap: () => _onAmountSelected(amt),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected ? bkashPink : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: isSelected ? bkashPink : Colors.grey.shade300),
+                          ),
+                          child: Text(
+                            '৳ ${amt.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 40),
+                  const Text(
+                    'Your contribution directly supports medical care and essential needs for elderly citizens in our community.',
+                    style: TextStyle(color: Colors.grey, height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _startPayment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: bkashPink,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Continue to Payment',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -45,6 +45,8 @@ class DonationModel extends Equatable {
     required this.paymentMethod,
     required this.amount,
     required this.imageUrl,
+    required this.status,
+    this.transactionId,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,8 @@ class DonationModel extends Equatable {
       paymentMethod: json['payment_method'] as String,
       amount: '৳ ${json['amount']}',
       imageUrl: (json['profile_image_url'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'completed',
+      transactionId: (json['transaction_id'] as String?),
     );
   }
 
@@ -66,10 +70,21 @@ class DonationModel extends Equatable {
   final String paymentMethod;
   final String amount;
   final String imageUrl;
+  final String status;
+  final String? transactionId;
 
   @override
-  List<Object?> get props =>
-      [donorId, donorName, donorRole, date, paymentMethod, amount, imageUrl];
+  List<Object?> get props => [
+        donorId,
+        donorName,
+        donorRole,
+        date,
+        paymentMethod,
+        amount,
+        imageUrl,
+        status,
+        transactionId,
+      ];
 }
 
 class AidRequestModel extends Equatable {
@@ -128,6 +143,7 @@ class TransactionModel extends Equatable {
     required this.amount,
     required this.status,
     required this.type,
+    this.transactionId,
   });
 
   final String title;
@@ -135,7 +151,8 @@ class TransactionModel extends Equatable {
   final String amount;
   final String status;
   final TransactionType type;
+  final String? transactionId;
 
   @override
-  List<Object?> get props => [title, subtitle, amount, status, type];
+  List<Object?> get props => [title, subtitle, amount, status, type, transactionId];
 }

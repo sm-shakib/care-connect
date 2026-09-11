@@ -47,8 +47,21 @@ class TransactionTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tx.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                Text(tx.subtitle, style: const TextStyle(color: Color(0xFF3C4A46), fontSize: 12)),
+                Text(tx.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(tx.subtitle,
+                    style: const TextStyle(
+                        color: Color(0xFF3C4A46), fontSize: 12)),
+                if (tx.transactionId != null)
+                  Text(
+                    'ID: ${tx.transactionId}',
+                    style: TextStyle(
+                      color: const Color(0xFF3C4A46).withValues(alpha: 0.6),
+                      fontSize: 10,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
               ],
             ),
           ),
