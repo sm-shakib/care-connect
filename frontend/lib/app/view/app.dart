@@ -48,8 +48,9 @@ class _AppViewState extends State<AppView> {
     // from anywhere in the app, not just while a conversation is open.
     IncomingCallService.instance.initialize(_navigatorKey);
     // Lets a family member or caregiver be notified the moment someone
-    // they care for presses SOS, wherever they are in the app.
-    unawaited(SosAlertService.instance.initialize());
+    // they care for presses SOS, wherever they are in the app — including
+    // pushing the full-screen SosAlertScreen via the same navigator key.
+    unawaited(SosAlertService.instance.initialize(_navigatorKey));
   }
 
   @override
