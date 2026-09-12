@@ -45,6 +45,7 @@ class VitalsUpdate(BaseModel):
 class FamilyLinkOut(BaseModel):
     id: int
     family_id: int
+    user_id: int
     name: str
     relationship: str
     avatarUrl: Optional[str] = None

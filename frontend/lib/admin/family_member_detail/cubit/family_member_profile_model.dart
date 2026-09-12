@@ -81,7 +81,18 @@ class FamilyMemberProfile extends Equatable {
       phone: (json['phone'] as String?) ?? '',
       email: (json['email'] as String?) ?? '',
       address: (json['address'] as String?) ?? '',
-      linkedElderlyUsers: const [],
+      linkedElderlyUsers: (json['elder_links'] as List? ?? [])
+          .map((dynamic l) {
+            final link = l as Map<String, dynamic>;
+            return LinkedElderlyUser(
+              id: (link['user_id'] ?? link['elder_id']).toString(),
+              name: link['name'] as String? ?? 'Unknown',
+              avatarUrl: link['avatarUrl'] as String? ?? '',
+              relationship: link['relationship'] as String? ?? 'Relative',
+              isPrimaryContact: true,
+            );
+          })
+          .toList(),
       alertPreferences: const [],
     );
   }

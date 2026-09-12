@@ -26,6 +26,7 @@ class FamilyUpdate(BaseModel):
 class ElderLinkOut(BaseModel):
     id: int
     elder_id: int
+    user_id: int
     name: str
     relationship: str
     avatarUrl: Optional[str] = None
@@ -34,6 +35,7 @@ class FamilyOut(FamilyBase):
     id: int
     user_id: int
     is_active: bool = True
+    elder_links: List[ElderLinkOut] = []
 
     class Config:
         from_attributes = True
