@@ -24,6 +24,11 @@ class PatientDetailsState extends Equatable {
     this.address = '',
     this.healthCondition = '',
     this.imageUrl = '',
+    this.serviceStartDate,
+    this.serviceEndDate,
+    this.daysOfWeek = '',
+    this.dailyTimingStart = '',
+    this.dailyTimingEnd = '',
     this.errorMessage,
   });
 
@@ -54,6 +59,13 @@ class PatientDetailsState extends Equatable {
   final String address;
   final String healthCondition;
 
+  // Schedule Info from Booking
+  final DateTime? serviceStartDate;
+  final DateTime? serviceEndDate;
+  final String daysOfWeek;
+  final String dailyTimingStart;
+  final String dailyTimingEnd;
+
   int get medicationsRemainingCount =>
       medications.where((m) => !m.isTakenToday).length;
 
@@ -78,6 +90,11 @@ class PatientDetailsState extends Equatable {
     String? address,
     String? healthCondition,
     String? imageUrl,
+    DateTime? serviceStartDate,
+    DateTime? serviceEndDate,
+    String? daysOfWeek,
+    String? dailyTimingStart,
+    String? dailyTimingEnd,
     String? errorMessage,
   }) {
     return PatientDetailsState(
@@ -101,6 +118,11 @@ class PatientDetailsState extends Equatable {
       address: address ?? this.address,
       healthCondition: healthCondition ?? this.healthCondition,
       imageUrl: imageUrl ?? this.imageUrl,
+      serviceStartDate: serviceStartDate ?? this.serviceStartDate,
+      serviceEndDate: serviceEndDate ?? this.serviceEndDate,
+      daysOfWeek: daysOfWeek ?? this.daysOfWeek,
+      dailyTimingStart: dailyTimingStart ?? this.dailyTimingStart,
+      dailyTimingEnd: dailyTimingEnd ?? this.dailyTimingEnd,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -128,5 +150,10 @@ class PatientDetailsState extends Equatable {
     email,
     address,
     healthCondition,
+    serviceStartDate,
+    serviceEndDate,
+    daysOfWeek,
+    dailyTimingStart,
+    dailyTimingEnd,
   ];
 }
