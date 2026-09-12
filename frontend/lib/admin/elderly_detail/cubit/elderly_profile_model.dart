@@ -100,7 +100,18 @@ class ElderlyProfile extends Equatable {
       email: (json['email'] as String?) ?? '',
       address: (json['address'] as String?) ?? '',
       healthCondition: (json['health_condition'] as String?) ?? '',
-      linkedFamilyMembers: const [],
+      linkedFamilyMembers: (json['family_links'] as List? ?? [])
+          .map((dynamic l) {
+            final link = l as Map<String, dynamic>;
+            return LinkedFamilyMember(
+              id: (link['user_id'] ?? link['family_id']).toString(),
+              name: link['name'] as String? ?? 'Unknown',
+              avatarUrl: link['avatarUrl'] as String? ?? '',
+              relationship: link['relationship'] as String? ?? 'Relative',
+              isPrimaryContact: true,
+            );
+          })
+          .toList(),
       recentSosEvents: const [],
     );
   }

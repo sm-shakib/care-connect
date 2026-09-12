@@ -181,6 +181,11 @@ _NotificationTypeMeta _metaForType(String? type) {
         icon: Icons.sos_rounded,
         color: AppColors.warningRed,
       );
+    case 'appointment_reminder':
+      return const _NotificationTypeMeta(
+        icon: Icons.event_available_rounded,
+        color: AppColors.darkTeal,
+      );
     default:
       return const _NotificationTypeMeta(
         icon: Icons.notifications_active,

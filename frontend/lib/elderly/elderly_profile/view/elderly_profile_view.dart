@@ -627,22 +627,36 @@ class _ActionsSection extends StatelessWidget {
       showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
+          backgroundColor: AppColors.surfaceContainerLowestLight,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           title: Text(
             context.l10n.logoutDialogTitle,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurfaceLight,
+            ),
           ),
           content: Text(
             context.l10n.logoutDialogContent,
-            style: const TextStyle(fontSize: 18),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.onSurfaceVariantLight,
+            ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(0, 0, 24, 24),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
                 context.l10n.cancelLabel,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.outlineLight,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(context); // Close confirmation
@@ -656,21 +670,23 @@ class _ActionsSection extends StatelessWidget {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (_) => LoginPage(showLogoutSuccess: true),
+                    builder: (context) => const LoginPage(showLogoutSuccess: true),
                   ),
                   (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.warningRed,
+                backgroundColor: AppColors.errorLight,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Text(
                 context.l10n.logoutLabel,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],

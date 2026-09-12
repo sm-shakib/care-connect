@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 /// A notification as the backend represents it — see
 /// `backend/app/schemas/notification.py::NotificationOut`.
 ///
-/// [type] is kept as the raw string the backend sends (currently just
-/// `"binding_accepted"` and `"sos_alert"`) rather than a fixed Dart enum,
-/// so a new type appearing server-side later degrades to a generic card
-/// via [metaForType] instead of failing to parse.
+/// [type] is kept as the raw string the backend sends (e.g.
+/// `"binding_accepted"`, `"sos_alert"`, `"medicine_missed"`,
+/// `"complaint_filed"`) rather than a fixed Dart enum, so a new type
+/// appearing server-side later degrades to a generic card via
+/// [metaForType] instead of failing to parse.
 class CaregiverNotification {
   const CaregiverNotification({
     required this.id,
@@ -86,6 +87,14 @@ const _knownNotificationTypes = <String, NotificationTypeMeta>{
   'binding_accepted': NotificationTypeMeta(
     label: 'Request Accepted',
     icon: Icons.link_rounded,
+  ),
+  'medicine_missed': NotificationTypeMeta(
+    label: 'Missed Dose',
+    icon: Icons.medication_rounded,
+  ),
+  'complaint_filed': NotificationTypeMeta(
+    label: 'Complaint',
+    icon: Icons.report_problem_rounded,
   ),
 };
 

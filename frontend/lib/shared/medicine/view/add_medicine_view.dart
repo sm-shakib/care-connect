@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
@@ -10,9 +13,15 @@ import '../widgets/refill_reminder.dart';
 /// Add/edit medicine form. If [existing] is provided the form is
 /// pre-filled and saving produces an updated copy of it.
 class AddMedicineView extends StatefulWidget {
-  const AddMedicineView({required this.onSave, this.existing, super.key});
+  const AddMedicineView({
+    required this.onSave,
+    required this.authRepository,
+    this.existing,
+    super.key,
+  });
 
   final Medicine? existing;
+  final AuthRepository authRepository;
   final ValueChanged<Medicine> onSave;
 
   @override
@@ -31,6 +40,8 @@ class _AddMedicineViewState extends State<AddMedicineView> {
   late bool _refillReminderEnabled;
   late int _availableUnits;
   late int _notifyThreshold;
+
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -99,19 +110,43 @@ class _AddMedicineViewState extends State<AddMedicineView> {
   }
 
   bool get _canSave =>
+      !_isSaving &&
       _nameController.text.trim().isNotEmpty &&
       _dosageController.text.trim().isNotEmpty &&
       !_scheduleTimes.contains(null) &&
       _endDate != null;
 
-  void _save() {
+  Future<void> _save() async {
     if (!_canSave) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.fillMedicineDetailsError),
-        ),
-      );
+      if (!_isSaving) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.fillMedicineDetailsError),
+          ),
+        );
+      }
       return;
+    }
+
+    setState(() => _isSaving = true);
+
+    String? finalImagePath = _imagePath;
+
+    // If it's a local file path, upload it first
+    if (_imagePath != null && !_imagePath!.startsWith('http')) {
+      try {
+        final file = File(_imagePath!);
+        final bytes = await file.readAsBytes();
+        final filename = _imagePath!.split('/').last;
+        final url = await widget.authRepository.uploadFile(bytes, filename);
+        if (url != null) {
+          finalImagePath = url;
+        }
+      } catch (e) {
+        debugPrint('Error uploading medicine image: $e');
+        // Continue anyway? Or show error? For now, we continue with local path
+        // which might fail on other devices, but at least doesn't block save.
+      }
     }
 
     final medicine = Medicine(
@@ -119,7 +154,7 @@ class _AddMedicineViewState extends State<AddMedicineView> {
       name: _nameController.text.trim(),
       dosage: _dosageController.text.trim(),
       form: _form,
-      imagePath: _imagePath,
+      imagePath: finalImagePath,
       timesPerDay: _timesPerDay,
       scheduleTimes: _scheduleTimes
           .whereType<TimeOfDay>()
@@ -132,71 +167,84 @@ class _AddMedicineViewState extends State<AddMedicineView> {
       notifyThreshold: _notifyThreshold,
       isTakenToday: widget.existing?.isTakenToday ?? false,
     );
+
     widget.onSave(medicine);
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(18),
+    return Stack(
       children: [
-        MedicineInfo(
-          imagePath: _imagePath,
-          nameController: _nameController,
-          dosageController: _dosageController,
-          form: _form,
-          onImageSelected: (path) => setState(() => _imagePath = path),
-          onFormChanged: (form) => setState(() => _form = form),
-        ),
-        const SizedBox(height: 24),
-        DosageSchedule(
-          timesPerDay: _timesPerDay,
-          scheduleTimes: _scheduleTimes,
-          startDate: _startDate,
-          endDate: _endDate,
-          onTimesPerDayChanged: _onTimesPerDayChanged,
-          onTimeChanged: _onTimeChanged,
-          onStartDateChanged: (date) => setState(() {
-            _startDate = date;
-            if (_endDate != null && _endDate!.isBefore(_startDate)) {
-              _endDate = null;
-            }
-          }),
-          onEndDateChanged: (date) => setState(() => _endDate = date),
-        ),
-        const SizedBox(height: 24),
-        RefillReminder(
-          enabled: _refillReminderEnabled,
-          availableUnits: _availableUnits,
-          notifyThreshold: _notifyThreshold,
-          onEnabledChanged: (value) =>
-              setState(() => _refillReminderEnabled = value),
-          onAvailableUnitsChanged: (value) =>
-              setState(() => _availableUnits = value),
-          onNotifyThresholdChanged: (value) =>
-              setState(() => _notifyThreshold = value),
-        ),
-        const SizedBox(height: 28),
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryLight,
-              foregroundColor: AppColors.onPrimaryLight,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+        ListView(
+          padding: const EdgeInsets.all(18),
+          children: [
+            MedicineInfo(
+              imagePath: _imagePath,
+              nameController: _nameController,
+              dosageController: _dosageController,
+              form: _form,
+              onImageSelected: (path) => setState(() => _imagePath = path),
+              onFormChanged: (form) => setState(() => _form = form),
+            ),
+            const SizedBox(height: 24),
+            DosageSchedule(
+              timesPerDay: _timesPerDay,
+              scheduleTimes: _scheduleTimes,
+              startDate: _startDate,
+              endDate: _endDate,
+              onTimesPerDayChanged: _onTimesPerDayChanged,
+              onTimeChanged: _onTimeChanged,
+              onStartDateChanged: (date) => setState(() {
+                _startDate = date;
+                if (_endDate != null && _endDate!.isBefore(_startDate)) {
+                  _endDate = null;
+                }
+              }),
+              onEndDateChanged: (date) => setState(() => _endDate = date),
+            ),
+            const SizedBox(height: 24),
+            RefillReminder(
+              enabled: _refillReminderEnabled,
+              availableUnits: _availableUnits,
+              notifyThreshold: _notifyThreshold,
+              onEnabledChanged: (value) =>
+                  setState(() => _refillReminderEnabled = value),
+              onAvailableUnitsChanged: (value) =>
+                  setState(() => _availableUnits = value),
+              onNotifyThresholdChanged: (value) =>
+                  setState(() => _notifyThreshold = value),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _canSave ? _save : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryLight,
+                  foregroundColor: AppColors.onPrimaryLight,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: Text(
+                  widget.existing == null
+                      ? context.l10n.saveMedicineLabel
+                      : context.l10n.saveChangesLabel,
+                  style:
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                ),
               ),
             ),
-            child: Text(
-              widget.existing == null
-                  ? context.l10n.saveMedicineLabel
-                  : context.l10n.saveChangesLabel,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ],
+        ),
+        if (_isSaving)
+          Container(
+            color: Colors.black26,
+            child: const Center(
+              child: CircularProgressIndicator(color: AppColors.darkTeal),
             ),
           ),
-        ),
       ],
     );
   }

@@ -488,16 +488,51 @@ class _ActionsSection extends StatelessWidget {
             final confirmed = await showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Log Out'),
-                content: const Text('Are you sure you want to log out?'),
+                backgroundColor: AppColors.surfaceContainerLowestLight,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                title: const Text(
+                  'Log Out',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurfaceLight,
+                  ),
+                ),
+                content: const Text(
+                  'Are you sure you want to log out?',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.onSurfaceVariantLight,
+                  ),
+                ),
+                actionsPadding: const EdgeInsets.fromLTRB(0, 0, 24, 24),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.outlineLight,
+                      ),
+                    ),
                   ),
-                  TextButton(
+                  const SizedBox(width: 8),
+                  ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Log Out'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.errorLight,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Log Out',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),

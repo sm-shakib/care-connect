@@ -24,4 +24,15 @@ class Notification(Base):
     latitude = Column(String, nullable=True)
     longitude = Column(String, nullable=True)
 
+    # Populated for "medicine_missed" notifications — lets the missed-dose
+    # job (`app/services/notification_jobs.py::check_missed_medicines`)
+    # tell whether it has already notified about this exact dose.
+    medicine_id = Column(Integer, ForeignKey("medicines.id"), nullable=True)
+    dose_time = Column(String, nullable=True)
+
+    # Populated for "appointment_reminder" notifications, for the same
+    # once-only-per-appointment reason (see
+    # `check_upcoming_appointments` in the same module).
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())

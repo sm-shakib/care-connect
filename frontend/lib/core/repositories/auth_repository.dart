@@ -81,6 +81,33 @@ class AuthRepository {
     return data;
   }
 
+  // Password Reset
+  Future<void> requestPasswordReset(String email) async {
+    await _apiClient.post(ApiConstants.forgotPassword, data: {'email': email});
+  }
+
+  Future<void> verifyOtp(String email, String otp) async {
+    await _apiClient.post(
+      ApiConstants.verifyOtp,
+      data: {'email': email, 'otp': otp},
+    );
+  }
+
+  Future<void> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    await _apiClient.post(
+      ApiConstants.resetPassword,
+      data: {
+        'email': email,
+        'otp': otp,
+        'new_password': newPassword,
+      },
+    );
+  }
+
   Future<int?> getProfileId() async {
     final idStr = await _storage.read(key: 'profile_id');
     return idStr != null ? int.tryParse(idStr) : null;

@@ -13,7 +13,6 @@ import 'package:frontend/elderly/dashboard/view/widgets/caregiver_card.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/dashboard_card_header.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/family_member_card.dart';
 import 'package:frontend/elderly/dashboard/view/widgets/greetings_section.dart';
-import 'package:frontend/elderly/dashboard/view/widgets/medication_card.dart';
 import 'package:frontend/elderly/elderly_profile/elderly_profile.dart';
 import 'package:frontend/elderly/navbar/elderly_navbar.dart';
 import 'package:frontend/elderly/view/binding_requests_page.dart';
@@ -25,7 +24,9 @@ import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
 import 'package:frontend/shared/medicine/cubit/medicine_state.dart';
 import 'package:frontend/shared/medicine/data/medicine_repository.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
+import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/core/network/api_client.dart';
@@ -291,8 +292,8 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 12),
               BlocBuilder<MedicineCubit, MedicineState>(
                 builder: (context, medicineState) {
-                  return MedicationCard(
-                    medications: _nextMedicationDoses(medicineState.medicines),
+                  return SharedMedicationSection(
+                    medications: nextMedicationDoses(medicineState.medicines),
                     onMarkTaken: (medication) => context
                         .read<MedicineCubit>()
                         .markTaken(medication.id, medication.time),
@@ -348,52 +349,6 @@ class _DashboardHomeBody extends StatelessWidget {
       },
     );
   }
-}
-
-/// Picks the next [count] not-yet-taken doses across every medicine, in
-/// chronological order for *today only* — the same medicine can appear
-/// more than once if several of its doses are still due (e.g. its 8 AM and
-/// 2 PM doses both remain). Doses already taken today are left out, and
-/// nothing ever spills over into tomorrow's schedule.
-List<Medication> _nextMedicationDoses(List<Medicine> medicines, {int count = 3}) {
-  final doses = [
-    for (final medicine in medicines)
-      for (final time in medicine.scheduleTimes)
-        if (!medicine.isDoseTaken(time)) (medicine: medicine, time: time),
-  ];
-
-  doses.sort(
-    (a, b) => (_minutesSinceMidnight(a.time) ?? 24 * 60)
-        .compareTo(_minutesSinceMidnight(b.time) ?? 24 * 60),
-  );
-
-  return doses
-      .take(count)
-      .map(
-        (dose) => Medication(
-          id: dose.medicine.id,
-          name: dose.medicine.name,
-          nameBn: dose.medicine.nameBn,
-          dosage: dose.medicine.dosage,
-          time: dose.time,
-          isTaken: false,
-        ),
-      )
-      .toList();
-}
-
-/// Minutes since midnight for a pre-formatted time label like "8:00 AM", or
-/// `null` if it doesn't match that shape.
-int? _minutesSinceMidnight(String label) {
-  final match =
-      RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(label.trim());
-  if (match == null) return null;
-  var hour = int.parse(match.group(1)!);
-  final minute = int.parse(match.group(2)!);
-  final meridiem = match.group(3)!.toUpperCase();
-  if (meridiem == 'PM' && hour != 12) hour += 12;
-  if (meridiem == 'AM' && hour == 12) hour = 0;
-  return hour * 60 + minute;
 }
 
 class _CaregiversTabBody extends StatelessWidget {

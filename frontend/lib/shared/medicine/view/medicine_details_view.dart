@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/medicine.dart';
+import '../utils/dose_status.dart';
 
 /// Detail view for a single medicine: image, next reminder, dosage,
 /// schedule, today's dose-by-dose status, refill status, and an edit entry
@@ -45,7 +46,17 @@ class MedicineDetailsView extends StatelessWidget {
                   color: AppColors.primaryLight,
                   size: 56,
                 )
-              : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
+              : medicine.imagePath!.startsWith('http')
+                  ? Image.network(
+                      medicine.imagePath!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.broken_image_outlined,
+                        color: Colors.redAccent,
+                        size: 40,
+                      ),
+                    )
+                  : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
         ),
         const SizedBox(height: 18),
         Center(
@@ -202,8 +213,8 @@ class MedicineDetailsView extends StatelessWidget {
 }
 
 /// One row of the "Today's Status" section: a scheduled time, its
-/// Taken/Missed/Remaining badge, and — for the two non-taken cases — a
-/// button to mark it taken right from here.
+/// Taken/Missed/Remaining badge, and — for the still-takeable
+/// not-yet-missed case — a button to mark it taken right from here.
 class _DoseStatusRow extends StatelessWidget {
   const _DoseStatusRow({
     required this.time,
@@ -215,15 +226,9 @@ class _DoseStatusRow extends StatelessWidget {
   final bool isTaken;
   final VoidCallback? onMarkTaken;
 
-  /// A dose counts as missed once its time has passed today and it's
-  /// still not taken; otherwise it's upcoming ("remaining").
-  bool get _isMissed {
-    if (isTaken) return false;
-    final doseMinutes = _minutesSinceMidnight(time);
-    if (doseMinutes == null) return false;
-    final now = TimeOfDay.now();
-    return doseMinutes < now.hour * 60 + now.minute;
-  }
+  /// See `isDoseMissed` — before that window closes the dose is due but
+  /// still takeable ("remaining").
+  bool get _isMissed => !isTaken && isDoseMissed(time);
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +264,7 @@ class _DoseStatusRow extends StatelessWidget {
             ),
           ),
         ),
-        if (!isTaken && onMarkTaken != null)
+        if (!isTaken && !_isMissed && onMarkTaken != null)
           TextButton(
             onPressed: onMarkTaken,
             child: Text(context.l10n.markTakenLabel),
@@ -267,20 +272,6 @@ class _DoseStatusRow extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Minutes since midnight for a pre-formatted time label like "8:00 AM", or
-/// `null` if it doesn't match that shape.
-int? _minutesSinceMidnight(String label) {
-  final match =
-      RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(label.trim());
-  if (match == null) return null;
-  var hour = int.parse(match.group(1)!);
-  final minute = int.parse(match.group(2)!);
-  final meridiem = match.group(3)!.toUpperCase();
-  if (meridiem == 'PM' && hour != 12) hour += 12;
-  if (meridiem == 'AM' && hour == 12) hour = 0;
-  return hour * 60 + minute;
 }
 
 class _SectionCard extends StatelessWidget {

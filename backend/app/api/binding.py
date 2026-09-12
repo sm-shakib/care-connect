@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from typing import List
+from datetime import date
 
 from app.db.session import get_db
 from app.models.binding import FamilyElderLink, BindingStatus
@@ -9,6 +10,7 @@ from app.models.user import User
 from app.models.family import Family
 from app.models.notification import Notification
 from app.models.booking import Booking
+from app.models.medicine import Medicine
 from app.schemas.binding import BindingCreate, BindingOut, BindingUpdate, FamilyMemberOut, LinkedFamilyMemberOut
 from app.api.deps import get_current_user
 
@@ -123,12 +125,15 @@ def get_my_family_members(
     if not family:
         raise HTTPException(status_code=404, detail="Family profile not found")
     
-    links = db.query(FamilyElderLink).filter(
+    links = db.query(FamilyElderLink).options(
+        joinedload(FamilyElderLink.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family)
+    ).filter(
         FamilyElderLink.family_id == family.id,
         FamilyElderLink.status == BindingStatus.accepted
     ).all()
 
     results = []
+    today = date.today()
     for link in links:
         elder = link.elder
         
@@ -145,10 +150,19 @@ def get_my_family_members(
         caregiver_names = [b.caregiver.name for b in active_bookings if b.caregiver]
         caregiver_details = [{"id": b.caregiver.id, "name": b.caregiver.name} for b in active_bookings if b.caregiver]
 
+        # Filter medications to match what the elder sees on their dashboard
+        # (current medicines only, sorted by start date)
+        medications = (
+            db.query(Medicine)
+            .filter(Medicine.elder_id == elder.id, Medicine.end_date >= today)
+            .order_by(Medicine.start_date.desc())
+            .all()
+        )
+
         results.append({
             "relationship": link.relationship,
             "elder": elder,
-            "medications": elder.medicines if elder else [],
+            "medications": medications,
             "appointments": elder.appointments if elder else [],
             "reminders": elder.reminders if elder else [],
             "caregiver_names": caregiver_names,

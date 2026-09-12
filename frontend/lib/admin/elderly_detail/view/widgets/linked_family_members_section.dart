@@ -147,7 +147,7 @@ class _FamilyMemberRow extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (member.isPrimaryContact) ...[
+                    /*if (member.isPrimaryContact) ...[
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -158,16 +158,16 @@ class _FamilyMemberRow extends StatelessWidget {
                           color: AppColors.secondaryContainerLight,
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Text(
+                        /*child: Text(
                           'Primary',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.onSecondaryContainerLight,
                           ),
-                        ),
+                        ),*/
                       ),
-                    ],
+                    ],*/
                   ],
                 ),
               ),

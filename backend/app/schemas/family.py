@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date
 from app.schemas.user import UserCreate, UserOut
@@ -26,14 +26,19 @@ class FamilyUpdate(BaseModel):
 class ElderLinkOut(BaseModel):
     id: int
     elder_id: int
+    user_id: int = Field(validation_alias="elder_user_id")
     name: str
     relationship: str
     avatarUrl: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 class FamilyOut(FamilyBase):
     id: int
     user_id: int
     is_active: bool = True
+    elder_links: List[ElderLinkOut] = []
 
     class Config:
         from_attributes = True

@@ -212,13 +212,15 @@ def get_elder_detail_by_user(
     # Map family links to the expected output format
     links = []
     for link in elder.family_links:
-        links.append({
-            "id": link.id,
-            "family_id": link.family_id,
-            "name": link.family.name,
-            "relationship": link.relationship,
-            "avatarUrl": link.family.profile_image_url
-        })
+        if link.status == "accepted":
+            links.append({
+                "id": link.id,
+                "family_id": link.family_id,
+                "user_id": link.family.user_id,
+                "name": link.family.name,
+                "relationship": link.relationship,
+                "avatarUrl": link.family.profile_image_url
+            })
 
     return {
         "id": elder.id,
@@ -247,13 +249,15 @@ def get_family_detail_by_user(
 
     links = []
     for link in family.elder_links:
-        links.append({
-            "id": link.id,
-            "elder_id": link.elder_id,
-            "name": link.elder.name,
-            "relationship": link.relationship,
-            "avatarUrl": link.elder.profile_image_url
-        })
+        if link.status == "accepted":
+            links.append({
+                "id": link.id,
+                "elder_id": link.elder_id,
+                "user_id": link.elder.user_id,
+                "name": link.elder.name,
+                "relationship": link.relationship,
+                "avatarUrl": link.elder.profile_image_url
+            })
 
     return {
         "id": family.id,

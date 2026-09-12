@@ -128,7 +128,7 @@ class _LinkedElderlyUserCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (user.isPrimaryContact) ...[
+                    /*if (user.isPrimaryContact) ...[
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -139,16 +139,16 @@ class _LinkedElderlyUserCard extends StatelessWidget {
                           color: AppColors.secondaryContainerLight,
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Text(
+                        /*child: Text(
                           'Primary',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.onSecondaryContainerLight,
                           ),
-                        ),
+                        ),*/
                       ),
-                    ],
+                    ],*/
                   ],
                 ),
               ),

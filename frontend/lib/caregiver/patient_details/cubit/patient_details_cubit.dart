@@ -99,11 +99,9 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
     }
   }
 
-  void markMedicationTaken(String medicationId) async {
+  void markMedicationTaken(String medicationId, String time) async {
     try {
-      // Find the medicine to get the next reminder time
-      final medicine = state.medications.firstWhere((m) => m.id == medicationId);
-      await _medicineRepository.markTaken(medicationId, medicine.nextReminder);
+      await _medicineRepository.markTaken(medicationId, time);
       // Refresh to get updated state from server
       await loadCarePlan();
     } catch (e) {

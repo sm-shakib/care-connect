@@ -5,6 +5,7 @@ import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/family/data/repositories/binding_repository.dart';
 import 'package:frontend/family/models/health_vitals.dart';
 import 'package:frontend/shared/medicine/data/medicine_dto.dart';
+import 'package:frontend/shared/medicine/data/medicine_repository.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/reminders/models/appointment.dart';
 import 'package:frontend/shared/reminders/models/care_reminder.dart';
@@ -17,6 +18,7 @@ import 'family_dashboard_state.dart';
 class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   final BindingRepository _bindingRepository;
   final _elderRepository = ElderRepository(ApiClient());
+  final _medicineRepository = MedicineRepository(ApiClient());
 
   FamilyDashboardCubit(this._bindingRepository) : super(const FamilyDashboardState()) {
     loadElders();
@@ -44,21 +46,22 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           return Appointment(
             id: ad['id'].toString(),
             doctorName: (ad['doctor_name'] ?? '') as String,
-            specialty: ad['specialty'] as String? ?? 'Specialist',
-            date: (ad['appointment_date'] ?? '') as String,
-            time: (ad['appointment_time'] ?? '') as String,
-            location: ad['location'] as String? ?? 'Hospital',
+            specialty: ad['specialty']?.toString() ?? '',
+            date: ad['appointment_date']?.toString() ?? '',
+            time: ad['appointment_time']?.toString() ?? '',
+            location: ad['location']?.toString() ?? '',
           );
         }).toList();
 
         final remindersRaw = data['reminders'] as List? ?? [];
         final List<CareReminder> reminders = remindersRaw.map((r) {
           final rd = r as Map<String, dynamic>;
+          final iconName = rd['icon_name']?.toString() ?? 'notifications';
           return CareReminder(
             id: rd['id'].toString(),
             title: (rd['title'] ?? '') as String,
             subtitle: rd['subtitle'] as String? ?? '',
-            icon: Icons.notifications_active_outlined,
+            icon: CareReminder.mapIconNameToData(iconName),
           );
         }).toList();
 
@@ -248,92 +251,118 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     );
   }
 
-  void addMedication(String elderId, Medicine medication) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      return elder.copyWith(medications: [...elder.medications, medication]);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void addMedication(String elderId, Medicine medication) async {
+    try {
+      final id = int.tryParse(elderId);
+      if (id == null) return;
+      await _medicineRepository.createMedicine(medication, elderId: id);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error adding medication: $e');
+    }
   }
 
-  void updateMedication(String elderId, Medicine medication) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<Medicine> updatedMedications = elder.medications.map<Medicine>((m) {
-        return m.id == medication.id ? medication : m;
-      }).toList();
-      return elder.copyWith(medications: updatedMedications);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void updateMedication(String elderId, Medicine medication) async {
+    try {
+      await _medicineRepository.updateMedicine(medication);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error updating medication: $e');
+    }
   }
 
-  void deleteMedication(String elderId, String medicationId) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<Medicine> updatedMedications =
-          elder.medications.where((m) => m.id != medicationId).toList();
-      return elder.copyWith(medications: updatedMedications);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void deleteMedication(String elderId, String medicationId) async {
+    try {
+      await _medicineRepository.deleteMedicine(medicationId);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error deleting medication: $e');
+    }
   }
 
-  /// Other Reminders Management
-  void addReminder(String elderId, CareReminder reminder) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      return elder.copyWith(otherReminders: [...elder.otherReminders, reminder]);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void addReminder(String elderId, CareReminder reminder) async {
+    try {
+      final id = int.tryParse(elderId);
+      if (id == null) return;
+      await _elderRepository.addReminder({
+        'title': reminder.title,
+        'subtitle': reminder.subtitle,
+        'icon_name': CareReminder.mapIconDataToName(reminder.icon),
+      }, elderId: id);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error adding reminder: $e');
+    }
   }
 
-  void updateReminder(String elderId, CareReminder reminder) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<CareReminder> updatedReminders = elder.otherReminders.map<CareReminder>((r) {
-        return r.id == reminder.id ? reminder : r;
-      }).toList();
-      return elder.copyWith(otherReminders: updatedReminders);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void updateReminder(String elderId, CareReminder reminder) async {
+    try {
+      final reminderId = int.tryParse(reminder.id);
+      if (reminderId == null) return;
+      await _elderRepository.updateReminder(reminderId, {
+        'title': reminder.title,
+        'subtitle': reminder.subtitle,
+        'icon_name': CareReminder.mapIconDataToName(reminder.icon),
+      });
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error updating reminder: $e');
+    }
   }
 
-  void deleteReminder(String elderId, String reminderId) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<CareReminder> updatedReminders =
-          elder.otherReminders.where((r) => r.id != reminderId).toList();
-      return elder.copyWith(otherReminders: updatedReminders);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void deleteReminder(String elderId, String reminderId) async {
+    try {
+      final id = int.tryParse(reminderId);
+      if (id == null) return;
+      await _elderRepository.deleteReminder(id);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error deleting reminder: $e');
+    }
   }
 
-  /// Appointment Management
-  void addAppointment(String elderId, Appointment appointment) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      return elder.copyWith(appointments: [...elder.appointments, appointment]);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void addAppointment(String elderId, Appointment appointment) async {
+    try {
+      final id = int.tryParse(elderId);
+      if (id == null) return;
+      await _elderRepository.addAppointment({
+        'doctor_name': appointment.doctorName,
+        'specialty': appointment.specialty,
+        'appointment_date': appointment.date,
+        'appointment_time': appointment.time,
+        'location': appointment.location,
+      }, elderId: id);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error adding appointment: $e');
+    }
   }
 
-  void updateAppointment(String elderId, Appointment appointment) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<Appointment> updatedAppointments = elder.appointments.map<Appointment>((a) {
-        return a.id == appointment.id ? appointment : a;
-      }).toList();
-      return elder.copyWith(appointments: updatedAppointments);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void updateAppointment(String elderId, Appointment appointment) async {
+    try {
+      final appointmentId = int.tryParse(appointment.id);
+      if (appointmentId == null) return;
+      await _elderRepository.updateAppointment(appointmentId, {
+        'doctor_name': appointment.doctorName,
+        'specialty': appointment.specialty,
+        'appointment_date': appointment.date,
+        'appointment_time': appointment.time,
+        'location': appointment.location,
+      });
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error updating appointment: $e');
+    }
   }
 
-  void deleteAppointment(String elderId, String appointmentId) {
-    final List<Elder> updatedElders = state.elders.map<Elder>((elder) {
-      if (elder.id != elderId) return elder;
-      final List<Appointment> updatedAppointments =
-          elder.appointments.where((a) => a.id != appointmentId).toList();
-      return elder.copyWith(appointments: updatedAppointments);
-    }).toList();
-    _emitUpdatedElders(updatedElders, elderId);
+  void deleteAppointment(String elderId, String appointmentId) async {
+    try {
+      final id = int.tryParse(appointmentId);
+      if (id == null) return;
+      await _elderRepository.deleteAppointment(id);
+      await loadElders();
+    } catch (e) {
+      debugPrint('Error deleting appointment: $e');
+    }
   }
 }
