@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.db.session import get_db
 from app.models.user import User
@@ -7,9 +7,10 @@ from app.models.elder import Elder
 from app.models.family import Family
 from app.models.caregiver import Caregiver
 from app.models.reminder import Appointment, CareReminder
-from app.models.binding import FamilyElderLink, BindingStatus
+from app.models.binding import FamilyElderLink
 from app.models.booking import Booking
 from app.models.notification import Notification
+from app.services.care_circle import get_elder_care_circle
 from app.schemas.elder import ElderSignupRequest, ElderSignupResponse, ElderOut, ElderUpdate, VitalsUpdate
 
 # ... (rest of imports)
@@ -163,30 +164,7 @@ async def trigger_sos(
     # Everyone allowed to see this elder's location today: accepted family
     # links plus caregivers with an accepted booking — the same audiences
     # `_check_elder_access` treats as authorized elsewhere in this file.
-    recipients: List[tuple] = []
-
-    family_links = db.query(FamilyElderLink).options(
-        joinedload(FamilyElderLink.family)
-    ).filter(
-        FamilyElderLink.elder_id == elder.id,
-        FamilyElderLink.status == BindingStatus.accepted
-    ).all()
-    for link in family_links:
-        if link.family:
-            recipients.append((link.family.user_id, "family", link.family.name))
-
-    accepted_bookings = db.query(Booking).options(
-        joinedload(Booking.caregiver)
-    ).filter(
-        Booking.elder_id == elder.id,
-        Booking.status == "accepted"
-    ).all()
-    seen_caregiver_ids = set()
-    for booking in accepted_bookings:
-        caregiver = booking.caregiver
-        if caregiver and caregiver.id not in seen_caregiver_ids:
-            seen_caregiver_ids.add(caregiver.id)
-            recipients.append((caregiver.user_id, "caregiver", caregiver.name))
+    recipients = get_elder_care_circle(db, elder)
 
     pending_notifications = []
     for user_id, role, name in recipients:

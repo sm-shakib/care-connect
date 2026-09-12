@@ -5,6 +5,7 @@ from app.db.session import get_db
 from app.api import deps
 from app.models.complaint import Complaint
 from app.models.caregiver import Caregiver
+from app.models.notification import Notification
 from app.models.user import User
 from app.schemas.complaint import ComplaintCreate, ComplaintOut, ComplaintUpdate
 
@@ -19,11 +20,23 @@ def file_complaint(
     """
     File a new complaint against a caregiver.
     """
+    caregiver = db.query(Caregiver).filter(Caregiver.id == complaint_in.caregiver_id).first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver not found")
+
     new_complaint = Complaint(
         reporter_id=current_user.id,
         **complaint_in.model_dump()
     )
     db.add(new_complaint)
+
+    db.add(Notification(
+        user_id=caregiver.user_id,
+        title="New Complaint Filed",
+        body=f"A complaint has been filed against you: {complaint_in.category}.",
+        type="complaint_filed"
+    ))
+
     db.commit()
     db.refresh(new_complaint)
     return new_complaint

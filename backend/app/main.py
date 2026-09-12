@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
@@ -19,11 +22,25 @@ from app.api import (
     binding, notification, medicine, users, booking, complaint,
     chat, chat_ws, fund
 )
+from app.services.notification_jobs import run_notification_background_jobs
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Care Connect API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Polls for missed medicine doses and upcoming appointments the whole
+    # time the API process is up — see `notification_jobs` for why this
+    # can't just be triggered from a request handler.
+    job = asyncio.create_task(run_notification_background_jobs())
+    try:
+        yield
+    finally:
+        job.cancel()
+
+
+app = FastAPI(title="Care Connect API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
