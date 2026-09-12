@@ -46,7 +46,17 @@ class MedicineDetailsView extends StatelessWidget {
                   color: AppColors.primaryLight,
                   size: 56,
                 )
-              : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
+              : medicine.imagePath!.startsWith('http')
+                  ? Image.network(
+                      medicine.imagePath!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.broken_image_outlined,
+                        color: Colors.redAccent,
+                        size: 40,
+                      ),
+                    )
+                  : Image.file(File(medicine.imagePath!), fit: BoxFit.cover),
         ),
         const SizedBox(height: 18),
         Center(

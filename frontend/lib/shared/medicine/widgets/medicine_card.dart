@@ -180,7 +180,17 @@ class _MedicineThumbnail extends StatelessWidget {
               color: AppColors.primaryLight,
               size: 40,
             )
-          : Image.file(File(imagePath!), fit: BoxFit.cover),
+          : imagePath!.startsWith('http')
+              ? Image.network(
+                  imagePath!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.redAccent,
+                    size: 32,
+                  ),
+                )
+              : Image.file(File(imagePath!), fit: BoxFit.cover),
     );
   }
 }
