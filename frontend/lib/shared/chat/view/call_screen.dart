@@ -5,7 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/call_cubit.dart';
-import '../models/call_session.dart';
+models/call_session.dart';
 import '../models/chat_participant.dart';
 import '../widgets/call_controls_bar.dart';
 
@@ -45,8 +45,7 @@ class CallScreen extends StatelessWidget {
         participants: participants,
         groupTitle: groupTitle,
         isVideo: isVideo,
-        isIncoming: isIncoming,
-      ),
+        isIncoming: isIncoming      ),
       child: BlocConsumer<CallCubit, CallCubitState>(
         listener: (context, state) {
           if (state.session.state == CallState.ended) {

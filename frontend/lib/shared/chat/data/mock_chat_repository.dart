@@ -326,9 +326,7 @@ class MockChatRepository implements ChatRepository {
 
   @override
   void setTyping(String conversationId, {required bool isTyping}) {}
-
-  @override
-  void setActiveConversation(String? conversationId) {}
+void setActiveConversation(String? conversationId) {}
 
   // ==================== Seed data ====================
 

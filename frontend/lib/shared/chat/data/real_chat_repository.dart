@@ -617,9 +617,7 @@ class RealChatRepository implements ChatRepository {
         'is_typing': true,
       });
     });
-  }
-
-  void _onTyping(Map<String, dynamic> event) {
+void _onTyping(Map<String, dynamic> event) {
     final conversationId = event['conversation_id']?.toString();
     final peerId = event['from_user_id'] as String?;
     if (conversationId == null || peerId == null) return;

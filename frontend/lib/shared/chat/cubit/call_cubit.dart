@@ -9,6 +9,11 @@ import '../data/chat_socket_service.dart';
 import '../models/call_log_info.dart';
 import '../models/call_session.dart';
 import '../models/chat_participant.dart';
+../call_signaling/call_ring_service.dart';
+import '../data/chat_socket_service.dart';
+import '../models/call_log_info.dart';
+import '../models/call_session.dart';
+import '../models/chat_participant.dart';
 
 part 'call_state.dart';
 
@@ -476,8 +481,7 @@ class CallCubit extends Cubit<CallCubitState> {
     // can be disposed without ever having ended cleanly.
     await _setAndroidAudioMode(AndroidAudioConfiguration.media);
     await _socketSubscription.cancel();
-    _noAnswerTimer?.cancel();
-    _elapsedTicker?.cancel();
+    _noAnswer    _elapsedTicker?.cancel();
     for (final pc in _peers.values) {
       unawaited(pc.close());
     }

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api import chat_ws, deps
 from app.core import crypto
-from app.core.media import upload_chat_file
+media import upload_chat_file
 from app.db.session import get_db
 from app.models.binding import FamilyElderLink
 from app.models.booking import Booking

@@ -96,7 +96,7 @@ class IncomingCallService {
                   : null,
               isVideo: event['is_video'] as bool? ?? false,
               isIncoming: true,
-            ),
+),
           ),
         );
       } finally {
