@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -19,6 +19,7 @@ from app.schemas.medicine import (
     MedicineUpdate,
 )
 from app.api.deps import get_current_user
+from app.services.time_parsing import MISSED_DOSE_GRACE, parse_clock_time
 
 router = APIRouter(prefix="/medicines", tags=["Medicines"])
 
@@ -208,6 +209,20 @@ def mark_medicine_taken(
         )
 
     today = date.today()
+
+    # Past `MISSED_DOSE_GRACE` a dose is considered missed for good — see
+    # `app/services/notification_jobs.py::check_missed_medicines`, which
+    # notifies the elder's care circle at that same point — and can no
+    # longer be marked taken. Mirrored on the frontend by
+    # `isDoseMissed` (`shared/medicine/utils/dose_status.dart`), which
+    # hides the "Mark Taken" button once this would reject it anyway.
+    scheduled_at = parse_clock_time(payload.time, today)
+    if scheduled_at is not None and datetime.now() - scheduled_at >= MISSED_DOSE_GRACE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This dose was missed and can no longer be marked as taken",
+        )
+
     if medicine.taken_on_date != today:
         medicine.taken_dose_times_raw = []
         medicine.taken_on_date = today
