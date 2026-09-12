@@ -29,6 +29,19 @@ class CentralFundCubit extends Cubit<CentralFundState> {
     }
   }
 
+  Future<void> deleteAidRequest(int id) async {
+    await _repository.deleteAidRequest(id);
+    if (state is CentralFundLoaded) {
+      final loaded = state as CentralFundLoaded;
+      emit(CentralFundLoaded(
+        selectedTabIndex: loaded.selectedTabIndex,
+        stats: loaded.stats,
+        donations: loaded.donations,
+        requests: loaded.requests.where((r) => r.id != id).toList(),
+      ));
+    }
+  }
+
   void changeTab(int index) {
     if (state is CentralFundLoaded) {
       final loaded = state as CentralFundLoaded;

@@ -66,6 +66,12 @@ class CentralFundRepository {
     );
   }
 
+  Future<void> deleteAidRequest(int id) async {
+    await _apiClient.delete<void>(
+      ApiConstants.fundAdminDeleteRequest(id),
+    );
+  }
+
   Future<void> donate({
     required double amount,
     required String method,

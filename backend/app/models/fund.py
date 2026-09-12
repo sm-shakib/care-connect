@@ -39,6 +39,11 @@ class AidRequest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     requester_id = Column(Integer, ForeignKey("users.id"))
+    # Which elder this aid is for. Auto-filled from the requester's own
+    # profile when an elder submits directly; required (and validated
+    # against the requester's care-circle links) when a family member
+    # submits on an elder's behalf — see app/api/fund.py::request_aid.
+    elder_id = Column(Integer, ForeignKey("elders.id"), nullable=True)
     caregiver_type = Column(String, nullable=True)
     reason = Column(Text)
     
@@ -50,10 +55,16 @@ class AidRequest(Base):
     daily_timing_end = Column(Time, nullable=True)
     
     document_url = Column(String)
-    status = Column(String, default="pending")  # pending, approved, rejected, disbursed
+    # pending -> approved -> assigned -> disbursed (or rejected at any point
+    # before disbursed). "assigned" means a family has booked a caregiver
+    # against the approved budget and is waiting on that caregiver to
+    # accept; see app/api/fund.py::book_caregiver_for_aid_request and
+    # app/api/booking.py::update_booking.
+    status = Column(String, default="pending")
     approved_amount = Column(Float, default=0.0)
     admin_notes = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     requester = relationship("User")
+    elder = relationship("Elder")

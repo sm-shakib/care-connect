@@ -1,17 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from typing import List
-from datetime import timedelta
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.caregiver import Caregiver
 from app.models.elder import Elder
 from app.models.family import Family
 from app.models.binding import FamilyElderLink
+from app.models.fund import AidRequest
+from app.models.notification import Notification
 from app.schemas.booking import BookingCreate, BookingOut, BookingUpdate
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.core.bkash import bkash_client
+from app.services.pricing import calculate_service_amount
+from app.services.fund_service import finalize_aid_disbursement, release_aid_reservation
 import uuid
 
 router = APIRouter()
@@ -38,37 +41,15 @@ def create_booking(
     if not caregiver:
         raise HTTPException(status_code=404, detail="Caregiver not found")
 
-    # 2. Calculate daily duration in hours
-    start_total_minutes = booking_in.daily_timing_start.hour * 60 + booking_in.daily_timing_start.minute
-    end_total_minutes = booking_in.daily_timing_end.hour * 60 + booking_in.daily_timing_end.minute
-
-    if end_total_minutes <= start_total_minutes:
-        # Handle overnight bookings if necessary, for now assuming same day
-        duration_hours = (end_total_minutes + 24*60 - start_total_minutes) / 60
-    else:
-        duration_hours = (end_total_minutes - start_total_minutes) / 60
-
-    # 3. Count the actual number of days the caregiver will work
-    # based on service dates and selected days_of_week
-    work_days_list = [d.strip().lower() for d in booking_in.days_of_week.split(",")]
-
-    # Mapping for weekday names
-    day_map = {
-        "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
-        "friday": 4, "saturday": 5, "sunday": 6,
-        "mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6
-    }
-    work_day_ints = [day_map[d] for d in work_days_list if d in day_map]
-
-    total_work_days = 0
-    current_date = booking_in.service_start_date
-    while current_date <= booking_in.service_end_date:
-        if current_date.weekday() in work_day_ints:
-            total_work_days += 1
-        current_date += timedelta(days=1)
-
-    # 4. Final amount calculation
-    total_amount = round(duration_hours * caregiver.hourly_rate * total_work_days, 2)
+    # 2. Compute the total cost for this schedule at the caregiver's rate
+    total_amount = calculate_service_amount(
+        hourly_rate=caregiver.hourly_rate,
+        service_start_date=booking_in.service_start_date,
+        service_end_date=booking_in.service_end_date,
+        days_of_week=booking_in.days_of_week,
+        daily_timing_start=booking_in.daily_timing_start,
+        daily_timing_end=booking_in.daily_timing_end,
+    )
 
     booking_data = booking_in.model_dump()
     booking_data["total_amount"] = total_amount
@@ -105,11 +86,40 @@ def update_booking(booking_id: int, booking_update: BookingUpdate, db: Session =
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
-    
+
+    old_status = booking.status
     update_data = booking_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(booking, key, value)
-    
+
+    # If this booking was created against an approved aid request, the
+    # caregiver's accept/reject decision drives the aid request onward.
+    # The approved amount was already reserved out of the fund when the
+    # booking was created (app/api/fund.py::book_caregiver_for_aid_request);
+    # here we settle that reservation one way or the other:
+    #   accept  -> spend only what this booking actually costs, refund the
+    #              unused remainder of the approved ceiling back to the fund
+    #   reject  -> refund the whole reservation; family can pick someone else
+    if booking.aid_request_id and update_data.get("status") and update_data["status"] != old_status:
+        aid_request = db.query(AidRequest).filter(AidRequest.id == booking.aid_request_id).first()
+        if aid_request:
+            if update_data["status"] == "accepted":
+                finalize_aid_disbursement(db, aid_request, booking.total_amount)
+                db.add(Notification(
+                    user_id=aid_request.requester_id,
+                    title="Caregiver accepted",
+                    body=f"Your assigned caregiver has accepted the job for aid request #{aid_request.id}.",
+                    type="aid_booking_accepted",
+                ))
+            elif update_data["status"] == "rejected":
+                release_aid_reservation(db, aid_request)
+                db.add(Notification(
+                    user_id=aid_request.requester_id,
+                    title="Caregiver declined",
+                    body=f"The assigned caregiver declined aid request #{aid_request.id}. Please choose another caregiver.",
+                    type="aid_booking_rejected",
+                ))
+
     db.commit()
     db.refresh(booking)
     return booking

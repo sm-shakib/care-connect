@@ -44,7 +44,10 @@ class AidRequestBase(BaseModel):
     document_url: Optional[str] = None
 
 class AidRequestCreate(AidRequestBase):
-    pass
+    # Required when a family member submits on an elder's behalf; ignored
+    # (auto-filled from the caller's own profile) when an elder submits
+    # directly. See app/api/fund.py::request_aid.
+    elder_id: Optional[int] = None
 
 class AidRequestUpdate(BaseModel):
     status: Optional[str] = None
@@ -54,6 +57,7 @@ class AidRequestUpdate(BaseModel):
 class AidRequestOut(AidRequestBase):
     id: int
     requester_id: int
+    elder_id: Optional[int] = None
     status: str
     approved_amount: float
     admin_notes: Optional[str] = None
@@ -62,3 +66,17 @@ class AidRequestOut(AidRequestBase):
 
     class Config:
         from_attributes = True
+
+class EligibleCaregiverOut(BaseModel):
+    """A caregiver matched to an approved aid request's care type, with the
+    exact cost of covering that request's fixed schedule at their rate."""
+    caregiver_id: int
+    name: str
+    specializations: Optional[str] = None
+    hourly_rate: float
+    rating: Optional[float] = None
+    estimated_cost: float
+    within_budget: bool
+
+class BookCaregiverIn(BaseModel):
+    caregiver_id: int

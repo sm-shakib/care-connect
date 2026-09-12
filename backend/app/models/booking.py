@@ -9,7 +9,11 @@ class Booking(Base):
     id = Column(Integer, primary_key=True, index=True)
     elder_id = Column(Integer, ForeignKey("elders.id"), nullable=False)
     caregiver_id = Column(Integer, ForeignKey("caregivers.id"), nullable=False)
-    
+    # Set only when this booking was created from an approved AidRequest
+    # (donation-funded), via app/api/fund.py::book_caregiver_for_aid_request.
+    # Drives the accept/reject hooks in app/api/booking.py::update_booking.
+    aid_request_id = Column(Integer, ForeignKey("aid_requests.id"), nullable=True)
+
     service_start_date = Column(Date, nullable=False)
     service_end_date = Column(Date, nullable=False)
     days_of_week = Column(String, nullable=False)  # e.g., "Mon,Tue,Wed"
@@ -26,3 +30,4 @@ class Booking(Base):
     # Relationships
     elder = relationship("Elder")
     caregiver = relationship("Caregiver")
+    aid_request = relationship("AidRequest")

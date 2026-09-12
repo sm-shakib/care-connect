@@ -25,6 +25,7 @@ class BookingOut(BookingBase):
     id: int
     elder_id: int
     caregiver_id: int
+    aid_request_id: Optional[int] = None
     status: str
     payment_status: str
     requested_at: datetime

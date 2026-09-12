@@ -5,7 +5,7 @@ class ApiConstants {
   // --- LOCAL DEVELOPMENT ---
   // Use 10.0.2.2 for Android Emulator.
   // Use computer's IP (e.g., 192.168.0.x) for physical devices.
-  static const String baseUrl = 'http://192.168.0.192:8000';
+  static const String baseUrl = 'http://192.168.0.178:8000';
 
 
   static const String elderSignup = '/elders/signup/elder';
@@ -93,6 +93,7 @@ class ApiConstants {
   static const String fundAdminDonations = '/fund/admin/donations';
   static const String fundAdminRequests = '/fund/admin/requests';
   static String fundAdminReviewRequest(int id) => '/fund/admin/requests/$id/review';
+  static String fundAdminDeleteRequest(int id) => '/fund/admin/requests/$id';
   static const String fundBkashCreate = '/fund/bkash/create';
   static String fundBkashExecute(int id) => '/fund/bkash/execute/$id';
 }

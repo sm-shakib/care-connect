@@ -4,28 +4,24 @@ from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
 from app.api import deps
 from app.models.fund import FundSummary, Donation, AidRequest
-from app.schemas.fund import DonationCreate, DonationOut, AidRequestCreate, AidRequestOut, FundStats, AidRequestUpdate
+from app.models.elder import Elder
+from app.models.family import Family
+from app.models.binding import FamilyElderLink
+from app.models.caregiver import Caregiver
+from app.models.booking import Booking
+from app.models.notification import Notification
+from app.schemas.fund import (
+    DonationCreate, DonationOut, AidRequestCreate, AidRequestOut, FundStats,
+    AidRequestUpdate, EligibleCaregiverOut, BookCaregiverIn,
+)
 from app.models.user import User
+from app.services.fund_service import get_latest_fund_summary, reserve_aid_amount, InsufficientFundsError
+from app.services.pricing import calculate_service_amount
 
 from app.core.bkash import bkash_client
 import uuid
 
 router = APIRouter(prefix="/fund", tags=["Fund"])
-
-def get_latest_fund_summary(db: Session) -> FundSummary:
-    """Fetch the most recent summary record."""
-    summary = db.query(FundSummary).order_by(FundSummary.id.desc()).first()
-    if not summary:
-        summary = FundSummary(
-            balance=0.0, 
-            total_donations=0.0, 
-            pending_aids_count=0, 
-            aids_distributed_no=0, 
-            aids_distributed_amount=0.0
-        )
-        db.add(summary)
-        db.flush()
-    return summary
 
 @router.get("/stats", response_model=FundStats)
 def get_stats(
@@ -171,8 +167,33 @@ def request_aid(
     current_user: User = Depends(deps.get_current_active_user)
 ):
     """Submit a new aid request and update pending count snapshot."""
+    # Resolve which elder this aid is for. An elder submitting for
+    # themself doesn't need to say so; a family member must name one of
+    # the elders actually linked to them (an accepted care-circle link),
+    # otherwise anyone could file a request "for" an elder they have no
+    # relationship to.
+    elder_id = None
+    if current_user.role == "elder":
+        elder_profile = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+        if not elder_profile:
+            raise HTTPException(status_code=400, detail="Elder profile not found")
+        elder_id = elder_profile.id
+    elif current_user.role == "family":
+        if not request_in.elder_id:
+            raise HTTPException(status_code=400, detail="elder_id is required when requesting aid on behalf of an elder")
+        family_profile = db.query(Family).filter(Family.user_id == current_user.id).first()
+        link = db.query(FamilyElderLink).filter(
+            FamilyElderLink.family_id == family_profile.id if family_profile else -1,
+            FamilyElderLink.elder_id == request_in.elder_id,
+            FamilyElderLink.status == "accepted",
+        ).first()
+        if not link:
+            raise HTTPException(status_code=403, detail="You are not linked to this elder")
+        elder_id = request_in.elder_id
+
     aid_request = AidRequest(
         requester_id=current_user.id,
+        elder_id=elder_id,
         caregiver_type=request_in.caregiver_type,
         reason=request_in.reason,
         service_start_date=request_in.service_start_date,
@@ -197,6 +218,162 @@ def request_aid(
     )
     db.add(new_summary)
     
+    db.commit()
+    db.refresh(aid_request)
+    return aid_request
+
+
+def _assert_can_manage_aid_request(db: Session, aid_request: AidRequest, current_user: User) -> None:
+    """The elder the request is for, or a family member accepted-linked to
+    that elder, may pick/replace the caregiver for it. Whoever originally
+    submitted the request isn't automatically eligible on its own — e.g. an
+    admin's account never is — the check is always against the elder."""
+    if current_user.role == "elder":
+        elder_profile = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+        if elder_profile and elder_profile.id == aid_request.elder_id:
+            return
+    elif current_user.role == "family":
+        family_profile = db.query(Family).filter(Family.user_id == current_user.id).first()
+        if family_profile:
+            link = db.query(FamilyElderLink).filter(
+                FamilyElderLink.family_id == family_profile.id,
+                FamilyElderLink.elder_id == aid_request.elder_id,
+                FamilyElderLink.status == "accepted",
+            ).first()
+            if link:
+                return
+    raise HTTPException(status_code=403, detail="You are not authorized to act on this aid request")
+
+
+@router.get("/requests/{request_id}/eligible-caregivers", response_model=List[EligibleCaregiverOut])
+def list_eligible_caregivers(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """For an approved aid request, list verified caregivers matching its
+    care type, each costed against the request's own fixed schedule so the
+    family can see up front which caregivers actually fit the approved
+    budget — no separate estimate step, since the schedule is already set."""
+    aid_request = db.query(AidRequest).filter(AidRequest.id == request_id).first()
+    if not aid_request:
+        raise HTTPException(status_code=404, detail="Aid request not found")
+    if aid_request.status != "approved":
+        raise HTTPException(status_code=400, detail="This aid request has no approved budget awaiting a caregiver")
+    _assert_can_manage_aid_request(db, aid_request, current_user)
+
+    if not (aid_request.service_start_date and aid_request.service_end_date
+            and aid_request.days_of_week and aid_request.daily_timing_start and aid_request.daily_timing_end):
+        raise HTTPException(status_code=400, detail="This aid request has no service schedule to cost caregivers against")
+
+    query = db.query(Caregiver).filter(Caregiver.status == "verified")
+    if aid_request.caregiver_type:
+        query = query.filter(Caregiver.specializations.ilike(f"%{aid_request.caregiver_type}%"))
+
+    results = []
+    for caregiver in query.all():
+        cost = calculate_service_amount(
+            hourly_rate=caregiver.hourly_rate,
+            service_start_date=aid_request.service_start_date,
+            service_end_date=aid_request.service_end_date,
+            days_of_week=aid_request.days_of_week,
+            daily_timing_start=aid_request.daily_timing_start,
+            daily_timing_end=aid_request.daily_timing_end,
+        )
+        results.append(EligibleCaregiverOut(
+            caregiver_id=caregiver.id,
+            name=caregiver.name,
+            specializations=caregiver.specializations,
+            hourly_rate=caregiver.hourly_rate,
+            rating=caregiver.rating,
+            estimated_cost=cost,
+            within_budget=cost <= aid_request.approved_amount,
+        ))
+    results.sort(key=lambda c: c.estimated_cost)
+    return results
+
+
+@router.post("/requests/{request_id}/book-caregiver", response_model=AidRequestOut)
+def book_caregiver_for_aid_request(
+    request_id: int,
+    book_in: BookCaregiverIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """Book a specific caregiver against an approved aid request.
+
+    This reuses the normal Booking flow end to end: the caregiver still
+    has to accept via the same PATCH /bookings/{id} every other booking
+    uses (app/api/booking.py::update_booking), which is also where
+    acceptance triggers the actual fund disbursement. If the caregiver
+    declines, the aid request drops back to "approved" so this endpoint
+    can be called again with a different caregiver_id.
+    """
+    aid_request = db.query(AidRequest).filter(AidRequest.id == request_id).first()
+    if not aid_request:
+        raise HTTPException(status_code=404, detail="Aid request not found")
+    if aid_request.status != "approved":
+        raise HTTPException(status_code=400, detail="This aid request has no approved budget awaiting a caregiver")
+    _assert_can_manage_aid_request(db, aid_request, current_user)
+
+    existing = db.query(Booking).filter(
+        Booking.aid_request_id == aid_request.id,
+        Booking.status.in_(["pending", "accepted"]),
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="A caregiver is already assigned or pending for this aid request")
+
+    caregiver = db.query(Caregiver).filter(Caregiver.id == book_in.caregiver_id, Caregiver.status == "verified").first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver not found or not verified")
+
+    cost = calculate_service_amount(
+        hourly_rate=caregiver.hourly_rate,
+        service_start_date=aid_request.service_start_date,
+        service_end_date=aid_request.service_end_date,
+        days_of_week=aid_request.days_of_week,
+        daily_timing_start=aid_request.daily_timing_start,
+        daily_timing_end=aid_request.daily_timing_end,
+    )
+    if cost > aid_request.approved_amount:
+        raise HTTPException(
+            status_code=400,
+            detail=f"This caregiver costs ৳{cost} for the requested schedule, over the approved ৳{aid_request.approved_amount}"
+        )
+
+    booking = Booking(
+        elder_id=aid_request.elder_id,
+        caregiver_id=caregiver.id,
+        service_start_date=aid_request.service_start_date,
+        service_end_date=aid_request.service_end_date,
+        days_of_week=aid_request.days_of_week,
+        daily_timing_start=aid_request.daily_timing_start,
+        daily_timing_end=aid_request.daily_timing_end,
+        booking_reason=aid_request.reason,
+        total_amount=cost,
+        status="pending",
+        payment_status="aid_covered",
+        aid_request_id=aid_request.id,
+    )
+    db.add(booking)
+    aid_request.status = "assigned"
+    db.flush()
+
+    # Take the approved amount out of the fund now so a second approved
+    # request can't be assigned against the same money while this one is
+    # still waiting on the caregiver -- see app/services/fund_service.py.
+    try:
+        reserve_aid_amount(db, aid_request)
+    except InsufficientFundsError as e:
+        raise HTTPException(status_code=400, detail=f"Insufficient fund balance. Available: ৳{e.available}")
+
+    db.add(Notification(
+        user_id=caregiver.user_id,
+        title="New donation-funded job request",
+        body=f"You've been requested for a donation-funded care job. Please review and accept or decline.",
+        type="aid_booking_request",
+    ))
+
     db.commit()
     db.refresh(aid_request)
     return aid_request
@@ -360,7 +537,30 @@ def review_aid_request(
             aids_distributed_amount=new_distributed_amount
         )
         db.add(new_summary)
-        
+
     db.commit()
     db.refresh(aid_request)
     return aid_request
+
+@router.delete("/admin/requests/{request_id}")
+def delete_aid_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(deps.get_current_admin)
+):
+    """Remove a declined aid request from the admin queue.
+
+    Only "rejected" requests can be removed this way — anything still
+    pending/approved/assigned/disbursed represents live money movement or
+    an open decision and must go through review/the caregiver-booking flow
+    instead, never a plain delete.
+    """
+    aid_request = db.query(AidRequest).filter(AidRequest.id == request_id).first()
+    if not aid_request:
+        raise HTTPException(status_code=404, detail="Aid request not found")
+    if aid_request.status != "rejected":
+        raise HTTPException(status_code=400, detail="Only rejected aid requests can be removed")
+
+    db.delete(aid_request)
+    db.commit()
+    return {"detail": "Aid request removed"}
