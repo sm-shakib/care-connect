@@ -69,15 +69,74 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
     }
   }
 
+  double _calculateTotalFee(double hourlyRate) {
+    if (widget.request.serviceStartDate == null ||
+        widget.request.serviceEndDate == null ||
+        widget.request.dailyTimingStart == null ||
+        widget.request.dailyTimingEnd == null) {
+      return hourlyRate; // Fallback
+    }
+
+    try {
+      final start = DateTime.parse(widget.request.serviceStartDate!);
+      final end = DateTime.parse(widget.request.serviceEndDate!);
+      final daysOfWeekStr = widget.request.daysOfWeek ?? 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday';
+
+      // 1. Calculate daily duration in hours
+      final startTimeParts = widget.request.dailyTimingStart!.split(':');
+      final endTimeParts = widget.request.dailyTimingEnd!.split(':');
+
+      final startMinutes = int.parse(startTimeParts[0]) * 60 + int.parse(startTimeParts[1]);
+      final endMinutes = int.parse(endTimeParts[0]) * 60 + int.parse(endTimeParts[1]);
+
+      double durationHours;
+      if (endMinutes <= startMinutes) {
+        durationHours = (endMinutes + 24 * 60 - startMinutes) / 60.0;
+      } else {
+        durationHours = (endMinutes - startMinutes) / 60.0;
+      }
+
+      // 2. Count total work days
+      final List<String> selectedDays = daysOfWeekStr.split(',').map((e) => e.trim().toLowerCase()).toList();
+      final Map<int, List<String>> dayMap = {
+        DateTime.monday: ['monday', 'mon'],
+        DateTime.tuesday: ['tuesday', 'tue'],
+        DateTime.wednesday: ['wednesday', 'wed'],
+        DateTime.thursday: ['thursday', 'thu'],
+        DateTime.friday: ['friday', 'fri'],
+        DateTime.saturday: ['saturday', 'sat'],
+        DateTime.sunday: ['sunday', 'sun'],
+      };
+
+      int totalWorkDays = 0;
+      DateTime current = start;
+      while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+        final dayLabels = dayMap[current.weekday] ?? [];
+        if (selectedDays.any((d) => dayLabels.contains(d))) {
+          totalWorkDays++;
+        }
+        current = current.add(const Duration(days: 1));
+      }
+
+      return double.parse((durationHours * hourlyRate * totalWorkDays).toStringAsFixed(2));
+    } catch (e) {
+      return hourlyRate;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedCaregiver = selectedCaregiverIndex != null
         ? verifiedCaregivers[selectedCaregiverIndex!]
         : null;
 
-    final hasInsufficientFunds = selectedCaregiver != null &&
+    final double calculatedFee = selectedCaregiver != null 
+        ? _calculateTotalFee(selectedCaregiver.hourlyRate.toDouble())
+        : 0.0;
+
+    final bool hasInsufficientFunds = selectedCaregiver != null &&
         _fundStats != null &&
-        selectedCaregiver.hourlyRate > _fundStats!.balance;
+        calculatedFee > _fundStats!.balance;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
@@ -273,7 +332,7 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
                               ),
                             ),
                             Text(
-                              '৳ ${caregiver.hourlyRate}',
+                              '৳ ${_calculateTotalFee(caregiver.hourlyRate.toDouble()).toStringAsFixed(0)}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: primary,
@@ -334,7 +393,7 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
                   ),
                   Text(
                     selectedCaregiverIndex != null
-                        ? '৳ ${verifiedCaregivers[selectedCaregiverIndex!].hourlyRate}'
+                        ? '৳ ${calculatedFee.toStringAsFixed(0)}'
                         : '৳ 0',
                     style: const TextStyle(
                       fontSize: 14,
@@ -544,7 +603,7 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
 
   Future<void> _handleApproval() async {
     final caregiver = verifiedCaregivers[selectedCaregiverIndex!];
-    final fee = caregiver.hourlyRate.toDouble();
+    final double fee = _calculateTotalFee(caregiver.hourlyRate.toDouble());
 
     setState(() => _isLoading = true);
     try {
