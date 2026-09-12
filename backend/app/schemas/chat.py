@@ -69,6 +69,20 @@ class ConversationOut(BaseModel):
     last_message: Optional[MessageOut] = None
 
 
+class IceServerOut(BaseModel):
+    urls: str
+    username: Optional[str] = None
+    credential: Optional[str] = None
+
+
+class IceServersOut(BaseModel):
+    """What a client needs to open a peer connection, plus how long it may
+    reuse these credentials before asking again — see app/core/turn.py."""
+
+    ice_servers: List[IceServerOut]
+    ttl_seconds: int
+
+
 class CreateDirectConversationIn(BaseModel):
     other_user_id: int
 

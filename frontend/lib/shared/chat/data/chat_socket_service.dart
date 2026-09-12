@@ -65,6 +65,11 @@ class ChatSocketService with WidgetsBindingObserver {
   Timer? _heartbeatTimer;
   DateTime _lastActivityAt = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// Call signaling written while the socket was down, replayed in order
+  /// once it's back — see [send].
+  final _pendingSends = <Map<String, dynamic>>[];
+  static const _maxPendingSends = 32;
+
   final _readyCompleters = <Completer<void>>[];
 
   /// Decoded JSON events pushed by the server, live for as long as
@@ -111,6 +116,7 @@ class ChatSocketService with WidgetsBindingObserver {
           _heartbeatInterval,
           (_) => _checkHeartbeat(),
         );
+        _flushPendingSends();
         _eventsController.add(Map<String, dynamic>.from(connectedEvent));
       },
       onError: (Object _) {
@@ -199,18 +205,43 @@ class ChatSocketService with WidgetsBindingObserver {
     await completer.future.timeout(timeout, onTimeout: () {});
   }
 
-  /// Sends one signaling/typing envelope. No-op while disconnected — call
-  /// [ensureConnected] first for anything that isn't safe to silently
-  /// drop. Writes made while the handshake is still in flight are buffered
-  /// by the channel and flushed on connect.
+  /// Sends one signaling/typing envelope.
+  ///
+  /// Call signaling written while the socket is down is held and replayed
+  /// on reconnect (see [_flushPendingSends]) rather than dropped. Dropping
+  /// it is how a call ends up half-negotiated: an `call:answer` or a
+  /// handful of `call:ice` candidates go into a dead socket, and the peer
+  /// waits forever for a connection that can never complete — a call that
+  /// rings, is answered, and then sits in silence.
+  ///
+  /// Nothing else is buffered. A `typing` or `ping` that missed its moment
+  /// means nothing by the time the socket is back.
   void send(Map<String, dynamic> event) {
-    _channel?.sink.add(jsonEncode(event));
+    if (_isReady && _channel != null) {
+      _channel!.sink.add(jsonEncode(event));
+      return;
+    }
+    if (!(event['type'] as String? ?? '').startsWith('call:')) return;
+    // Bounded: a client that stays offline through a whole call shouldn't
+    // replay a stale negotiation at whoever is still waiting.
+    if (_pendingSends.length >= _maxPendingSends) _pendingSends.removeAt(0);
+    _pendingSends.add(event);
+  }
+
+  void _flushPendingSends() {
+    if (_pendingSends.isEmpty) return;
+    final pending = List<Map<String, dynamic>>.of(_pendingSends);
+    _pendingSends.clear();
+    for (final event in pending) {
+      _channel?.sink.add(jsonEncode(event));
+    }
   }
 
   void disconnect() {
     _manuallyDisconnected = true;
     _token = null;
     _reconnectTimer?.cancel();
+    _pendingSends.clear();
     _closeChannel();
     _resolveReady();
     if (_observerRegistered) {

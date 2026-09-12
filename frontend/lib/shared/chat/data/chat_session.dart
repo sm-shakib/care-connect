@@ -9,6 +9,7 @@ import '../models/chat_participant.dart';
 import 'chat_repository.dart';
 import 'chat_socket_service.dart';
 import 'chat_wire.dart';
+import 'ice_server_provider.dart';
 import 'real_chat_repository.dart';
 
 /// Resolves the signed-in user's chat identity (`GET /chat/me`) and opens
@@ -47,6 +48,10 @@ class ChatSession {
       throw StateError('Cannot start a chat session before logging in.');
     }
     ChatSocketService.instance.connect(token);
+    // Warmed here, not awaited: the first call of a session shouldn't pay
+    // for a round trip that can just as well happen while the user is
+    // still reading their inbox.
+    unawaited(IceServerProvider.instance.fetch());
 
     final response = await ApiClient().get<Map<String, dynamic>>(
       ApiConstants.chatMe,
@@ -67,6 +72,7 @@ class ChatSession {
     final pending = _future;
     _future = null;
     ChatSocketService.instance.disconnect();
+    IceServerProvider.instance.reset();
     if (pending == null) return;
     unawaited(
       pending
