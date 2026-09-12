@@ -76,8 +76,8 @@ class CaregiverProfileView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _PersonalInfoCard(state: state, cubit: cubit),
-                        const SizedBox(height: 16),
-                        _EarningsCard(state: state),
+                        // const SizedBox(height: 16),
+                        // _EarningsCard(state: state),
                         const SizedBox(height: 16),
                         _VerifiedDocumentsSection(state: state),
                         const SizedBox(height: 20),
