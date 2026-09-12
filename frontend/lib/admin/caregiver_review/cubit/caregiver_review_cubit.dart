@@ -68,6 +68,7 @@ class CaregiverReviewCubit extends Cubit<CaregiverReviewState> {
             isVerified: doc['is_verified'] as bool,
           );
         }).toList(),
+        status: data['status'] as String? ?? 'pending',
       );
 
       emit(

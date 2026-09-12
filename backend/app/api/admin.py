@@ -217,6 +217,7 @@ def get_elder_detail_by_user(
                 "id": link.id,
                 "family_id": link.family_id,
                 "user_id": link.family.user_id,
+                "family_user_id": link.family.user_id,
                 "name": link.family.name,
                 "relationship": link.relationship,
                 "avatarUrl": link.family.profile_image_url
@@ -254,6 +255,7 @@ def get_family_detail_by_user(
                 "id": link.id,
                 "elder_id": link.elder_id,
                 "user_id": link.elder.user_id,
+                "elder_user_id": link.elder.user_id,
                 "name": link.elder.name,
                 "relationship": link.relationship,
                 "avatarUrl": link.elder.profile_image_url

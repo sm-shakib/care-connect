@@ -20,6 +20,7 @@ class BookingCreate(BookingBase):
 class BookingUpdate(BaseModel):
     status: Optional[str] = None
     payment_status: Optional[str] = None
+    service_end_date: Optional[date] = None
 
 class BookingOut(BookingBase):
     id: int

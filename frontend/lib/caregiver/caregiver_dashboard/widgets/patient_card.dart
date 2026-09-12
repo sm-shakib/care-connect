@@ -20,8 +20,10 @@ class PatientCard extends StatelessWidget {
         ? colorScheme.errorContainer.withValues(alpha: 0.4)
         : colorScheme.tertiaryContainer.withValues(alpha: 0.25);
 
+    final isPrevious = patient.status == PatientCareStatus.previous;
+
     return InkWell(
-      onTap: onTap,
+      onTap: isPrevious ? null : onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -99,7 +101,8 @@ class PatientCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: colorScheme.outlineVariant),
+                if (!isPrevious)
+                  Icon(Icons.chevron_right, color: colorScheme.outlineVariant),
               ],
             ),
             // const SizedBox(height: 14),

@@ -121,7 +121,8 @@ class CaregiverReviewView extends StatelessWidget {
         bottomSheet: BlocBuilder<CaregiverReviewCubit, CaregiverReviewState>(
           buildWhen: (previous, current) =>
               previous.adminNotes != current.adminNotes ||
-              previous.submitStatus != current.submitStatus,
+              previous.submitStatus != current.submitStatus ||
+              previous.application != current.application,
           builder: (context, state) {
             final cubit = context.read<CaregiverReviewCubit>();
             return ReviewBottomActionBar(
@@ -129,6 +130,7 @@ class CaregiverReviewView extends StatelessWidget {
               isSubmitting: state.isSubmitting,
               isSubmitted: state.submitStatus ==
                   CaregiverReviewSubmitStatus.submitted,
+              isAlreadyVerified: state.application?.status == 'verified',
               onNotesChanged: cubit.notesChanged,
               onApprove: cubit.approve,
               onRequestDocs: cubit.requestDocs,

@@ -44,6 +44,16 @@ class BookingRepository {
     return BookingRequest.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<BookingRequest> completeBooking(int bookingId) async {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final dateStr = '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
+    final response = await _apiClient.patch(
+      ApiConstants.bookingDetail(bookingId),
+      data: {'service_end_date': dateStr},
+    );
+    return BookingRequest.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<BookingRequest> updatePaymentStatus(
     int bookingId,
     PaymentStatus status,

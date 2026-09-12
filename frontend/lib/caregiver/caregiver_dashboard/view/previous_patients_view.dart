@@ -52,33 +52,49 @@ class PreviousPatientsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Expanded(
-                  child: previousPatients.isEmpty
-                      ? Center(
-                    child: Text(
-                      context.l10n.noPreviousPatientsFound,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  )
-                      : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                    itemCount: previousPatients.length,
-                    itemBuilder: (context, index) {
-                      final patient = previousPatients[index];
-                      return PatientCard(
-                        patient: patient,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => PatientDetailsPage(
-                                patientId: patient.id,
-                                patientName: patient.name,
+                  child: RefreshIndicator(
+                    onRefresh: () =>
+                        context.read<CaregiverDashboardCubit>().loadPatients(),
+                    child: previousPatients.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.4,
+                                child: Center(
+                                  child: Text(
+                                    context.l10n.noPreviousPatientsFound,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                            ],
+                          )
+                        : ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                            itemCount: previousPatients.length,
+                            itemBuilder: (context, index) {
+                              final patient = previousPatients[index];
+                              return PatientCard(
+                                patient: patient,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute<void>(
+                                      builder: (_) => PatientDetailsPage(
+                                        patientId: patient.id,
+                                        patientName: patient.name,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
                   ),
                 ),
               ],

@@ -16,12 +16,14 @@ class ReviewBottomActionBar extends StatefulWidget {
     required this.onApprove,
     required this.onRequestDocs,
     required this.onReject,
+    this.isAlreadyVerified = false,
     super.key,
   });
 
   final String notes;
   final bool isSubmitting;
   final bool isSubmitted;
+  final bool isAlreadyVerified;
   final ValueChanged<String> onNotesChanged;
   final VoidCallback onApprove;
   final VoidCallback onRequestDocs;
@@ -214,7 +216,7 @@ class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
                       child: SizedBox(
                         height: 56,
                         child: ElevatedButton.icon(
-                          onPressed: widget.isSubmitting || _overLimit
+                          onPressed: widget.isSubmitting || _overLimit || widget.isAlreadyVerified
                               ? null
                               : widget.onApprove,
                           style: ElevatedButton.styleFrom(
@@ -242,7 +244,7 @@ class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
                         height: 56,
                         child: OutlinedButton.icon(
                           onPressed:
-                              widget.isSubmitting ? null : widget.onRequestDocs,
+                              widget.isSubmitting || widget.isAlreadyVerified ? null : widget.onRequestDocs,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primaryLight,
                             side: BorderSide(
@@ -267,7 +269,7 @@ class _ReviewBottomActionBarState extends State<ReviewBottomActionBar> {
                         height: 56,
                         child: ElevatedButton.icon(
                           onPressed:
-                              widget.isSubmitting ? null : widget.onReject,
+                              widget.isSubmitting || widget.isAlreadyVerified ? null : widget.onReject,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.errorLight,
                             foregroundColor: AppColors.onErrorLight,

@@ -132,7 +132,11 @@ class CaregiverDashboardView extends StatelessWidget {
                                         patientName: patient.name,
                                       ),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    if (context.mounted) {
+                                      context.read<CaregiverDashboardCubit>().loadPatients();
+                                    }
+                                  });
                                 },
                               );
                             },

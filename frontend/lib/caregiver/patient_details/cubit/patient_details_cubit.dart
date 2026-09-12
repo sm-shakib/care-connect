@@ -124,6 +124,7 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
           dailyTimingEnd: activeBooking?.endTime != null
               ? DateFormat.jm().format(DateTime(2024, 1, 1, activeBooking!.endTime.hour, activeBooking.endTime.minute))
               : '',
+          activeBookingId: activeBooking?.id,
         ),
       );
     } catch (e) {
@@ -132,6 +133,16 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
         status: PatientDetailsStatus.failure,
         errorMessage: e.toString(),
       ));
+    }
+  }
+
+  Future<void> markServiceAsComplete() async {
+    if (state.activeBookingId == null) return;
+    try {
+      await _bookingRepository.completeBooking(state.activeBookingId!);
+      await loadCarePlan();
+    } catch (e) {
+      debugPrint('Error completing booking: $e');
     }
   }
 
