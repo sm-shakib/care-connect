@@ -9,6 +9,10 @@ import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
 import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
+import 'package:frontend/shared/medicine/view/medicine_details_page.dart';
+import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
+import 'package:frontend/shared/medicine/data/medicine_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -511,7 +515,24 @@ class _MedicineRemindersSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         SharedMedicationSection(
-          medications: nextMedicationDoses(state.medications),
+          medications: nextMedicationDoses(state.medications, count: 5),
+          onTap: (medication) {
+            final medicine = state.medications.firstWhere(
+              (m) => m.id == medication.id,
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) => MedicineCubit(
+                    MedicineRepository(ApiClient()),
+                    elderId: int.tryParse(state.patientId),
+                  )..loadMedicines(),
+                  child: MedicineDetailsPage(medicine: medicine),
+                ),
+              ),
+            );
+          },
           onMarkTaken: (medication) =>
               cubit.markMedicationTaken(medication.id, medication.time),
         ),

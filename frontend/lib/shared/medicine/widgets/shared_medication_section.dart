@@ -12,11 +12,13 @@ class SharedMedicationSection extends StatelessWidget {
   const SharedMedicationSection({
     required this.medications,
     this.onMarkTaken,
+    this.onTap,
     super.key,
   });
 
   final List<Medication> medications;
   final ValueChanged<Medication>? onMarkTaken;
+  final ValueChanged<Medication>? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class SharedMedicationSection extends StatelessWidget {
             for (var i = 0; i < medications.length; i++) ...[
               _MedicationTile(
                 medication: medications[i],
+                onTap: onTap == null ? null : () => onTap!(medications[i]),
                 onMarkTaken: onMarkTaken == null
                     ? null
                     : () => onMarkTaken!(medications[i]),
@@ -67,10 +70,15 @@ class SharedMedicationSection extends StatelessWidget {
 }
 
 class _MedicationTile extends StatelessWidget {
-  const _MedicationTile({required this.medication, this.onMarkTaken});
+  const _MedicationTile({
+    required this.medication,
+    this.onMarkTaken,
+    this.onTap,
+  });
 
   final Medication medication;
   final VoidCallback? onMarkTaken;
+  final VoidCallback? onTap;
 
   bool get _isMissed => !medication.isTaken && isDoseMissed(medication.time);
 
@@ -78,76 +86,80 @@ class _MedicationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          _TimeBadge(time: medication.time),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  medication.getName(context),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                if (medication.dosage.isNotEmpty)
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        child: Row(
+          children: [
+            _TimeBadge(time: medication.time),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    medication.dosage,
+                    medication.getName(context),
                     style: TextStyle(
-                      fontSize: 15,
-                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
                     ),
                   ),
-              ],
+                  if (medication.dosage.isNotEmpty)
+                    Text(
+                      medication.dosage,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          if (medication.isTaken)
-            const Icon(
-              Icons.check_circle,
-              color: AppColors.primaryLight,
-              size: 28,
-            )
-          else if (_isMissed)
-            Text(
-              context.l10n.missedStatusLabel,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.error,
+            const SizedBox(width: 10),
+            if (medication.isTaken)
+              const Icon(
+                Icons.check_circle,
+                color: AppColors.primaryLight,
+                size: 28,
+              )
+            else if (_isMissed)
+              Text(
+                context.l10n.missedStatusLabel,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.error,
+                ),
+              )
+            else if (onMarkTaken != null)
+              OutlinedButton(
+                onPressed: onMarkTaken,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primaryLight,
+                  side: const BorderSide(
+                      color: AppColors.primaryLight, width: 1.4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  context.l10n.markTakenLabel,
+                  style:
+                      const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              )
+            else
+              Icon(
+                Icons.radio_button_unchecked,
+                color: colorScheme.outlineVariant,
+                size: 28,
               ),
-            )
-          else if (onMarkTaken != null)
-            OutlinedButton(
-              onPressed: onMarkTaken,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryLight,
-                side:
-                    const BorderSide(color: AppColors.primaryLight, width: 1.4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                context.l10n.markTakenLabel,
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            )
-          else
-            Icon(
-              Icons.radio_button_unchecked,
-              color: colorScheme.outlineVariant,
-              size: 28,
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -277,13 +277,25 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   void deleteReminder(String reminderId) {
+    // Optimistic update
+    final previousReminders = state.otherReminders;
+    final updatedReminders =
+        state.otherReminders.where((r) => r.id != reminderId).toList();
+    emit(state.copyWith(otherReminders: updatedReminders));
+
     unawaited(
       () async {
         try {
-          await _elderRepository.deleteReminder(int.parse(reminderId));
+          final id = int.tryParse(reminderId);
+          if (id != null) {
+            await _elderRepository.deleteReminder(id);
+          }
           await loadDashboard();
         } catch (e) {
           debugPrint('Error deleting reminder: $e');
+          if (!isClosed) {
+            emit(state.copyWith(otherReminders: previousReminders));
+          }
         }
       }(),
     );
@@ -328,13 +340,25 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   void deleteAppointment(String appointmentId) {
+    // Optimistic update
+    final previousAppointments = state.appointments;
+    final updatedAppointments =
+        state.appointments.where((a) => a.id != appointmentId).toList();
+    emit(state.copyWith(appointments: updatedAppointments));
+
     unawaited(
       () async {
         try {
-          await _elderRepository.deleteAppointment(int.parse(appointmentId));
+          final id = int.tryParse(appointmentId);
+          if (id != null) {
+            await _elderRepository.deleteAppointment(id);
+          }
           await loadDashboard();
         } catch (e) {
           debugPrint('Error deleting appointment: $e');
+          if (!isClosed) {
+            emit(state.copyWith(appointments: previousAppointments));
+          }
         }
       }(),
     );

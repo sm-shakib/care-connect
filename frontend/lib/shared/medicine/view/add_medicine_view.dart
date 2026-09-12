@@ -136,16 +136,27 @@ class _AddMedicineViewState extends State<AddMedicineView> {
     if (_imagePath != null && !_imagePath!.startsWith('http')) {
       try {
         final file = File(_imagePath!);
-        final bytes = await file.readAsBytes();
-        final filename = _imagePath!.split('/').last;
-        final url = await widget.authRepository.uploadFile(bytes, filename);
-        if (url != null) {
-          finalImagePath = url;
+        if (await file.exists()) {
+          final bytes = await file.readAsBytes();
+          final filename = _imagePath!.split('/').last;
+          debugPrint('DEBUG: Uploading medicine image: $filename');
+          final url = await widget.authRepository.uploadFile(bytes, filename);
+          if (url != null) {
+            debugPrint('DEBUG: Medicine image uploaded successfully: $url');
+            finalImagePath = url;
+          } else {
+            debugPrint('DEBUG: Medicine image upload returned null');
+          }
+        } else {
+          debugPrint('DEBUG: Medicine image file does not exist: $_imagePath');
         }
       } catch (e) {
-        debugPrint('Error uploading medicine image: $e');
-        // Continue anyway? Or show error? For now, we continue with local path
-        // which might fail on other devices, but at least doesn't block save.
+        debugPrint('ERROR: Failed to upload medicine image: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload image: $e')),
+          );
+        }
       }
     }
 
@@ -166,9 +177,16 @@ class _AddMedicineViewState extends State<AddMedicineView> {
       availableUnits: _availableUnits,
       notifyThreshold: _notifyThreshold,
       isTakenToday: widget.existing?.isTakenToday ?? false,
+      takenDoseTimes: widget.existing?.takenDoseTimes ?? const [],
     );
 
     widget.onSave(medicine);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Medicine details saved successfully.')),
+      );
+    }
   }
 
   @override

@@ -15,17 +15,31 @@ library;
 const missedDoseAfterMinutes = 120;
 
 /// Minutes since midnight for a pre-formatted time label like "8:00 AM",
-/// or `null` if it doesn't match that shape.
+/// "14:30", or `null` if it doesn't match any known shape.
 int? minutesSinceMidnight(String label) {
-  final match =
-      RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(label.trim());
-  if (match == null) return null;
-  var hour = int.parse(match.group(1)!);
-  final minute = int.parse(match.group(2)!);
-  final meridiem = match.group(3)!.toUpperCase();
-  if (meridiem == 'PM' && hour != 12) hour += 12;
-  if (meridiem == 'AM' && hour == 12) hour = 0;
-  return hour * 60 + minute;
+  final trimmed = label.trim();
+
+  // 12-hour format: "8:00 AM" or "08:00 PM"
+  final amPmMatch =
+      RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(trimmed);
+  if (amPmMatch != null) {
+    var hour = int.parse(amPmMatch.group(1)!);
+    final minute = int.parse(amPmMatch.group(2)!);
+    final meridiem = amPmMatch.group(3)!.toUpperCase();
+    if (meridiem == 'PM' && hour != 12) hour += 12;
+    if (meridiem == 'AM' && hour == 12) hour = 0;
+    return hour * 60 + minute;
+  }
+
+  // 24-hour format: "14:30" or "08:00"
+  final simpleMatch = RegExp(r'^(\d{1,2}):(\d{2})$').firstMatch(trimmed);
+  if (simpleMatch != null) {
+    final hour = int.parse(simpleMatch.group(1)!);
+    final minute = int.parse(simpleMatch.group(2)!);
+    return hour * 60 + minute;
+  }
+
+  return null;
 }
 
 /// Whether a not-yet-taken dose scheduled at [time] ("8:00 AM"-style) has

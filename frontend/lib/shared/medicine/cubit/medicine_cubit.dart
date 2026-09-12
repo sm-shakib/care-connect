@@ -13,7 +13,7 @@ import 'medicine_state.dart';
 /// since [MedicineCubit] is only ever constructed for the elderly role,
 /// alarms are inherently elder-only too.
 class MedicineCubit extends Cubit<MedicineState> {
-  MedicineCubit(this._repository) : super(const MedicineState()) {
+  MedicineCubit(this._repository, {this.elderId}) : super(const MedicineState()) {
     // A dose can be marked taken from the alarm screen, which updates the
     // backend directly without any reference to this cubit (see
     // MedicineAlarmPage) — reload whenever that happens so this doesn't
@@ -25,6 +25,7 @@ class MedicineCubit extends Cubit<MedicineState> {
   }
 
   final MedicineRepository _repository;
+  final int? elderId;
   late final StreamSubscription<void> _alarmSubscription;
 
   @override
@@ -34,33 +35,45 @@ class MedicineCubit extends Cubit<MedicineState> {
   }
 
   Future<void> loadMedicines() async {
+    debugPrint('DEBUG: MedicineCubit.loadMedicines(elderId: $elderId) called');
+    
     emit(state.copyWith(status: MedicineStatus.loading));
     try {
-      final medicines = await _repository.getMedicines();
-      emit(
-        state.copyWith(
-          status: MedicineStatus.success,
-          medicines: medicines,
-        ),
-      );
-      unawaited(MedicineAlarmService.instance.syncSchedule(medicines));
+      final medicines = await _repository.getMedicines(elderId: elderId);
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            status: MedicineStatus.success,
+            medicines: medicines,
+          ),
+        );
+        unawaited(MedicineAlarmService.instance.syncSchedule(medicines));
+      }
     } catch (e) {
       debugPrint('MedicineCubit.loadMedicines error: $e');
-      emit(
-        state.copyWith(
-          status: MedicineStatus.failure,
-          errorMessage: 'Unable to load your medicines. Please try again.',
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            status: MedicineStatus.failure,
+            errorMessage: 'Unable to load medicines. Please try again.',
+          ),
+        );
+      }
     }
   }
 
   Future<void> addMedicine(Medicine medicine) async {
     try {
-      final created = await _repository.createMedicine(medicine);
-      final medicines = [...state.medicines, created];
-      emit(state.copyWith(medicines: medicines));
-      unawaited(MedicineAlarmService.instance.syncSchedule(medicines));
+      final created = await _repository.createMedicine(medicine, elderId: elderId);
+      // Replace the temporary item (if any) with the real one from server.
+      // We identify it by name since newly added ones don't have real IDs yet.
+      final medicines = state.medicines
+          .where((m) => !m.id.startsWith('MED-') || m.name != medicine.name)
+          .toList();
+      
+      final updatedMedicines = [...medicines, created];
+      emit(state.copyWith(medicines: updatedMedicines));
+      unawaited(MedicineAlarmService.instance.syncSchedule(updatedMedicines));
     } catch (e) {
       debugPrint('MedicineCubit.addMedicine error: $e');
     }
@@ -80,14 +93,24 @@ class MedicineCubit extends Cubit<MedicineState> {
   }
 
   Future<void> deleteMedicine(String medicineId) async {
+    // Optimistic update: remove from UI immediately
+    final previousMedicines = state.medicines;
+    final updatedMedicines =
+        state.medicines.where((m) => m.id != medicineId).toList();
+    emit(state.copyWith(medicines: updatedMedicines));
+
     try {
-      await _repository.deleteMedicine(medicineId);
-      final medicines =
-          state.medicines.where((medicine) => medicine.id != medicineId).toList();
-      emit(state.copyWith(medicines: medicines));
-      unawaited(MedicineAlarmService.instance.syncSchedule(medicines));
+      // Don't try to delete unsaved medicines from backend
+      if (!medicineId.startsWith('MED-')) {
+        await _repository.deleteMedicine(medicineId);
+      }
+      unawaited(MedicineAlarmService.instance.syncSchedule(updatedMedicines));
     } catch (e) {
       debugPrint('MedicineCubit.deleteMedicine error: $e');
+      // Rollback on failure
+      if (!isClosed) {
+        emit(state.copyWith(medicines: previousMedicines));
+      }
     }
   }
 

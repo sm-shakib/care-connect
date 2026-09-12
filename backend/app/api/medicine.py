@@ -12,6 +12,7 @@ from app.models.family import Family
 from app.models.caregiver import Caregiver
 from app.models.booking import Booking
 from app.models.binding import FamilyElderLink
+from app.models.notification import Notification
 from app.schemas.medicine import (
     MedicineCreate,
     MedicineOut,
@@ -184,12 +185,18 @@ def delete_medicine(
 ):
     medicine = db.query(Medicine).filter(Medicine.id == medicine_id).first()
     if not medicine:
-        raise HTTPException(status_code=404, detail="Medicine not found")
+        # Idempotent delete: if it's already gone, success.
+        return
     
     _check_elder_access(medicine.elder_id, db, current_user)
 
+    # Manually delete related notifications to avoid ForeignKeyViolation
+    # if the DB schema hasn't been updated with CASCADE yet.
+    db.query(Notification).filter(Notification.medicine_id == medicine_id).delete()
+
     db.delete(medicine)
     db.commit()
+    return
 
 
 @router.patch("/{medicine_id}/take", response_model=MedicineOut)

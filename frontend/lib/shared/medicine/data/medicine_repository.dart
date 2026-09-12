@@ -2,6 +2,7 @@ import 'package:frontend/core/network/api_client.dart';
 
 import '../models/medicine.dart';
 import 'medicine_dto.dart';
+import 'package:flutter/foundation.dart';
 
 /// Talks to the `/medicines` backend endpoints on behalf of the signed-in
 /// elder. Every call is scoped server-side to that elder's own medicines.
@@ -13,6 +14,7 @@ class MedicineRepository {
   Future<List<Medicine>> getMedicines({int? elderId}) async {
     try {
       final path = elderId != null ? '/medicines/$elderId' : '/medicines/me';
+      debugPrint('DEBUG: MedicineRepository.getMedicines(elderId: $elderId) -> $path');
       final response = await _apiClient.get(path);
       final data = response.data as List;
       return data

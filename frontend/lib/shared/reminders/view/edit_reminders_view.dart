@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/l10n/l10n.dart';
 
+import '../../../core/network/api_client.dart';
+import '../../../elderly/dashboard/cubit/dashboard_cubit.dart';
+import '../../../family/cubit/family_dashboard_cubit.dart';
+import '../../../caregiver/patient_details/cubit/patient_details_cubit.dart';
+import '../../medicine/cubit/medicine_cubit.dart';
+import '../../medicine/data/medicine_repository.dart';
+import '../../medicine/view/medicine_details_page.dart';
 import '../../../theme/app_colors.dart';
 import '../../medicine/models/medicine.dart';
 import '../../medicine/view/add_medicine_page.dart';
@@ -20,12 +28,14 @@ class EditRemindersView extends StatelessWidget {
     required this.elderName,
     required this.controller,
     this.onRefresh,
+    this.elderId,
     super.key,
   });
 
   final String elderName;
   final EditRemindersController controller;
   final RefreshCallback? onRefresh;
+  final String? elderId;
 
   Future<void> _openMedicineForm(BuildContext context, {Medicine? existing}) async {
     final saved = await Navigator.push<Medicine>(
@@ -96,6 +106,32 @@ class EditRemindersView extends StatelessWidget {
               ReminderEditTile(
                 title: medicine.getName(context),
                 subtitle: '${medicine.dosage} • ${medicine.nextReminder}',
+                onTap: () {
+                  final cubit = context.read<MedicineCubit?>();
+                  final familyCubit = context.read<FamilyDashboardCubit?>();
+                  final caregiverCubit = context.read<PatientDetailsCubit?>();
+
+                  Widget page;
+                  if (cubit != null) {
+                    page = BlocProvider.value(
+                      value: cubit,
+                      child: MedicineDetailsPage(medicine: medicine),
+                    );
+                  } else {
+                    page = BlocProvider(
+                      create: (_) => MedicineCubit(
+                        MedicineRepository(ApiClient()),
+                        elderId: int.tryParse(elderId ?? ''),
+                      )..loadMedicines(),
+                      child: MedicineDetailsPage(medicine: medicine),
+                    );
+                  }
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => page),
+                  );
+                },
                 onEdit: () => _openMedicineForm(context, existing: medicine),
                 onDelete: () => controller.onDeleteMedicine(medicine.id),
               ),

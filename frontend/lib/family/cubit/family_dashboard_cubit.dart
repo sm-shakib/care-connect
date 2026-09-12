@@ -255,10 +255,22 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
     try {
       final id = int.tryParse(elderId);
       if (id == null) return;
+      
+      // Optimistic update
+      final currentElders = state.elders;
+      final updatedElders = state.elders.map((elder) {
+        if (elder.id != elderId) return elder;
+        return elder.copyWith(
+          medications: [...elder.medications, medication],
+        );
+      }).toList();
+      _emitUpdatedElders(updatedElders, elderId);
+
       await _medicineRepository.createMedicine(medication, elderId: id);
       await loadElders();
     } catch (e) {
       debugPrint('Error adding medication: $e');
+      await loadElders();
     }
   }
 
@@ -272,11 +284,31 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteMedication(String elderId, String medicationId) async {
+    // Optimistic update
+    final currentElders = state.elders;
+    final updatedElders = state.elders.map((elder) {
+      if (elder.id != elderId) return elder;
+      return elder.copyWith(
+        medications: elder.medications.where((m) => m.id != medicationId).toList(),
+      );
+    }).toList();
+    
+    _emitUpdatedElders(updatedElders, elderId);
+
     try {
-      await _medicineRepository.deleteMedicine(medicationId);
+      if (!medicationId.startsWith('MED-')) {
+        await _medicineRepository.deleteMedicine(medicationId);
+      }
+      // Give the backend a moment to settle before refreshing
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadElders();
     } catch (e) {
       debugPrint('Error deleting medication: $e');
+      // Rollback
+      emit(state.copyWith(
+        elders: currentElders,
+        filteredElders: currentElders,
+      ));
     }
   }
 
@@ -311,13 +343,29 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteReminder(String elderId, String reminderId) async {
+    // Optimistic update
+    final currentElders = state.elders;
+    final updatedElders = state.elders.map((elder) {
+      if (elder.id != elderId) return elder;
+      return elder.copyWith(
+        otherReminders: elder.otherReminders.where((r) => r.id != reminderId).toList(),
+      );
+    }).toList();
+    _emitUpdatedElders(updatedElders, elderId);
+
     try {
       final id = int.tryParse(reminderId);
-      if (id == null) return;
-      await _elderRepository.deleteReminder(id);
+      if (id != null) {
+        await _elderRepository.deleteReminder(id);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadElders();
     } catch (e) {
       debugPrint('Error deleting reminder: $e');
+      emit(state.copyWith(
+        elders: currentElders,
+        filteredElders: currentElders,
+      ));
     }
   }
 
@@ -356,13 +404,29 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
   }
 
   void deleteAppointment(String elderId, String appointmentId) async {
+    // Optimistic update
+    final currentElders = state.elders;
+    final updatedElders = state.elders.map((elder) {
+      if (elder.id != elderId) return elder;
+      return elder.copyWith(
+        appointments: elder.appointments.where((a) => a.id != appointmentId).toList(),
+      );
+    }).toList();
+    _emitUpdatedElders(updatedElders, elderId);
+
     try {
       final id = int.tryParse(appointmentId);
-      if (id == null) return;
-      await _elderRepository.deleteAppointment(id);
+      if (id != null) {
+        await _elderRepository.deleteAppointment(id);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadElders();
     } catch (e) {
       debugPrint('Error deleting appointment: $e');
+      emit(state.copyWith(
+        elders: currentElders,
+        filteredElders: currentElders,
+      ));
     }
   }
 }
