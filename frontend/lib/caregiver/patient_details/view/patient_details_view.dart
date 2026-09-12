@@ -153,6 +153,10 @@ class PatientDetailsView extends StatelessWidget {
                           const SizedBox(height: 20),
                           _BasicInfoSection(state: state),
                           const SizedBox(height: 24),
+                          if (state.serviceStartDate != null) ...[
+                            _ScheduleSection(state: state),
+                            const SizedBox(height: 28),
+                          ],
                           _VitalsRow(state: state, cubit: cubit),
                           const SizedBox(height: 28),
                           _MedicineRemindersSection(state: state, cubit: cubit),
@@ -794,6 +798,128 @@ class _LargeNumberField extends StatelessWidget {
               borderSide: const BorderSide(color: AppColors.darkTeal, width: 1.6),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ScheduleSection extends StatelessWidget {
+  const _ScheduleSection({required this.state});
+
+  final PatientDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final startDate = state.serviceStartDate != null
+        ? DateFormat('d MMM yyyy').format(state.serviceStartDate!)
+        : '—';
+    final endDate = state.serviceEndDate != null
+        ? DateFormat('d MMM yyyy').format(state.serviceEndDate!)
+        : '—';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.event_note_outlined,
+                color: AppColors.primaryLight, size: 26),
+            const SizedBox(width: 10),
+            const Text(
+              'Care Schedule',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.outlineVariantLight.withValues(alpha: 0.8),
+            ),
+          ),
+          child: Column(
+            children: [
+              _ScheduleRow(
+                icon: Icons.calendar_today_outlined,
+                label: 'Service Period',
+                value: '$startDate - $endDate',
+              ),
+              const Divider(height: 24, thickness: 0.5),
+              _ScheduleRow(
+                icon: Icons.repeat_rounded,
+                label: 'Working Days',
+                value: state.daysOfWeek,
+              ),
+              const Divider(height: 24, thickness: 0.5),
+              _ScheduleRow(
+                icon: Icons.access_time_rounded,
+                label: 'Daily Timing',
+                value: '${state.dailyTimingStart} - ${state.dailyTimingEnd}',
+                isLast: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ScheduleRow extends StatelessWidget {
+  const _ScheduleRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.paleMint.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 18, color: AppColors.darkTeal),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.onSurfaceVariantLight,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppColors.onSurfaceLight,
+              ),
+            ),
+          ],
         ),
       ],
     );

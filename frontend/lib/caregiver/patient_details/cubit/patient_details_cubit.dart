@@ -1,9 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
+import 'package:frontend/caregiver/data/repositories/booking_repository.dart';
+import 'package:frontend/caregiver/models/booking_request.dart';
 import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/elderly/data/repositories/elder_repository.dart';
 import 'package:frontend/shared/medicine/data/medicine_repository.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
@@ -27,6 +31,8 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
 
   final _elderRepository = ElderRepository(ApiClient());
   final _medicineRepository = MedicineRepository(ApiClient());
+  final _bookingRepository = BookingRepository();
+  final _authRepository = AuthRepository();
 
   /// Loads the patient's vitals, medications, and reminders.
   Future<void> loadCarePlan() async {
@@ -36,13 +42,34 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
     emit(state.copyWith(status: PatientDetailsStatus.loading));
 
     try {
-      final profile = await _elderRepository.getElderProfile(elderId);
-      final appointmentsData =
-          await _elderRepository.getAppointments(elderId: elderId);
-      final remindersData =
-          await _elderRepository.getReminders(elderId: elderId);
-      final medications =
-          await _medicineRepository.getMedicines(elderId: elderId);
+      final caregiverId = await _authRepository.getProfileId();
+      
+      final results = await Future.wait([
+        _elderRepository.getElderProfile(elderId),
+        _elderRepository.getAppointments(elderId: elderId),
+        _elderRepository.getReminders(elderId: elderId),
+        _medicineRepository.getMedicines(elderId: elderId),
+        if (caregiverId != null)
+          _bookingRepository.getCaregiverBookings(caregiverId)
+        else
+          Future.value(<BookingRequest>[]),
+      ]);
+
+      final profile = results[0] as Map<String, dynamic>;
+      final appointmentsData = results[1] as List<Map<String, dynamic>>;
+      final remindersData = results[2] as List<Map<String, dynamic>>;
+      final medications = results[3] as List<Medicine>;
+      final bookings = results[4] as List<BookingRequest>;
+
+      // Find the specific booking for this elder
+      BookingRequest? activeBooking;
+      try {
+        activeBooking = bookings.firstWhere(
+          (b) => b.elderId == elderId && b.status == BookingStatus.accepted,
+        );
+      } catch (_) {
+        activeBooking = null;
+      }
 
       final appointments = appointmentsData
           .map((a) => Appointment(
@@ -88,6 +115,15 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
           address: profile['address'] as String? ?? '',
           healthCondition: profile['health_condition'] as String? ?? 'Stable',
           imageUrl: profile['profile_image_url'] as String? ?? '',
+          serviceStartDate: activeBooking?.startDate,
+          serviceEndDate: activeBooking?.endDate,
+          daysOfWeek: activeBooking?.workingDaysLabel ?? '',
+          dailyTimingStart: activeBooking?.startTime != null 
+              ? DateFormat.jm().format(DateTime(2024, 1, 1, activeBooking!.startTime.hour, activeBooking.startTime.minute))
+              : '',
+          dailyTimingEnd: activeBooking?.endTime != null
+              ? DateFormat.jm().format(DateTime(2024, 1, 1, activeBooking!.endTime.hour, activeBooking.endTime.minute))
+              : '',
         ),
       );
     } catch (e) {
