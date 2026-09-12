@@ -44,12 +44,12 @@ class ElderlyProfileView extends StatelessWidget {
                   children: [
                     const Icon(Icons.error_outline, size: 48, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text('Failed to load profile: ${state.errorMessage}'),
+                    Text(context.l10n.profileLoadError(state.errorMessage ?? '')),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () =>
                           context.read<ElderlyProfileCubit>().loadProfile(),
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retryLabel),
                     ),
                   ],
                 ),
@@ -565,7 +565,7 @@ class _ActionsSection extends StatelessWidget {
         if (!state.isEditing) ...[
           _ActionRow(
             icon: Icons.volunteer_activism_outlined,
-            label: 'Donation & Assistance',
+            label: context.l10n.donationAssistanceLabel,
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: () {
@@ -588,7 +588,7 @@ class _ActionsSection extends StatelessWidget {
           const SizedBox(height: 10),
           _ActionRow(
             icon: Icons.report_problem_outlined,
-            label: 'My Complaints',
+            label: context.l10n.myComplaintsLabel,
             color: colorScheme.onSurface,
             backgroundColor: AppColors.darkTeal.withValues(alpha: 0.1),
             onTap: () {
