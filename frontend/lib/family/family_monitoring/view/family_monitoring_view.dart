@@ -12,12 +12,14 @@ import 'package:frontend/family/family_monitoring/widgets/caregiver_status_card.
 import 'package:frontend/family/family_monitoring/widgets/heart_rate_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/live_location_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/medical_progress_section.dart';
-import 'package:frontend/family/family_monitoring/widgets/medication_section.dart';
+import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
+import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
 import 'package:frontend/family/family_monitoring/widgets/monitoring_header.dart';
 import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
+import 'package:frontend/l10n/l10n.dart';
 
 class FamilyMonitoringView extends StatelessWidget {
   const FamilyMonitoringView({
@@ -183,7 +185,30 @@ class FamilyMonitoringView extends StatelessWidget {
           const SizedBox(height: 24),
 
           /// Medication Reminder
-          MedicationSection(medications: elder.medications),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.medication_outlined,
+                      color: AppColors.primaryLight, size: 26),
+                  const SizedBox(width: 10),
+                  Text(
+                    context.l10n.dashboardMedicationTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SharedMedicationSection(
+                medications: nextMedicationDoses(elder.medications),
+              ),
+            ],
+          ),
 
           const SizedBox(height: 24),
 

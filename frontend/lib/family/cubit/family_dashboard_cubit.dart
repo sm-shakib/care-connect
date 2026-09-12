@@ -44,21 +44,22 @@ class FamilyDashboardCubit extends Cubit<FamilyDashboardState> {
           return Appointment(
             id: ad['id'].toString(),
             doctorName: (ad['doctor_name'] ?? '') as String,
-            specialty: ad['specialty'] as String? ?? 'Specialist',
-            date: (ad['appointment_date'] ?? '') as String,
-            time: (ad['appointment_time'] ?? '') as String,
-            location: ad['location'] as String? ?? 'Hospital',
+            specialty: ad['specialty']?.toString() ?? '',
+            date: ad['appointment_date']?.toString() ?? '',
+            time: ad['appointment_time']?.toString() ?? '',
+            location: ad['location']?.toString() ?? '',
           );
         }).toList();
 
         final remindersRaw = data['reminders'] as List? ?? [];
         final List<CareReminder> reminders = remindersRaw.map((r) {
           final rd = r as Map<String, dynamic>;
+          final iconName = rd['icon_name']?.toString() ?? 'notifications';
           return CareReminder(
             id: rd['id'].toString(),
             title: (rd['title'] ?? '') as String,
             subtitle: rd['subtitle'] as String? ?? '',
-            icon: Icons.notifications_active_outlined,
+            icon: CareReminder.mapIconNameToData(iconName),
           );
         }).toList();
 
