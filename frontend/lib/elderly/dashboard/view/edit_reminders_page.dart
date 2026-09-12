@@ -25,6 +25,10 @@ class ElderlyEditRemindersPage extends StatelessWidget {
 
             return EditRemindersView(
               elderName: dashboardState.userName,
+              onRefresh: () async {
+                await dashboardCubit.loadDashboard();
+                await medicineCubit.loadMedicines();
+              },
               controller: EditRemindersController(
                 medicines: medicineState.medicines,
                 onAddMedicine: medicineCubit.addMedicine,

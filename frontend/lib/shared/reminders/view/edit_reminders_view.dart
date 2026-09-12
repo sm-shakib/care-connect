@@ -19,11 +19,13 @@ class EditRemindersView extends StatelessWidget {
   const EditRemindersView({
     required this.elderName,
     required this.controller,
+    this.onRefresh,
     super.key,
   });
 
   final String elderName;
   final EditRemindersController controller;
+  final RefreshCallback? onRefresh;
 
   Future<void> _openMedicineForm(BuildContext context, {Medicine? existing}) async {
     final saved = await Navigator.push<Medicine>(
@@ -69,84 +71,98 @@ class EditRemindersView extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RemindersSectionHeader(
-                title: context.l10n.medicationsTitle,
-                icon: Icons.medication,
-                onAdd: () => _openMedicineForm(context),
-              ),
-              const SizedBox(height: 12),
-              if (controller.medicines.isEmpty)
-                _EmptySectionHint(text: context.l10n.noMedicationsYet)
-              else
-                for (final medicine in controller.medicines) ...[
-                  ReminderEditTile(
-                    title: medicine.getName(context),
-                    subtitle: '${medicine.dosage} • ${medicine.nextReminder}',
-                    onEdit: () =>
-                        _openMedicineForm(context, existing: medicine),
-                    onDelete: () => controller.onDeleteMedicine(medicine.id),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              const SizedBox(height: 24),
-              RemindersSectionHeader(
-                title: context.l10n.otherRemindersTitle,
-                icon: Icons.event_note,
-                onAdd: () => showCareReminderFormSheet(context,
-                    onSave: controller.onAddReminder),
-              ),
-              const SizedBox(height: 12),
-              if (controller.reminders.isEmpty)
-                _EmptySectionHint(text: context.l10n.noOtherRemindersYet)
-              else
-                for (final reminder in controller.reminders) ...[
-                  ReminderEditTile(
-                    title: reminder.title,
-                    subtitle: reminder.subtitle,
-                    leadingIcon: reminder.icon,
-                    onEdit: () => showCareReminderFormSheet(
-                      context,
-                      existing: reminder,
-                      onSave: controller.onUpdateReminder,
-                    ),
-                    onDelete: () => controller.onDeleteReminder(reminder.id),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              const SizedBox(height: 24),
-              RemindersSectionHeader(
-                title: context.l10n.upcomingAppointmentsTitle,
-                icon: Icons.calendar_month,
-                onAdd: () => showAppointmentFormSheet(context,
-                    onSave: controller.onAddAppointment),
-              ),
-              const SizedBox(height: 12),
-              if (controller.appointments.isEmpty)
-                _EmptySectionHint(text: context.l10n.noAppointmentsScheduled)
-              else
-                for (final appointment in controller.appointments) ...[
-                  ReminderEditTile(
-                    title: appointment.doctorName,
-                    subtitle: '${appointment.date} • ${appointment.time}',
-                    onEdit: () => showAppointmentFormSheet(
-                      context,
-                      existing: appointment,
-                      onSave: controller.onUpdateAppointment,
-                    ),
-                    onDelete: () => controller.onDeleteAppointment(appointment.id),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-            ],
-          ),
-        ),
+        child: _buildBody(context),
       ),
     );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    final content = SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RemindersSectionHeader(
+            title: context.l10n.medicationsTitle,
+            icon: Icons.medication,
+            onAdd: () => _openMedicineForm(context),
+          ),
+          const SizedBox(height: 12),
+          if (controller.medicines.isEmpty)
+            _EmptySectionHint(text: context.l10n.noMedicationsYet)
+          else
+            for (final medicine in controller.medicines) ...[
+              ReminderEditTile(
+                title: medicine.getName(context),
+                subtitle: '${medicine.dosage} • ${medicine.nextReminder}',
+                onEdit: () => _openMedicineForm(context, existing: medicine),
+                onDelete: () => controller.onDeleteMedicine(medicine.id),
+              ),
+              const SizedBox(height: 10),
+            ],
+          const SizedBox(height: 24),
+          RemindersSectionHeader(
+            title: context.l10n.otherRemindersTitle,
+            icon: Icons.event_note,
+            onAdd: () => showCareReminderFormSheet(context,
+                onSave: controller.onAddReminder),
+          ),
+          const SizedBox(height: 12),
+          if (controller.reminders.isEmpty)
+            _EmptySectionHint(text: context.l10n.noOtherRemindersYet)
+          else
+            for (final reminder in controller.reminders) ...[
+              ReminderEditTile(
+                title: reminder.title,
+                subtitle: reminder.subtitle,
+                leadingIcon: reminder.icon,
+                onEdit: () => showCareReminderFormSheet(
+                  context,
+                  existing: reminder,
+                  onSave: controller.onUpdateReminder,
+                ),
+                onDelete: () => controller.onDeleteReminder(reminder.id),
+              ),
+              const SizedBox(height: 10),
+            ],
+          const SizedBox(height: 24),
+          RemindersSectionHeader(
+            title: context.l10n.upcomingAppointmentsTitle,
+            icon: Icons.calendar_month,
+            onAdd: () => showAppointmentFormSheet(context,
+                onSave: controller.onAddAppointment),
+          ),
+          const SizedBox(height: 12),
+          if (controller.appointments.isEmpty)
+            _EmptySectionHint(text: context.l10n.noAppointmentsScheduled)
+          else
+            for (final appointment in controller.appointments) ...[
+              ReminderEditTile(
+                title: appointment.doctorName,
+                subtitle: '${appointment.date} • ${appointment.time}',
+                onEdit: () => showAppointmentFormSheet(
+                  context,
+                  existing: appointment,
+                  onSave: controller.onUpdateAppointment,
+                ),
+                onDelete: () => controller.onDeleteAppointment(appointment.id),
+              ),
+              const SizedBox(height: 10),
+            ],
+        ],
+      ),
+    );
+
+    if (onRefresh != null) {
+      return RefreshIndicator(
+        onRefresh: onRefresh!,
+        color: AppColors.darkTeal,
+        child: content,
+      );
+    }
+
+    return content;
   }
 }
 
