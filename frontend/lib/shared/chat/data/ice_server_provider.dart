@@ -66,6 +66,20 @@ class IceServerProvider {
     _inFlight = null;
   }
 
+  /// Drops keys whose value is null.
+  ///
+  /// `flutter_webrtc` decides whether an ICE server is credentialed by
+  /// checking that `username`/`credential` are *present*, not that they
+  /// hold a value — so a STUN entry carrying explicit nulls makes it pass
+  /// null down to libwebrtc, which rejects it and takes the whole
+  /// `createPeerConnection` call with it. The backend omits them now;
+  /// this keeps a call from dying silently if anything upstream ever
+  /// sends them again.
+  static Map<String, dynamic> _withoutNulls(Map<String, dynamic> server) => {
+    for (final entry in server.entries)
+      if (entry.value != null) entry.key: entry.value,
+  };
+
   Future<List<Map<String, dynamic>>> _load() async {
     try {
       final response = await _apiClient.get<Map<String, dynamic>>(
@@ -76,7 +90,7 @@ class IceServerProvider {
 
       final servers = (data['ice_servers'] as List? ?? const [])
           .cast<Map<String, dynamic>>()
-          .map(Map<String, dynamic>.from)
+          .map(_withoutNulls)
           .toList();
       if (servers.isEmpty) return _cached ?? _fallback;
 

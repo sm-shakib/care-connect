@@ -353,7 +353,16 @@ def list_contacts(
     return [resolve_identity(db, u) for u in get_contacts(db, current_user)]
 
 
-@router.get("/ice-servers", response_model=IceServersOut)
+@router.get(
+    "/ice-servers",
+    response_model=IceServersOut,
+    # A STUN entry has no credentials, and `username`/`credential` must be
+    # absent rather than null: flutter_webrtc decides whether a server is
+    # credentialed with `hasKey`, which is true for a key holding null, so
+    # it then hands null to libwebrtc's IceServer — which rejects it. The
+    # resulting exception surfaces as a call stuck on "connecting".
+    response_model_exclude_none=True,
+)
 def get_ice_servers(
     current_user: User = Depends(deps.get_current_active_user),
 ):
