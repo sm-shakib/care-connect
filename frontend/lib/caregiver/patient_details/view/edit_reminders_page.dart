@@ -23,6 +23,7 @@ class EditRemindersPage extends StatelessWidget {
         builder: (context, state) {
           return EditRemindersView(
             elderName: state.patientName,
+            elderId: state.patientId,
             onRefresh: () => cubit.loadCarePlan(),
             controller: EditRemindersController(
               medicines: state.medications,

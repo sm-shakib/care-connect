@@ -27,6 +27,7 @@ import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
 import 'package:frontend/shared/medicine/view/medicine_view.dart';
 import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
+import 'package:frontend/shared/medicine/view/medicine_details_page.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:frontend/core/network/api_client.dart';
@@ -243,7 +244,10 @@ class _DashboardHomeBody extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: () async {
             final authRepo = AuthRepository();
-            await context.read<DashboardCubit>().loadDashboardWithAuth(authRepo);
+            await Future.wait([
+              context.read<DashboardCubit>().loadDashboardWithAuth(authRepo),
+              context.read<MedicineCubit>().loadMedicines(),
+            ]);
           },
           child: ListView(
             padding: const EdgeInsets.all(18),
@@ -292,8 +296,36 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 12),
               BlocBuilder<MedicineCubit, MedicineState>(
                 builder: (context, medicineState) {
+                  if (medicineState.status == MedicineStatus.loading &&
+                      medicineState.medicines.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(
+                          color: AppColors.darkTeal,
+                        ),
+                      ),
+                    );
+                  }
                   return SharedMedicationSection(
-                    medications: nextMedicationDoses(medicineState.medicines),
+                    medications: nextMedicationDoses(
+                      medicineState.medicines,
+                      count: 5,
+                    ),
+                    onTap: (medication) {
+                      final medicine = medicineState.medicines.firstWhere(
+                        (m) => m.id == medication.id,
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<MedicineCubit>(),
+                            child: MedicineDetailsPage(medicine: medicine),
+                          ),
+                        ),
+                      );
+                    },
                     onMarkTaken: (medication) => context
                         .read<MedicineCubit>()
                         .markTaken(medication.id, medication.time),

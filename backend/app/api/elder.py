@@ -267,12 +267,16 @@ def delete_appointment(
 ):
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appointment:
-        raise HTTPException(status_code=404, detail="Appointment not found")
+        return
     
     _check_elder_access(appointment.elder_id, db, current_user)
     
+    # Manually delete related notifications to avoid ForeignKeyViolation
+    db.query(Notification).filter(Notification.appointment_id == appointment_id).delete()
+
     db.delete(appointment)
     db.commit()
+    return
 
 @router.get("/reminders", response_model=List[CareReminderOut])
 def get_my_reminders(
@@ -334,12 +338,13 @@ def delete_care_reminder(
 ):
     reminder = db.query(CareReminder).filter(CareReminder.id == reminder_id).first()
     if not reminder:
-        raise HTTPException(status_code=404, detail="Reminder not found")
+        return
     
     _check_elder_access(reminder.elder_id, db, current_user)
     
     db.delete(reminder)
     db.commit()
+    return
 
 @router.get("/{elder_id}", response_model=ElderOut)
 def get_elder_by_id(

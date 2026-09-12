@@ -8,6 +8,7 @@ class ReminderEditTile extends StatelessWidget {
     required this.subtitle,
     required this.onEdit,
     required this.onDelete,
+    this.onTap,
     this.leadingIcon,
     super.key,
   });
@@ -17,20 +18,25 @@ class ReminderEditTile extends StatelessWidget {
   final IconData? leadingIcon;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
-      child: Row(
-        children: [
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
           if (leadingIcon != null) ...[
             Icon(leadingIcon, color: colorScheme.secondary),
             const SizedBox(width: 12),
@@ -54,7 +60,9 @@ class ReminderEditTile extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

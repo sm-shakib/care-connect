@@ -156,10 +156,15 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
     final int? elderId = int.tryParse(state.patientId);
     if (elderId == null) return;
     try {
+      // Optimistic update
+      final previous = state.medications;
+      emit(state.copyWith(medications: [...previous, medicine]));
+
       await _medicineRepository.createMedicine(medicine, elderId: elderId);
       await loadCarePlan();
     } catch (e) {
       debugPrint('Error adding medication: $e');
+      await loadCarePlan();
     }
   }
 
@@ -173,11 +178,22 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
   }
 
   void deleteMedication(String medicationId) async {
+    // Optimistic update
+    final previousMedicines = state.medications;
+    final updatedMedicines =
+        state.medications.where((m) => m.id != medicationId).toList();
+    emit(state.copyWith(medications: updatedMedicines));
+
     try {
-      await _medicineRepository.deleteMedicine(medicationId);
+      if (!medicationId.startsWith('MED-')) {
+        await _medicineRepository.deleteMedicine(medicationId);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadCarePlan();
     } catch (e) {
       debugPrint('Error deleting medication: $e');
+      // Rollback
+      emit(state.copyWith(medications: previousMedicines));
     }
   }
 
@@ -214,11 +230,21 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
   void deleteCareReminder(String reminderId) async {
     final int? id = int.tryParse(reminderId);
     if (id == null) return;
+
+    // Optimistic update
+    final previousReminders = state.otherReminders;
+    final updatedReminders =
+        state.otherReminders.where((r) => r.id != reminderId).toList();
+    emit(state.copyWith(otherReminders: updatedReminders));
+
     try {
       await _elderRepository.deleteReminder(id);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadCarePlan();
     } catch (e) {
       debugPrint('Error deleting reminder: $e');
+      // Rollback
+      emit(state.copyWith(otherReminders: previousReminders));
     }
   }
 
@@ -259,11 +285,21 @@ class PatientDetailsCubit extends Cubit<PatientDetailsState> {
   void deleteAppointment(String appointmentId) async {
     final int? id = int.tryParse(appointmentId);
     if (id == null) return;
+
+    // Optimistic update
+    final previousAppointments = state.appointments;
+    final updatedAppointments =
+        state.appointments.where((a) => a.id != appointmentId).toList();
+    emit(state.copyWith(appointments: updatedAppointments));
+
     try {
       await _elderRepository.deleteAppointment(id);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       await loadCarePlan();
     } catch (e) {
       debugPrint('Error deleting appointment: $e');
+      // Rollback
+      emit(state.copyWith(appointments: previousAppointments));
     }
   }
 }

@@ -29,6 +29,7 @@ class FamilyEditRemindersPage extends StatelessWidget {
 
         return EditRemindersView(
           elderName: elder.name,
+          elderId: elderId,
           onRefresh: () => cubit.loadElders(),
           controller: EditRemindersController(
             medicines: elder.medications,

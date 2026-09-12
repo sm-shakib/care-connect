@@ -14,6 +14,10 @@ import 'package:frontend/family/family_monitoring/widgets/live_location_card.dar
 import 'package:frontend/family/family_monitoring/widgets/medical_progress_section.dart';
 import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
 import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
+import 'package:frontend/shared/medicine/view/medicine_details_page.dart';
+import 'package:frontend/shared/medicine/cubit/medicine_cubit.dart';
+import 'package:frontend/shared/medicine/data/medicine_repository.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/family/family_monitoring/widgets/monitoring_header.dart';
 import 'package:frontend/family/models/elder.dart';
 import 'package:frontend/shared/chat/chat.dart';
@@ -205,7 +209,24 @@ class FamilyMonitoringView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               SharedMedicationSection(
-                medications: nextMedicationDoses(elder.medications),
+                medications: nextMedicationDoses(elder.medications, count: 5),
+                onTap: (medication) {
+                  final medicine = elder.medications.firstWhere(
+                    (m) => m.id == medication.id,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider(
+                        create: (_) => MedicineCubit(
+                          MedicineRepository(ApiClient()),
+                          elderId: int.tryParse(elder.id),
+                        )..loadMedicines(),
+                        child: MedicineDetailsPage(medicine: medicine),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
