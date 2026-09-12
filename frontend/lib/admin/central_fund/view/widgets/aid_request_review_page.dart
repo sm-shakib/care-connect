@@ -603,22 +603,22 @@ class _AidRequestReviewPageState extends State<AidRequestReviewPage> {
 
   Future<void> _handleApproval() async {
     final caregiver = verifiedCaregivers[selectedCaregiverIndex!];
-    final double fee = _calculateTotalFee(caregiver.hourlyRate.toDouble());
 
     setState(() => _isLoading = true);
     try {
-      await _repository.reviewAidRequest(
+      // The request is offered to the caregiver, not handed to them: it
+      // reaches their request screen as a booking, and the fund is only
+      // charged once they accept. Declining returns it to this queue.
+      await _repository.assignCaregiver(
         widget.request.id,
-        status: 'disbursed',
-        approvedAmount: fee,
-        notes: 'Assigned ${caregiver.name}',
+        int.parse(caregiver.id),
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Caregiver assigned! Fee will be routed from Central Fund.',
+              'Sent to ${caregiver.name}. The fund is charged once they accept.',
             ),
           ),
         );

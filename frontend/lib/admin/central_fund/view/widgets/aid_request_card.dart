@@ -10,10 +10,27 @@ class AidRequestCard extends StatelessWidget {
 
   final AidRequestModel request;
 
+  /// What this request is waiting on, from the admin's point of view.
+  String get _headline {
+    if (request.status == 'awaiting_caregiver') {
+      final name = request.assignedCaregiverName ?? 'caregiver';
+      return 'Awaiting $name';
+    }
+    if (request.status == 'approved' || request.status == 'disbursed') {
+      return 'Aid Processed';
+    }
+    return 'Caregiver Needed';
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Offered to a caregiver who hasn't answered yet. Not actionable by
+    // the admin — reallocating now would double-book the request — but
+    // not finished either, so it reads differently from both.
+    final isAwaitingCaregiver = request.status == 'awaiting_caregiver';
     final isApproved =
         request.status == 'approved' || request.status == 'disbursed';
+    final isSettled = isApproved || isAwaitingCaregiver;
 
     const surfaceLowest = Color(0xFFFFFFFF);
     const outlineVariant = Color(0xFFBACAC5);
@@ -66,7 +83,9 @@ class AidRequestCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
-                    request.status.toUpperCase(),
+                    isAwaitingCaregiver
+                        ? 'AWAITING CAREGIVER'
+                        : request.status.toUpperCase(),
                     style: TextStyle(
                       color: isApproved ? primary : secondary,
                       fontSize: 11,
@@ -103,7 +122,7 @@ class AidRequestCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        isApproved ? 'Aid Processed' : 'Caregiver Needed',
+                        _headline,
                         style: const TextStyle(
                           color: primary,
                           fontSize: 20,
@@ -115,7 +134,7 @@ class AidRequestCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                if (isApproved)
+                if (isSettled)
                   OutlinedButton(
                     onPressed: null,
                     style: OutlinedButton.styleFrom(
@@ -129,9 +148,9 @@ class AidRequestCard extends StatelessWidget {
                       ),
                       minimumSize: const Size(0, 48),
                     ),
-                    child: const Text(
-                      'Active',
-                      style: TextStyle(
+                    child: Text(
+                      isAwaitingCaregiver ? 'Sent' : 'Active',
+                      style: const TextStyle(
                         color: primary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

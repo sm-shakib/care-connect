@@ -198,6 +198,8 @@
 
     "previousRequestsLabel": "পূর্ববর্তী অনুরোধ",
 
+    "fundCoveredBadge": "কেন্দ্রীয় তহবিল থেকে প্রদেয়",
+
     "requestForElderLabel": "{name} এর জন্য অনুরোধ",
 
     "requestedByLabel": "প্রেরক: {name}",

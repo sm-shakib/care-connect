@@ -171,6 +171,10 @@ class _BookingRequestCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
+                    if (request.isFundCovered) ...[
+                      const SizedBox(height: 6),
+                      const _FundCoveredBadge(),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -209,5 +213,42 @@ class _BookingRequestCard extends StatelessWidget {
     if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
     if (diff.inHours < 24) return '${diff.inHours} hours ago';
     return '${diff.inDays} days ago';
+  }
+}
+
+/// Marks a request whose fee comes from the central fund, so the caregiver
+/// can see they're being paid by the fund rather than by the elder before
+/// deciding whether to take it.
+class _FundCoveredBadge extends StatelessWidget {
+  const _FundCoveredBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.paleMint,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.volunteer_activism,
+            size: 13,
+            color: AppColors.darkTeal,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            context.l10n.fundCoveredBadge,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkTeal,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

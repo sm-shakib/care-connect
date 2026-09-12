@@ -31,6 +31,7 @@ class BookingRequest extends Equatable {
     this.caregiverProfession = '',
     this.caregiverPhone = '',
     this.caregiverEntity,
+    this.isFundCovered = false,
   });
 
   final int id;
@@ -57,6 +58,11 @@ class BookingRequest extends Equatable {
   final String caregiverProfession;
   final String caregiverPhone;
   final Caregiver? caregiverEntity;
+
+  /// True when this job came from an approved aid request, so the central
+  /// fund pays the fee rather than the elder. Accepting it is what
+  /// assigns the caregiver and releases the money.
+  final bool isFundCovered;
 
   String get displayRequesterName =>
       requesterName.isNotEmpty ? requesterName : elderName;
@@ -122,6 +128,7 @@ class BookingRequest extends Equatable {
       caregiverProfession: caregiver != null ? (caregiver['profession'] as String? ?? 'Caregiver') : '',
       caregiverPhone: caregiver != null ? (caregiver['phone'] as String? ?? '') : '',
       caregiverEntity: caregiver != null ? Caregiver.fromJson(caregiver) : null,
+      isFundCovered: json['is_fund_covered'] as bool? ?? false,
     );
   }
 
@@ -165,6 +172,7 @@ class BookingRequest extends Equatable {
     String? caregiverProfession,
     String? caregiverPhone,
     Caregiver? caregiverEntity,
+    bool? isFundCovered,
   }) {
     return BookingRequest(
       id: id ?? this.id,
@@ -189,6 +197,7 @@ class BookingRequest extends Equatable {
       caregiverProfession: caregiverProfession ?? this.caregiverProfession,
       caregiverPhone: caregiverPhone ?? this.caregiverPhone,
       caregiverEntity: caregiverEntity ?? this.caregiverEntity,
+      isFundCovered: isFundCovered ?? this.isFundCovered,
     );
   }
 
@@ -216,5 +225,6 @@ class BookingRequest extends Equatable {
         caregiverProfession,
         caregiverPhone,
         caregiverEntity,
+        isFundCovered,
       ];
 }

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from typing import List
-from datetime import timedelta
+from app.core import pricing
 from app.db.session import get_db
 from app.models.booking import Booking
 from app.models.caregiver import Caregiver
@@ -10,6 +10,7 @@ from app.models.family import Family
 from app.models.binding import FamilyElderLink
 from app.schemas.booking import BookingCreate, BookingOut, BookingUpdate
 from app.api.deps import get_current_user
+from app.api.fund import settle_aid_request_for_booking
 from app.models.user import User
 from app.core.bkash import bkash_client
 import uuid
@@ -38,37 +39,16 @@ def create_booking(
     if not caregiver:
         raise HTTPException(status_code=404, detail="Caregiver not found")
 
-    # 2. Calculate daily duration in hours
-    start_total_minutes = booking_in.daily_timing_start.hour * 60 + booking_in.daily_timing_start.minute
-    end_total_minutes = booking_in.daily_timing_end.hour * 60 + booking_in.daily_timing_end.minute
-
-    if end_total_minutes <= start_total_minutes:
-        # Handle overnight bookings if necessary, for now assuming same day
-        duration_hours = (end_total_minutes + 24*60 - start_total_minutes) / 60
-    else:
-        duration_hours = (end_total_minutes - start_total_minutes) / 60
-
-    # 3. Count the actual number of days the caregiver will work
-    # based on service dates and selected days_of_week
-    work_days_list = [d.strip().lower() for d in booking_in.days_of_week.split(",")]
-
-    # Mapping for weekday names
-    day_map = {
-        "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
-        "friday": 4, "saturday": 5, "sunday": 6,
-        "mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6
-    }
-    work_day_ints = [day_map[d] for d in work_days_list if d in day_map]
-
-    total_work_days = 0
-    current_date = booking_in.service_start_date
-    while current_date <= booking_in.service_end_date:
-        if current_date.weekday() in work_day_ints:
-            total_work_days += 1
-        current_date += timedelta(days=1)
-
-    # 4. Final amount calculation
-    total_amount = round(duration_hours * caregiver.hourly_rate * total_work_days, 2)
+    # 2. Price it — shared with aid-request allocation so a fund-covered
+    # job costs exactly what booking the same caregiver directly costs.
+    total_amount = pricing.service_amount(
+        hourly_rate=caregiver.hourly_rate,
+        service_start_date=booking_in.service_start_date,
+        service_end_date=booking_in.service_end_date,
+        days_of_week=booking_in.days_of_week,
+        daily_timing_start=booking_in.daily_timing_start,
+        daily_timing_end=booking_in.daily_timing_end,
+    )
 
     booking_data = booking_in.model_dump()
     booking_data["total_amount"] = total_amount
@@ -105,11 +85,19 @@ def update_booking(booking_id: int, booking_update: BookingUpdate, db: Session =
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
-    
+
+    previous_status = booking.status
     update_data = booking_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(booking, key, value)
-    
+
+    # A fund-covered booking is the caregiver-facing half of an aid
+    # request, so answering it here is what settles that request and moves
+    # the money. Nothing in the caregiver app knows about aid requests —
+    # it just accepts or rejects a booking like any other.
+    if booking.is_fund_covered and booking.status != previous_status:
+        settle_aid_request_for_booking(db, booking)
+
     db.commit()
     db.refresh(booking)
     return booking

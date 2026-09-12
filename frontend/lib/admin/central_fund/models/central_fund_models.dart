@@ -103,6 +103,8 @@ class AidRequestModel extends Equatable {
     this.dailyTimingEnd,
     this.documentUrl,
     this.adminNotes,
+    this.assignedCaregiverName,
+    this.bookingId,
   });
 
   factory AidRequestModel.fromJson(Map<String, dynamic> json) {
@@ -121,6 +123,8 @@ class AidRequestModel extends Equatable {
       dailyTimingEnd: json['daily_timing_end'] as String?,
       documentUrl: json['document_url'] as String?,
       adminNotes: json['admin_notes'] as String?,
+      assignedCaregiverName: json['assigned_caregiver_name'] as String?,
+      bookingId: json['booking_id'] as int?,
     );
   }
 
@@ -139,6 +143,14 @@ class AidRequestModel extends Equatable {
   final String? documentUrl;
   final String? adminNotes;
 
+  /// The caregiver this request has been offered to, once an admin has
+  /// allocated one. Set while the request is `awaiting_caregiver` and
+  /// stays set after they accept; cleared if they decline.
+  final String? assignedCaregiverName;
+
+  /// The booking carrying that offer — the caregiver's side of it.
+  final int? bookingId;
+
   @override
   List<Object?> get props => [
         id,
@@ -155,6 +167,8 @@ class AidRequestModel extends Equatable {
         dailyTimingEnd,
         documentUrl,
         adminNotes,
+        assignedCaregiverName,
+        bookingId,
       ];
 }
 
