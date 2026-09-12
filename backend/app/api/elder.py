@@ -71,15 +71,20 @@ def signup_elder(request: ElderSignupRequest, db: Session = Depends(get_db)):
         db.add(new_user)
         db.flush()
 
+        profile_data = request.profile.model_dump()
+        valid_cols = {c.key for c in Elder.__table__.columns}
+        filtered_profile_data = {k: v for k, v in profile_data.items() if k in valid_cols}
+
         new_elder = Elder(
             user_id=new_user.id,
-            **request.profile.model_dump()
+            **filtered_profile_data
         )
         db.add(new_elder)
         
         db.commit()
         db.refresh(new_user)
         db.refresh(new_elder)
+        new_elder.email = new_user.email
 
         return {
             "user": new_user,

@@ -24,9 +24,13 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
         db.add(new_user)
         db.flush()  # Gets the new_user.id without committing the transaction
 
+        profile_data = request.profile.model_dump()
+        valid_cols = {c.key for c in Caregiver.__table__.columns}
+        filtered_profile_data = {k: v for k, v in profile_data.items() if k in valid_cols}
+
         new_caregiver = Caregiver(
             user_id=new_user.id,
-            **request.profile.model_dump(),
+            **filtered_profile_data,
             status="pending"
         )
 
@@ -35,9 +39,13 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
 
         # Add documents
         for doc in request.documents:
+            doc_data = doc.model_dump()
+            valid_doc_cols = {c.key for c in CaregiverDocument.__table__.columns}
+            filtered_doc_data = {k: v for k, v in doc_data.items() if k in valid_doc_cols}
+            
             new_doc = CaregiverDocument(
                 caregiver_id=new_caregiver.id,
-                **doc.model_dump()
+                **filtered_doc_data
             )
             db.add(new_doc)
 
