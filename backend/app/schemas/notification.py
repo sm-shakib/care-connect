@@ -13,6 +13,9 @@ class NotificationOut(BaseModel):
     elder_name: Optional[str] = None
     latitude: Optional[str] = None
     longitude: Optional[str] = None
+    medicine_id: Optional[int] = None
+    dose_time: Optional[str] = None
+    appointment_id: Optional[int] = None
 
     class Config:
         from_attributes = True

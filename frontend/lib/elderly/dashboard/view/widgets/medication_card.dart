@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
 
 import '../../../../theme/app_colors.dart';
+import '../../../../shared/medicine/utils/dose_status.dart';
 import '../../cubit/dashboard_models.dart';
 import 'dashboard_card_header.dart';
 
@@ -72,6 +73,8 @@ class _MedicationTile extends StatelessWidget {
   final Medication medication;
   final VoidCallback? onMarkTaken;
 
+  bool get _isMissed => !medication.isTaken && isDoseMissed(medication.time);
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -103,6 +106,15 @@ class _MedicationTile extends StatelessWidget {
               Icons.check_circle,
               color: AppColors.primaryLight,
               size: 28,
+            )
+          else if (_isMissed)
+            Text(
+              context.l10n.missedStatusLabel,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.error,
+              ),
             )
           else
             OutlinedButton(
