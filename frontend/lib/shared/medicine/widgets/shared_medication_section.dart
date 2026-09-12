@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/theme/app_colors.dart';
+import '../models/medication.dart';
+import '../utils/dose_status.dart';
 
-import '../../../../theme/app_colors.dart';
-import '../../../../shared/medicine/utils/dose_status.dart';
-import '../../cubit/dashboard_models.dart';
-import 'dashboard_card_header.dart';
-
-/// Card summarizing today's medication schedule on the elderly dashboard.
-class MedicationCard extends StatelessWidget {
-  const MedicationCard({
+/// A unified medication schedule section for dashboards.
+///
+/// If [onMarkTaken] is provided, it shows a "Mark Taken" button for pending
+/// doses (Elderly mode). If null, it shows a status icon (Family mode).
+class SharedMedicationSection extends StatelessWidget {
+  const SharedMedicationSection({
     required this.medications,
     this.onMarkTaken,
-    this.onViewAll,
     super.key,
   });
 
   final List<Medication> medications;
   final ValueChanged<Medication>? onMarkTaken;
-  final VoidCallback? onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +96,14 @@ class _MedicationTile extends StatelessWidget {
                     color: colorScheme.onSurface,
                   ),
                 ),
+                if (medication.dosage.isNotEmpty)
+                  Text(
+                    medication.dosage,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -116,7 +123,7 @@ class _MedicationTile extends StatelessWidget {
                 color: colorScheme.error,
               ),
             )
-          else
+          else if (onMarkTaken != null)
             OutlinedButton(
               onPressed: onMarkTaken,
               style: OutlinedButton.styleFrom(
@@ -133,6 +140,12 @@ class _MedicationTile extends StatelessWidget {
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
+            )
+          else
+            Icon(
+              Icons.radio_button_unchecked,
+              color: colorScheme.outlineVariant,
+              size: 28,
             ),
         ],
       ),

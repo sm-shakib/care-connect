@@ -7,6 +7,8 @@ import 'package:frontend/core/enums/gender.dart';
 import 'package:frontend/core/widgets/care_connect_app_bar.dart';
 import 'package:frontend/shared/chat/chat.dart';
 import 'package:frontend/shared/medicine/models/medicine.dart';
+import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
+import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
 import 'package:frontend/shared/reminders/reminders.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -132,25 +134,31 @@ class PatientDetailsView extends StatelessWidget {
             return Column(
               children: [
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 12),
-                        _PatientHeader(name: state.patientName),
-                        const SizedBox(height: 20),
-                        _BasicInfoSection(state: state),
-                        const SizedBox(height: 24),
-                        _VitalsRow(state: state, cubit: cubit),
-                        const SizedBox(height: 28),
-                        _MedicineRemindersSection(state: state, cubit: cubit),
-                        const SizedBox(height: 28),
-                        OtherRemindersSection(reminders: state.otherReminders),
-                        const SizedBox(height: 28),
-                        AppointmentsSection(appointments: state.appointments),
-                        const SizedBox(height: 12),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: () =>
+                        context.read<PatientDetailsCubit>().loadCarePlan(),
+                    color: AppColors.darkTeal,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          _PatientHeader(name: state.patientName),
+                          const SizedBox(height: 20),
+                          _BasicInfoSection(state: state),
+                          const SizedBox(height: 24),
+                          _VitalsRow(state: state, cubit: cubit),
+                          const SizedBox(height: 28),
+                          _MedicineRemindersSection(state: state, cubit: cubit),
+                          const SizedBox(height: 28),
+                          OtherRemindersSection(reminders: state.otherReminders),
+                          const SizedBox(height: 28),
+                          AppointmentsSection(appointments: state.appointments),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -470,8 +478,6 @@ class _MedicineRemindersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -480,7 +486,8 @@ class _MedicineRemindersSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.medication, color: AppColors.primaryLight, size: 26),
+                const Icon(Icons.medication,
+                    color: AppColors.primaryLight, size: 26),
                 const SizedBox(width: 10),
                 Text(
                   context.l10n.medicineRemindersTitle,
@@ -503,142 +510,12 @@ class _MedicineRemindersSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        if (state.medications.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant,
-                width: 1.6,
-              ),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.info_outline, color: AppColors.outlineLight),
-                SizedBox(width: 12),
-                Text('No medications scheduled for today.'),
-              ],
-            ),
-          )
-        else
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant,
-                width: 1.6,
-              ),
-            ),
-            child: Column(
-              children: [
-                for (var i = 0; i < state.medications.length; i++) ...[
-                  _MedicationTile(
-                    medicine: state.medications[i],
-                    onMarkTaken: () => cubit.markMedicationTaken(state.medications[i].id),
-                  ),
-                  if (i != state.medications.length - 1)
-                    Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                ],
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _MedicationTile extends StatelessWidget {
-  const _MedicationTile({required this.medicine, required this.onMarkTaken});
-
-  final Medicine medicine;
-  final VoidCallback onMarkTaken;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          _TimeBadge(time: medicine.nextReminder),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  medicine.getName(context),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                Text(
-                  '${medicine.dosage} ${medicine.form.label(context)}',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          if (medicine.isTakenToday)
-            const Icon(
-              Icons.check_circle,
-              color: AppColors.primaryLight,
-              size: 28,
-            )
-          else
-            OutlinedButton(
-              onPressed: onMarkTaken,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryLight,
-                side: const BorderSide(color: AppColors.primaryLight, width: 1.4),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text(
-                'Mark taken',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TimeBadge extends StatelessWidget {
-  const _TimeBadge({required this.time});
-
-  final String time;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.primaryContainerLight.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        time,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: AppColors.onPrimaryContainerLight,
+        SharedMedicationSection(
+          medications: nextMedicationDoses(state.medications),
+          onMarkTaken: (medication) =>
+              cubit.markMedicationTaken(medication.id, medication.time),
         ),
-      ),
+      ],
     );
   }
 }
