@@ -125,7 +125,9 @@ def get_my_family_members(
     if not family:
         raise HTTPException(status_code=404, detail="Family profile not found")
     
-    links = db.query(FamilyElderLink).filter(
+    links = db.query(FamilyElderLink).options(
+        joinedload(FamilyElderLink.elder).joinedload(Elder.family_links).joinedload(FamilyElderLink.family)
+    ).filter(
         FamilyElderLink.family_id == family.id,
         FamilyElderLink.status == BindingStatus.accepted
     ).all()
