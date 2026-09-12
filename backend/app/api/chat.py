@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api import chat_ws, deps
-from app.core import crypto
+from app.core import crypto, turn
+from app.core.config import settings
 from app.core.media import upload_chat_file
 from app.db.session import get_db
 from app.models.binding import FamilyElderLink
@@ -18,6 +19,7 @@ from app.schemas.chat import (
     ConversationOut,
     CreateDirectConversationIn,
     CreateGroupConversationIn,
+    IceServersOut,
     MessageOut,
     MuteIn,
 )
@@ -349,6 +351,20 @@ def list_contacts(
     current_user: User = Depends(deps.get_current_active_user),
 ):
     return [resolve_identity(db, u) for u in get_contacts(db, current_user)]
+
+
+@router.get("/ice-servers", response_model=IceServersOut)
+def get_ice_servers(
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    """The relay credentials a client needs before placing or answering a
+    call. Fetched per session rather than compiled into the app so the
+    relay can be swapped — or its credentials rotated — without shipping a
+    new build."""
+    return IceServersOut(
+        ice_servers=turn.build_ice_servers(current_user.id),
+        ttl_seconds=settings.TURN_CREDENTIAL_TTL,
+    )
 
 
 # ==================== conversations ====================

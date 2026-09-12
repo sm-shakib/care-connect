@@ -1,11 +1,11 @@
 class ApiConstants {
   // --- PRODUCTION (Render) ---
-  //static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
+  static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
 
   // --- LOCAL DEVELOPMENT ---
   // Use 10.0.2.2 for Android Emulator.
   // Use computer's IP (e.g., 192.168.0.x) for physical devices.
-  static const String baseUrl = 'http://192.168.0.192:8000';
+  // static const String baseUrl = 'http://192.168.0.178:8000';
 
 
   static const String elderSignup = '/elders/signup/elder';
@@ -59,6 +59,7 @@ class ApiConstants {
   // Chat
   static const String chatMe = '/chat/me';
   static const String chatContacts = '/chat/contacts';
+  static const String chatIceServers = '/chat/ice-servers';
   static const String chatConversations = '/chat/conversations';
   static const String chatDirectConversation = '/chat/conversations/direct';
   static const String chatGroupConversation = '/chat/conversations/group';

@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../call_signaling/call_ring_service.dart';
 import '../data/chat_socket_service.dart';
+import '../data/ice_server_provider.dart';
 import '../models/call_log_info.dart';
 import '../models/call_session.dart';
 import '../models/chat_participant.dart';
@@ -71,12 +72,12 @@ class CallCubit extends Cubit<CallCubitState> {
     unawaited(_setUpFuture);
   }
 
-  static const _iceServers = {
-    'iceServers': [
-      {'urls': 'stun:stun.l.google.com:19302'},
-    ],
-  };
   static const _noAnswerTimeout = Duration(seconds: 45);
+
+  /// Gathering a couple of candidates before the offer is built shaves a
+  /// round trip off connection setup — it matters most on the relay path,
+  /// which is the slowest one to establish.
+  static const _iceCandidatePoolSize = 2;
 
   final String currentUserId;
   final ChatSocketService _socket;
@@ -92,6 +93,10 @@ class CallCubit extends Cubit<CallCubitState> {
   final Map<String, List<RTCIceCandidate>> _pendingCandidates = {};
   final Set<String> _readyPeerIds = {};
   bool _iAmReady = false;
+
+  /// Resolved once per call and reused for every peer connection in it —
+  /// see [IceServerProvider].
+  Map<String, dynamic>? _rtcConfiguration;
 
   /// Completes once the renderers are initialized (and, for an
   /// outgoing call, the invite is out). [accept] awaits it so answering
@@ -112,6 +117,11 @@ class CallCubit extends Cubit<CallCubitState> {
       // No video surface available. Audio and signaling are unaffected,
       // and [accept] awaits this future — it must never fail the call.
     }
+
+    // Resolved before either path below can reach a peer connection: an
+    // incoming call goes straight from accept() to answering an offer,
+    // with no other chance to fetch relay credentials first.
+    await _configuration();
 
     if (state.session.isIncoming) {
       // Deliberately no `getUserMedia` yet. The hardware isn't needed
@@ -241,15 +251,36 @@ class CallCubit extends Cubit<CallCubitState> {
   void _becomeReady() {
     if (_iAmReady) return;
     _iAmReady = true;
+    _announceReady();
+    for (final peerId in _readyPeerIds) {
+      if (_shouldOffer(peerId)) unawaited(_connectTo(peerId));
+    }
+  }
+
+  /// Broadcasts readiness to the whole conversation, or — with [toPeerId]
+  /// — back to a single peer that has just announced itself.
+  void _announceReady({String? toPeerId}) {
     _socket.send({
       'type': 'call:ready',
       'conversation_id': _conversationId,
       'is_video': _isVideo,
+      if (toPeerId != null) 'to_user_id': toPeerId,
     });
-    for (final peerId in _readyPeerIds) {
-      unawaited(_connectTo(peerId));
-    }
   }
+
+  /// Of any two participants, exactly one creates the offer.
+  ///
+  /// Without this, both sides can offer at the same instant — each having
+  /// seen the other's `call:ready` before its own went out — and both
+  /// connections die in `setRemoteDescription`, because a peer that has
+  /// already set a local offer cannot accept a remote one. Whether that
+  /// happened came down to how quickly the callee's screen appeared, which
+  /// is exactly why calls failed intermittently rather than consistently.
+  ///
+  /// The ordering is lexicographic rather than numeric, which is
+  /// arbitrary — all that's required is that both devices compute the
+  /// same answer from the same two ids.
+  bool _shouldOffer(String peerId) => currentUserId.compareTo(peerId) < 0;
 
   Future<void> _connectTo(String peerId) async {
     if (_peers.containsKey(peerId)) return;
@@ -266,8 +297,13 @@ class CallCubit extends Cubit<CallCubitState> {
     });
   }
 
+  Future<Map<String, dynamic>> _configuration() async => _rtcConfiguration ??= {
+    'iceServers': await IceServerProvider.instance.fetch(),
+    'iceCandidatePoolSize': _iceCandidatePoolSize,
+  };
+
   Future<RTCPeerConnection> _createPeerConnection(String peerId) async {
-    final pc = await createPeerConnection(_iceServers);
+    final pc = await createPeerConnection(await _configuration());
     final localStream = _localStream;
     if (localStream != null) {
       for (final track in localStream.getTracks()) {
@@ -294,7 +330,43 @@ class CallCubit extends Cubit<CallCubitState> {
         _onAnyPeerConnected();
       }
     };
+    pc.onIceConnectionState = (iceState) {
+      if (iceState == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+        unawaited(_restartIce(peerId));
+      }
+    };
     return pc;
+  }
+
+  /// Re-gathers candidates for one peer after its transport dies. The
+  /// usual cause is the device changing network mid-call — WiFi to mobile
+  /// data, or one cell to another — which invalidates every candidate the
+  /// two sides had agreed on. Without this the call stays on screen,
+  /// timer still running, with no media flowing either way until somebody
+  /// gives up and hangs up.
+  ///
+  /// Only the side that offered restarts, for the same reason only one
+  /// side offers to begin with (see [_shouldOffer]).
+  Future<void> _restartIce(String peerId) async {
+    if (state.session.state == CallState.ended) return;
+    if (!_shouldOffer(peerId)) return;
+    final pc = _peers[peerId];
+    if (pc == null) return;
+    try {
+      await pc.restartIce();
+      final offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      _socket.send({
+        'type': 'call:offer',
+        'conversation_id': _conversationId,
+        'to_user_id': peerId,
+        'sdp': offer.sdp,
+        'sdp_type': offer.type,
+      });
+    } catch (_) {
+      // The connection was torn down underneath us (hangup racing the
+      // failure). Nothing to recover — the call is ending anyway.
+    }
   }
 
   void _bindRemoteStream(MediaStream stream) {
@@ -344,8 +416,15 @@ class CallCubit extends Cubit<CallCubitState> {
     switch (event['type'] as String?) {
       case 'call:ready':
         if (fromUserId == null) return;
-        _readyPeerIds.add(fromUserId);
-        if (_iAmReady) unawaited(_connectTo(fromUserId));
+        final isNewPeer = _readyPeerIds.add(fromUserId);
+        if (!_iAmReady) return;
+        // Answer a newcomer so it learns we're here. Its screen may not
+        // have existed when our own broadcast went out, and if it's the
+        // side that owes the offer (see [_shouldOffer]) it would otherwise
+        // sit waiting for an announcement it already missed — both sides
+        // ready, neither one calling.
+        if (isNewPeer) _announceReady(toPeerId: fromUserId);
+        if (_shouldOffer(fromUserId)) unawaited(_connectTo(fromUserId));
       case 'call:offer':
         if (fromUserId != null) unawaited(_handleOffer(fromUserId, event));
       case 'call:answer':

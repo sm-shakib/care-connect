@@ -24,19 +24,27 @@ class Settings:
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
     FROM_EMAIL: str = os.getenv("FROM_EMAIL")
 
-    # Chat message encryption-at-rest (see app/core/crypto.py). Must be a
-    # base64-encoded 32-byte key in production — set CHAT_MASTER_KEY in
-    # .env. If unset, falls back to a key deterministically derived from
-    # SECRET_KEY so local dev doesn't lose access to encrypted messages on
-    # every restart; this fallback is NOT a substitute for a real secret.
+
     CHAT_MASTER_KEY: str = os.getenv("CHAT_MASTER_KEY") or base64.b64encode(
         hashlib.sha256(f"chat-master-key:{SECRET_KEY}".encode()).digest()
     ).decode()
 
-    # WebRTC ICE servers handed to the frontend for call setup. Public
-    # STUN only for now — add a TURN entry here (urls/username/credential)
-    # if calls need to survive stricter NATs later.
-    ICE_SERVERS: list = [{"urls": "stun:stun.l.google.com:19302"}]
+    STUN_URLS: list = [
+        url.strip()
+        for url in os.getenv("STUN_URLS", "stun:stun.l.google.com:19302").split(",")
+        if url.strip()
+    ]
+    TURN_URLS: list = [
+        url.strip() for url in os.getenv("TURN_URLS", "").split(",") if url.strip()
+    ]
+    # A hosted relay's long-lived pair, straight from its dashboard.
+    TURN_USERNAME: str = os.getenv("TURN_USERNAME", "")
+    TURN_PASSWORD: str = os.getenv("TURN_PASSWORD", "")
+    # Self-hosted coturn in `use-auth-secret` mode. Takes precedence over
+    # the static pair above, since per-user expiring credentials are
+    # strictly safer than one shared secret that never rotates.
+    TURN_STATIC_AUTH_SECRET: str = os.getenv("TURN_STATIC_AUTH_SECRET", "")
+    TURN_CREDENTIAL_TTL: int = int(os.getenv("TURN_CREDENTIAL_TTL", str(60 * 60 * 12)))
 
     # bKash Settings
     BKASH_USERNAME: str = os.getenv("BKASH_USERNAME")
