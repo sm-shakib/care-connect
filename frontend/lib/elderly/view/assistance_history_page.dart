@@ -135,6 +135,14 @@ class _AssistanceCard extends StatelessWidget {
             request.reason,
             style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceLight),
           ),
+          if (request.assignedCaregiverName != null) ...[
+            const SizedBox(height: 12),
+            _AssignedCaregiverRow(
+              caregiverName: request.assignedCaregiverName!,
+              // Until the caregiver answers, they've been asked, not given.
+              isConfirmed: request.status == 'disbursed',
+            ),
+          ],
           if (request.adminNotes != null && request.adminNotes!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
@@ -172,6 +180,8 @@ class _AssistanceCard extends StatelessWidget {
     switch (status.toLowerCase()) {
       case 'pending':
         return Colors.orange;
+      case 'awaiting_caregiver':
+        return Colors.blue;
       case 'approved':
       case 'disbursed':
         return Colors.green;
@@ -181,6 +191,54 @@ class _AssistanceCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+}
+
+/// Who the admin has lined up for this request. Shown as "waiting" until
+/// that caregiver accepts, so the elder isn't told someone is coming
+/// before anyone has agreed to.
+class _AssignedCaregiverRow extends StatelessWidget {
+  const _AssignedCaregiverRow({
+    required this.caregiverName,
+    required this.isConfirmed,
+  });
+
+  final String caregiverName;
+  final bool isConfirmed;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isConfirmed ? AppColors.darkTeal : Colors.blue.shade700;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isConfirmed ? Icons.verified_user : Icons.hourglass_top,
+            size: 18,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              isConfirmed
+                  ? '$caregiverName has been assigned to you'
+                  : 'Waiting for $caregiverName to accept',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -194,6 +252,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     String label = status.toUpperCase();
     if (label == 'DISBURSED') label = 'APPROVED';
+    if (label == 'AWAITING_CAREGIVER') label = 'ASSIGNING';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

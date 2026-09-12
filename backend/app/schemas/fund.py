@@ -51,6 +51,14 @@ class AidRequestUpdate(BaseModel):
     approved_amount: Optional[float] = None
     admin_notes: Optional[str] = None
 
+class AidRequestAssign(BaseModel):
+    """Admin approving a request and offering it to one caregiver. The fee
+    is deliberately absent — the server prices the job from the caregiver's
+    own rate (see app/core/pricing.py) rather than trusting the client."""
+
+    caregiver_id: int
+    admin_notes: Optional[str] = None
+
 class AidRequestOut(AidRequestBase):
     id: int
     requester_id: int
@@ -59,6 +67,9 @@ class AidRequestOut(AidRequestBase):
     admin_notes: Optional[str] = None
     created_at: datetime
     requester_name: Optional[str] = None
+    assigned_caregiver_id: Optional[int] = None
+    assigned_caregiver_name: Optional[str] = None
+    booking_id: Optional[int] = None
 
     class Config:
         from_attributes = True

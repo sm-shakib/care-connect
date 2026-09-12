@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey, Text, DateTime, Float
+from sqlalchemy import Boolean, Column, Integer, String, Date, Time, ForeignKey, Text, DateTime, Float
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 from datetime import datetime, timezone
@@ -22,6 +22,11 @@ class Booking(Base):
     payment_status = Column(String, default="pending")  # pending, paid
     requested_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     requested_by_name = Column(String, nullable=True)
+
+    # True when this booking came out of an approved aid request, so the
+    # central fund pays the fee rather than the elder. The caregiver sees
+    # the same request screen either way — this is what lets it say so.
+    is_fund_covered = Column(Boolean, default=False, nullable=False)
 
     # Relationships
     elder = relationship("Elder")

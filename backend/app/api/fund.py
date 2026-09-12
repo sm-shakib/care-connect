@@ -3,8 +3,20 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
 from app.api import deps
+from app.core import pricing
+from app.models.booking import Booking
+from app.models.caregiver import Caregiver
+from app.models.elder import Elder
 from app.models.fund import FundSummary, Donation, AidRequest
-from app.schemas.fund import DonationCreate, DonationOut, AidRequestCreate, AidRequestOut, FundStats, AidRequestUpdate
+from app.schemas.fund import (
+    AidRequestAssign,
+    AidRequestCreate,
+    AidRequestOut,
+    AidRequestUpdate,
+    DonationCreate,
+    DonationOut,
+    FundStats,
+)
 from app.models.user import User
 
 from app.core.bkash import bkash_client
@@ -224,10 +236,100 @@ def get_my_requests(
     requests = db.query(AidRequest).filter(AidRequest.requester_id == current_user.id).order_by(AidRequest.created_at.desc()).all()
     results = []
     for r in requests:
-        r_out = AidRequestOut.model_validate(r)
+        r_out = serialize_aid_request(r)
         r_out.requester_name = "You"
         results.append(r_out)
     return results
+
+def _requester_name(aid_request: AidRequest) -> str:
+    requester = aid_request.requester
+    if not requester:
+        return "Unknown"
+    for profile in (requester.elder_profile, requester.family_profile, requester.caregiver_profile):
+        if profile:
+            return profile.name
+    return requester.email
+
+
+def serialize_aid_request(aid_request: AidRequest) -> AidRequestOut:
+    """One aid request with the display names the apps need — the elder
+    who asked, and the caregiver it has been offered to (if any)."""
+    out = AidRequestOut.model_validate(aid_request)
+    out.requester_name = _requester_name(aid_request)
+    if aid_request.assigned_caregiver:
+        out.assigned_caregiver_name = aid_request.assigned_caregiver.name
+    return out
+
+
+def settle_aid_request_for_booking(db: Session, booking: Booking) -> None:
+    """React to a caregiver answering a fund-covered booking.
+
+    Accepting pays the caregiver's fee out of the central fund and assigns
+    them. Declining returns the request to the admin queue, unassigned, so
+    it can be offered to somebody else — a decline is not a rejection of
+    the elder's request.
+
+    Called by `app/api/booking.py` inside its transaction, so this flushes
+    but never commits.
+    """
+    aid_request = db.query(AidRequest).filter(AidRequest.booking_id == booking.id).first()
+    if not aid_request:
+        return
+
+    prev = get_latest_fund_summary(db)
+
+    if booking.status == "accepted":
+        if aid_request.status == "disbursed":
+            return  # already settled; a repeated PATCH must not pay twice
+        if prev.balance < aid_request.approved_amount:
+            # The balance moved between allocation and acceptance (another
+            # request was disbursed in between). Refusing here keeps the
+            # fund from going negative; the admin has to top it up or
+            # reallocate, so surface it rather than half-assigning.
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "The central fund no longer covers this request. "
+                    "Please contact the administrator."
+                ),
+            )
+        aid_request.status = "disbursed"
+        booking.payment_status = "completed"
+        db.add(
+            FundSummary(
+                aid_request_id=aid_request.id,
+                balance=prev.balance - aid_request.approved_amount,
+                total_donations=prev.total_donations,
+                pending_aids_count=prev.pending_aids_count,
+                aids_distributed_no=prev.aids_distributed_no + 1,
+                aids_distributed_amount=prev.aids_distributed_amount + aid_request.approved_amount,
+            )
+        )
+        db.flush()
+        return
+
+    if booking.status in ("rejected", "cancelled"):
+        caregiver_name = (
+            aid_request.assigned_caregiver.name if aid_request.assigned_caregiver else "The caregiver"
+        )
+        note = f"{caregiver_name} declined this allocation — please assign another caregiver."
+        aid_request.admin_notes = f"{aid_request.admin_notes}\n{note}" if aid_request.admin_notes else note
+        aid_request.status = "pending"
+        aid_request.assigned_caregiver_id = None
+        aid_request.booking_id = None
+        aid_request.approved_amount = 0.0
+        db.add(
+            FundSummary(
+                aid_request_id=aid_request.id,
+                balance=prev.balance,
+                total_donations=prev.total_donations,
+                pending_aids_count=prev.pending_aids_count + 1,
+                aids_distributed_no=prev.aids_distributed_no,
+                aids_distributed_amount=prev.aids_distributed_amount,
+            )
+        )
+        db.flush()
+
 
 # --- Admin Endpoints ---
 
@@ -273,29 +375,128 @@ def list_aid_requests(
     current_admin: User = Depends(deps.get_current_admin)
 ):
     """List all aid requests for admin review."""
-    query = db.query(AidRequest).options(joinedload(AidRequest.requester))
+    query = db.query(AidRequest).options(
+        joinedload(AidRequest.requester),
+        joinedload(AidRequest.assigned_caregiver),
+    )
     if status:
         query = query.filter(AidRequest.status == status)
-    
-    requests = query.all()
-    results = []
-    for r in requests:
-        if not r.requester:
-            continue
-            
-        name = r.requester.email
-        if r.requester.elder_profile:
-            name = r.requester.elder_profile.name
-        elif r.requester.family_profile:
-            name = r.requester.family_profile.name
-        elif r.requester.caregiver_profile:
-            name = r.requester.caregiver_profile.name
-            
-        r_out = AidRequestOut.model_validate(r)
-        r_out.requester_name = name
-        results.append(r_out)
-        
-    return results
+
+    return [serialize_aid_request(r) for r in query.all() if r.requester]
+
+@router.post("/admin/requests/{request_id}/assign", response_model=AidRequestOut)
+def assign_caregiver_to_aid_request(
+    request_id: int,
+    assign_in: AidRequestAssign,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(deps.get_current_admin)
+):
+    """Approve an aid request and offer it to one caregiver.
+
+    The offer is an ordinary `Booking`, which is what puts it on that
+    caregiver's request screen — they accept or decline it exactly like a
+    paid job. Nothing is paid out here: the fund is only debited once they
+    accept (see `settle_aid_request_for_booking`).
+    """
+    aid_request = db.query(AidRequest).filter(AidRequest.id == request_id).first()
+    if not aid_request:
+        raise HTTPException(status_code=404, detail="Aid request not found")
+    if aid_request.status not in ("pending", "approved"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"This request is {aid_request.status} and can no longer be allocated.",
+        )
+
+    caregiver = db.query(Caregiver).filter(Caregiver.id == assign_in.caregiver_id).first()
+    if not caregiver:
+        raise HTTPException(status_code=404, detail="Caregiver not found")
+    if caregiver.status != "verified":
+        raise HTTPException(status_code=400, detail="Only verified caregivers can be allocated.")
+
+    # The booking needs the elder's *profile*, not the user account that
+    # submitted the request.
+    elder = db.query(Elder).filter(Elder.user_id == aid_request.requester_id).first()
+    if not elder:
+        raise HTTPException(
+            status_code=400,
+            detail="Only requests made by an elder can be allocated to a caregiver.",
+        )
+
+    missing = [
+        label
+        for label, value in (
+            ("start date", aid_request.service_start_date),
+            ("end date", aid_request.service_end_date),
+            ("days of week", aid_request.days_of_week),
+            ("start time", aid_request.daily_timing_start),
+            ("end time", aid_request.daily_timing_end),
+        )
+        if not value
+    ]
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"This request has no {', '.join(missing)}, so it can't be scheduled.",
+        )
+
+    fee = pricing.service_amount(
+        hourly_rate=caregiver.hourly_rate,
+        service_start_date=aid_request.service_start_date,
+        service_end_date=aid_request.service_end_date,
+        days_of_week=aid_request.days_of_week,
+        daily_timing_start=aid_request.daily_timing_start,
+        daily_timing_end=aid_request.daily_timing_end,
+    )
+
+    summary = get_latest_fund_summary(db)
+    if fee > summary.balance:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient fund balance. Available: ৳{summary.balance:.0f}, required: ৳{fee:.0f}",
+        )
+
+    booking = Booking(
+        elder_id=elder.id,
+        caregiver_id=caregiver.id,
+        service_start_date=aid_request.service_start_date,
+        service_end_date=aid_request.service_end_date,
+        days_of_week=aid_request.days_of_week,
+        daily_timing_start=aid_request.daily_timing_start,
+        daily_timing_end=aid_request.daily_timing_end,
+        booking_reason=aid_request.reason,
+        total_amount=fee,
+        status="pending",
+        payment_status="pending",
+        requested_by_name=elder.name,
+        is_fund_covered=True,
+    )
+    db.add(booking)
+    db.flush()
+
+    was_pending = aid_request.status == "pending"
+    aid_request.status = "awaiting_caregiver"
+    aid_request.assigned_caregiver_id = caregiver.id
+    aid_request.booking_id = booking.id
+    aid_request.approved_amount = fee
+    if assign_in.admin_notes:
+        aid_request.admin_notes = assign_in.admin_notes
+
+    if was_pending:
+        db.add(
+            FundSummary(
+                aid_request_id=aid_request.id,
+                balance=summary.balance,
+                total_donations=summary.total_donations,
+                pending_aids_count=max(0, summary.pending_aids_count - 1),
+                aids_distributed_no=summary.aids_distributed_no,
+                aids_distributed_amount=summary.aids_distributed_amount,
+            )
+        )
+
+    db.commit()
+    db.refresh(aid_request)
+    return serialize_aid_request(aid_request)
+
 
 @router.patch("/admin/requests/{request_id}/review", response_model=AidRequestOut)
 def review_aid_request(

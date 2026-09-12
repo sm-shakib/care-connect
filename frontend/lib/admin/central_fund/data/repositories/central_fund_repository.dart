@@ -66,6 +66,20 @@ class CentralFundRepository {
     );
   }
 
+  /// Approves an aid request and offers it to [caregiverId], who then sees
+  /// it on their own request screen and accepts or declines it. The fee is
+  /// not sent: the server prices the job from the caregiver's rate, so the
+  /// fund can't be charged an amount the admin app made up.
+  Future<void> assignCaregiver(int id, int caregiverId, {String? notes}) async {
+    await _apiClient.post<void>(
+      ApiConstants.fundAdminAssignCaregiver(id),
+      data: {
+        'caregiver_id': caregiverId,
+        if (notes != null) 'admin_notes': notes,
+      },
+    );
+  }
+
   Future<void> donate({
     required double amount,
     required String method,

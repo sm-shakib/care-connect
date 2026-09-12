@@ -513,6 +513,10 @@
         "description": "Label for the previous requests history action or title"
     },
 
+    "fundCoveredBadge": "Covered by Central Fund",
+    "@fundCoveredBadge": {
+        "description": "Badge on a booking request whose fee is paid by the central fund rather than the elder"
+    },
     "requestForElderLabel": "Request for {name}",
     "@requestForElderLabel": {
         "description": "Card title for a booking request",

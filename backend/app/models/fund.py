@@ -50,10 +50,28 @@ class AidRequest(Base):
     daily_timing_end = Column(Time, nullable=True)
     
     document_url = Column(String)
-    status = Column(String, default="pending")  # pending, approved, rejected, disbursed
+    # pending            -> submitted, waiting on admin review
+    # rejected           -> admin declined it (terminal)
+    # awaiting_caregiver -> admin approved and offered it to one caregiver,
+    #                       who hasn't answered yet
+    # disbursed          -> that caregiver accepted; the fee has been paid
+    #                       out of the central fund and they are assigned
+    # A caregiver who declines sends it back to `pending` so the admin can
+    # offer it to someone else — see `app/api/fund.py`.
+    status = Column(String, default="pending")
     approved_amount = Column(Float, default=0.0)
     admin_notes = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
+    # Caregiver allocation. An approved request is offered to one caregiver
+    # at a time as an ordinary `Booking`, so it lands on the same request
+    # screen as every other job they're offered and needs no separate
+    # accept/decline flow. These track who it went to and which booking
+    # carries the offer.
+    assigned_caregiver_id = Column(Integer, ForeignKey("caregivers.id"), nullable=True)
+    booking_id = Column(Integer, ForeignKey("bookings.id"), nullable=True)
+
     requester = relationship("User")
+    assigned_caregiver = relationship("Caregiver")
+    booking = relationship("Booking")

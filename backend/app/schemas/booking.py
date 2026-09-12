@@ -29,6 +29,7 @@ class BookingOut(BookingBase):
     payment_status: str
     requested_at: datetime
     requested_by_name: Optional[str] = None
+    is_fund_covered: bool = False
     elder: Optional[ElderOut] = None
     caregiver: Optional[CaregiverOut] = None
 
