@@ -425,6 +425,18 @@ def update_vitals(
             ).first()
             if link:
                 authorized = True
+                
+    # 3. Is it an assigned caregiver with accepted status?
+    elif current_user.role == "caregiver":
+        caregiver = db.query(Caregiver).filter(Caregiver.user_id == current_user.id).first()
+        if caregiver:
+            booking = db.query(Booking).filter(
+                Booking.elder_id == elder.id,
+                Booking.caregiver_id == caregiver.id,
+                Booking.status == "accepted"
+            ).first()
+            if booking:
+                authorized = True
 
     if not authorized:
         raise HTTPException(status_code=403, detail="Not authorized to update these vitals")

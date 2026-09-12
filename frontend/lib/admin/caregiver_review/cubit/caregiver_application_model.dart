@@ -19,6 +19,7 @@ class CaregiverApplication extends Equatable {
     required this.bio,
     required this.checklist,
     required this.documents,
+    this.status = 'pending',
   });
 
   final String id;
@@ -37,6 +38,7 @@ class CaregiverApplication extends Equatable {
   final String bio;
   final List<ChecklistItem> checklist;
   final List<UploadedDocument> documents;
+  final String status;
 
   int get completedChecklistCount =>
       checklist.where((item) => item.isVerified).length;
@@ -62,6 +64,7 @@ class CaregiverApplication extends Equatable {
       bio: bio,
       checklist: checklist ?? this.checklist,
       documents: documents ?? this.documents,
+      status: status,
     );
   }
 
@@ -83,6 +86,7 @@ class CaregiverApplication extends Equatable {
         bio,
         checklist,
         documents,
+        status,
       ];
 }
 

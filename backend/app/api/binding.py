@@ -145,8 +145,8 @@ def get_my_family_members(
             Booking.elder_id == elder.id
         ).all()
         
-        # Keep Active Caregivers as only accepted ones
-        active_bookings = [b for b in all_bookings if b.status == "accepted"]
+        # Keep Active Caregivers as only accepted ones that haven't ended yet
+        active_bookings = [b for b in all_bookings if b.status == "accepted" and b.service_end_date >= today]
         caregiver_names = [b.caregiver.name for b in active_bookings if b.caregiver]
         caregiver_details = [{"id": b.caregiver.id, "name": b.caregiver.name} for b in active_bookings if b.caregiver]
 

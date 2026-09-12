@@ -29,6 +29,7 @@ class PatientDetailsState extends Equatable {
     this.daysOfWeek = '',
     this.dailyTimingStart = '',
     this.dailyTimingEnd = '',
+    this.activeBookingId,
     this.errorMessage,
   });
 
@@ -37,6 +38,7 @@ class PatientDetailsState extends Equatable {
   final String imageUrl;
   final PatientDetailsStatus status;
   final String? errorMessage;
+  final int? activeBookingId;
 
   final int bpSystolic;
   final int bpDiastolic;
@@ -95,6 +97,7 @@ class PatientDetailsState extends Equatable {
     String? daysOfWeek,
     String? dailyTimingStart,
     String? dailyTimingEnd,
+    int? activeBookingId,
     String? errorMessage,
   }) {
     return PatientDetailsState(
@@ -123,6 +126,7 @@ class PatientDetailsState extends Equatable {
       daysOfWeek: daysOfWeek ?? this.daysOfWeek,
       dailyTimingStart: dailyTimingStart ?? this.dailyTimingStart,
       dailyTimingEnd: dailyTimingEnd ?? this.dailyTimingEnd,
+      activeBookingId: activeBookingId ?? this.activeBookingId,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -155,5 +159,6 @@ class PatientDetailsState extends Equatable {
     daysOfWeek,
     dailyTimingStart,
     dailyTimingEnd,
+    activeBookingId,
   ];
 }

@@ -91,8 +91,12 @@ class DashboardCubit extends Cubit<DashboardState> {
       final caregivers = <CaregiverSummary>[];
       final activeCaregiverIds = <String>[];
 
-      final realAccepted =
-          bookings.where((b) => b.status == BookingStatus.accepted).toList();
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final realAccepted = bookings
+          .where((b) => b.status == BookingStatus.accepted && !b.endDate.isBefore(today))
+          .toList();
 
       for (final b in realAccepted) {
         activeCaregiverIds.add(b.caregiverId.toString());

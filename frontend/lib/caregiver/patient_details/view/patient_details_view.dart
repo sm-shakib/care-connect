@@ -50,6 +50,12 @@ class PatientDetailsView extends StatelessWidget {
         actions: [
           BlocBuilder<PatientDetailsCubit, PatientDetailsState>(
             builder: (context, state) {
+              final now = DateTime.now();
+              final today = DateTime(now.year, now.month, now.day);
+              final isPrevious = state.serviceEndDate != null && state.serviceEndDate!.isBefore(today);
+              if (isPrevious) {
+                return const SizedBox.shrink();
+              }
               return PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert, color: AppColors.darkTeal),
                 color: const Color(0xFFFBFEFC),
@@ -198,6 +204,7 @@ void _confirmServiceCompletion(BuildContext context, String patientName) {
         FilledButton(
           onPressed: () {
             Navigator.pop(dialogContext);
+            context.read<PatientDetailsCubit>().markServiceAsComplete();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(context.l10n.serviceCompletedSnackBar)),
             );
