@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from app.db.session import get_db
 from app.models.user import User
@@ -100,7 +100,9 @@ def get_elder_profile(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    elder = db.query(Elder).filter(Elder.user_id == current_user.id).first()
+    elder = db.query(Elder).options(
+        joinedload(Elder.family_links).joinedload(FamilyElderLink.family)
+    ).filter(Elder.user_id == current_user.id).first()
     if not elder:
         raise HTTPException(status_code=404, detail="Elder profile not found")
     
@@ -345,7 +347,9 @@ def get_elder_by_id(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    elder = db.query(Elder).filter(Elder.id == elder_id).first()
+    elder = db.query(Elder).options(
+        joinedload(Elder.family_links).joinedload(FamilyElderLink.family)
+    ).filter(Elder.id == elder_id).first()
     if not elder:
         raise HTTPException(status_code=404, detail="Elder not found")
 
