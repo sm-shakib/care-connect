@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/l10n/l10n.dart';
 
+import 'package:frontend/core/repositories/auth_repository.dart';
 import '../models/medicine.dart';
 import 'add_medicine_view.dart';
 
@@ -26,6 +27,7 @@ class AddMedicinePage extends StatelessWidget {
       ),
       body: AddMedicineView(
         existing: existing,
+        authRepository: AuthRepository(),
         onSave: (medicine) => Navigator.pop(context, medicine),
       ),
     );

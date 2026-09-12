@@ -90,15 +90,15 @@ class MedicineImagePicker extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: imagePath == null
-            ?  Column(
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.add_a_photo_outlined,
                     color: AppColors.primaryLight,
                     size: 28,
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     context.l10n.addPhotoLabel,
                     style: const TextStyle(
@@ -112,7 +112,18 @@ class MedicineImagePicker extends StatelessWidget {
             : Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.file(File(imagePath!), fit: BoxFit.cover),
+                  if (imagePath!.startsWith('http'))
+                    Image.network(
+                      imagePath!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.broken_image_outlined,
+                        color: Colors.redAccent,
+                        size: 32,
+                      ),
+                    )
+                  else
+                    Image.file(File(imagePath!), fit: BoxFit.cover),
                   Positioned(
                     right: 4,
                     bottom: 4,
