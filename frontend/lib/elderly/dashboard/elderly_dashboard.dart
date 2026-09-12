@@ -339,9 +339,9 @@ class _DashboardHomeBody extends StatelessWidget {
               const SizedBox(height: 24),
               const _EditRemindersButton(),
               const SizedBox(height: 24),
-              const DashboardCardHeader(
+              DashboardCardHeader(
                 icon: Icons.favorite_outline,
-                title: 'Your Caregivers',
+                title: context.l10n.dashboardYourCaregivers,
               ),
               const SizedBox(height: 12),
               if (state.caregivers.isEmpty)
@@ -354,17 +354,17 @@ class _DashboardHomeBody extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 24),
-              const DashboardCardHeader(
+              DashboardCardHeader(
                 icon: Icons.people_outline,
-                title: 'Linked Family Members',
+                title: context.l10n.dashboardLinkedFamilyMembers,
               ),
               const SizedBox(height: 12),
               if (state.linkedFamilyMembers.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(8),
+                Padding(
+                  padding: const EdgeInsets.all(8),
                   child: Text(
-                    'No family members linked yet.',
-                    style: TextStyle(color: AppColors.onSurfaceVariantLight),
+                    context.l10n.dashboardNoFamilyLinked,
+                    style: const TextStyle(color: AppColors.onSurfaceVariantLight),
                   ),
                 )
               else
@@ -597,15 +597,15 @@ class _VitalsUpdateCard extends StatelessWidget {
             children: [
               const Icon(Icons.monitor_heart_outlined, color: AppColors.darkTeal),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'My Health Status',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurfaceLight),
+                  context.l10n.dashboardMyHealthStatus,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurfaceLight),
                 ),
               ),
               TextButton(
                 onPressed: onUpdate,
-                child: const Text('Update', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal)),
+                child: Text(context.l10n.dashboardUpdateLabel, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkTeal)),
               ),
             ],
           ),
@@ -613,14 +613,14 @@ class _VitalsUpdateCard extends StatelessWidget {
           Row(
             children: [
               _VitalsValue(
-                label: 'Heart Rate',
+                label: context.l10n.dashboardHeartRate,
                 value: '$heartRate BPM',
                 icon: Icons.favorite,
                 color: Colors.redAccent,
               ),
               Container(width: 1, height: 40, color: AppColors.outlineVariantLight, margin: const EdgeInsets.symmetric(horizontal: 20)),
               _VitalsValue(
-                label: 'Blood Pressure',
+                label: context.l10n.dashboardBloodPressure,
                 value: '$systolic/$diastolic',
                 icon: Icons.speed,
                 color: Colors.blueAccent,
@@ -692,34 +692,34 @@ class _LocationRationaleDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Enable Live Location',
-              style: TextStyle(
+            Text(
+              context.l10n.dashboardEnableLiveLocation,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkTeal,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'To help your family monitor your safety, CareConnect needs permission to access your location while you use the app.',
+            Text(
+              context.l10n.dashboardLocationRationale,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15,
                 color: AppColors.onSurfaceVariantLight,
               ),
             ),
             const SizedBox(height: 28),
             PrimaryPillButton(
-              label: 'Allow Access',
+              label: context.l10n.dashboardAllowAccess,
               onPressed: () => Navigator.pop(context, true),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text(
-                'Maybe Later',
-                style: TextStyle(color: AppColors.outlineLight),
+              child: Text(
+                context.l10n.dashboardMaybeLater,
+                style: const TextStyle(color: AppColors.outlineLight),
               ),
             ),
           ],

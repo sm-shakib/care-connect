@@ -1085,6 +1085,61 @@
         "description": "Link text to view pending requests"
     },
 
+    "dashboardMyHealthStatus": "My Health Status",
+    "@dashboardMyHealthStatus": {
+        "description": "Health status title on elderly dashboard"
+    },
+
+    "dashboardUpdateLabel": "Update",
+    "@dashboardUpdateLabel": {
+        "description": "Update label button"
+    },
+
+    "dashboardHeartRate": "Heart Rate",
+    "@dashboardHeartRate": {
+        "description": "Heart rate vitals label"
+    },
+
+    "dashboardBloodPressure": "Blood Pressure",
+    "@dashboardBloodPressure": {
+        "description": "Blood pressure vitals label"
+    },
+
+    "dashboardYourCaregivers": "Your Caregivers",
+    "@dashboardYourCaregivers": {
+        "description": "Caregivers section header on elderly dashboard"
+    },
+
+    "dashboardLinkedFamilyMembers": "Linked Family Members",
+    "@dashboardLinkedFamilyMembers": {
+        "description": "Family members section header on elderly dashboard"
+    },
+
+    "dashboardNoFamilyLinked": "No family members linked yet.",
+    "@dashboardNoFamilyLinked": {
+        "description": "No family linked message"
+    },
+
+    "dashboardEnableLiveLocation": "Enable Live Location",
+    "@dashboardEnableLiveLocation": {
+        "description": "Enable live location dialog title"
+    },
+
+    "dashboardLocationRationale": "To help your family monitor your safety, CareConnect needs permission to access your location while you use the app.",
+    "@dashboardLocationRationale": {
+        "description": "Location rationale message text"
+    },
+
+    "dashboardAllowAccess": "Allow Access",
+    "@dashboardAllowAccess": {
+        "description": "Allow access button label"
+    },
+
+    "dashboardMaybeLater": "Maybe Later",
+    "@dashboardMaybeLater": {
+        "description": "Maybe later button label"
+    },
+
     "greetingMorning": "Good morning",
     "@greetingMorning": {
         "description": "Morning greeting"
@@ -1248,6 +1303,31 @@
     "medicineDetailsTitle": "Medicine Details",
     "@medicineDetailsTitle": {
         "description": "Title for the medicine details page"
+    },
+
+    "profileLoadError": "Failed to load profile: {error}",
+    "@profileLoadError": {
+        "description": "Error message when profile loading fails",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+
+    "retryLabel": "Retry",
+    "@retryLabel": {
+        "description": "Retry button label"
+    },
+
+    "donationAssistanceLabel": "Donation & Assistance",
+    "@donationAssistanceLabel": {
+        "description": "Label for the donation and assistance section"
+    },
+
+    "myComplaintsLabel": "My Complaints",
+    "@myComplaintsLabel": {
+        "description": "Label for the my complaints section"
     },
 
     "nextReminderTitle": "NEXT REMINDER",
