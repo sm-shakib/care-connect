@@ -4,11 +4,13 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-import '../call_signaling/call_ring_service.dart';
-import '../data/chat_socket_service.dart';
-import '../models/call_log_info.dart';
-import '../models/call_session.dart';
-import '../models/chat_participant.dart';
+import 'package:frontend/core/constants/api_constants.dart';
+import 'package:frontend/shared/chat/call_signaling/call_ring_service.dart';
+import 'package:frontend/shared/chat/data/chat_repository.dart';
+import 'package:frontend/shared/chat/data/chat_socket_service.dart';
+import 'package:frontend/shared/chat/models/call_log_info.dart';
+import 'package:frontend/shared/chat/models/call_session.dart';
+import 'package:frontend/shared/chat/models/chat_participant.dart';
 
 part 'call_state.dart';
 
@@ -38,6 +40,7 @@ part 'call_state.dart';
 class CallCubit extends Cubit<CallCubitState> {
   CallCubit({
     required this.currentUserId,
+    required ChatRepository repository,
     required String conversationId,
     required List<ChatParticipant> participants,
     required bool isVideo,
@@ -45,6 +48,7 @@ class CallCubit extends Cubit<CallCubitState> {
     bool isIncoming = false,
     ChatSocketService? socket,
   }) : _socket = socket ?? ChatSocketService.instance,
+       _repository = repository,
        super(
          CallCubitState(
            session: CallSession(
@@ -71,15 +75,12 @@ class CallCubit extends Cubit<CallCubitState> {
     unawaited(_setUpFuture);
   }
 
-  static const _iceServers = {
-    'iceServers': [
-      {'urls': 'stun:stun.l.google.com:19302'},
-    ],
-  };
   static const _noAnswerTimeout = Duration(seconds: 45);
+  static const _connectingTimeout = Duration(seconds: 30);
 
   final String currentUserId;
   final ChatSocketService _socket;
+  final ChatRepository _repository;
   late final StreamSubscription<Map<String, dynamic>> _socketSubscription;
 
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
@@ -93,12 +94,15 @@ class CallCubit extends Cubit<CallCubitState> {
   final Set<String> _readyPeerIds = {};
   bool _iAmReady = false;
 
+  Map<String, dynamic> _iceServers = ApiConstants.iceServers;
+
   /// Completes once the renderers are initialized (and, for an
   /// outgoing call, the invite is out). [accept] awaits it so answering
   /// the instant the screen appears can't race the setup.
   late final Future<void> _setUpFuture;
 
   Timer? _noAnswerTimer;
+  Timer? _connectingTimer;
   Timer? _elapsedTicker;
 
   String get _conversationId => state.session.conversationId;
@@ -108,9 +112,13 @@ class CallCubit extends Cubit<CallCubitState> {
     try {
       await localRenderer.initialize();
       await remoteRenderer.initialize();
+      // Fetch the latest ICE configuration (STUN/TURN) from the backend
+      // so we don't leak static credentials in the source code.
+      _iceServers = await _repository.getIceServers();
     } catch (_) {
-      // No video surface available. Audio and signaling are unaffected,
-      // and [accept] awaits this future — it must never fail the call.
+      // No video surface or ICE fetch failed. Audio and signaling are
+      // unaffected, and [accept] awaits this future — it must never fail
+      // the call.
     }
 
     if (state.session.isIncoming) {
@@ -185,6 +193,11 @@ class CallCubit extends Cubit<CallCubitState> {
         session: state.session.copyWith(state: CallState.connecting),
       ),
     );
+    _connectingTimer = Timer(_connectingTimeout, () {
+      if (state.session.state == CallState.connecting) {
+        _endCall(outcome: CallOutcome.missed);
+      }
+    });
     // The renderers are initialized by [_setUp], which may still be in
     // flight if the call was answered the instant it appeared.
     await _setUpFuture;
@@ -311,6 +324,7 @@ class CallCubit extends Cubit<CallCubitState> {
 
   void _onAnyPeerConnected() {
     _noAnswerTimer?.cancel();
+    _connectingTimer?.cancel();
     unawaited(CallRingService.instance.stop());
     if (state.session.state == CallState.active) return;
     // Media is flowing: put it where this kind of call belongs. A voice
@@ -459,6 +473,7 @@ class CallCubit extends Cubit<CallCubitState> {
     unawaited(CallRingService.instance.stop());
     unawaited(_setAndroidAudioMode(AndroidAudioConfiguration.media));
     _noAnswerTimer?.cancel();
+    _connectingTimer?.cancel();
     _elapsedTicker?.cancel();
     for (final pc in _peers.values) {
       unawaited(pc.close());
@@ -477,6 +492,7 @@ class CallCubit extends Cubit<CallCubitState> {
     await _setAndroidAudioMode(AndroidAudioConfiguration.media);
     await _socketSubscription.cancel();
     _noAnswerTimer?.cancel();
+    _connectingTimer?.cancel();
     _elapsedTicker?.cancel();
     for (final pc in _peers.values) {
       unawaited(pc.close());

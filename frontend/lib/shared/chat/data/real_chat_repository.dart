@@ -619,6 +619,14 @@ class RealChatRepository implements ChatRepository {
     });
   }
 
+  @override
+  Future<Map<String, dynamic>> getIceServers() async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      ApiConstants.chatIceServers,
+    );
+    return response.data ?? ApiConstants.iceServers;
+  }
+
   void _onTyping(Map<String, dynamic> event) {
     final conversationId = event['conversation_id']?.toString();
     final peerId = event['from_user_id'] as String?;

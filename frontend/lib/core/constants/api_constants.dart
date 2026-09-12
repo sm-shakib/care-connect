@@ -79,6 +79,20 @@ class ApiConstants {
       '/chat/conversations/$conversationId/members';
   static String chatMember(String conversationId, String memberId) =>
       '/chat/conversations/$conversationId/members/$memberId';
+  static const String chatIceServers = '/chat/ice-servers';
+
+  // --- WebRTC ---
+
+  /// Standard ICE servers for peer-to-peer media. STUN is usually enough for
+  /// same-network or simple NATs, but mobile data and corporate Wi-Fi almost
+  /// always require a TURN server to relay the actual media bits.
+  /// These are the static fallbacks; preferred config is fetched via
+  /// [chatIceServers] endpoint.
+  static const Map<String, dynamic> iceServers = {
+    'iceServers': [
+      {'urls': 'stun:stun.l.google.com:19302'},
+    ],
+  };
 
   // ws:// (or wss://) equivalent of [baseUrl], for the chat/call socket.
   static String get chatSocketBase => baseUrl

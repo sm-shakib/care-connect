@@ -328,6 +328,15 @@ class MockChatRepository implements ChatRepository {
   void setTyping(String conversationId, {required bool isTyping}) {}
 
   @override
+  Future<Map<String, dynamic>> getIceServers() async {
+    return {
+      'iceServers': [
+        {'urls': 'stun:stun.l.google.com:19302'},
+      ],
+    };
+  }
+
+  @override
   void setActiveConversation(String? conversationId) {}
 
   // ==================== Seed data ====================

@@ -90,6 +90,7 @@ class _ConversationViewState extends State<_ConversationView> {
             participants: others,
             groupTitle: conversation.displayTitle(cubit.currentUser.id),
             isVideo: isVideo,
+            repository: cubit.repository,
           ),
         ),
       );
@@ -106,6 +107,7 @@ class _ConversationViewState extends State<_ConversationView> {
           conversationId: cubit.conversationId,
           participants: [other],
           isVideo: isVideo,
+          repository: cubit.repository,
         ),
       ),
     );

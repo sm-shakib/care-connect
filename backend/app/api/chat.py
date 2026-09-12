@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api import chat_ws, deps
 from app.core import crypto
+from app.core.config import settings
 from app.core.media import upload_chat_file
 from app.db.session import get_db
 from app.models.binding import FamilyElderLink
@@ -787,3 +788,13 @@ def list_media(
     if kind:
         query = query.filter(MessageAttachment.kind == kind)
     return query.order_by(Message.created_at.desc()).all()
+
+
+@router.get("/ice-servers")
+def get_ice_servers(
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    """Returns the STUN/TURN server configuration for WebRTC calls.
+    Requires authentication so credentials aren't leaked publicly.
+    """
+    return {"iceServers": settings.ICE_SERVERS}

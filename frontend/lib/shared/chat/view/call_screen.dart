@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:frontend/theme/app_colors.dart';
 
 import '../cubit/call_cubit.dart';
+import '../data/chat_repository.dart';
 import '../models/call_session.dart';
 import '../models/chat_participant.dart';
 import '../widgets/call_controls_bar.dart';
@@ -20,6 +21,7 @@ class CallScreen extends StatelessWidget {
     required this.conversationId,
     required this.participants,
     required this.isVideo,
+    required this.repository,
     this.groupTitle,
     this.isIncoming = false,
   });
@@ -33,6 +35,7 @@ class CallScreen extends StatelessWidget {
   final bool isVideo;
   final String? groupTitle;
   final bool isIncoming;
+  final ChatRepository repository;
 
   bool get isGroupCall => groupTitle != null;
 
@@ -46,6 +49,7 @@ class CallScreen extends StatelessWidget {
         groupTitle: groupTitle,
         isVideo: isVideo,
         isIncoming: isIncoming,
+        repository: repository,
       ),
       child: BlocConsumer<CallCubit, CallCubitState>(
         listener: (context, state) {

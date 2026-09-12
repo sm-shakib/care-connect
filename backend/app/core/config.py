@@ -33,10 +33,29 @@ class Settings:
         hashlib.sha256(f"chat-master-key:{SECRET_KEY}".encode()).digest()
     ).decode()
 
-    # WebRTC ICE servers handed to the frontend for call setup. Public
-    # STUN only for now — add a TURN entry here (urls/username/credential)
-    # if calls need to survive stricter NATs later.
-    ICE_SERVERS: list = [{"urls": "stun:stun.l.google.com:19302"}]
+    # Accessing the ICE_SERVERS property will now return the configuration
+    # defined in the environment variables, allowing for secure TURN
+    # credentials without hardcoding them in the source.
+    @property
+    def ICE_SERVERS(self) -> list:
+        servers = [{"urls": os.getenv("WEBRTC_STUN_URL", "stun:stun.l.google.com:19302")}]
+        
+        turn_urls = []
+        for i in range(1, 5):
+            url = os.getenv(f"TURN_URL_{i}")
+            if url:
+                turn_urls.append(url)
+        
+        username = os.getenv("TURN_USERNAME")
+        credential = os.getenv("TURN_PASSWORD")
+        
+        if turn_urls and username and credential:
+            servers.append({
+                "urls": turn_urls,
+                "username": username,
+                "credential": credential
+            })
+        return servers
 
     # bKash Settings
     BKASH_USERNAME: str = os.getenv("BKASH_USERNAME")

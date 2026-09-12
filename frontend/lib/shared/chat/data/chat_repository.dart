@@ -97,6 +97,11 @@ abstract class ChatRepository {
   /// this never throws or blocks the composer.
   void setTyping(String conversationId, {required bool isTyping});
 
+  /// The STUN/TURN configuration used to establish voice/video calls.
+  /// Fetched from the backend to avoid leaking static credentials in the
+  /// binary.
+  Future<Map<String, dynamic>> getIceServers();
+
   /// Marks [conversationId] as the thread the user is looking at (null
   /// when they leave it). Messages that arrive for the open thread are
   /// read on arrival rather than piling up an unread count the user can
