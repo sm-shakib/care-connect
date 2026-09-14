@@ -41,17 +41,45 @@ class UserAccount extends Equatable {
   final DateTime joinedDate;
   final UserStatus status;
 
+  UserAccount copyWith({
+    String? id,
+    String? name,
+    String? avatarUrl,
+    UserRole? role,
+    String? phone,
+    DateTime? joinedDate,
+    UserStatus? status,
+  }) {
+    return UserAccount(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
+      phone: phone ?? this.phone,
+      joinedDate: joinedDate ?? this.joinedDate,
+      status: status ?? this.status,
+    );
+  }
+
   factory UserAccount.fromJson(Map<String, dynamic> json) {
+    DateTime joinedDate;
+    final createdAt = json['created_at'];
+    if (createdAt is String) {
+      joinedDate = DateTime.tryParse(createdAt) ?? DateTime.now();
+    } else if (createdAt is DateTime) {
+      joinedDate = createdAt;
+    } else {
+      joinedDate = DateTime.now();
+    }
+
     return UserAccount(
       id: json['id']?.toString() ?? '',
       name: (json['name'] as String?) ?? (json['email'] as String?) ?? 'Unknown',
       avatarUrl: (json['profile_image_url'] as String?) ?? '',
       role: _parseRole(json['role'] as String?),
       phone: (json['phone'] as String?) ?? '',
-      joinedDate: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      status: json['is_active'] == true ? UserStatus.active : UserStatus.suspended,
+      joinedDate: joinedDate,
+      status: json['is_active'] == false ? UserStatus.suspended : UserStatus.active,
     );
   }
 

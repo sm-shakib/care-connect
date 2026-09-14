@@ -65,7 +65,7 @@ class ConversationParticipant(Base):
     hidden_at = Column(DateTime(timezone=True), nullable=True)
 
     conversation = relationship("Conversation", back_populates="participants")
-    user = relationship("User")
+    user = relationship("User", back_populates="chat_participations")
 
 
 class ConversationKey(Base):
@@ -117,7 +117,7 @@ class Message(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     conversation = relationship("Conversation", back_populates="messages")
-    sender = relationship("User")
+    sender = relationship("User", back_populates="sent_messages")
     attachments = relationship(
         "MessageAttachment",
         back_populates="message",

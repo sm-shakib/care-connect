@@ -117,9 +117,9 @@ class DashboardCubit extends Cubit<DashboardState> {
         state.copyWith(
           status: DashboardStatus.success,
           userName: profile['name']?.toString() ?? 'Hello',
-          heartRate: profile['heart_rate'] as int? ?? 75,
-          systolicBp: profile['systolic_bp'] as int? ?? 120,
-          diastolicBp: profile['diastolic_bp'] as int? ?? 80,
+          heartRate: profile['heart_rate'] as int?,
+          systolicBp: profile['systolic_bp'] as int?,
+          diastolicBp: profile['diastolic_bp'] as int?,
           otherReminders: reminders,
           appointments: appointments,
           caregivers: caregivers,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +12,7 @@ import 'package:frontend/core/widgets/primary_pill_button.dart';
 import 'package:frontend/core/widgets/profile_picture_picker.dart';
 import 'package:frontend/core/widgets/success_dialog.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/welcome_screen/welcome_screen.dart';
 import 'package:frontend/shared/chat/data/chat_session.dart';
 import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -141,6 +144,7 @@ class _PersonalInfoCard extends StatelessWidget {
               ? ProfilePicturePicker(
                   key: ValueKey('avatar-${state.editSessionId}'),
                   imageBytes: state.profileImageBytes,
+                  imageUrl: state.profileImageUrl,
                   onImagePicked: cubit.profileImagePicked,
                 )
               : CircleAvatar(
@@ -545,13 +549,22 @@ class _ActionsSection extends StatelessWidget {
 
             if (!context.mounted) return;
 
-            // Navigate to login page and tell it to show the success dialog
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => LoginPage(showLogoutSuccess: true),
+            // Navigate to welcome screen as root, then push login page
+            // This allows back button on login screen to go to welcome page
+            unawaited(
+              Navigator.pushAndRemoveUntil(
+                context,
+                WelcomeScreenPage.route(),
+                (route) => false,
               ),
-              (route) => false,
+            );
+            unawaited(
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => LoginPage(showLogoutSuccess: true),
+                ),
+              ),
             );
           },
         ),

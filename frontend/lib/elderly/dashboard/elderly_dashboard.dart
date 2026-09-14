@@ -570,13 +570,18 @@ class _VitalsUpdateCard extends StatelessWidget {
     required this.onUpdate,
   });
 
-  final int heartRate;
-  final int systolic;
-  final int diastolic;
+  final int? heartRate;
+  final int? systolic;
+  final int? diastolic;
   final VoidCallback onUpdate;
 
   @override
   Widget build(BuildContext context) {
+    final hrText = heartRate != null ? '$heartRate BPM' : '-- BPM';
+    final bpText = (systolic != null && diastolic != null)
+        ? '$systolic/$diastolic'
+        : '--/--';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -614,14 +619,14 @@ class _VitalsUpdateCard extends StatelessWidget {
             children: [
               _VitalsValue(
                 label: context.l10n.dashboardHeartRate,
-                value: '$heartRate BPM',
+                value: hrText,
                 icon: Icons.favorite,
                 color: Colors.redAccent,
               ),
               Container(width: 1, height: 40, color: AppColors.outlineVariantLight, margin: const EdgeInsets.symmetric(horizontal: 20)),
               _VitalsValue(
                 label: context.l10n.dashboardBloodPressure,
-                value: '$systolic/$diastolic',
+                value: bpText,
                 icon: Icons.speed,
                 color: Colors.blueAccent,
               ),

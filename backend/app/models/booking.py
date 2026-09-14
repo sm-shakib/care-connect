@@ -29,5 +29,5 @@ class Booking(Base):
     is_fund_covered = Column(Boolean, default=False, nullable=False)
 
     # Relationships
-    elder = relationship("Elder")
-    caregiver = relationship("Caregiver")
+    elder = relationship("Elder", back_populates="bookings")
+    caregiver = relationship("Caregiver", back_populates="bookings")

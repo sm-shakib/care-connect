@@ -205,12 +205,12 @@ class _StatusStyle {
       case VerificationStatus.pending:
         return _StatusStyle(
           label: 'Pending',
-          avatarRingColor: AppColors.primaryContainerLight,
-          dotBackgroundColor: AppColors.tertiaryContainerLight,
+          avatarRingColor: AppColors.secondaryContainerLight,
+          dotBackgroundColor: AppColors.secondaryContainerLight,
           dotIcon: Icons.hourglass_empty,
-          dotIconColor: AppColors.onTertiaryContainerLight,
-          badgeBackgroundColor: AppColors.tertiaryContainerLight,
-          badgeTextColor: AppColors.onTertiaryContainerLight,
+          dotIconColor: AppColors.onSecondaryContainerLight,
+          badgeBackgroundColor: AppColors.secondaryContainerLight,
+          badgeTextColor: AppColors.onSecondaryContainerLight,
         );
       case VerificationStatus.verified:
         return _StatusStyle(

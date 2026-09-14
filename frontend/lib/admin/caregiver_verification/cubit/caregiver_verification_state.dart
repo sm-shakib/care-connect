@@ -21,15 +21,26 @@ class CaregiverVerificationState extends Equatable {
   final String searchQuery;
   final String? errorMessage;
 
-  /// Caregivers after applying the active filter chip and search query.
+  /// Caregivers after applying the active filter chip and search query,
+  /// sorted by status (Pending first) then by name.
   List<CaregiverModel> get filteredCaregivers {
     final query = searchQuery.trim().toLowerCase();
-    return caregivers.where((caregiver) {
+    final filtered = caregivers.where((caregiver) {
       final matchesFilter = filter.matches(caregiver.status);
       final matchesSearch =
           query.isEmpty || caregiver.name.toLowerCase().contains(query);
       return matchesFilter && matchesSearch;
     }).toList();
+
+    // Sort by status priority: Pending > Verified > Rejected, then by name
+    filtered.sort((a, b) {
+      if (a.status != b.status) {
+        return a.status.index.compareTo(b.status.index);
+      }
+      return a.name.compareTo(b.name);
+    });
+
+    return filtered;
   }
 
   bool get isLoading => status == CaregiverVerificationStatus.loading;

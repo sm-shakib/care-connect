@@ -55,16 +55,19 @@ class Booking extends Equatable {
     required this.dateLabel,
     required this.status,
     required this.badges,
+    required this.startDate,
+    required this.requestedAt,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     final elder = json['elder'] as Map<String, dynamic>?;
     final caregiver = json['caregiver'] as Map<String, dynamic>?;
-    final caregiverUser =
-        caregiver != null ? caregiver['user'] as Map<String, dynamic>? : null;
 
     final startDate = DateTime.parse(json['service_start_date'] as String);
     final endDate = DateTime.parse(json['service_end_date'] as String);
+    final requestedAt = json['requested_at'] != null
+        ? DateTime.parse(json['requested_at'] as String)
+        : DateTime.now();
     final statusStr = json['status'] as String? ?? 'pending';
     final paymentStatus = json['payment_status'] as String? ?? 'pending';
 
@@ -80,19 +83,39 @@ class Booking extends Equatable {
           '${dateFmt.format(startDate)}, ${yearFmt.format(startDate)} - ${dateFmt.format(endDate)}, ${yearFmt.format(endDate)}';
     }
 
-    // Determining status and badges
-    final List<BookingBadgeType> badges = [];
-    final BookingStatus status;
+    // Normalizing dates to midnight for accurate day-based comparison
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
 
-    if (statusStr == 'accepted') {
-      status = BookingStatus.ongoing;
-      badges.add(BookingBadgeType.confirmed);
-    } else if (statusStr == 'completed') {
+    // Determining status based on real-life date time and backend status
+    final List<BookingBadgeType> badges = [];
+    BookingStatus status;
+
+    if (statusStr == 'completed') {
       status = BookingStatus.completed;
       badges.add(BookingBadgeType.confirmed);
+    } else if (statusStr == 'rejected' || statusStr == 'cancelled') {
+      status = BookingStatus.completed;
+    } else if (today.isAfter(end)) {
+      // The service period has naturally ended
+      status = BookingStatus.completed;
+      if (statusStr == 'accepted') badges.add(BookingBadgeType.confirmed);
+    } else if (statusStr == 'accepted') {
+      badges.add(BookingBadgeType.confirmed);
+      if (today.isBefore(start)) {
+        status = BookingStatus.upcoming;
+      } else {
+        status = BookingStatus.ongoing;
+        badges.add(BookingBadgeType.ongoing);
+      }
     } else {
+      // Defaults to upcoming for 'pending' or anything else not yet started/accepted
       status = BookingStatus.upcoming;
-      badges.add(BookingBadgeType.pending);
+      if (statusStr == 'pending') {
+        badges.add(BookingBadgeType.pending);
+      }
     }
 
     if (paymentStatus == 'paid') {
@@ -117,6 +140,8 @@ class Booking extends Equatable {
       dateLabel: dateLabel,
       status: status,
       badges: badges,
+      startDate: startDate,
+      requestedAt: requestedAt,
     );
   }
 
@@ -127,6 +152,8 @@ class Booking extends Equatable {
   final String dateLabel;
   final BookingStatus status;
   final List<BookingBadgeType> badges;
+  final DateTime startDate;
+  final DateTime requestedAt;
 
   @override
   List<Object?> get props => [
@@ -137,5 +164,7 @@ class Booking extends Equatable {
         dateLabel,
         status,
         badges,
+        startDate,
+        requestedAt,
       ];
 }

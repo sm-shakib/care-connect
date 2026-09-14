@@ -91,6 +91,7 @@ class AdminRepository {
 
   Future<Map<String, dynamic>> updateUserStatus(int id, bool isActive) async {
     final options = await _getAuthOptions();
+    // Using data instead of queryParameters for PATCH is sometimes safer depending on server config
     final response = await _apiClient.patch<Map<String, dynamic>>(
       ApiConstants.adminUserStatus(id),
       queryParameters: {'is_active': isActive},

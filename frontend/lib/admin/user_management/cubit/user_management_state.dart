@@ -20,15 +20,21 @@ class UserManagementState extends Equatable {
   final String searchQuery;
   final String? errorMessage;
 
-  /// Users after applying the active filter chip and search query.
+  /// Users after applying the active filter chip and search query,
+  /// sorted by joinedDate ascending.
   List<UserAccount> get filteredUsers {
     final query = searchQuery.trim().toLowerCase();
-    return users.where((user) {
+    final filtered = users.where((user) {
       final matchesFilter = filter.matches(user.role);
       final matchesSearch =
           query.isEmpty || user.name.toLowerCase().contains(query);
       return matchesFilter && matchesSearch;
     }).toList();
+
+    // Sort by joinedDate ascending
+    filtered.sort((a, b) => a.joinedDate.compareTo(b.joinedDate));
+
+    return filtered;
   }
 
   bool get isLoading => status == UserManagementStatus.loading;

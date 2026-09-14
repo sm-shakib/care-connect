@@ -13,6 +13,7 @@ import 'package:frontend/elderly/elderly_profile/cubit/elderly_profile_cubit.dar
 import 'package:frontend/elderly/view/donation_assistance_page.dart';
 import 'package:frontend/shared/complaints/user_complaints_page.dart';
 import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/welcome_screen/welcome_screen.dart';
 import 'package:frontend/shared/chat/data/chat_session.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/theme/app_colors.dart';
@@ -144,6 +145,7 @@ class _PersonalInfoCard extends StatelessWidget {
               ? ProfilePicturePicker(
                   key: ValueKey('avatar-${state.editSessionId}'),
                   imageBytes: state.profileImageBytes,
+                  imageUrl: state.profileImageUrl,
                   onImagePicked: cubit.profileImagePicked,
                 )
               : CircleAvatar(
@@ -666,13 +668,22 @@ class _ActionsSection extends StatelessWidget {
 
                 if (!context.mounted) return;
 
-                // Navigate to login page and tell it to show the success dialog
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (context) => const LoginPage(showLogoutSuccess: true),
+                // Navigate to welcome screen as root, then push login page
+                // This allows back button on login screen to go to welcome page
+                unawaited(
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    WelcomeScreenPage.route(),
+                    (route) => false,
                   ),
-                  (route) => false,
+                );
+                unawaited(
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage(showLogoutSuccess: true),
+                    ),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(

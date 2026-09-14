@@ -6,12 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:frontend/caregiver_signup/caregiver_signup.dart';
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/caregiver/data/repositories/caregiver_repository.dart';
 
 part 'caregiver_profile_state.dart';
 
 class CaregiverProfileCubit extends Cubit<CaregiverProfileState> {
   final CaregiverRepository _repository;
+  final AuthRepository _authRepository = AuthRepository();
 
   CaregiverProfileCubit({CaregiverRepository? repository})
       : _repository = repository ?? CaregiverRepository(),
@@ -105,6 +107,19 @@ class CaregiverProfileCubit extends Cubit<CaregiverProfileState> {
   Future<void> saveChanges() async {
     emit(state.copyWith(isSaving: true));
     try {
+      String? profileImageUrl = state.profileImageUrl;
+
+      // Upload new image if picked
+      if (state.profileImageBytes != null) {
+        final uploadedUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_caregiver_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+        if (uploadedUrl != null) {
+          profileImageUrl = uploadedUrl;
+        }
+      }
+
       final dobStr = state.dateOfBirth != null
           ? "${state.dateOfBirth!.year}-${state.dateOfBirth!.month.toString().padLeft(2, '0')}-${state.dateOfBirth!.day.toString().padLeft(2, '0')}"
           : null;
@@ -119,8 +134,14 @@ class CaregiverProfileCubit extends Cubit<CaregiverProfileState> {
         'availability_type': state.availabilityType?.name,
         'hourly_rate': double.tryParse(state.hourlyRate) ?? 0.0,
         'experience_years': int.tryParse(state.experienceYears) ?? 0,
+        'profile_image_url': profileImageUrl,
       });
-      _lastSaved = state.copyWith(isEditing: false, isSaving: false);
+      _lastSaved = state.copyWith(
+        isEditing: false, 
+        isSaving: false,
+        profileImageUrl: profileImageUrl,
+        profileImageBytes: null, // Clear bytes as it's now uploaded
+      );
       emit(_lastSaved);
     } catch (e) {
       debugPrint('CaregiverProfileCubit.saveChanges error: $e');

@@ -32,7 +32,7 @@ class UserManagementCubit extends Cubit<UserManagementState> {
       emit(
         state.copyWith(
           status: UserManagementStatus.failure,
-          errorMessage: 'Unable to load users. Please try again.',
+          errorMessage: 'Unable to load users. ${e.toString()}',
         ),
       );
     }
@@ -66,11 +66,44 @@ class UserManagementCubit extends Cubit<UserManagementState> {
     final newIsActive = user.status == UserStatus.suspended;
     try {
       await _adminRepository.updateUserStatus(int.parse(user.id), newIsActive);
-      await loadUsers(); // Refresh list
+      
+      // Update local state immediately
+      final updatedUsers = state.users.map((u) {
+        if (u.id == user.id) {
+          return u.copyWith(
+            status: newIsActive ? UserStatus.active : UserStatus.suspended,
+          );
+        }
+        return u;
+      }).toList();
+
+      emit(state.copyWith(
+        status: UserManagementStatus.success,
+        users: updatedUsers,
+      ));
     } on Exception catch (e) {
       emit(
         state.copyWith(
           errorMessage: 'Failed to update user status.',
+        ),
+      );
+    }
+  }
+
+  Future<void> removeUser(String userId) async {
+    try {
+      await _adminRepository.deleteUser(int.parse(userId));
+      
+      // Update local state immediately to reflect removal in UI
+      final updatedUsers = state.users.where((u) => u.id != userId).toList();
+      emit(state.copyWith(
+        status: UserManagementStatus.success,
+        users: updatedUsers,
+      ));
+    } on Exception catch (e) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Failed to remove user. Please try again.',
         ),
       );
     }

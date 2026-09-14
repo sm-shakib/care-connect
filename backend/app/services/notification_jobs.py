@@ -19,6 +19,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
+import sqlalchemy.exc
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
@@ -141,15 +142,34 @@ def check_upcoming_appointments(db: Session, now: Optional[datetime] = None) -> 
 async def run_notification_background_jobs() -> None:
     """Entry point started once from `main.py`'s lifespan. Runs forever,
     each iteration on its own short-lived DB session so a connection is
-    never held open across the sleep."""
+    never held open across the sleep.
+
+    Includes a retry loop to handle transient network/DNS issues (e.g. Neon
+    connection drops)."""
     while True:
-        db = SessionLocal()
-        try:
-            check_missed_medicines(db)
-            check_upcoming_appointments(db)
-        except Exception:
-            logger.exception("Notification background job failed")
-            db.rollback()
-        finally:
-            db.close()
+        retries = 3
+        while retries > 0:
+            db = SessionLocal()
+            try:
+                check_missed_medicines(db)
+                check_upcoming_appointments(db)
+                break  # Success, exit the retry loop
+            except sqlalchemy.exc.OperationalError as e:
+                retries -= 1
+                logger.warning(
+                    f"Notification job DB connection failed, retrying "
+                    f"({3 - retries}/3)...: {e}"
+                )
+                db.rollback()
+                if retries > 0:
+                    await asyncio.sleep(5)  # Wait briefly before retrying
+                else:
+                    logger.error("Notification job failed: All DB retries exhausted.")
+            except Exception:
+                logger.exception("Notification background job failed with an unexpected error")
+                db.rollback()
+                break  # Non-connection error, don't retry this iteration
+            finally:
+                db.close()
+
         await asyncio.sleep(_POLL_INTERVAL_SECONDS)

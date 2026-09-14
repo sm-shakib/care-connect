@@ -30,7 +30,8 @@ class Elder(Base):
 
     # Relationship back to User
     user = relationship("User", back_populates="elder_profile")
-    family_links = relationship("FamilyElderLink", back_populates="elder")
-    medicines = relationship("Medicine", back_populates="elder")
-    appointments = relationship("Appointment", back_populates="elder")
-    reminders = relationship("CareReminder", back_populates="elder")
+    family_links = relationship("FamilyElderLink", back_populates="elder", cascade="all, delete-orphan")
+    medicines = relationship("Medicine", back_populates="elder", cascade="all, delete-orphan")
+    appointments = relationship("Appointment", back_populates="elder", cascade="all, delete-orphan")
+    reminders = relationship("CareReminder", back_populates="elder", cascade="all, delete-orphan")
+    bookings = relationship("Booking", back_populates="elder", cascade="all, delete-orphan")

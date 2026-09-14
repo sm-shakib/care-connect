@@ -21,8 +21,8 @@ class Complaint(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    reporter = relationship("User", foreign_keys=[reporter_id])
-    caregiver = relationship("Caregiver", foreign_keys=[caregiver_id])
+    reporter = relationship("User", foreign_keys=[reporter_id], back_populates="reported_complaints")
+    caregiver = relationship("Caregiver", foreign_keys=[caregiver_id], back_populates="complaints")
     notes = relationship("ComplaintNote", back_populates="complaint", cascade="all, delete-orphan")
 
 class ComplaintNote(Base):

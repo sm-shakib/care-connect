@@ -13,65 +13,71 @@ class NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        shape: Border(
-          bottom: BorderSide(color: AppColors.outlineVariantLight),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.primaryLight),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primaryLight,
-          ),
-        ),
-      ),
-      body: BlocBuilder<DashboardCubit, DashboardState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      backgroundColor: const Color(0xFFFBFEFC),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _NotificationsTopBar(onBack: () => Navigator.of(context).maybePop()),
+            Expanded(
+              child: BlocBuilder<DashboardCubit, DashboardState>(
+                builder: (context, state) {
+                  if (state.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-          final activities = state.activities;
+                  final activities = state.activities;
 
-          if (activities.isEmpty) {
-            return Center(
-              child: Text(
-                'No new notifications.',
-                style: TextStyle(color: AppColors.onSurfaceVariantLight),
-              ),
-            );
-          }
-
-          return SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 640),
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  itemCount: activities.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final activity = activities[index];
-                    return _NotificationTile(
-                      activity: activity,
-                      onTap: () => _handleNotificationTap(context, activity),
+                  if (activities.isEmpty) {
+                    return ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          child: Center(
+                            child: Text(
+                              'No new notifications.',
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     );
-                  },
-                ),
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      // Trigger a dashboard refresh if needed
+                    },
+                    color: AppColors.darkTeal,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const _SectionLabel(label: 'Recent Activity'),
+                          const SizedBox(height: 12),
+                          for (final activity in activities) ...[
+                            _NotificationCard(
+                              activity: activity,
+                              onTap: () => _handleNotificationTap(context, activity),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -94,93 +100,168 @@ class NotificationsView extends StatelessWidget {
   }
 }
 
-class _NotificationTile extends StatelessWidget {
-  const _NotificationTile({required this.activity, this.onTap});
+class _NotificationCard extends StatelessWidget {
+  const _NotificationCard({required this.activity, this.onTap});
 
   final ActivityItem activity;
   final VoidCallback? onTap;
 
-  (IconData, Color, Color) get _iconStyle {
+  (IconData, String) get _meta {
     switch (activity.type) {
       case ActivityType.caregiver:
-        return (
-          Icons.person_add,
-          AppColors.primaryContainerLight,
-          AppColors.onPrimaryContainerLight,
-        );
+        return (Icons.person_add, 'Caregiver');
       case ActivityType.complaint:
-        return (
-          Icons.report,
-          AppColors.errorContainerLight,
-          AppColors.onErrorContainerLight,
-        );
+        return (Icons.report, 'Complaint');
       case ActivityType.booking:
+        return (Icons.event, 'Booking');
       case ActivityType.central_fund:
-        return (
-          Icons.event,
-          AppColors.tertiaryContainerLight,
-          AppColors.onTertiaryContainerLight,
-        );
+        return (Icons.account_balance_wallet, 'Central Fund');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final (icon, iconBg, iconFg) = _iconStyle;
+    final colorScheme = Theme.of(context).colorScheme;
+    final (icon, label) = _meta;
+    
+    final accentColor = AppColors.darkTeal;
+    final accentContainer = AppColors.paleMint;
 
-    return Material(
-      color: AppColors.surfaceContainerLowestLight,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.outlineVariantLight),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: accentContainer,
+              shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.surface, width: 2),
+            ),
+            child: Icon(icon, color: accentColor, size: 22),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-                child: Icon(icon, color: iconFg, size: 20),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      activity.title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.onSurfaceLight,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      activity.subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.onSurfaceVariantLight,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      activity.timeAgo,
-                      style: TextStyle(fontSize: 12, color: AppColors.outlineLight),
-                    ),
-                  ],
+          const SizedBox(width: 14),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                 ),
               ),
-            ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        activity.timeAgo,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    activity.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    activity.subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NotificationsTopBar extends StatelessWidget {
+  const _NotificationsTopBar({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+            onPressed: onBack,
+          ),
+          const Text(
+            'Notifications',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTeal,
+            ),
+          ),
+        ],
       ),
     );
   }

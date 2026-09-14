@@ -1,10 +1,11 @@
 import 'dart:ui';
-import 'package:frontend/l10n/l10n.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import '../../theme/app_colors.dart';
-import '../../theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/app/cubit/locale_cubit.dart';
+import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/login/view/login_page.dart';
+import 'package:frontend/role_selection/view/role_selection_page.dart';
+import 'package:frontend/theme/app_colors.dart';
 
 class WelcomeScreenPage extends StatelessWidget {
   const WelcomeScreenPage({
@@ -22,6 +23,21 @@ class WelcomeScreenPage extends StatelessWidget {
   /// Called when the language toggle button is tapped.
   /// The actual locale switch happens up in `App`.
   final VoidCallback? onLanguageToggle;
+
+  /// Static helper to create a route for the welcome screen with default behaviors.
+  static Route<void> route() {
+    return MaterialPageRoute<void>(
+      builder: (context) => WelcomeScreenPage(
+        onGetStarted: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const RoleSelectionPage()),
+        ),
+        onLogin: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+        ),
+        onLanguageToggle: () => context.read<LocaleCubit>().toggleLocale(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
