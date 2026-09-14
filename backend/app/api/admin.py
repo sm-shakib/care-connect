@@ -16,10 +16,80 @@ from app.schemas.elder import ElderOut
 from app.schemas.family import FamilyOut
 from app.schemas.booking import BookingOut
 from app.schemas.complaint import ComplaintOut, ComplaintUpdate, ComplaintNoteCreate
+from app.schemas.admin import AdminDashboardData, AdminDashboardStats, AdminActivityItem
+from app.models.notification import Notification
 
 from app.core.email import send_email
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+@router.get("/dashboard", response_model=AdminDashboardData)
+def get_admin_dashboard(
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(deps.get_current_admin)
+):
+    """
+    Get aggregated stats and recent activity for the admin dashboard.
+    """
+    # 1. SOS Alert count (unread notifications of type sos_alert)
+    sos_count = db.query(Notification).filter(
+        Notification.type == "sos_alert",
+        Notification.user_id == current_admin.id,
+        Notification.is_read == False
+    ).count()
+
+    # 1b. Total unread notifications for this admin
+    unread_count = db.query(Notification).filter(
+        Notification.user_id == current_admin.id,
+        Notification.is_read == False
+    ).count()
+
+    # 2. Pending verifications count
+    pending_verif = db.query(Caregiver).filter(Caregiver.status == "pending").count()
+
+    # 3. Open complaints count
+    open_complaints = db.query(Complaint).filter(Complaint.status.in_(["pending", "under_review"])).count()
+
+    # 4. Recent activities (All notifications for this admin)
+    notifications = db.query(Notification).filter(
+        Notification.user_id == current_admin.id
+    ).order_by(Notification.created_at.desc()).limit(20).all()
+
+    activities = []
+    for n in notifications:
+        # Map backend notification type to activity type
+        # backend types: user_signup, caregiver_verification_request, booking_request, donation_received, aid_request, complaint_received, sos_alert
+        # frontend ActivityType: caregiver, complaint, booking, central_fund, user (new)
+        
+        act_type = "user"
+        if n.type in ["caregiver_verification_request"]:
+            act_type = "caregiver"
+        elif n.type in ["complaint_received"]:
+            act_type = "complaint"
+        elif n.type in ["booking_request"]:
+            act_type = "booking"
+        elif n.type in ["donation_received", "aid_request"]:
+            act_type = "central_fund"
+        elif n.type == "sos_alert":
+            act_type = "complaint" # Fallback or new type? Admin SOS is usually handled separately but here it's an activity.
+
+        activities.append(AdminActivityItem(
+            id=str(n.id),
+            type=act_type,
+            title=n.title,
+            subtitle=n.body,
+            created_at=n.created_at
+        ))
+
+    return AdminDashboardData(
+        stats=AdminDashboardStats(
+            sos_alert_count=sos_count,
+            pending_verification_count=pending_verif,
+            open_complaint_count=open_complaints,
+            unread_notifications_count=unread_count
+        ),
+        activities=activities
+    )
 
 @router.get("/caregivers/verification", response_model=List[CaregiverOut])
 def get_caregivers_for_verification(

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.family import Family
+from app.services.admin_notification import notify_admins
 from app.schemas.family import FamilySignupRequest, FamilySignupResponse, FamilyOut, FamilyUpdate
 from app.core.security import get_password_hash
 from app.api.deps import get_current_user
@@ -32,6 +33,14 @@ def signup_family(request: FamilySignupRequest, db: Session = Depends(get_db)):
             **filtered_profile_data
         )
         db.add(new_family)
+
+        # Notify admins about new user signup
+        notify_admins(
+            db,
+            title="New User Registered",
+            body=f"A new family user, {new_family.name}, has signed up.",
+            notification_type="user_signup"
+        )
 
         db.commit()
         db.refresh(new_user)

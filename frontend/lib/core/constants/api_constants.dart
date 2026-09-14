@@ -1,11 +1,11 @@
 class ApiConstants {
   // --- PRODUCTION (Render) ---
-  static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
+  //static const String baseUrl = 'https://care-connect-backend-aqgr.onrender.com';
 
   // --- LOCAL DEVELOPMENT ---
   // Use 10.0.2.2 for Android Emulator.
   // Use computer's IP (e.g., 192.168.0.x) for physical devices.
-  //static const String baseUrl = 'http://192.168.0.192:8000';
+  static const String baseUrl = 'http://192.168.0.192:8000';
 
 
   static const String elderSignup = '/elders/signup/elder';
@@ -23,6 +23,7 @@ class ApiConstants {
   static const String resetPassword = '/reset-password';
 
   // Admin
+  static const String adminDashboard = '/admin/dashboard';
   static const String adminVerificationList = '/admin/caregivers/verification';
   static String adminCaregiverReviewDetail(int id) => '/admin/caregivers/$id';
   static String adminCaregiverUserDetail(int id) =>

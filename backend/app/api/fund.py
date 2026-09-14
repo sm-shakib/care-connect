@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
 from app.api import deps
+from app.services.admin_notification import notify_admins
 from app.core import pricing
 from app.models.booking import Booking
 from app.models.caregiver import Caregiver
@@ -77,6 +78,19 @@ def donate(
     )
     db.add(new_summary)
     
+    # Notify admins about new donation
+    donor_name = current_user.email
+    if current_user.elder_profile: donor_name = current_user.elder_profile.name
+    elif current_user.family_profile: donor_name = current_user.family_profile.name
+    elif current_user.caregiver_profile: donor_name = current_user.caregiver_profile.name
+
+    notify_admins(
+        db,
+        title="New Donation Received",
+        body=f"A new donation of ৳{donation.amount} has been received from {donor_name}.",
+        notification_type="donation_received"
+    )
+
     db.commit()
     db.refresh(donation)
     return donation
@@ -166,6 +180,21 @@ async def execute_fund_bkash_payment(
             
             db.commit()
             db.refresh(donation)
+
+            # Notify admins about successful bKash donation
+            donor_name = donation.donor.email
+            if donation.donor.elder_profile: donor_name = donation.donor.elder_profile.name
+            elif donation.donor.family_profile: donor_name = donation.donor.family_profile.name
+            elif donation.donor.caregiver_profile: donor_name = donation.donor.caregiver_profile.name
+
+            notify_admins(
+                db,
+                title="New Donation Received (bKash)",
+                body=f"A new donation of ৳{donation.amount} has been received via bKash from {donor_name}.",
+                notification_type="donation_received"
+            )
+            db.commit()
+
             return {"status": "success", "donation": donation}
         else:
             donation.status = "failed"
@@ -209,6 +238,19 @@ def request_aid(
     )
     db.add(new_summary)
     
+    # Notify admins about new aid request
+    requester_name = current_user.email
+    if current_user.elder_profile: requester_name = current_user.elder_profile.name
+    elif current_user.family_profile: requester_name = current_user.family_profile.name
+    elif current_user.caregiver_profile: requester_name = current_user.caregiver_profile.name
+
+    notify_admins(
+        db,
+        title="New Aid Request",
+        body=f"A new aid request for {aid_request.caregiver_type} caregiver has been submitted by {requester_name}.",
+        notification_type="aid_request"
+    )
+
     db.commit()
     db.refresh(aid_request)
     return aid_request

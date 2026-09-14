@@ -16,6 +16,31 @@ class AdminRepository {
     );
   }
 
+  Future<Map<String, dynamic>> getDashboardData() async {
+    final options = await _getAuthOptions();
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      ApiConstants.adminDashboard,
+      options: options,
+    );
+    return response.data!;
+  }
+
+  Future<void> markNotificationAsRead(int notificationId) async {
+    final options = await _getAuthOptions();
+    await _apiClient.put<dynamic>(
+      '/notifications/$notificationId/read',
+      options: options,
+    );
+  }
+
+  Future<void> markAllNotificationsAsRead() async {
+    final options = await _getAuthOptions();
+    await _apiClient.put<dynamic>(
+      '/notifications/read-all',
+      options: options,
+    );
+  }
+
   Future<List<Map<String, dynamic>>> getCaregiversForVerification({
     String? status,
   }) async {

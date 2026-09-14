@@ -101,9 +101,15 @@ class _ActivityTile extends StatelessWidget {
 
       case ActivityType.central_fund:
         return (
-        Icons.event,
-        AppColors.tertiaryContainerLight,
-        AppColors.onTertiaryContainerLight,
+          Icons.account_balance_wallet,
+          AppColors.tertiaryContainerLight,
+          AppColors.onTertiaryContainerLight,
+        );
+      case ActivityType.user:
+        return (
+          Icons.person,
+          AppColors.primaryContainerLight,
+          AppColors.onPrimaryContainerLight,
         );
     }
   }

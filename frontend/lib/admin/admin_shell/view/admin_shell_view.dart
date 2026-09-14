@@ -7,6 +7,8 @@ import '../../booking_management/view/booking_management_view.dart';
 import '../../caregiver_verification/view/caregiver_verification_view.dart';
 import '../../complaint_management/view/complaint_management_view.dart';
 import '../../dashboard/cubit/dashboard_cubit.dart';
+import '../../dashboard/cubit/dashboard_state.dart';
+import '../../dashboard/view/dashboard_view.dart';
 import '../../more/view/more_view.dart';
 import '../../notifications/view/notifications_page.dart';
 import '../../user_management/view/user_management_view.dart';
@@ -27,6 +29,7 @@ class AdminShellView extends StatelessWidget {
   /// The order here must match the [AdminTab] enum order exactly for
   /// the [IndexedStack] to map correctly.
   static const _allTabs = [
+    AdminTab.dashboard,
     AdminTab.verification,
     AdminTab.users,
     AdminTab.complaints,
@@ -47,10 +50,9 @@ class AdminShellView extends StatelessWidget {
           appBar: _buildAppBar(context, selected),
           floatingActionButton: _buildFAB(context, selected),
           body: IndexedStack(
-            // If the selected tab isn't in our list (e.g. Dashboard),
-            // default to Users (index 1).
-            index: index < 0 ? 1 : index,
+            index: index < 0 ? 0 : index,
             children: const [
+              DashboardView(),
               CaregiverVerificationView(),
               UserManagementView(),
               ComplaintManagementView(),
@@ -124,11 +126,21 @@ class AdminShellView extends StatelessWidget {
         child: title,
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: AppColors.primaryLight),
-          onPressed: () {
-            Navigator.of(context).push(
-              NotificationsPage.route(context.read<DashboardCubit>()),
+        BlocBuilder<DashboardCubit, DashboardState>(
+          builder: (context, state) {
+            return Badge(
+              isLabelVisible: state.unreadNotificationsCount > 0,
+              label: Text(state.unreadNotificationsCount.toString()),
+              offset: const Offset(-4, 4),
+              backgroundColor: AppColors.errorLight,
+              child: IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.primaryLight),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    NotificationsPage.route(context.read<DashboardCubit>()),
+                  );
+                },
+              ),
             );
           },
         ),

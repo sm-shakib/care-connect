@@ -6,6 +6,7 @@ from app.api import deps
 from app.models.complaint import Complaint
 from app.models.caregiver import Caregiver
 from app.models.notification import Notification
+from app.services.admin_notification import notify_admins
 from app.models.user import User
 from app.schemas.complaint import ComplaintCreate, ComplaintOut, ComplaintUpdate
 
@@ -36,6 +37,18 @@ def file_complaint(
         body=f"A complaint has been filed against you: {complaint_in.category}.",
         type="complaint_filed"
     ))
+
+    # Notify admins about new complaint
+    reporter_name = current_user.email
+    if current_user.elder_profile: reporter_name = current_user.elder_profile.name
+    elif current_user.family_profile: reporter_name = current_user.family_profile.name
+
+    notify_admins(
+        db,
+        title="New Complaint Received",
+        body=f"A new complaint has been filed by {reporter_name} against caregiver {caregiver.name}.",
+        notification_type="complaint_received"
+    )
 
     db.commit()
     db.refresh(new_complaint)

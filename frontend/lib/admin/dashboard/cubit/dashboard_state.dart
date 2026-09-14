@@ -10,6 +10,7 @@ class DashboardState extends Equatable {
     this.sosAlertCount = 0,
     this.pendingVerificationCount = 0,
     this.openComplaintCount = 0,
+    this.unreadNotificationsCount = 0,
     this.activities = const <ActivityItem>[],
     this.errorMessage,
   });
@@ -18,6 +19,7 @@ class DashboardState extends Equatable {
   final int sosAlertCount;
   final int pendingVerificationCount;
   final int openComplaintCount;
+  final int unreadNotificationsCount;
   final List<ActivityItem> activities;
   final String? errorMessage;
 
@@ -28,6 +30,7 @@ class DashboardState extends Equatable {
     int? sosAlertCount,
     int? pendingVerificationCount,
     int? openComplaintCount,
+    int? unreadNotificationsCount,
     List<ActivityItem>? activities,
     String? errorMessage,
   }) {
@@ -37,6 +40,8 @@ class DashboardState extends Equatable {
       pendingVerificationCount:
       pendingVerificationCount ?? this.pendingVerificationCount,
       openComplaintCount: openComplaintCount ?? this.openComplaintCount,
+      unreadNotificationsCount:
+      unreadNotificationsCount ?? this.unreadNotificationsCount,
       activities: activities ?? this.activities,
       errorMessage: errorMessage,
     );
@@ -48,6 +53,7 @@ class DashboardState extends Equatable {
     sosAlertCount,
     pendingVerificationCount,
     openComplaintCount,
+    unreadNotificationsCount,
     activities,
     errorMessage,
   ];
