@@ -32,7 +32,7 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 
     # 3. Check if user is active
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=403, detail="Account suspended")
 
     # 4. Determine profile ID and status based on role
     profile_id = None

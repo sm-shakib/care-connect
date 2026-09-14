@@ -33,6 +33,9 @@ class BookingManagementState extends Equatable {
       }).toList();
     }
 
+    // Sort by requestedAt ascending (earliest bookings first)
+    filtered.sort((a, b) => a.requestedAt.compareTo(b.requestedAt));
+
     return filtered;
   }
 

@@ -12,10 +12,12 @@ class ProfilePicturePicker extends StatelessWidget {
     super.key,
     required this.onImagePicked,
     this.imageBytes,
+    this.imageUrl,
     this.errorText,
   });
 
   final Uint8List? imageBytes;
+  final String? imageUrl;
   final ValueChanged<Uint8List> onImagePicked;
   final String? errorText;
 
@@ -82,6 +84,13 @@ class ProfilePicturePicker extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final hasError = errorText != null && errorText!.isNotEmpty;
 
+    ImageProvider? backgroundImage;
+    if (imageBytes != null) {
+      backgroundImage = MemoryImage(imageBytes!);
+    } else if (imageUrl != null && imageUrl!.isNotEmpty) {
+      backgroundImage = NetworkImage(imageUrl!);
+    }
+
     return Column(
       children: [
         GestureDetector(
@@ -91,9 +100,8 @@ class ProfilePicturePicker extends StatelessWidget {
               CircleAvatar(
                 radius: 48,
                 backgroundColor: AppColors.paleMint,
-                backgroundImage:
-                imageBytes != null ? MemoryImage(imageBytes!) : null,
-                child: imageBytes == null
+                backgroundImage: backgroundImage,
+                child: backgroundImage == null
                     ? const Icon(
                   Icons.person_outline,
                   size: 44,

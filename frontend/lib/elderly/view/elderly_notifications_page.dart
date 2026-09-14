@@ -5,11 +5,6 @@ import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
-/// Backed by the same `/notifications/` API as the caregiver and family
-/// notification screens — see `CaregiverNotificationsCubit` and
-/// `FamilyNotificationsPage`. Elders don't currently receive any
-/// location-bearing notification type, so unlike those two this has no
-/// "Open in Maps" affordance.
 class ElderlyNotificationsPage extends StatefulWidget {
   const ElderlyNotificationsPage({super.key});
 
@@ -21,6 +16,7 @@ class ElderlyNotificationsPage extends StatefulWidget {
 class _ElderlyNotificationsPageState extends State<ElderlyNotificationsPage> {
   List<Map<String, dynamic>> _notifications = const <Map<String, dynamic>>[];
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -29,6 +25,11 @@ class _ElderlyNotificationsPageState extends State<ElderlyNotificationsPage> {
   }
 
   Future<void> _fetchNotifications() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final response = await ApiClient().get<List<dynamic>>('/notifications/');
       final data = response.data ?? const <dynamic>[];
@@ -40,13 +41,16 @@ class _ElderlyNotificationsPageState extends State<ElderlyNotificationsPage> {
           _isLoading = false;
         });
       }
-      // Opening this page is itself the "read" action, same as the
-      // caregiver/family sides — see CaregiverNotificationsCubit.markAllAsRead.
       if (_notifications.any((n) => n['is_read'] != true)) {
         unawaited(_markAllAsRead());
       }
-    } on Exception {
-      if (mounted) setState(() => _isLoading = false);
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Unable to load notifications. Please try again.';
+        });
+      }
     }
   }
 
@@ -61,135 +65,338 @@ class _ElderlyNotificationsPageState extends State<ElderlyNotificationsPage> {
     try {
       await ApiClient().put<void>('/notifications/read-all');
     } on Exception {
-      // Best-effort: the list already reflects "read" locally; a failed
-      // sync just means it may show unread again after the next refresh.
+      // Best-effort
     }
+  }
+
+  List<Map<String, dynamic>> get _todayNotifications {
+    final now = DateTime.now();
+    return _notifications.where((n) {
+      final date = DateTime.tryParse(n['created_at']?.toString() ?? '')?.toLocal();
+      if (date == null) return false;
+      return date.year == now.year && date.month == now.month && date.day == now.day;
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> get _earlierNotifications {
+    final now = DateTime.now();
+    return _notifications.where((n) {
+      final date = DateTime.tryParse(n['created_at']?.toString() ?? '')?.toLocal();
+      if (date == null) return true;
+      return !(date.year == now.year && date.month == now.month && date.day == now.day);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFBFEFC),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFFFBFEFC),
-        scrolledUnderElevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.outlineVariantLight),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
-            color: AppColors.darkTeal,
-            fontWeight: FontWeight.bold,
-          ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _NotificationsTopBar(onBack: () => Navigator.pop(context)),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _errorMessage != null
+                      ? _ErrorView(
+                          message: _errorMessage,
+                          onRetry: _fetchNotifications,
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _fetchNotifications,
+                          color: AppColors.darkTeal,
+                          child: _notifications.isEmpty
+                              ? ListView(
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    SizedBox(
+                                      height: 300,
+                                      child: Center(
+                                        child: Text(
+                                          'No notifications found.',
+                                          style: TextStyle(
+                                            color: colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : SingleChildScrollView(
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (_todayNotifications.isNotEmpty) ...[
+                                        const _SectionLabel(label: 'Today'),
+                                        const SizedBox(height: 12),
+                                        for (final notification in _todayNotifications) ...[
+                                          _NotificationCard(notification: notification),
+                                          const SizedBox(height: 16),
+                                        ],
+                                      ],
+                                      if (_earlierNotifications.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        const _SectionLabel(label: 'Earlier'),
+                                        const SizedBox(height: 12),
+                                        for (final notification in _earlierNotifications) ...[
+                                          _NotificationCard(notification: notification),
+                                          const SizedBox(height: 16),
+                                        ],
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                        ),
+            ),
+          ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? const Center(child: Text('No new notifications.'))
-              : RefreshIndicator(
-                  onRefresh: _fetchNotifications,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _notifications.length,
-                    itemBuilder: (context, index) {
-                      final item = _notifications[index];
-                      final meta = _metaForType(item['type']?.toString());
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 0,
-                        color: AppColors.paleMint.withValues(alpha: 0.18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(
-                            color: AppColors.outlineVariantLight,
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                meta.color.withValues(alpha: 0.15),
-                            child: Icon(meta.icon, color: meta.color),
-                          ),
-                          title: Text(
-                            (item['title'] ?? '').toString(),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text((item['body'] ?? '').toString()),
-                              const SizedBox(height: 4),
-                              Text(
-                                _formatTime((item['created_at'] ?? '').toString()),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
     );
   }
+}
 
-  String _formatTime(String isoDate) {
-    try {
-      final date = DateTime.parse(isoDate).toLocal();
-      return DateFormat.yMMMd().add_jm().format(date);
-    } catch (_) {
-      return isoDate;
-    }
+class _NotificationCard extends StatelessWidget {
+  const _NotificationCard({required this.notification});
+
+  final Map<String, dynamic> notification;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final createdAt = DateTime.tryParse(notification['created_at']?.toString() ?? '')?.toLocal() ?? DateTime.now();
+    final timeLabel = DateFormat('h:mm a').format(createdAt);
+    final type = notification['type']?.toString() ?? 'general';
+    final meta = _metaForType(type);
+    final isRead = notification['is_read'] as bool? ?? false;
+
+    final accentColor = AppColors.darkTeal;
+    final accentContainer = AppColors.paleMint;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentContainer,
+                shape: BoxShape.circle,
+                border: Border.all(color: colorScheme.surface, width: 2),
+              ),
+              child: Icon(meta.icon, color: accentColor, size: 22),
+            ),
+            if (!isRead)
+              Positioned(
+                right: -1,
+                top: -1,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorScheme.error,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colorScheme.surface, width: 2),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        meta.label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      timeLabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  (notification['title'] ?? '').toString(),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  (notification['body'] ?? '').toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NotificationsTopBar extends StatelessWidget {
+  const _NotificationsTopBar({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.darkTeal),
+            onPressed: onBack,
+          ),
+          const Text(
+            'Notifications',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTeal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
+
+  final String? message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, color: colorScheme.error, size: 40),
+            const SizedBox(height: 12),
+            Text(
+              message ?? 'Something went wrong.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class _NotificationTypeMeta {
-  const _NotificationTypeMeta({required this.icon, required this.color});
+  const _NotificationTypeMeta({required this.label, required this.icon});
 
+  final String label;
   final IconData icon;
-  final Color color;
 }
 
-/// Falls back to a generic bell for any type not listed here — a new
-/// backend event type still shows up with a sensible-looking card.
 _NotificationTypeMeta _metaForType(String? type) {
   switch (type) {
     case 'binding_request':
       return const _NotificationTypeMeta(
+        label: 'Request',
         icon: Icons.people_alt_rounded,
-        color: AppColors.darkTeal,
       );
     case 'binding_accepted':
       return const _NotificationTypeMeta(
+        label: 'Accepted',
         icon: Icons.link_rounded,
-        color: AppColors.darkTeal,
       );
     case 'sos_alert':
       return const _NotificationTypeMeta(
+        label: 'SOS Alert',
         icon: Icons.sos_rounded,
-        color: AppColors.warningRed,
       );
     case 'appointment_reminder':
       return const _NotificationTypeMeta(
+        label: 'Appointment',
         icon: Icons.event_available_rounded,
-        color: AppColors.darkTeal,
       );
     default:
       return const _NotificationTypeMeta(
+        label: 'Update',
         icon: Icons.notifications_active,
-        color: AppColors.darkTeal,
       );
   }
 }

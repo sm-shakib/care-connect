@@ -4,12 +4,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/family/data/repositories/family_profile_repository.dart';
 
 part 'family_profile_state.dart';
 
 class FamilyProfileCubit extends Cubit<FamilyProfileState> {
   final FamilyProfileRepository _repository;
+  final AuthRepository _authRepository = AuthRepository();
 
   FamilyProfileCubit(this._repository)
       : super(const FamilyProfileState()) {
@@ -70,6 +72,19 @@ class FamilyProfileCubit extends Cubit<FamilyProfileState> {
   Future<void> saveChanges() async {
     emit(state.copyWith(isSaving: true));
     try {
+      String? profileImageUrl = state.profileImageUrl;
+
+      // Upload new image if picked
+      if (state.profileImageBytes != null) {
+        final uploadedUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_family_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+        if (uploadedUrl != null) {
+          profileImageUrl = uploadedUrl;
+        }
+      }
+
       final dobStr = state.dateOfBirth != null 
           ? "${state.dateOfBirth!.year}-${state.dateOfBirth!.month.toString().padLeft(2, '0')}-${state.dateOfBirth!.day.toString().padLeft(2, '0')}"
           : null;
@@ -80,8 +95,14 @@ class FamilyProfileCubit extends Cubit<FamilyProfileState> {
         'address': state.address,
         'date_of_birth': dobStr,
         'gender': state.gender?.name ?? 'male',
+        'profile_image_url': profileImageUrl,
       });
-      _lastSaved = state.copyWith(isEditing: false, isSaving: false);
+      _lastSaved = state.copyWith(
+        isEditing: false, 
+        isSaving: false,
+        profileImageUrl: profileImageUrl,
+        profileImageBytes: null, // Clear bytes as it's now uploaded
+      );
       emit(_lastSaved);
     } catch (e) {
       debugPrint('FamilyProfileCubit.saveChanges error: $e');

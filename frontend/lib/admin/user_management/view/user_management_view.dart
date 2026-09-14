@@ -99,8 +99,10 @@ class UserManagementView extends StatelessWidget {
                               onTap: () => _openUserDetail(context, user),
                               onViewDetails: () =>
                                   _openUserDetail(context, user),
-                              onToggleStatus: () {},
-                              onRemove: () {},
+                              onToggleStatus: () => context
+                                  .read<UserManagementCubit>()
+                                  .toggleUserStatus(user),
+                              onRemove: () => _confirmRemoveUser(context, user),
                             );
                           },
                         ),
@@ -122,17 +124,18 @@ class UserManagementView extends StatelessWidget {
   }
 
   void _openUserDetail(BuildContext context, UserAccount user) {
+    Future<void>? pushFuture;
     switch (user.role) {
       case UserRole.elderly:
-        Navigator.of(context).push(
+        pushFuture = Navigator.of(context).push(
           ElderlyDetailPage.route(userId: user.id),
         );
       case UserRole.family:
-        Navigator.of(context).push(
+        pushFuture = Navigator.of(context).push(
           FamilyMemberDetailPage.route(userId: user.id),
         );
       case UserRole.caregiver:
-        Navigator.of(context).push(
+        pushFuture = Navigator.of(context).push(
           CaregiverDetailPage.route(userId: user.id),
         );
       case UserRole.admin:
@@ -144,5 +147,41 @@ class UserManagementView extends StatelessWidget {
             ),
           );
     }
+    
+    // Refresh the list when returning from the detail page to reflect any changes
+    pushFuture?.then((_) {
+      if (context.mounted) {
+        context.read<UserManagementCubit>().loadUsers();
+      }
+    });
+  }
+
+  void _confirmRemoveUser(BuildContext context, UserAccount user) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove User'),
+        content: Text(
+          'Are you sure you want to remove ${user.name}? '
+          'This action cannot be undone and will delete all associated data.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<UserManagementCubit>().removeUser(user.id);
+              Navigator.of(dialogContext).pop();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.errorLight,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
   }
 }

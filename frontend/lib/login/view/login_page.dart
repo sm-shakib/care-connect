@@ -12,6 +12,7 @@ import 'package:frontend/family/view/family_dashboard_page.dart';
 import 'package:frontend/forgot_password/view/forgot_password_page.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/login/cubit/login_cubit.dart';
+import 'package:frontend/login/view/suspended_page.dart';
 import 'package:frontend/otp_verification/view/otp_verification_page.dart';
 import 'package:frontend/reset_password/view/reset_password_page.dart';
 import 'package:frontend/role_selection/role_selection.dart';
@@ -198,12 +199,16 @@ class _LoginViewState extends State<_LoginView> {
             if (state.isSuccess) {
               _navigateBasedOnRole(context, state.role, state.accountStatus);
             } else if (state.isFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage ?? 'Login failed'),
-                  backgroundColor: colorScheme.error,
-                ),
-              );
+              if (state.errorMessage == 'Account suspended') {
+                unawaited(Navigator.push(context, SuspendedPage.route()));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? 'Login failed'),
+                    backgroundColor: colorScheme.error,
+                  ),
+                );
+              }
             }
           },
           child: Column(

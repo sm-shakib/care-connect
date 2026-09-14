@@ -30,7 +30,9 @@ class Caregiver(Base):
 
     # Relationships
     user = relationship("User", back_populates="caregiver_profile")
-    documents = relationship("CaregiverDocument", back_populates="caregiver")
+    documents = relationship("CaregiverDocument", back_populates="caregiver", cascade="all, delete-orphan")
+    bookings = relationship("Booking", back_populates="caregiver", cascade="all, delete-orphan")
+    complaints = relationship("Complaint", back_populates="caregiver", cascade="all, delete-orphan")
 
     @property
     def email(self):

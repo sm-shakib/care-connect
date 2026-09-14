@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/repositories/auth_repository.dart';
 import '../../../core/widgets/success_dialog.dart';
 import '../../../login/view/login_page.dart';
 import '../../../theme/app_colors.dart';
+import '../../../welcome_screen/welcome_screen.dart';
 import '../../admin_navigation.dart';
 import '../../admin_shell/cubit/admin_shell_cubit.dart';
 import '../../admin_shell/cubit/admin_shell_state.dart';
@@ -56,13 +59,22 @@ class MoreView extends StatelessWidget {
 
               if (!context.mounted) return;
 
-              // Navigate to login page and tell it to show the success dialog
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => LoginPage(showLogoutSuccess: true),
+              // Navigate to welcome screen as root, then push login page
+              // This allows back button on login screen to go to welcome page
+              unawaited(
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  WelcomeScreenPage.route(),
+                  (route) => false,
                 ),
-                (route) => false,
+              );
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const LoginPage(showLogoutSuccess: true),
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(

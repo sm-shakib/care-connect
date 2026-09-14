@@ -19,9 +19,9 @@ class DashboardState extends Equatable {
     this.linkedFamilyMembers = const [],
     this.chatPreview,
     this.errorMessage,
-    this.heartRate = 75,
-    this.systolicBp = 120,
-    this.diastolicBp = 80,
+    this.heartRate,
+    this.systolicBp,
+    this.diastolicBp,
   });
 
   final DashboardStatus status;
@@ -34,9 +34,9 @@ class DashboardState extends Equatable {
   final List<Map<String, dynamic>> linkedFamilyMembers;
   final ChatPreview? chatPreview;
   final String? errorMessage;
-  final int heartRate;
-  final int systolicBp;
-  final int diastolicBp;
+  final int? heartRate;
+  final int? systolicBp;
+  final int? diastolicBp;
 
   bool get isLoading =>
       status == DashboardStatus.loading || status == DashboardStatus.initial;

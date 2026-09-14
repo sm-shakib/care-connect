@@ -3,12 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/enums/gender.dart';
+import 'package:frontend/core/repositories/auth_repository.dart';
 import 'package:frontend/elderly/data/repositories/elder_repository.dart';
 
 part 'elderly_profile_state.dart';
 
 class ElderlyProfileCubit extends Cubit<ElderlyProfileState> {
   final ElderRepository _repository;
+  final AuthRepository _authRepository = AuthRepository();
 
   ElderlyProfileCubit(this._repository)
       : super(const ElderlyProfileState()) {
@@ -80,6 +82,19 @@ class ElderlyProfileCubit extends Cubit<ElderlyProfileState> {
   Future<void> saveChanges() async {
     emit(state.copyWith(isSaving: true));
     try {
+      String? profileImageUrl = state.profileImageUrl;
+
+      // Upload new image if picked
+      if (state.profileImageBytes != null) {
+        final uploadedUrl = await _authRepository.uploadFile(
+          state.profileImageBytes!,
+          'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+        if (uploadedUrl != null) {
+          profileImageUrl = uploadedUrl;
+        }
+      }
+
       final dobStr = state.dateOfBirth != null 
           ? "${state.dateOfBirth!.year}-${state.dateOfBirth!.month.toString().padLeft(2, '0')}-${state.dateOfBirth!.day.toString().padLeft(2, '0')}"
           : null;
@@ -91,8 +106,14 @@ class ElderlyProfileCubit extends Cubit<ElderlyProfileState> {
         'date_of_birth': dobStr,
         'gender': state.gender?.name ?? 'male',
         'health_condition': state.healthCondition,
+        'profile_image_url': profileImageUrl,
       });
-      _lastSaved = state.copyWith(isEditing: false, isSaving: false);
+      _lastSaved = state.copyWith(
+        isEditing: false, 
+        isSaving: false,
+        profileImageUrl: profileImageUrl,
+        profileImageBytes: null, // Clear bytes as it's now uploaded
+      );
       emit(_lastSaved);
     } catch (e) {
       debugPrint('ElderlyProfileCubit.saveChanges error: $e');

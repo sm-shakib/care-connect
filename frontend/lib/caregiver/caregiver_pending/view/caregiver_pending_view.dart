@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/caregiver/caregiver_dashboard/view/caregiver_dashboard_page.dart';
@@ -246,13 +248,22 @@ class CaregiverPendingView extends StatelessWidget {
 
                       if (!context.mounted) return;
 
-                      // Navigate back to the root (Welcome/Login)
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) => const LoginPage(),
+                      // Navigate to welcome screen as root, then push login page
+                      // This allows back button on login screen to go to welcome page
+                      unawaited(
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          WelcomeScreenPage.route(),
+                          (route) => false,
                         ),
-                        (route) => false,
+                      );
+                      unawaited(
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const LoginPage(),
+                          ),
+                        ),
                       );
                     },
                     icon: const Icon(
