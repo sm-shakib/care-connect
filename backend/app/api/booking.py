@@ -4,6 +4,7 @@ from typing import List
 from app.core import pricing
 from app.db.session import get_db
 from app.models.booking import Booking
+from app.services.admin_notification import notify_admins
 from app.models.caregiver import Caregiver
 from app.models.elder import Elder
 from app.models.family import Family
@@ -56,6 +57,15 @@ def create_booking(
 
     new_booking = Booking(**booking_data)
     db.add(new_booking)
+
+    # Notify admins about new booking request
+    notify_admins(
+        db,
+        title="New Booking Request",
+        body=f"A new booking request has been created by {requester_name} for caregiver {caregiver.name}.",
+        notification_type="booking_request"
+    )
+
     db.commit()
     db.refresh(new_booking)
     # Reload with relationships for the response

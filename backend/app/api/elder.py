@@ -10,6 +10,7 @@ from app.models.reminder import Appointment, CareReminder
 from app.models.binding import FamilyElderLink
 from app.models.booking import Booking
 from app.models.notification import Notification
+from app.services.admin_notification import notify_admins
 from app.services.care_circle import get_elder_care_circle
 from app.schemas.elder import ElderSignupRequest, ElderSignupResponse, ElderOut, ElderUpdate, VitalsUpdate
 
@@ -80,6 +81,14 @@ def signup_elder(request: ElderSignupRequest, db: Session = Depends(get_db)):
             **filtered_profile_data
         )
         db.add(new_elder)
+        
+        # Notify admins about new user signup
+        notify_admins(
+            db,
+            title="New User Registered",
+            body=f"A new elderly user, {new_elder.name}, has signed up.",
+            notification_type="user_signup"
+        )
         
         db.commit()
         db.refresh(new_user)

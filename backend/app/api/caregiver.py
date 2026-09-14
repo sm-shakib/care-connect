@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.caregiver import Caregiver, CaregiverDocument
+from app.services.admin_notification import notify_admins
 from app.schemas.caregiver import CaregiverSignupRequest, CaregiverSignupResponse, CaregiverOut, CaregiverDocumentCreate
 from app.core.security import get_password_hash
 from app.api import deps
@@ -48,6 +49,14 @@ def signup_caregiver(request: CaregiverSignupRequest, db: Session = Depends(get_
                 **filtered_doc_data
             )
             db.add(new_doc)
+
+        # Notify admins about new caregiver verification request
+        notify_admins(
+            db,
+            title="Caregiver Verification Request",
+            body=f"A new caregiver, {new_caregiver.name}, has applied for verification.",
+            notification_type="caregiver_verification_request"
+        )
 
         db.commit() # Atomic commit for user, profile, and documents
         db.refresh(new_user)

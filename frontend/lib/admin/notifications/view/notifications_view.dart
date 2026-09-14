@@ -50,9 +50,7 @@ class NotificationsView extends StatelessWidget {
                   }
 
                   return RefreshIndicator(
-                    onRefresh: () async {
-                      // Trigger a dashboard refresh if needed
-                    },
+                    onRefresh: () => context.read<DashboardCubit>().loadDashboard(),
                     color: AppColors.darkTeal,
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -83,19 +81,22 @@ class NotificationsView extends StatelessWidget {
   }
 
   void _handleNotificationTap(BuildContext context, ActivityItem activity) {
+    // Mark as read
+    context.read<DashboardCubit>().markAsRead(activity.id);
+
     switch (activity.type) {
       case ActivityType.caregiver:
-        Navigator.of(context).push(
-          CaregiverReviewPage.route(applicationId: '1'),
-        );
+        // For real notifications, we might want to pass the real ID if available in subtitle/title
+        // or add a metadata field to ActivityItem. For now, go to verification tab.
+        goToAdminTab(context, AdminTab.verification);
       case ActivityType.complaint:
-        Navigator.of(context).push(
-          ComplaintDetailPage.route(complaintId: 'CP-1024'),
-        );
+        goToAdminTab(context, AdminTab.complaints);
       case ActivityType.booking:
         goToAdminTab(context, AdminTab.bookings);
       case ActivityType.central_fund:
         goToAdminTab(context, AdminTab.central_fund);
+      case ActivityType.user:
+        goToAdminTab(context, AdminTab.users);
     }
   }
 }
@@ -116,6 +117,8 @@ class _NotificationCard extends StatelessWidget {
         return (Icons.event, 'Booking');
       case ActivityType.central_fund:
         return (Icons.account_balance_wallet, 'Central Fund');
+      case ActivityType.user:
+        return (Icons.person, 'User');
     }
   }
 

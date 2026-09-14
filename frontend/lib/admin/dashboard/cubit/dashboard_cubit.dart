@@ -1,33 +1,46 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/repositories/admin_repository.dart';
+import 'package:intl/intl.dart';
 
 import 'dashboard_model.dart';
 import 'dashboard_state.dart';
 
-/// Loads the dashboard's summary counts (SOS alerts, pending
-/// verifications, open complaints) and recent activity feed.
-///
-/// NOTE: everything here is mock data. Replace [loadDashboard] with
-/// repository calls into your FastAPI backend — ideally aggregating
-/// counts from the same data sources `caregiver_verification` and
-/// `complaint_management` already use, so the numbers shown here stay
-/// in sync with those screens instead of drifting as separate mocks.
 class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit() : super(const DashboardState());
+  DashboardCubit({AdminRepository? repository})
+      : _repository = repository ?? AdminRepository(),
+        super(const DashboardState());
+
+  final AdminRepository _repository;
 
   Future<void> loadDashboard() async {
     emit(state.copyWith(status: DashboardStatus.loading));
     try {
-      // TODO(careconnect): replace with repository calls to FastAPI
-      // backend (SOS alert count, pending verification count, open
-      // complaint count, recent activity feed).
-      await Future<void>.delayed(const Duration(milliseconds: 300));
+      final data = await _repository.getDashboardData();
+      
+      final stats = data['stats'] as Map<String, dynamic>;
+      final activitiesData = data['activities'] as List<dynamic>;
+
+      final activities = activitiesData.map((a) {
+        final map = a as Map<String, dynamic>;
+        final createdAt = DateTime.parse(map['created_at'] as String);
+        
+        return ActivityItem(
+          id: map['id'] as String,
+          type: _parseActivityType(map['type'] as String),
+          title: map['title'] as String,
+          subtitle: map['subtitle'] as String,
+          timeAgo: _formatTimeAgo(createdAt),
+        );
+      }).toList();
+
       emit(
         state.copyWith(
           status: DashboardStatus.success,
-          sosAlertCount: 3,
-          pendingVerificationCount: 24,
-          openComplaintCount: 12,
-          activities: _mockActivities,
+          sosAlertCount: stats['sos_alert_count'] as int,
+          pendingVerificationCount: stats['pending_verification_count'] as int,
+          openComplaintCount: stats['open_complaint_count'] as int,
+          unreadNotificationsCount: stats['unread_notifications_count'] as int,
+          activities: activities,
         ),
       );
     } catch (_) {
@@ -40,30 +53,51 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  static const List<ActivityItem> _mockActivities = [
-    ActivityItem(
-      id: 'act-1',
-      type: ActivityType.caregiver,
-      title: 'Caregiver Application',
-      // Matches the "Adib Khan" pending entry in caregiver_verification's
-      // mock data, so tapping through tells a consistent story.
-      subtitle: 'Adib Khan submitted docs',
-      timeAgo: '2m ago',
-    ),
-    ActivityItem(
-      id: 'act-2',
-      type: ActivityType.complaint,
-      title: 'New Complaint #CP-1024',
-      // Matches complaint_management's CP-1024 mock entry.
-      subtitle: 'Filed by Abdur Rahim against Nasrin Akter',
-      timeAgo: '15m ago',
-    ),
-    /*ActivityItem(
-      id: 'act-3',
-      type: ActivityType.booking,
-      title: 'Booking Conflict',
-      subtitle: 'Overlapping shifts detected in Zone B',
-      timeAgo: '1h ago',
-    ),*/
-  ];
+  Future<void> markAsRead(String activityId) async {
+    try {
+      final id = int.tryParse(activityId);
+      if (id != null) {
+        await _repository.markNotificationAsRead(id);
+        // Refresh to update counts and UI
+        await loadDashboard();
+      }
+    } catch (_) {
+      // Silently fail or handle error
+    }
+  }
+
+  Future<void> markAllAsRead() async {
+    try {
+      await _repository.markAllNotificationsAsRead();
+      // No need to reload everything if we just want to clear badge, 
+      // but usually the bell icon count depends on unread state.
+      // We'll refresh to be safe.
+      await loadDashboard();
+    } catch (_) {}
+  }
+
+  ActivityType _parseActivityType(String type) {
+    switch (type) {
+      case 'caregiver':
+        return ActivityType.caregiver;
+      case 'complaint':
+        return ActivityType.complaint;
+      case 'booking':
+        return ActivityType.booking;
+      case 'central_fund':
+        return ActivityType.central_fund;
+      case 'user':
+        return ActivityType.user;
+      default:
+        return ActivityType.user;
+    }
+  }
+
+  String _formatTimeAgo(DateTime dateTime) {
+    final duration = DateTime.now().difference(dateTime);
+    if (duration.inDays > 0) return '${duration.inDays}d ago';
+    if (duration.inHours > 0) return '${duration.inHours}h ago';
+    if (duration.inMinutes > 0) return '${duration.inMinutes}m ago';
+    return 'Just now';
+  }
 }
