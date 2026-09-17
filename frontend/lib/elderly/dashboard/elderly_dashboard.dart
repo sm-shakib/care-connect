@@ -312,19 +312,25 @@ class _DashboardHomeBody extends StatelessWidget {
                       medicineState.medicines,
                       count: 5,
                     ),
-                    onTap: (medication) {
+                    onTap: (medication) async {
                       final medicine = medicineState.medicines.firstWhere(
                         (m) => m.id == medication.id,
                       );
-                      Navigator.push(
+                      final medicineCubit = context.read<MedicineCubit>();
+                      // MedicineDetailsPage pops with the edited medicine;
+                      // persist it, same as MedicineView._openDetails.
+                      final updated = await Navigator.push<Medicine>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => BlocProvider.value(
-                            value: context.read<MedicineCubit>(),
+                            value: medicineCubit,
                             child: MedicineDetailsPage(medicine: medicine),
                           ),
                         ),
                       );
+                      if (updated != null) {
+                        await medicineCubit.updateMedicine(updated);
+                      }
                     },
                     onMarkTaken: (medication) => context
                         .read<MedicineCubit>()

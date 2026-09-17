@@ -527,11 +527,13 @@ class _MedicineRemindersSection extends StatelessWidget {
         const SizedBox(height: 12),
         SharedMedicationSection(
           medications: nextMedicationDoses(state.medications, count: 5),
-          onTap: (medication) {
+          onTap: (medication) async {
             final medicine = state.medications.firstWhere(
               (m) => m.id == medication.id,
             );
-            Navigator.push(
+            // MedicineDetailsPage pops with the edited medicine; persist it
+            // through this screen's cubit so the change is saved and shown.
+            final updated = await Navigator.push<Medicine>(
               context,
               MaterialPageRoute(
                 builder: (_) => BlocProvider(
@@ -543,6 +545,7 @@ class _MedicineRemindersSection extends StatelessWidget {
                 ),
               ),
             );
+            if (updated != null) cubit.updateMedication(updated);
           },
           onMarkTaken: (medication) =>
               cubit.markMedicationTaken(medication.id, medication.time),

@@ -12,6 +12,7 @@ import 'package:frontend/family/family_monitoring/widgets/caregiver_status_card.
 import 'package:frontend/family/family_monitoring/widgets/heart_rate_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/live_location_card.dart';
 import 'package:frontend/family/family_monitoring/widgets/medical_progress_section.dart';
+import 'package:frontend/shared/medicine/models/medicine.dart';
 import 'package:frontend/shared/medicine/utils/medicine_utils.dart';
 import 'package:frontend/shared/medicine/widgets/shared_medication_section.dart';
 import 'package:frontend/shared/medicine/view/medicine_details_page.dart';
@@ -210,11 +211,15 @@ class FamilyMonitoringView extends StatelessWidget {
               const SizedBox(height: 12),
               SharedMedicationSection(
                 medications: nextMedicationDoses(elder.medications, count: 5),
-                onTap: (medication) {
+                onTap: (medication) async {
                   final medicine = elder.medications.firstWhere(
                     (m) => m.id == medication.id,
                   );
-                  Navigator.push(
+                  final dashboardCubit = context.read<FamilyDashboardCubit>();
+                  // MedicineDetailsPage pops with the edited medicine;
+                  // persist it through the family cubit so it's saved and
+                  // the dashboard reloads.
+                  final updated = await Navigator.push<Medicine>(
                     context,
                     MaterialPageRoute(
                       builder: (_) => BlocProvider(
@@ -226,6 +231,9 @@ class FamilyMonitoringView extends StatelessWidget {
                       ),
                     ),
                   );
+                  if (updated != null) {
+                    dashboardCubit.updateMedication(elder.id, updated);
+                  }
                 },
               ),
             ],
