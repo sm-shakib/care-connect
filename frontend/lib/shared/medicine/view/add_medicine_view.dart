@@ -6,6 +6,7 @@ import 'package:frontend/l10n/l10n.dart';
 
 import '../../../theme/app_colors.dart';
 import '../models/medicine.dart';
+import '../utils/dose_status.dart';
 import '../widgets/dosage_schedule.dart';
 import '../widgets/medicine_info.dart';
 import '../widgets/refill_reminder.dart';
@@ -68,18 +69,13 @@ class _AddMedicineViewState extends State<AddMedicineView> {
     _notifyThreshold = existing?.notifyThreshold ?? 0;
   }
 
-  /// Parses a pre-formatted time label (e.g. "8:00 AM") back into a
+  /// Parses a pre-formatted time label ("8:00 AM" or 24-hour "14:30", as
+  /// `TimeOfDay.format` produces depending on the device) back into a
   /// [TimeOfDay] so an existing medicine's schedule can be edited.
   static TimeOfDay? _parseTime(String label) {
-    final match =
-        RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$').firstMatch(label.trim());
-    if (match == null) return null;
-    var hour = int.parse(match.group(1)!);
-    final minute = int.parse(match.group(2)!);
-    final meridiem = match.group(3)!.toUpperCase();
-    if (meridiem == 'PM' && hour != 12) hour += 12;
-    if (meridiem == 'AM' && hour == 12) hour = 0;
-    return TimeOfDay(hour: hour, minute: minute);
+    final minutes = minutesSinceMidnight(label);
+    if (minutes == null) return null;
+    return TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
   }
 
   @override

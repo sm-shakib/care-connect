@@ -3,9 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/l10n/l10n.dart';
 
 import '../../../core/network/api_client.dart';
-import '../../../elderly/dashboard/cubit/dashboard_cubit.dart';
-import '../../../family/cubit/family_dashboard_cubit.dart';
-import '../../../caregiver/patient_details/cubit/patient_details_cubit.dart';
 import '../../medicine/cubit/medicine_cubit.dart';
 import '../../medicine/data/medicine_repository.dart';
 import '../../medicine/view/medicine_details_page.dart';
@@ -106,10 +103,8 @@ class EditRemindersView extends StatelessWidget {
               ReminderEditTile(
                 title: medicine.getName(context),
                 subtitle: '${medicine.dosage} • ${medicine.nextReminder}',
-                onTap: () {
+                onTap: () async {
                   final cubit = context.read<MedicineCubit?>();
-                  final familyCubit = context.read<FamilyDashboardCubit?>();
-                  final caregiverCubit = context.read<PatientDetailsCubit?>();
 
                   Widget page;
                   if (cubit != null) {
@@ -127,10 +122,13 @@ class EditRemindersView extends StatelessWidget {
                     );
                   }
 
-                  Navigator.push(
+                  // MedicineDetailsPage pops with the edited medicine;
+                  // persist it the same way the edit icon does.
+                  final updated = await Navigator.push<Medicine>(
                     context,
                     MaterialPageRoute(builder: (_) => page),
                   );
+                  if (updated != null) controller.onUpdateMedicine(updated);
                 },
                 onEdit: () => _openMedicineForm(context, existing: medicine),
                 onDelete: () => controller.onDeleteMedicine(medicine.id),
