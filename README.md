@@ -180,17 +180,3 @@ More on translations, coverage reports and bloc lints: [`frontend/README.md`](fr
 | Live API docs (Swagger) | https://care-connect-backend-aqgr.onrender.com/docs |
 
 ---
-
-## Contributing
-
-[`AGENTS.md`](AGENTS.md) is the source of truth for how code in this repository is shaped — layering, state management, naming, widget rules and the pull request checklist. It binds every contributor, human or AI. Read it before your first change.
-
-The short version:
-
-- Feature-first folders, layered inside: `data/` → `domain/` → `cubit/` → `view/` + `widgets/`.
-- Widgets are dumb, Cubits are smart, repositories are the only layer that knows about the network.
-- No raw colors, spacing or text styles in feature code — everything comes from the theme.
-- Typed errors all the way up: `Exception` → `Failure` → state → `ErrorView`.
-- `flutter analyze` and `dart format --set-exit-if-changed .` pass clean before review.
-
-Branch off `develop` and open a pull request against it.
